@@ -1,0 +1,17 @@
+# Поставя се като .htaccess в КОРЕНА на поддомейна (напр. /home/USER/oferti/).
+# Всичко в корена е затворено; отварят се само конкретните тайни папки.
+
+Options -Indexes
+RewriteEngine On
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Коренът и всяка непозната пътека дават 404 (не 403, за да не потвърждава, че има нещо).
+# Разрешени са само папки с име от 20+ знака [a-z0-9-] (тайните линкове) и robots.txt.
+RewriteCond %{REQUEST_URI} !^/robots\.txt$
+RewriteCond %{REQUEST_URI} !^/[a-z0-9-]{20,}/
+RewriteRule ^ - [R=404,L]
+
+<IfModule mod_headers.c>
+  Header always set X-Robots-Tag "noindex, nofollow, noarchive"
+</IfModule>
