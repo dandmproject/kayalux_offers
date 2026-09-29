@@ -1007,6 +1007,8 @@ const space=(function(){
     // move along the path; turns in place first when the next leg points >50° away; a stroller parent stops 0.7 m early
     function advance(g,d,dt){const ud=g.userData,P=ud.path;let x=g.position.x,z=g.position.z;const stopAt=ud.stroller?.7:0;let dirA=null;
       {let k=ud.pi;while(k<P.length-1&&Math.hypot(P[k+1][0]-x,P[k+1][1]-z)<1e-3)k++;if(k<P.length-1){const a0=Math.atan2(P[k+1][0]-x,P[k+1][1]-z);let dd=a0-ud.ang;dd=((dd+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;if(Math.abs(dd)>.9)ud.turning=true;if(ud.turning){ud.ang=angTo(ud.ang,a0,Math.min(1,dt*5));g.rotation.y=ud.ang;if(Math.abs(dd)<.25)ud.turning=false;else return false;}}}
+      {const fx=Math.sin(ud.ang),fz=Math.cos(ud.ang);const blockedBy=people.find(o=>o!==g&&o.visible&&o.userData.follow!==people.indexOf(g)&&(()=>{const ox=o.position.x-x,oz=o.position.z-z,L=Math.hypot(ox,oz);return L<.7&&L>.05&&(ox*fx+oz*fz)/L>.6&&(o.userData.state!=='walk'||o.userData.turning);})());
+        if(blockedBy&&(ud.waitAcc=(ud.waitAcc||0)+dt)<4){ud.yielding=true;return false;}ud.yielding=false;if(!blockedBy)ud.waitAcc=0;}
       while(d>0&&ud.pi<P.length-1){const n=P[ud.pi+1],dx=n[0]-x,dz=n[1]-z,L=Math.hypot(dx,dz);
         if(L<1e-4){ud.pi++;continue;}
         let rem=L;for(let k=ud.pi+1;k<P.length-1;k++)rem+=Math.hypot(P[k+1][0]-P[k][0],P[k+1][1]-P[k][1]);
@@ -1056,7 +1058,7 @@ const space=(function(){
         else if(ud.state==='browse'){ud.blend=Math.max(0,ud.blend-dt*3);
           // couples / parent+child: stop now and then, face each other and talk 6–15 s (talker swaps every ~3 s)
           const pt=ud.partner!=null?people[ud.partner]:null;
-          if(pt&&pt.visible&&!ud.chat&&Math.random()<dt*.06){ud.chat={until:T_+rnd(6,15),sw:T_+3,talker:0};ud.until=Math.max(ud.until,ud.chat.until+1);}
+          const pd=pt?Math.hypot(pt.position.x-g.position.x,pt.position.z-g.position.z):0;if(pt&&pt.visible&&!ud.chat&&pd>.5&&pd<1.7&&Math.random()<dt*.08){ud.chat={until:T_+rnd(6,15),sw:T_+3,talker:0};ud.until=Math.max(ud.until,ud.chat.until+1);}
           if(ud.chat){if(!pt||!pt.visible||T_>ud.chat.until){ud.chat=null;ud.lookAtP=null;ud.talking=false;}else{if(T_>ud.chat.sw){ud.chat.sw=T_+rnd(2,4);ud.chat.talker^=1;}ud.faceAng=Math.atan2(pt.position.x-g.position.x,pt.position.z-g.position.z);ud.lookAtP=[pt.position.x,pt.position.z];ud.talking=ud.chat.talker===0;}}
           ud.ang=angTo(ud.ang,ud.faceAng,Math.min(1,dt*4));g.rotation.y=ud.ang;if(T_>ud.until&&!ud.chat)navNext(g,T_);}
         else if(ud.state==='queue'){ud.blend=Math.max(0,ud.blend-dt*3);ud.ang=angTo(ud.ang,ud.faceAng,Math.min(1,dt*4));g.rotation.y=ud.ang;const k=ud.slot;
@@ -1067,7 +1069,7 @@ const space=(function(){
         const leg=ud.visit[ud.legI],leaving=leg&&(leg.kind==='exit'||leg.kind==='returnBasket'),entering=ud.state==='enter';
         if(ud.basket){ud.basket.visible=!!ud.hasBasket&&!leaving&&!entering&&!ud.pay;ud.bag.visible=!!ud.buyer&&(ud.items||1)>1&&(leaving||ud.phase==='bag'||ud.phase==='bye');}
         if(ud.phoneM)ud.phoneM.visible=!!ud.phone&&ud.state==='queue'&&!ud.pay;
-        ud.lookDir=0;poseAny(g,T_,dt,ud.state==='walk'&&!ud.turning?ud.sp*ud.blend:0);});
+        ud.lookDir=0;poseAny(g,T_,dt,ud.state==='walk'&&!ud.turning&&!ud.yielding?ud.sp*ud.blend:0);});
       // §8 restocking staff: on the shelf 10–20 min every 1–2 h (scene-time scaled)
       const rs=extras.find(x=>x.userData.state==='restock'||x.userData.restocker);if(rs){const u=rs.userData;u.restocker=true;if(u.rsUntil==null){u.rsOn=true;u.rsUntil=T_+rr(PARAMS.restockOn)*PARAMS.timeScale*.15;}if(T_>u.rsUntil){u.rsOn=!u.rsOn;u.rsUntil=T_+(u.rsOn?rr(PARAMS.restockOn):rr(PARAMS.restockEvery)*.25)*PARAMS.timeScale*.15;}rs.visible=open&&u.rsOn;}
       // the flow layer: planned polylines of the shoppers currently inside
@@ -1087,7 +1089,7 @@ const space=(function(){
       return o;}
     function mkRandom(sp){const g=gltfPerson(sp)||makePerson(9,sp);if(sp.cane){const k=g.userData.k;const cane=new T.Mesh(mergeColored([[new T.CylinderGeometry(.012,.014,.84*k,6).translate(0,-.4*k,.02),'#5a3a1a'],[new T.SphereGeometry(.02,6,5).translate(0,.02,.02),'#c9a24a']]),M.vc2);cane.castShadow=true;g.userData.arms[0].userData.hd.add(cane);g.userData.cane=true;}
       g.userData.phone=!!sp.phone;g.userData.sp=(sp.elder?rr(PARAMS.speed.elder):rr(PARAMS.speed.adult))*PARAMS.speedScale;return g;}
-    function regen(i){const old=people[i],ud=old.userData,g=mkRandom(randomSpec()),nu=g.userData;nu.ph=Math.random()*6.28;if(ud.follow!=null)nu.follow=ud.follow;if(ud.stroller){nu.stroller=ud.stroller;nu.pushing=true;nu.basket.visible=false;}
+    function regen(i){const old=people[i],ud=old.userData,g=mkRandom(randomSpec()),nu=g.userData;nu.ph=Math.random()*6.28;if(ud.follow!=null)nu.follow=ud.follow;if(ud.partner!=null)nu.partner=ud.partner;if(ud.stroller){nu.stroller=ud.stroller;nu.pushing=true;nu.basket.visible=false;}
       room.remove(old);if(ud.gltfP){window.KL_GLTF.release(old);}else old.traverse(o=>{if(o.isSkinnedMesh){o.skeleton.dispose();if(o.material.map)o.material.map.dispose();o.material.dispose();}else if(o.geometry&&!GEOSET.has(o.geometry))o.geometry.dispose();});
       people[i]=g;room.add(g);if(camSub===old)camSub=null;return g;}
 
@@ -1109,18 +1111,33 @@ const space=(function(){
       if(v>.04){clip=ud.elder?'walkslow':'walk';ud.setSpeed(v);}
       else if(st==='queue')clip=(ud.phone&&ud.phoneM&&ud.phoneM.visible)?'phone':'wait';
       else if(st==='browse'||st==='restock'||st==='scan')clip='look';else if(ud.bag&&ud.bag.visible)clip='bag';
-      if(v<=.04&&(ud.lookAtP||st==='chat'||st==='greet'))clip=ud.talking?'talk':'listen';
+      if(v<=.04&&(ud.lookAtP||st==='chat'||st==='greet'))clip=ud.talking?(ud.ph>3?'talk2':'talk'):'listen';
       ud.play(clip,.3);
-      if(ud.face){const now=performance.now()/1000;const want=(ud.smile||ud.chat||st==='chat'||st==='greet')?.75:0;ud.smileW=(ud.smileW||0)+(want-(ud.smileW||0))*.1;ud.face('smile',ud.smileW);
-        if(ud.blinkT==null)ud.blinkT=now+rnd(3,6);if(now>ud.blinkT){ud.blinkT=now+rnd(3,6);ud.blinkEnd=now+.15;}ud.face('blink',ud.blinkEnd&&now<ud.blinkEnd?1:0);
-        const vis=['aa','ee','oh'];if(ud.clip==='talk'){const k=Math.floor(now*7)%3;vis.forEach((n,i)=>ud.face(n,i===k?.4:0));}else vis.forEach(n=>ud.face(n,0));}
+      if(ud.face){const now=performance.now()/1000,F=ud.fw||(ud.fw={});const ease=(k,tgt,rate)=>{F[k]=(F[k]||0)+(tgt-(F[k]||0))*Math.min(1,rate||.12);ud.face(k,F[k]);};
+        // smile: greeting / paying / talking / a child looking up at the parent; elderly concentrate while browsing
+        const happy=ud.smile||ud.chat||st==='chat'||st==='greet'||(ud.isChild&&ud.lookAtP);ease('smile',happy?1.0:0);ease('squint',happy?.45:(F.micro==='squint'?.18:0));
+        ease('frown',(ud.elder&&st==='browse'&&!happy)?.35:0);
+        // blink every 2–6 s, 150 ms, eased
+        if(ud.blinkT==null)ud.blinkT=now+rnd(2,6);if(now>ud.blinkT){ud.blinkT=now+rnd(2,6);ud.blinkEnd=now+.15;}ease('blink',ud.blinkEnd&&now<ud.blinkEnd?1:0,.5);
+        // micro-expressions: brows / squint at low weight for ~1 s every 4–10 s
+        if(ud.microT==null)ud.microT=now+rnd(4,10);if(now>ud.microT){ud.microT=now+rnd(4,10);F.micro=Math.random()<.5?'brows':'squint';ud.microEnd=now+rnd(.8,1.4);}if(ud.microEnd&&now>ud.microEnd)F.micro=null;ease('brows',F.micro==='brows'?.18:(F.surp&&now<F.surp?.6:0));
+        // surprise when picking an item (sometimes), mouth while talking (no visemes: jaw pulse + rounded lips)
+        if(st==='browse'&&Math.random()<.004&&!F.surp)F.surp=now+.5;if(F.surp&&now>F.surp+.3)F.surp=null;ease('surprise',F.surp&&now<F.surp?.3:0,.3);
+        const talking=/talk/.test(ud.clip||'');ease('jaw',talking?.15+.2*Math.abs(Math.sin(now*9+(ud.ph||0))):0,.4);ease('oh',talking&&Math.sin(now*3.7)>.6?.25:0,.3);}
       // hand-held props follow the hand bones but stay upright (basket / bag hang from the palm)
       if(ud.rh){ud.rh.getWorldPosition(_hv);g.worldToLocal(_hv);ud.basket.position.set(_hv.x,_hv.y-.2,_hv.z);ud.bag.position.set(_hv.x,_hv.y-.24,_hv.z);ud.basket.rotation.y=ud.bag.rotation.y=0;}
       if(ud.lh&&ud.phoneM){ud.lh.getWorldPosition(_hv);g.worldToLocal(_hv);ud.phoneM.position.set(_hv.x,_hv.y+.02,_hv.z+.05);ud.phoneM.rotation.x=-.9;}}
     function poseAny(g,t,dt,v){if(g.userData.gltfP)gltfPose(g,v);else posePerson(g,t,dt,v);}
+    // after the mixer: head yaw toward whoever the person looks at, pitch for a child looking up / elderly looking down / a nod when handed the bag
+    const _q=new T.Quaternion(),_ax=new T.Vector3();
+    function gltfHeads(dt){people.concat(extras).forEach(g=>{const ud=g.userData;if(!ud.gltfP||!g.visible)return;if(ud.headB===undefined)ud.headB=g.getObjectByName('Bip01_Head')||g.getObjectByName('Bip02_Head')||null;const hb=ud.headB;if(!hb)return;
+      let yaw=0,pitch=0;if(ud.lookAtP){let a=Math.atan2(ud.lookAtP[0]-g.position.x,ud.lookAtP[1]-g.position.z)-g.rotation.y;a=((a+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;yaw=Math.max(-.9,Math.min(.9,a));if(ud.isChild)pitch=-.35;}
+      if(ud.elder&&ud.state==='browse')pitch+=.15;if(ud.phase==='bag'){ud.nodT=(ud.nodT||0)+dt;pitch+=.18*Math.max(0,Math.sin(ud.nodT*6));}else ud.nodT=0;
+      ud.hy=(ud.hy||0)+(yaw-(ud.hy||0))*Math.min(1,dt*4);ud.hp=(ud.hp||0)+(pitch-(ud.hp||0))*Math.min(1,dt*4);if(Math.abs(ud.hy)<.01&&Math.abs(ud.hp)<.01)return;
+      hb.parent.getWorldQuaternion(_q).invert();_ax.set(0,1,0).applyQuaternion(_q);hb.rotateOnAxis(_ax,ud.hy);_ax.set(Math.cos(g.rotation.y),0,-Math.sin(g.rotation.y)).applyQuaternion(_q);hb.rotateOnAxis(_ax,ud.hp);});}
     // swap a procedural figure for a real model in place (used after the models arrive; re-entries do it automatically)
     function upgrade(i){const old=people[i],ud=old.userData;if(ud.gltfP||!GL())return null;const spec={fem:!!ud.fem,elder:!!ud.elder,isChild:!!ud.isChild,h:ud.isChild?1.18:1.6+Math.random()*.3,phone:!!ud.phone};const g=gltfPerson(spec);if(!g)return null;const nu=g.userData;
-      ['state','visit','legI','path','pi','until','faceAng','slot','hasBasket','buyer','items','trail','ang','sp','follow','gap','turning','pay','phase','placed','ph','camAng','stroller','pushing','fallback','qT'].forEach(k=>{if(ud[k]!==undefined)nu[k]=ud[k];});
+      ['state','visit','legI','path','pi','until','faceAng','slot','hasBasket','buyer','items','trail','ang','sp','follow','partner','gap','turning','pay','phase','placed','ph','camAng','stroller','pushing','fallback','qT'].forEach(k=>{if(ud[k]!==undefined)nu[k]=ud[k];});
       g.position.copy(old.position);g.rotation.copy(old.rotation);g.visible=old.visible;room.remove(old);old.traverse(o=>{if(o.isSkinnedMesh){o.skeleton.dispose();if(o.material.map)o.material.map.dispose();o.material.dispose();}else if(o.geometry&&!GEOSET.has(o.geometry))o.geometry.dispose();});
       qOcc.forEach((q,j)=>{if(q===old)qOcc[j]=g;});people[i]=g;room.add(g);if(camSub===old)camSub=g;return g;}
     window.__upgradeAll=()=>{let n=0;const err=[];people.forEach((p,i)=>{try{if(upgrade(i))n++;else err.push([i,'null',!!p.userData.gltfP,p.userData.isChild,p.userData.elder,p.userData.fem]);}catch(e){err.push([i,String(e).slice(0,120)]);}});window.__upErr=err;return n;};
@@ -1473,7 +1490,7 @@ const space=(function(){
       S.units.forEach(u=>{const tgt=on?1:0;u.light.intensity+=(tgt*.35-u.light.intensity)*Math.min(1,dt*4);u.led.visible=on;u.pin.classList.toggle('off',!on);});
       M.led.color.setScalar(.3+.7*clamp((lightK-.45)/.55,0,1));if(S.lights)S.lights.forEach(l=>{l.intensity=.22*lightK;});if(S.coolLight)S.coolLight.intensity=.3*(.4+.6*lightK);
       if(S.sign){const sm=open?M.signOpen:M.signClosed;if(S.sign.material!==sm){S.sign.material=sm;S.sign2.material=sm;}}
-      extras.forEach(e=>{if(!e.userData.restocker)e.visible=open;if(e.visible)poseAny(e,now/1000,dt,0);});if(GL())window.KL_GLTF.update(dt);
+      extras.forEach(e=>{if(!e.userData.restocker)e.visible=open;if(e.visible)poseAny(e,now/1000,dt,0);});if(GL()){window.KL_GLTF.update(dt);gltfHeads(dt);}
       const tt=now/1000;S.units.forEach(u=>{const pu=.85+.15*Math.sin(tt*3+u.ph*6);u.plume.material.opacity+=((on?.55*pu:0)-u.plume.material.opacity)*Math.min(1,dt*4);u.plume.scale.set(.45*pu,.75*pu,1);
         const k=(tt*.32+u.ph)%1,r=.3+k*u.R*1.1;u.wave.scale.set(r,r,r);u.wave.material.opacity=on&&!reduce?(1-k)*.4:0;});
       stepP(dt,on,false);stepHeat(dt);
