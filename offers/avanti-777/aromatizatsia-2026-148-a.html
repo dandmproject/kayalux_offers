@@ -272,7 +272,7 @@ em{font-style:italic}
 
 /* ---------- 3D set ---------- */
 .set{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,340px);gap:0;border:1px solid var(--line);background:var(--surface)}
-.stage{position:relative;min-height:440px;aspect-ratio:16/11;max-height:680px;overflow:hidden;background:radial-gradient(120% 90% at 50% 20%,var(--stage-a),var(--stage-b));touch-action:pan-y;cursor:grab;user-select:none;-webkit-user-select:none}
+.stage{position:relative;min-height:440px;aspect-ratio:16/11;max-height:680px;overflow:hidden;background:radial-gradient(120% 90% at 50% 20%,var(--stage-a),var(--stage-b));touch-action:pan-y pinch-zoom;cursor:grab;user-select:none;-webkit-user-select:none}
 .stage.drag{cursor:grabbing}
 .stage canvas{position:absolute;inset:0;width:100%!important;height:100%!important;display:block}
 .stage .sky{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(8,10,24,.55),transparent 55%);opacity:var(--night,0);transition:opacity .6s}
@@ -601,6 +601,36 @@ footer.foot .wrap{display:flex;justify-content:space-between;gap:10px 24px;flex-
 .nav .seg button,.seg button{min-height:36px}
 .copy{min-height:32px}
 @media (max-width:760px){.hud-card span{font-size:12.5px}.ov.lbl{font-size:11px}.legend,.legend3,.ticks,.credits dt,.hero dl.credits dt{font-size:12px}.chart .ax{font-size:12px}.honest{font-size:14.5px}.pl-row span,.model .cnt small{font-size:12.5px}.credits .switch span{font-size:13px}.hint{font-size:12.5px}}
+</style><style>.stage{touch-action:pan-y}</style><style>
+/* ===== hero, re-set: one clear ladder of sizes, room between each rung ===== */
+.hero-in{display:grid;gap:0}
+.logo-stage{margin:0 0 clamp(36px,5vw,56px) -8px}
+.hero .mark{font-size:12.5px;letter-spacing:.26em;margin-bottom:clamp(18px,2.4vw,26px);max-width:none;line-height:1.7}
+.hero .mark b{color:var(--ink);font-weight:600}
+.offer-word{font-size:clamp(3.4rem,9.5vw,8.2rem);letter-spacing:.2em;margin:0 0 clamp(14px,2vw,22px);color:var(--gold);text-shadow:0 0 40px var(--glow)}
+.offer-word em{display:block;font-size:clamp(1.25rem,2.3vw,1.7rem);font-style:italic;letter-spacing:.01em;color:var(--ink-soft);margin:clamp(12px,1.6vw,18px) 0 0;line-height:1.35;max-width:38ch;font-weight:400}
+.hero h1{font-size:clamp(1.6rem,3vw,2.3rem);font-weight:400;font-style:italic;color:var(--ink);margin:clamp(26px,3.6vw,40px) 0 clamp(18px,2.4vw,26px);padding-top:clamp(18px,2.4vw,26px);border-top:1px solid var(--line);max-width:32ch;line-height:1.3}
+.hero h1 em{color:var(--gold);font-style:italic}
+.hero .lead{font-size:clamp(1.02rem,1.35vw,1.15rem);line-height:1.7;max-width:52ch;margin:0}
+.hero .tech{margin-top:clamp(22px,3vw,32px);gap:10px 22px;font-size:14px}
+.hero .cta{margin-top:clamp(30px,4vw,44px)}
+@media (max-width:600px){.offer-word{letter-spacing:.14em}}
+
+/* ===== third theme: Маслина ===== */
+:root[data-theme="olive"]{
+  --ground:#1A1F14; --surface:#222819; --surface-2:#2C3320; --line:#3C4630;
+  --ink:#EEF0E2; --ink-soft:#BCC3A6; --ink-faint:#86906F;
+  --gold:#D9E27C; --gold-soft:#A7B24A; --on-gold:#1A1F14;
+  --ok:#A9D48C; --warn:#E0A56A;
+  --glow:rgba(217,226,124,.18); --glow-2:rgba(217,226,124,.06);
+  --stage-a:#232A1A; --stage-b:#12160E; --vig:rgba(0,0,0,.5);
+  color-scheme:dark;
+}
+.theme-menu{position:relative}
+.theme-pop{position:absolute;right:0;top:calc(100% + 8px);background:var(--surface);border:1px solid var(--line);padding:6px;display:grid;gap:2px;min-width:150px;z-index:60}
+.theme-pop button{display:flex;align-items:center;gap:10px;border:0;background:none;padding:9px 12px;font-size:14px;cursor:pointer;text-align:left;color:var(--ink);min-height:36px}
+.theme-pop button i{width:14px;height:14px;border-radius:50%;border:1px solid var(--line);flex:0 0 auto}
+.theme-pop button[aria-checked="true"]{background:var(--glow-2);color:var(--gold)}
 </style>
 <div class="grain" aria-hidden="true"></div>
 
@@ -622,7 +652,7 @@ footer.foot .wrap{display:flex;justify-content:space-between;gap:10px 24px;flex-
     </ul>
     <div class="nav-tools">
       <span class="doc">Оферта № 2026-148-А</span>
-      <button class="theme-btn" id="themeBtn" type="button" aria-label="Смяна на темата"></button>
+      <div class="theme-menu"><button class="theme-btn" id="themeBtn" type="button" aria-label="Тема" aria-haspopup="true" aria-expanded="false"></button><div class="theme-pop" id="themePop" role="radiogroup" aria-label="Тема" hidden><button type="button" role="radio" data-t="dark" aria-checked="false"><i style="background:#0D0B09"></i>Нощ</button><button type="button" role="radio" data-t="light" aria-checked="false"><i style="background:#F2EEE6"></i>Ден</button><button type="button" role="radio" data-t="olive" aria-checked="false"><i style="background:#1A1F14;border-color:#D9E27C"></i>Маслина</button></div></div>
     </div>
   </div>
   <div class="progress" aria-hidden="true"></div>
@@ -634,11 +664,11 @@ footer.foot .wrap{display:flex;justify-content:space-between;gap:10px 24px;flex-
 <header class="hero" id="top">
   <div class="wrap hero-in">
     <div class="logo-stage" id="logoStage"><img class="brand-logo" id="heroLogo" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="KAYA LUX · Лукс, който се усеща" width="775" height="562"><i class="sheen" aria-hidden="true"></i></div>
-    <div class="mark rise d1">Търговско предложение · № 2026-148-А · актуализирана · 28.09.2026 г.</div>
-    <div class="offer-word rise d1" role="heading" aria-level="1">ОФЕРТА<em>за професионална ароматизация на 48-те обекта на верига „АВАНТИ“</em></div>
+    <div class="mark rise d1">Търговско предложение <b>№ 2026-148-А</b> · актуализирана · 28.09.2026 г.</div>
+    <div class="offer-word rise d1" role="heading" aria-level="1">ОФЕРТА<em>за професионална ароматизация на 48-те търговски обекта на веригата „АВАНТИ“</em></div>
     <h1 class="rise d2" aria-level="2" role="heading">Един аромат. <em>Четиридесет и осем</em> обекта.</h1>
     <p class="lead rise d3">Професионална ароматизация на търговските обекти на веригата „АВАНТИ“. Окончателни и обосновани цени, изготвени по реалните данни от пилотния период и от монтажа.</p>
-    <div class="tech rise d3"><span>Премиум нано-дифузия от последно поколение</span><span>Bluetooth управление</span><span>100% чисти парфюмни масла, без разреждане с вода и без нагряване</span></div>
+    <div class="tech rise d3"><span>Премиум нано-дифузия от последно поколение</span><span>Bluetooth управление</span><span>100% чисти парфюмни масла, без разреждане с вода и без нагряване</span><span>Сега: Tobacco Vanille · от декември: Toffee, избран от екипите</span></div>
     <div class="cta rise d4"><a class="btn fill" href="#reshenie">Изберете режим</a><a class="btn" href="#prostranstvo">Разположението в 3D</a></div>
   </div>
   <div class="wrap">
@@ -706,7 +736,7 @@ footer.foot .wrap{display:flex;justify-content:space-between;gap:10px 24px;flex-
         <p>Той е вдъхновен от Tom Ford Tobacco Vanille. Това е топла и елегантна композиция с нотки на тютюнев лист, ванилия, какао и сушени плодове.</p>
       </div>
       <div class="accord">
-        <div class="mark">Сегашният ароматен подпис</div>
+        <div class="mark">Ароматен подпис · есен 2026</div>
         <div class="name" style="margin-top:10px"><em>Tobacco</em> Vanille</div>
         <div class="by">вдъхновен от Tom Ford · топла и елегантна композиция</div>
         <ul class="notes">
@@ -714,6 +744,14 @@ footer.foot .wrap{display:flex;justify-content:space-between;gap:10px 24px;flex-
           <li><i class="drop" style="background:radial-gradient(circle at 35% 35%,#fbf0cf,#e3c683 60%,#b89148)"></i><span class="n">Ванилия</span><span class="t">сърце</span></li>
           <li><i class="drop" style="background:radial-gradient(circle at 35% 35%,#8a5a3c,#4a2a18 60%,#24130a)"></i><span class="n">Какао</span><span class="t">сърце</span></li>
           <li><i class="drop" style="background:radial-gradient(circle at 35% 35%,#a8545f,#6b2732 60%,#3a121a)"></i><span class="n">Сушени плодове</span><span class="t">база</span></li>
+        </ul>
+        <div class="mark" style="margin-top:22px;padding-top:16px;border-top:1px solid var(--line)">Избор на екипите · от декември 2026</div>
+        <div class="name" style="margin-top:10px"><em>Toffee</em></div>
+        <div class="by">мляко, карамел и коледно настроение · топъл гурме аромат за зимния сезон</div>
+        <ul class="notes">
+          <li><i class="drop" style="background:radial-gradient(circle at 35% 35%,#fdf6e6,#efe3c8 60%,#cdbb96)"></i><span class="n">Мляко</span><span class="t">връх</span></li>
+          <li><i class="drop" style="background:radial-gradient(circle at 35% 35%,#e8b45a,#b8742a 60%,#6e3f12)"></i><span class="n">Карамел</span><span class="t">сърце</span></li>
+          <li><i class="drop" style="background:radial-gradient(circle at 35% 35%,#c98a4e,#8a4f22 60%,#4a2a10)"></i><span class="n">Топли коледни нотки</span><span class="t">база</span></li>
         </ul>
       </div>
     </div>
@@ -736,6 +774,7 @@ footer.foot .wrap{display:flex;justify-content:space-between;gap:10px 24px;flex-
           <li>Зареждаме го едновременно във всички 48 обекта.</li>
         </ol>
         <p class="note" id="seasonText" aria-live="polite">Tobacco Vanille е топъл аромат и е подходящ за есенно-зимния сезон. Затова той е първият сезонен аромат на веригата. Ако някой аромат стане любим на клиентите и екипите, той може да се връща всяка година в същия сезон и да стане разпознаваем символ на АВАНТИ.</p>
+        <p class="note"><b>Следващото тримесечие.</b> За сезона, започващ от декември 2026 г., служителите вече избраха аромата <strong>Toffee</strong>: мляко, карамел и коледно настроение. Той ще бъде зареден едновременно във всички 48 обекта в началото на декември.</p>
       </div>
     </div>
   </div>
@@ -775,7 +814,7 @@ footer.foot .wrap{display:flex;justify-content:space-between;gap:10px 24px;flex-
       <p>За повечето обекти системите работят от понеделник до събота от 6:50 до 20:50 ч. (14 часа) и в неделя от 7:50 до 19:50 ч. (12 часа). Това прави 96 часа седмично, около 14% повече от заложеното. В обектите, които работят до 22:00 ч., увеличението е до 24%. Точният график на всеки обект ще бъде описан в Приложение № 1.</p>
       <p><strong>Ароматното масло е най-големият разход в услугата.</strong> Разходът му расте с часовете работа и с обема на помещенията. Затова при по-дълъг работен режим се изразходва повече масло.</p>
     </div>
-    <div class="live"><i aria-hidden="true"></i><p><b>Текущо състояние.</b> В момента всички 48 системи работят в режим „Пълно работно време“ по графика на съответния обект.</p></div>
+    <div class="live"><i aria-hidden="true"></i><p><b>Текущо състояние.</b> В момента всички 48 системи работят в режим „Пълно работно време“ по графика на съответния обект. Работното време на всеки обект е по предоставения ни списък на веригата: 37 обекта работят пон.–съб. 07:00–21:00 и нед. 08:00–20:00; 4 обекта работят до 22:00 ч.; останалите 7 са с отделни графици. Точният график на всеки обект се вижда в часовника под 3D схемата в глава IV и ще бъде описан в Приложение № 1.</p></div>
   </div>
 </section>
 
@@ -807,7 +846,7 @@ footer.foot .wrap{display:flex;justify-content:space-between;gap:10px 24px;flex-
             <label class="toggle"><input type="checkbox" id="lyFlow">Поток клиенти</label>
             <label class="toggle"><input type="checkbox" id="lyLabels" checked>Надписи</label>
           </div>
-          <span class="hint">Плъзнете, за да завъртите. Мрежата на пода е 1 × 1 м.</span>
+          <span class="hint">Плъзнете, за да завъртите · колелце или два пръста за мащаб · мрежата на пода е 1 × 1 м</span>
         </div>
         <div class="stage-fallback" id="stageFallback" hidden><p>3D изгледът не можа да се зареди в този браузър.<br>Описанието на системите вдясно важи и без него.</p></div>
       </div>
@@ -835,7 +874,7 @@ footer.foot .wrap{display:flex;justify-content:space-between;gap:10px 24px;flex-
           </dl>
         </div>
         <p class="honest"><b>Как е построена схемата</b>Моделът, броят и цветът на системите са реалните за избрания обект. Помещението е построено по реалната му квадратура, но планът и обзавеждането са типични за веригата (алкохол, цигари, солети, бонбони, чипс, млечни продукти), не заснети от обекта. Точните места ще бъдат описани в Приложение № 1.</p>
-        <div class="legend3"><span><i class="b"></i>черен корпус</span><span><i class="w"></i>бял корпус</span><span>цветът е избран според интериора на обекта</span></div>
+        <div class="legend3"><span><i class="b"></i>черен корпус</span><span><i class="w"></i>бял корпус</span><span>цветът е избран според интериора на обекта · около 80% черни, 20% бели</span></div>
       </div>
     </div>
     <div class="clock">
@@ -1156,14 +1195,18 @@ const stdFormula=a=>Math.round((10+0.15*a)*2)/2;
 
 /* ---------- theme ---------- */
 const themeSubs=[];
-function effTheme(){const t=root.getAttribute('data-theme');if(t==='light'||t==='dark')return t;return matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}
+function effTheme(){const t=root.getAttribute('data-theme');if(t==='light'||t==='dark'||t==='olive')return t;return matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}
+const isDark=()=>effTheme()!=='light';
 const SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg>';
 const MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>';
 const themeBtn=$('#themeBtn');
-function paintThemeBtn(){const dark=effTheme()==='dark';themeBtn.innerHTML=dark?SUN:MOON;themeBtn.setAttribute('aria-label',dark?'Светла тема':'Тъмна тема');themeBtn.title=dark?'Ден':'Нощ';}
+const PAL_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18c1.4 0 2-.9 2-1.8 0-.9-.6-1.2-.6-2 0-1 .8-1.7 1.9-1.7H17a4 4 0 0 0 4-4c0-4.7-4-8.5-9-8.5z"/><circle cx="7.5" cy="11" r="1.1" fill="currentColor"/><circle cx="10.5" cy="7" r="1.1" fill="currentColor"/><circle cx="15" cy="7.5" r="1.1" fill="currentColor"/></svg>';
+function paintThemeBtn(){const t=effTheme();themeBtn.innerHTML=PAL_ICON;themeBtn.title='Тема: '+(t==='dark'?'Нощ':t==='light'?'Ден':'Маслина');$$('#themePop [data-t]').forEach(b=>b.setAttribute('aria-checked',String(b.dataset.t===t)));}
 function applyTheme(t){root.setAttribute('data-theme',t);store.set('kl-offer-theme',t);paintThemeBtn();themeSubs.forEach(f=>f());}
-const saved=store.get('kl-offer-theme');if(saved==='light'||saved==='dark')root.setAttribute('data-theme',saved);
-themeBtn.addEventListener('click',()=>applyTheme(effTheme()==='dark'?'light':'dark'));
+const saved=store.get('kl-offer-theme');if(saved==='light'||saved==='dark'||saved==='olive')root.setAttribute('data-theme',saved);
+const themePop=$('#themePop');themeBtn.addEventListener('click',()=>{themePop.hidden=!themePop.hidden;themeBtn.setAttribute('aria-expanded',String(!themePop.hidden));});
+$$('#themePop [data-t]').forEach(b=>b.addEventListener('click',()=>{applyTheme(b.dataset.t);themePop.hidden=true;themeBtn.setAttribute('aria-expanded','false');}));
+document.addEventListener('click',e=>{if(!e.target.closest('.theme-menu')){themePop.hidden=true;themeBtn.setAttribute('aria-expanded','false');}});
 try{matchMedia('(prefers-color-scheme: light)').addEventListener('change',()=>{paintThemeBtn();themeSubs.forEach(f=>f());});}catch(e){}
 paintThemeBtn();
 
@@ -1222,7 +1265,7 @@ function tint(hex,crop){
 }
 function paintLogos(){
   if(!logoImg.naturalWidth)return;
-  const dark=effTheme()==='dark',col=dark?(cssVar('--gold')||'#D4AF63'):(cssVar('--ink')||'#1A1713');
+  const dark=isDark(),col=dark?(cssVar('--gold')||'#D4AF63'):(cssVar('--ink')||'#1A1713');
   const full=tint(col).toDataURL('image/png');
   const hl=$('#heroLogo');if(hl){hl.src=full;const sh=$('#logoStage .sheen');sh.style.webkitMaskImage=sh.style.maskImage='url('+full+')';$('#logoStage').classList.add('ready');}
   const nm=$('#navMono');if(nm)nm.src=tint(cssVar('--gold')||'#D4AF63',[300,62,186,248]).toDataURL('image/png');
@@ -1241,38 +1284,52 @@ themeSubs.push(paintLogos);
   let W=0,H=0,P=[],puffs=[],dark=true,gold=[212,175,99],raf=0,last=0,px=-1e4,py=-1e4,lastY=scrollY,T=0;
   const small=()=>W<900;
   function size(){const d=Math.min(devicePixelRatio||1,1.5);W=innerWidth;H=innerHeight;cv.width=Math.round(W*d);cv.height=Math.round(H*d);ctx.setTransform(d,0,0,d,0,0);}
-  function colours(){dark=effTheme()==='dark';const m=(cssVar('--gold')||'#D4AF63').match(/#([0-9a-f]{6})/i);if(m){const n=parseInt(m[1],16);gold=[(n>>16)&255,(n>>8)&255,n&255];}
+  function colours(){dark=isDark();const m=(cssVar('--gold')||'#D4AF63').match(/#([0-9a-f]{6})/i);if(m){const n=parseInt(m[1],16);gold=[(n>>16)&255,(n>>8)&255,n&255];}
     const tone=dark?[255,228,178]:[120,96,58];puffs=[];
     for(let k=0;k<5;k++){const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d');
       for(let i=0;i<8;i++){const x=64+(Math.random()-.5)*48,y=64+(Math.random()-.5)*48,r=18+Math.random()*30,gr=g.createRadialGradient(x,y,0,x,y,r);gr.addColorStop(0,'rgba('+tone+',.5)');gr.addColorStop(1,'rgba('+tone+',0)');g.fillStyle=gr;g.fillRect(0,0,128,128);}
       puffs.push(c);}
   }
-  function unit(){const r=hero.getBoundingClientRect(),s=small()?.62:clamp(W/1250,.85,1.35),h=270*s,w=78*s;
+  function unit(){const r=hero.getBoundingClientRect(),s=small()?.66:clamp(W/1250,.9,1.4),h=300*s,w=78*s;
     const x=small()?W*.86:W*.8,base=r.top+Math.min(r.height,H)*.9;return {x,base,top:base-h,w,h,s,vis:base>-40&&base-h<H+40};}
   function spawn(u,ambient){
     const p={};
     if(ambient){p.x=Math.random()*W;p.y=H+60;p.vx=0;p.vy=-(8+Math.random()*10);p.s0=60+Math.random()*80;p.s1=p.s0*2.6;p.a=dark?.035:.05;p.max=16+Math.random()*10;}
-    else{p.x=u.x+(Math.random()-.5)*4*u.s;p.y=u.top-6*u.s;p.vx=(Math.random()-.5)*10;p.vy=-(30+Math.random()*24)*u.s;p.s0=8*u.s;p.s1=(90+Math.random()*110)*u.s;p.a=dark?.05:.07;p.max=8+Math.random()*7;}
+    else{p.x=u.x+u.w*1.7*.32+(Math.random()-.5)*4*u.s;p.y=u.top+u.h*.38-4*u.s;p.vx=(Math.random()-.5)*10;p.vy=-(30+Math.random()*24)*u.s;p.s0=8*u.s;p.s1=(90+Math.random()*110)*u.s;p.a=dark?.05:.07;p.max=8+Math.random()*7;}
     p.life=0;p.r=Math.random()*6.28;p.vr=(Math.random()-.5)*.35;p.k=(Math.random()*puffs.length)|0;p.seed=Math.random()*100;P.push(p);
   }
   function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
   function drawUnit(u,t){
-    if(!u.vis)return;const {x,top,w,h,s}=u,g_=gold.join(','),a=small()?.55:1;
+    if(!u.vis)return;const {x,top,w,h,s}=u,g_=gold.join(','),a=small()?.6:1;
+    // Plug'n Go proportions: about 0.72 × 1, rounded corners, matte black shell
+    const W_=w*1.7,H_=h*.62,X=x-W_/2,Y=top+h-H_,R=W_*.16;
     ctx.save();ctx.globalAlpha=a;ctx.globalCompositeOperation='source-over';
-    const fl=ctx.createRadialGradient(x,top+h,0,x,top+h,w*2.2);fl.addColorStop(0,'rgba('+g_+','+(dark?.12:.1)+')');fl.addColorStop(1,'rgba('+g_+',0)');ctx.fillStyle=fl;ctx.fillRect(x-w*2.4,top+h-w*.9,w*4.8,w*1.8);
-    const body=ctx.createLinearGradient(x-w/2,0,x+w/2,0);
-    if(dark){body.addColorStop(0,'#070605');body.addColorStop(.28,'#2b251c');body.addColorStop(.5,'#16120e');body.addColorStop(1,'#040303');}
-    else{body.addColorStop(0,'#1d1a16');body.addColorStop(.3,'#4a4238');body.addColorStop(.55,'#24201b');body.addColorStop(1,'#12100d');}
-    rr(x-w/2,top+14*s,w,h-14*s,16*s);ctx.fillStyle=body;ctx.fill();
-    ctx.strokeStyle='rgba('+g_+',.55)';ctx.lineWidth=1;ctx.stroke();
-    const cap=ctx.createLinearGradient(x-w/2,0,x+w/2,0);cap.addColorStop(0,'#6b5323');cap.addColorStop(.35,'#f0d693');cap.addColorStop(.6,'#b8903f');cap.addColorStop(1,'#4d3a16');
-    rr(x-w/2-2*s,top+6*s,w+4*s,18*s,8*s);ctx.fillStyle=cap;ctx.fill();
-    ctx.beginPath();ctx.ellipse(x,top+6*s,7*s,3*s,0,0,6.283);ctx.fillStyle='#2a2217';ctx.fill();
-    ctx.fillStyle=cap;ctx.fillRect(x-w/2,top+h*.72,w,3*s);
-    if(logoMono){const lw=w*.46,lh=lw*logoMono.height/logoMono.width;ctx.globalAlpha=a*.9;ctx.drawImage(logoMono,x-lw/2,top+h*.3,lw,lh);ctx.globalAlpha=a;}
-    const pulse=.55+.45*Math.sin(t*2.2),ly=top+h*.84,lg=ctx.createRadialGradient(x,ly,0,x,ly,12*s);lg.addColorStop(0,'rgba(255,214,140,'+(.9*pulse)+')');lg.addColorStop(1,'rgba(255,214,140,0)');ctx.fillStyle=lg;ctx.beginPath();ctx.arc(x,ly,12*s,0,6.283);ctx.fill();
-    ctx.fillStyle='rgba(255,236,190,.95)';ctx.beginPath();ctx.arc(x,ly,1.8*s,0,6.283);ctx.fill();
-    const hl=ctx.createLinearGradient(x-w/2,0,x-w/2+w*.3,0);hl.addColorStop(0,'rgba(255,240,210,0)');hl.addColorStop(.5,'rgba(255,240,210,'+(dark?.08:.12)+')');hl.addColorStop(1,'rgba(255,240,210,0)');ctx.fillStyle=hl;ctx.fillRect(x-w/2+w*.08,top+24*s,w*.3,h-40*s);
+    const fl=ctx.createRadialGradient(x,Y+H_*.5,0,x,Y+H_*.5,W_*1.4);fl.addColorStop(0,'rgba('+g_+','+(dark?.10:.08)+')');fl.addColorStop(1,'rgba('+g_+',0)');ctx.fillStyle=fl;ctx.fillRect(X-W_,Y-W_*.6,W_*3,H_+W_*1.4);
+    // shadow + body
+    ctx.shadowColor='rgba(0,0,0,.55)';ctx.shadowBlur=30*s;ctx.shadowOffsetY=12*s;
+    const body=ctx.createLinearGradient(X,Y,X+W_,Y+H_);
+    if(dark){body.addColorStop(0,'#2a2622');body.addColorStop(.35,'#17140f');body.addColorStop(.7,'#0d0b09');body.addColorStop(1,'#1d1915');}
+    else{body.addColorStop(0,'#3a3530');body.addColorStop(.4,'#201c18');body.addColorStop(1,'#2c2722');}
+    rr(X,Y,W_,H_,R);ctx.fillStyle=body;ctx.fill();ctx.shadowColor='transparent';
+    // edge light
+    ctx.strokeStyle='rgba(255,236,200,'+(dark?.18:.25)+')';ctx.lineWidth=1;rr(X+.5,Y+.5,W_-1,H_-1,R);ctx.stroke();
+    ctx.strokeStyle='rgba('+g_+',.35)';rr(X-1,Y-1,W_+2,H_+2,R+1);ctx.stroke();
+    // nozzle top right
+    ctx.fillStyle='#0a0908';ctx.beginPath();ctx.arc(X+W_*.82,Y+H_*.07,W_*.045,0,6.283);ctx.fill();ctx.strokeStyle='rgba('+g_+',.6)';ctx.lineWidth=1.2;ctx.stroke();
+    // two LEDs left
+    const pulse=.6+.4*Math.sin(t*2.2);
+    for(const [dy,col] of [[.13,'143,180,127'],[.19,'127,208,224']]){const ly=Y+H_*dy,lx=X+W_*.12;const lg=ctx.createRadialGradient(lx,ly,0,lx,ly,7*s);lg.addColorStop(0,'rgba('+col+','+(.9*pulse)+')');lg.addColorStop(1,'rgba('+col+',0)');ctx.fillStyle=lg;ctx.beginPath();ctx.arc(lx,ly,7*s,0,6.283);ctx.fill();ctx.fillStyle='rgba('+col+',.95)';ctx.beginPath();ctx.arc(lx,ly,1.6*s,0,6.283);ctx.fill();}
+    // logo + wordmark
+    if(logoMono){const lw=W_*.24,lh=lw*logoMono.height/logoMono.width;ctx.globalAlpha=a*.85;ctx.drawImage(logoMono,x-lw/2,Y+H_*.12,lw,lh);ctx.globalAlpha=a;}
+    ctx.fillStyle='rgba('+g_+',.85)';ctx.font='500 '+(W_*.11)+'px "Cormorant Garamond", Georgia, serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('KAYA LUX',x,Y+H_*.42);
+    ctx.fillStyle='rgba(200,190,170,.55)';ctx.font='400 '+(W_*.045)+'px Inter, sans-serif';ctx.fillText('Professional Scenting Solutions',x,Y+H_*.485);
+    // QR block
+    const q=W_*.2,qx=x-q/2,qy=Y+H_*.53;ctx.fillStyle='rgba(120,112,100,.35)';let seed=7;for(let i=0;i<9;i++)for(let j=0;j<9;j++){seed=(seed*9301+49297)%233280;if(seed/233280<.45||(i<3&&j<3)||(i<3&&j>5)||(i>5&&j<3))ctx.fillRect(qx+i*q/9,qy+j*q/9,q/9-.6,q/9-.6);}
+    // diamond grille, fading upward
+    const gw=W_*.62,gx=x-gw/2,gy=Y+H_*.72,cols=7,rows=6,cs=gw/cols;
+    for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const k=r/(rows-1),sz=cs*(.28+.62*k),cx_=gx+c*cs+cs/2+(r%2?cs/2:0),cy_=gy+r*cs*.85;if(cx_>gx+gw)continue;ctx.save();ctx.translate(cx_,cy_);ctx.rotate(Math.PI/4);const dg=ctx.createLinearGradient(-sz/2,-sz/2,sz/2,sz/2);dg.addColorStop(0,'rgba(60,54,46,'+(.25+.5*k)+')');dg.addColorStop(1,'rgba(0,0,0,'+(.5+.4*k)+')');ctx.fillStyle=dg;ctx.fillRect(-sz/2,-sz/2,sz,sz);ctx.restore();}
+    // subtle sheen
+    const hl=ctx.createLinearGradient(X,Y,X+W_*.5,Y+H_);hl.addColorStop(0,'rgba(255,240,210,'+(dark?.07:.1)+')');hl.addColorStop(.5,'rgba(255,240,210,0)');ctx.fillStyle=hl;rr(X,Y,W_,H_,R);ctx.fill();
     ctx.restore();
   }
   function step(dt){
@@ -1329,7 +1386,7 @@ themeSubs.push(paintLogos);
   const svg=$('#ring'),NS='http://www.w3.org/2000/svg',txt=$('#seasonText');
   const S=[
     {k:'Есен',c1:'Tobacco Vanille',c2:'ЕСЕН · СЕГА',t:'Tobacco Vanille е топъл аромат и е подходящ за есенно-зимния сезон. Затова той е първият сезонен аромат на веригата. Ако някой аромат стане любим на клиентите и екипите, той може да се връща всяка година в същия сезон и да стане разпознаваем символ на АВАНТИ.'},
-    {k:'Зима',c1:'Изборът на екипите',c2:'ЗИМА',t:'В началото на зимата ще Ви предложим няколко подходящи аромата. Служителите избират най-харесвания, а новият аромат се зарежда едновременно във всички 48 обекта.'},
+    {k:'Зима',c1:'Toffee',c2:'ЗИМА · ОТ ДЕКЕМВРИ',t:'За тримесечието от декември 2026 г. служителите избраха Toffee: мляко, карамел и коледно настроение. Топъл гурме аромат, който подхожда на празничния сезон. Ще бъде зареден едновременно във всички 48 обекта в началото на декември.'},
     {k:'Пролет',c1:'Изборът на екипите',c2:'ПРОЛЕТ',t:'В началото на пролетта предлагаме нови подходящи аромата. Изборът отново е на екипите, а смяната става едновременно в цялата верига.'},
     {k:'Лято',c1:'Изборът на екипите',c2:'ЛЯТО',t:'В началото на лятото ароматът се сменя по същия начин: предложение, избор от служителите и едновременно зареждане във всички 48 обекта.'}
   ];
@@ -1504,7 +1561,9 @@ const tableApi=(function(){
 })();
 
 /* ---------- IV: the store in 3D ---------- */
-const HRS={wd:{open:420,close:1260,full:[410,1250],std:[480,1200]},sun:{open:480,close:1200,full:[470,1190],std:[470,1190]}};
+const HOURS={1:[420,1260,480,1200],2:[420,1260,480,1200],3:[420,1260,480,1200],4:[420,1260,480,1200],5:[420,1260,480,1200],6:[480,1260,480,1200],7:[420,1260,480,1200],8:[420,1260,480,1200],9:[420,1260,480,1200],10:[420,1260,480,1200],11:[420,1260,480,1200],12:[420,1260,480,1200],13:[480,1260,540,1200],14:[480,1260,540,1200],15:[420,1260,480,1200],16:[420,1260,480,1200],17:[420,1260,480,1200],18:[420,1260,480,1200],19:[480,1290,510,1230],20:[420,1260,480,1200],21:[420,1260,480,1200],22:[420,1260,480,1200],23:[420,1260,480,1200],24:[420,1260,480,1200],25:[420,1320,480,1320],26:[420,1260,480,1200],27:[420,1320,480,1320],28:[420,1260,480,1200],29:[420,1260,480,1200],30:[420,1260,480,1200],31:[420,1260,480,1200],32:[420,1260,480,1200],33:[420,1260,480,1200],34:[420,1260,480,1200],35:[480,1320,480,1320],36:[480,1320,480,1320],37:[420,1260,480,1200],38:[420,1260,480,1200],39:[420,1260,480,1200],40:[480,1290,480,1200],41:[480,1260,540,1200],42:[420,1260,480,1200],43:[450,1290,480,1200],44:[420,1260,480,1200],45:[420,1260,480,1200],46:[420,1260,480,1200],47:[420,1260,480,1200],48:[420,1260,480,1200]};
+function hoursFor(n){const h=HOURS[n]||[420,1260,480,1200];const mk=(o,c)=>{const full=[o-10,c-10];let s0=Math.max(o,480),s1=Math.min(c,s0+720);if(c-o<=720){s0=o-10;s1=c-10;}return {open:o,close:c,full,std:[s0,s1]};};return {wd:mk(h[0],h[1]),sun:mk(h[2],h[3])};}
+let HRS=hoursFor(16);
 const space=(function(){
   const stage=$('#stage'),ovl=$('#ovl'),sel=$('#storeSel'),hud=$('#hud');
   const state={n:16,ceil:3.0,t:450,day:'wd',unit:0,playing:false};
@@ -1513,12 +1572,13 @@ const space=(function(){
     L.forEach(r=>{const o=document.createElement('option');o.value=r.n;o.textContent='№ '+r.n+' · '+r.name+' · '+fmt(r.area)+' м²';og.appendChild(o);});sel.appendChild(og);});
   sel.value=state.n;
   const row=()=>ROWS.find(r=>r.n===state.n);
+  function syncHours(){HRS=hoursFor(state.n);}
   const PLAN=(()=>{const m={};ROWS.forEach(r=>{const a=r.area,c=r.city;let mdl='PG',n;
     if(c==='Варна'||c==='Велико Търново'){mdl='PL';n=1;}
     else if(c==='Бургас'){if(a>150){mdl='PL';n=1;}else n=a<=90?1:2;}
     else if(r.n===25||r.n===43)n=3;else n=a<=90?1:(a<=150?2:3);
     // dark interior (wood/black shelving) -> black unit; light interior -> white unit: seeded per store so it is stable
-    const col=((r.n*7919)%10)<6?'b':'w';m[r.n]={mdl,n,col};});return m;})();
+    const col=((r.n*7919)%10)<8?'b':'w';m[r.n]={mdl,n,col};});return m;})();
   const plan=()=>PLAN[state.n];
   const count=()=>plan().n;
   $('#cntPG').textContent=Object.values(PLAN).filter(p=>p.mdl==='PG').reduce((s,p)=>s+p.n,0);
@@ -1540,8 +1600,9 @@ const space=(function(){
       {...base,title:'Plug’n Go в задната част',zone:'Задна част, към склада',why:'Покрива задната част на залата и зоната към склада, до които ароматът от входа не стига със същата сила.',at:'P',f:0}];
   }
   function schedText(){
-    if(mode==='full')return 'Пълно работно време: пон.–съб. 06:50–20:50, нед. 07:50–19:50 (10 минути преди отварянето до 10 минути преди затварянето).';
-    return 'Стандартен режим: до 12 часа на ден, например 08:00–20:00.';
+    const h=HRS,wk=((h.wd.full[1]-h.wd.full[0])*6+(h.sun.full[1]-h.sun.full[0]))/60;
+    if(mode==='full')return 'Пълно работно време: пон.–съб. '+hm(h.wd.full[0])+'–'+hm(h.wd.full[1])+', нед. '+hm(h.sun.full[0])+'–'+hm(h.sun.full[1])+' (10 минути преди отварянето до 10 минути преди затварянето) · '+(wk%1?wk.toFixed(1).replace('.',','):wk)+' ч седмично. Обектът работи '+hm(h.wd.open)+'–'+hm(h.wd.close)+', нед. '+hm(h.sun.open)+'–'+hm(h.sun.close)+'.';
+    return 'Стандартен режим: до 12 часа на ден, тук '+hm(h.wd.std[0])+'–'+hm(h.wd.std[1])+' (нед. '+hm(h.sun.std[0])+'–'+hm(h.sun.std[1])+'). Обектът работи '+hm(h.wd.open)+'–'+hm(h.wd.close)+'.';
   }
   function paintCard(){
     const r=row(),U=S.units&&S.units.length?S.units:unitsFor(r.area).map(u=>({info:u})),n=U.length,i=Math.min(state.unit,n-1),u=U[i].info,mdl=plan().mdl,col=plan().col;
@@ -1571,7 +1632,7 @@ const space=(function(){
     else if(op&&!on){cls='warn';a=hm(t)+' · Обектът е отворен, но системата е изключена.';
       b=(mode==='std'&&t>=full[0]&&t<full[1])?'В стандартен режим системата работи '+hm(w[0])+'–'+hm(w[1])+'. В режим „Пълно работно време“ клиентите щяха да усещат аромата и сега.':'Системата се изключва 10 минути преди затварянето на обекта ('+hm(h.close)+').';}
     else if(!op&&on){cls='on';a=hm(t)+' · Системата вече работи, обектът отваря в '+hm(h.open)+'.';b='Така ароматът е наличен още при влизането на първите клиенти.';}
-    else{a=hm(t)+' · Обектът е затворен, системата е изключена.';b='Работно време на обекта: '+hm(h.open)+'–'+hm(h.close)+(state.day==='sun'?' в неделя.':' от понеделник до събота.');}
+    else{a=hm(t)+' · Обектът е затворен, системата е изключена.';b='Работно време на обекта: '+hm(h.open)+'–'+hm(h.close)+(state.day==='sun'?' в неделя.':' от понеделник до събота.')+' (по списъка на веригата)';}
     st.className='status '+cls;st.querySelector('div').innerHTML=a+'<small>'+b+'</small>';
     const sr=430,ss=1150,sm=(e0,e1,x)=>{const k=clamp((x-e0)/(e1-e0),0,1);return k*k*(3-2*k);};
     stage.style.setProperty('--night',(clamp(1-sm(sr-30,sr+40,t)+sm(ss-30,ss+50,t),0,1)*.9).toFixed(2));
@@ -1585,9 +1646,9 @@ const space=(function(){
   modeSubs.push(()=>{paintClock();paintCard();});
 
   let S={units:[]},three=null,kick=()=>{};
-  function rebuild(){state.unit=0;if(three)three.build();else{S={units:[]};}paintCard();paintClock();}
+  function rebuild(){syncHours();state.unit=0;if(three)three.build();else{S={units:[]};}paintCard();paintClock();}
 
-  function show(n){state.n=n;sel.value=n;state.unit=0;rebuild();$('#prostranstvo').scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});}
+  function show(n){state.n=n;sel.value=n;syncHours();state.unit=0;rebuild();$('#prostranstvo').scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});}
 
   function fallback(){$('#stageFallback').hidden=false;stage.style.cursor='default';}
 
@@ -1616,6 +1677,7 @@ const space=(function(){
     function roundedBox(w,h,d,r){const s=new T.Shape();const x=-w/2,y=-h/2;s.moveTo(x+r,y);s.lineTo(x+w-r,y);s.quadraticCurveTo(x+w,y,x+w,y+r);s.lineTo(x+w,y+h-r);s.quadraticCurveTo(x+w,y+h,x+w-r,y+h);s.lineTo(x+r,y+h);s.quadraticCurveTo(x,y+h,x,y+h-r);s.lineTo(x,y+r);s.quadraticCurveTo(x,y,x+r,y);
       const g=new T.ExtrudeGeometry(s,{depth:d,bevelEnabled:true,bevelThickness:r*.6,bevelSize:r*.6,bevelSegments:3});g.translate(0,0,-d/2);return g;}
     function badgeTex(){if(!logoMono)return null;const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d');const iw=logoMono.width,ih=logoMono.height,k=Math.min(96/iw,96/ih);g.drawImage(logoMono,64-iw*k/2,64-ih*k/2,iw*k,ih*k);const t=new T.CanvasTexture(c);t.encoding=T.sRGBEncoding;return t;}
+    M.avanti=(()=>{const c=document.createElement('canvas');c.width=256;c.height=96;const g=c.getContext('2d');g.fillStyle='#f3efe6';g.fillRect(0,0,256,96);g.fillStyle='#d3232a';g.font='bold 58px Inter, Arial, sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText('АВАНТИ',128,50);const t=new T.CanvasTexture(c);t.encoding=T.sRGBEncoding;return new T.MeshBasicMaterial({map:t});})();
     M.ceil=new T.MeshBasicMaterial({color:0xfff1d8,side:T.DoubleSide,transparent:true,opacity:.85,depthWrite:false});
     M.prod=new T.MeshStandardMaterial({roughness:.65,metalness:.05});
     M.cool.transparent=true;M.cool.opacity=.38;M.cool.depthWrite=false;
@@ -1672,11 +1734,26 @@ const space=(function(){
         add(new T.BoxGeometry(.09*k,.06*k,.22*k),shoe,0,-.42*k,.05*k,sh);
         l.userData.sh=sh;legs.push(l);
       }
-      // a basket in one hand for variety
-      if(i%2===0){const b=new T.Mesh(new T.CylinderGeometry(.14*k,.11*k,.2*k,12,1,true),new T.MeshStandardMaterial({color:0x8c3b2e,side:T.DoubleSide,roughness:.8}));b.position.set(0,-.36*k,0);arms[1].userData.fo.add(b);}
-      g.userData.arms=arms;g.userData.legs=legs;g.userData.k=k;
+      // basket (inside) and АВАНТИ bag (leaving) in the right hand; swapped by the walk loop
+      const hand=arms[1].userData.fo;
+      const basket=new T.Group();{const bm=new T.MeshStandardMaterial({color:0x8c3b2e,side:T.DoubleSide,roughness:.8});const b=new T.Mesh(new T.CylinderGeometry(.15*k,.12*k,.2*k,12,1,true),bm);const bb=new T.Mesh(new T.CircleGeometry(.12*k,12),bm);bb.rotation.x=Math.PI/2;bb.position.y=-.1*k;const hdl=new T.Mesh(new T.TorusGeometry(.14*k,.008,6,18,Math.PI),new T.MeshStandardMaterial({color:0x3a1a14}));hdl.position.y=.1*k;basket.add(b,bb,hdl);
+        const goods=[];for(let q=0;q<7;q++)goods.push([(Math.random()-.5)*.16*k,(-.02+Math.random()*.1)*k,(Math.random()-.5)*.16*k,.05*k,.11*k,.05*k]);const im=instanced(new T.CylinderGeometry(.5,.5,1,8),goods,false,['#e8e2d0','#1f3a24','#c9a24a','#7a1f1f','#2f6fb5','#f0e2c4']);room.remove(im);basket.add(im);}
+      basket.position.set(0,-.34*k,0);hand.add(basket);
+      const bag=new T.Group();{const paper=new T.MeshStandardMaterial({color:0xf3efe6,roughness:.85,side:T.DoubleSide});const bb=new T.Mesh(new T.BoxGeometry(.22*k,.3*k,.12*k),paper);bag.add(bb);const lbl=new T.Mesh(new T.PlaneGeometry(.17*k,.06*k),M.avanti);lbl.position.set(0,.02*k,.061*k);bag.add(lbl);const lbl2=lbl.clone();lbl2.rotation.y=Math.PI;lbl2.position.z=-.061*k;bag.add(lbl2);const hd=new T.Mesh(new T.TorusGeometry(.06*k,.006,6,14,Math.PI),new T.MeshStandardMaterial({color:0xb03030}));hd.position.y=.15*k;bag.add(hd);}
+      bag.position.set(0,-.4*k,0);bag.visible=false;hand.add(bag);
+      g.userData.arms=arms;g.userData.legs=legs;g.userData.k=k;g.userData.basket=basket;g.userData.bag=bag;
       return g;
     }
+    function makeChild(){const g=makePerson(9);g.scale.setScalar(.6);g.userData.basket.visible=false;g.userData.bag.visible=false;g.userData.isChild=true;return g;}
+    function makeElder(){const g=makePerson(7);g.scale.set(1,.94,1);g.rotation.x=.06;g.userData.basket.visible=false;
+      const k=g.userData.k;const cane=new T.Mesh(new T.CylinderGeometry(.012,.014,.8*k,8),new T.MeshStandardMaterial({color:0x5a3a1a,roughness:.7}));cane.position.set(0,-.62*k,0);g.userData.arms[0].userData.fo.add(cane);
+      const hat=new T.Mesh(new T.CylinderGeometry(.11*k,.13*k,.06*k,14),new T.MeshStandardMaterial({color:0x2b2622,roughness:.9}));hat.position.set(0,1.42*k+.27*k,0);g.add(hat);g.userData.elder=true;return g;}
+    function makeStroller(){const g=new T.Group(),f=new T.MeshStandardMaterial({color:0x2a2d33,roughness:.5,metalness:.4}),c=new T.MeshStandardMaterial({color:0x4a5a7a,roughness:.85});
+      const body=new T.Mesh(new T.BoxGeometry(.42,.28,.62),c);body.position.set(0,.62,0);const hood=new T.Mesh(new T.SphereGeometry(.24,14,10,0,Math.PI,0,Math.PI/2),c);hood.rotation.y=Math.PI/2;hood.position.set(0,.74,-.14);
+      const bar=new T.Mesh(new T.CylinderGeometry(.012,.012,.44,8),f);bar.rotation.z=Math.PI/2;bar.position.set(0,1.02,.5);
+      for(const s of [-1,1]){const st=new T.Mesh(new T.CylinderGeometry(.012,.012,.56,8),f);st.position.set(s*.2,.78,.32);st.rotation.x=-.5;g.add(st);
+        for(const z of [-.24,.26]){const w=new T.Mesh(new T.TorusGeometry(.09,.02,8,18),f);w.rotation.y=Math.PI/2;w.position.set(s*.22,.11,z);g.add(w);const ax=new T.Mesh(new T.CylinderGeometry(.01,.01,.5,6),f);ax.rotation.z=Math.PI/2;ax.position.set(0,.11,z);g.add(ax);}}
+      const baby=new T.Mesh(new T.SphereGeometry(.07,10,8),new T.MeshStandardMaterial({color:0xe6c3a5}));baby.position.set(0,.74,.08);g.add(body,hood,bar,baby);g.traverse(o=>{if(o.isMesh)o.castShadow=true;});return g;}
     function animPerson(g,t,speed){
       const w=t*6.2*speed+g.userData.ph,s=Math.sin(w),c=Math.cos(w);
       g.userData.legs.forEach((l,i)=>{const sg=i?1:-1;l.rotation.x=sg*s*.55;l.userData.sh.rotation.x=Math.max(0,-sg*c)*.9;});
@@ -1736,7 +1813,10 @@ const space=(function(){
       pts.push([ckX+ckW/2+.45,fz],[ckX+ckW/2+.45,ckZ],[doorX-.25,hd-.6],[doorX-.25,hd+1.4]);
       flowCurve=new T.CatmullRomCurve3(pts.map(p=>new T.Vector3(p[0],.03,p[1])),false,'centripetal');flowLen=flowCurve.getLength();
       const fg=new T.BufferGeometry().setFromPoints(flowCurve.getSpacedPoints(Math.ceil(flowLen*6)));flowLine=new T.Line(fg,flowMat);flowLine.computeLineDistances();flowLine.visible=$('#lyFlow').checked;room.add(flowLine);
-      for(let i=0;i<3;i++){const g=makePerson(i);g.userData.u=i/3;g.userData.ph=Math.random()*6.28;room.add(g);people.push(g);}
+      const cast=[makePerson(0),makePerson(1),makeElder(),makePerson(3),makeChild()];
+      cast[3].userData.stroller=makeStroller();cast[3].add(cast[3].userData.stroller);cast[3].userData.stroller.position.set(0,0,.55);cast[3].userData.basket.visible=false;cast[3].userData.arms.forEach(a=>{a.rotation.x=-.9;a.userData.fo.rotation.x=-.2;});cast[3].userData.pushing=true;
+      cast[4].userData.follow=1; // the child walks beside shopper 1
+      cast.forEach((g,i)=>{g.userData.u=[.05,.32,.55,.78,.32][i];g.userData.ph=Math.random()*6.28;g.userData.lane=[0,-.2,.22,0,-.5][i];g.userData.sp=[.55,.5,.32,.45,.5][i];room.add(g);people.push(g);});
       // diffusers
       const U=unitsFor(A);
       U.forEach((u,i)=>{
@@ -1812,7 +1892,7 @@ const space=(function(){
 
     let gold=[212,175,99];
     function recolor(){
-      const dark=effTheme()==='dark',c=n=>cssVar(n);
+      const dark=isDark(),c=n=>cssVar(n);
       const mix=(a,b,k)=>{const A=new T.Color(a),B=new T.Color(b);return A.lerp(B,k);};
       if(dark){M.cool.color=lin('#26303a');M.cool.emissive=lin('#8fb0cc');M.floor.color=mix(c('--surface-2'),c('--gold'),.06).convertSRGBToLinear();M.wall.color=mix(c('--surface-2'),c('--ink-faint'),.3).convertSRGBToLinear();M.fix.color=mix(c('--surface-2'),c('--ink-faint'),.38).convertSRGBToLinear();M.mat.color=lin('#0b0907');}
       else{M.cool.color=lin('#dfe7ee');M.cool.emissive=lin('#b9cfe0');M.floor.color=lin(c('--surface'));M.wall.color=lin(c('--surface-2'));M.fix.color=mix(c('--line'),'#ffffff',.3).convertSRGBToLinear();M.mat.color=lin(c('--line'));}
@@ -1839,11 +1919,16 @@ const space=(function(){
     }
     $$('.views [data-view]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.view)));
     $$('.views [data-zoom]').forEach(b=>b.addEventListener('click',()=>{const m=Math.max(S.W,S.D);view.r=clamp(view.r*(+b.dataset.zoom>0?1.18:.85),m*.35,m*3.2+10);tween=null;apply();idle=0;kick();}));
-    stage.addEventListener('pointerdown',e=>{if(e.target.closest('button,label,input,select,.hud-card'))return;drag={x:e.clientX,y:e.clientY,id:e.pointerId};stage.classList.add('drag');try{stage.setPointerCapture(e.pointerId);}catch(_){}});
+    const touches=new Map();let pinch0=0,r0=0;stage.addEventListener('touchstart',e=>{if(e.touches.length===2)e.preventDefault();},{passive:false});stage.addEventListener('touchmove',e=>{if(e.touches.length===2)e.preventDefault();},{passive:false});
+    stage.addEventListener('pointerdown',e=>{if(e.target.closest('button,label,input,select,.hud-card'))return;
+      if(e.pointerType==='touch'){touches.set(e.pointerId,[e.clientX,e.clientY]);if(touches.size===2){const [a,b]=[...touches.values()];pinch0=Math.hypot(a[0]-b[0],a[1]-b[1]);r0=view.r;drag=null;return;}}
+      drag={x:e.clientX,y:e.clientY,id:e.pointerId};stage.classList.add('drag');try{stage.setPointerCapture(e.pointerId);}catch(_){}});
+    stage.addEventListener('pointermove',e=>{if(e.pointerType==='touch'&&touches.has(e.pointerId)){touches.set(e.pointerId,[e.clientX,e.clientY]);if(touches.size===2){const [a,b]=[...touches.values()],d=Math.hypot(a[0]-b[0],a[1]-b[1]);if(pinch0>0){const m=Math.max(S.W,S.D);view.r=clamp(r0*pinch0/d,m*.35,m*3.2+10);tween=null;apply();kick();}return;}}});
+    const endT=e=>{if(e.pointerType==='touch'){touches.delete(e.pointerId);if(touches.size<2)pinch0=0;}};stage.addEventListener('pointerup',endT);stage.addEventListener('pointercancel',endT);
     stage.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.x=e.clientX;drag.y=e.clientY;
-      view.theta-=dx*.0065;view.phi=clamp(view.phi-dy*.005,.07,1.5);tween=null;idle=0;if(view.name!=='free'){view.name='free';$$('.views [data-view]').forEach(b=>b.setAttribute('aria-pressed','false'));}apply();kick();});
+      view.theta-=dx*.0065;if(e.pointerType!=='touch')view.phi=clamp(view.phi-dy*.005,.07,1.5);tween=null;idle=0;if(view.name!=='free'){view.name='free';$$('.views [data-view]').forEach(b=>b.setAttribute('aria-pressed','false'));}apply();kick();});
     const end=()=>{drag=null;stage.classList.remove('drag');};stage.addEventListener('pointerup',end);stage.addEventListener('pointercancel',end);
-    stage.addEventListener('wheel',e=>{if(!(e.ctrlKey||e.metaKey))return;e.preventDefault();const m=Math.max(S.W,S.D);view.r=clamp(view.r*Math.exp(e.deltaY*.0025),m*.35,m*3.2+10);tween=null;apply();kick();},{passive:false});
+    stage.addEventListener('wheel',e=>{e.preventDefault();const m=Math.max(S.W,S.D);view.r=clamp(view.r*Math.exp(e.deltaY*.0025),m*.35,m*3.2+10);tween=null;apply();kick();},{passive:false});
 
     // layers
     $('#lyCover').addEventListener('change',e=>{if(heat)heat.mesh.visible=e.target.checked;kick();});
@@ -1865,14 +1950,19 @@ const space=(function(){
       if(tween){tween.t+=dt/tween.dur;const k=tween.t>=1?1:(tween.t<.5?4*tween.t**3:1-Math.pow(-2*tween.t+2,3)/2);['theta','phi','r','tx','ty','tz'].forEach(p=>view[p]=tween.from[p]+(tween.to[p]-tween.from[p])*k);apply();if(tween.t>=1)tween=null;}
       else if(!drag&&!reduce&&view.name==='persp'){idle+=dt;if(idle>3){view.theta+=dt*.045;apply();}}
       const on=sysOn(state.t),open=isOpen(state.t);
-      lightK+=((open?1:.45)-lightK)*Math.min(1,dt*3);M.cool.emissiveIntensity=(effTheme()==='dark'?.32:.18)*lightK;
+      lightK+=((open?1:.45)-lightK)*Math.min(1,dt*3);M.cool.emissiveIntensity=(isDark()?.32:.18)*lightK;
       S.units.forEach(u=>{const tgt=on?1:0;u.light.intensity+=(tgt*.9-u.light.intensity)*Math.min(1,dt*4);u.led.material=on?M.led:M.unit;});
       $$('.pin',ovl).forEach(p=>p.classList.toggle('off',!on));
       M.ceil.opacity=.12+.78*clamp((lightK-.45)/.55,0,1);
       const tt=now/1000;S.units.forEach(u=>{const pu=.85+.15*Math.sin(tt*3+u.ph*6);u.plume.material.opacity+=((on?.55*pu:0)-u.plume.material.opacity)*Math.min(1,dt*4);u.plume.scale.set(.45*pu,.75*pu,1);
         const k=(tt*.32+u.ph)%1,r=.3+k*u.R*1.1;u.wave.scale.set(r,r,r);u.wave.material.opacity=on&&!reduce?(1-k)*.4:0;});
       stepP(dt,on,false);stepHeat(dt);
-      if(flowCurve){people.forEach((g,i)=>{g.visible=open;if(!open)return;const sp=.55+i*.12;g.userData.u=(g.userData.u+dt*sp/flowLen)%1;const pnt=flowCurve.getPointAt(g.userData.u),tg=flowCurve.getTangentAt(g.userData.u);g.position.set(pnt.x+(i-1)*.18,0,pnt.z);g.rotation.y=Math.atan2(tg.x,tg.z);animPerson(g,now/1000,sp*1.3);});}
+      if(flowCurve){people.forEach((g,i)=>{g.visible=open;if(!open)return;const ud=g.userData,sp=ud.sp;
+        if(ud.follow!=null){const lead=people[ud.follow];ud.u=(lead.userData.u-.025/flowLen*10+1)%1;}else ud.u=(ud.u+dt*sp/flowLen)%1;
+        const pnt=flowCurve.getPointAt(ud.u),tg=flowCurve.getTangentAt(ud.u),nx=-tg.z,nz=tg.x;g.position.set(pnt.x+nx*ud.lane,0,pnt.z+nz*ud.lane);g.rotation.y=Math.atan2(tg.x,tg.z);
+        // inside the store: basket; past the till on the way out: АВАНТИ bag
+        const leaving=ud.u>.86||ud.u<.03;const entering=ud.u<.1;if(ud.basket){ud.basket.visible=!leaving&&!entering&&!ud.pushing&&!ud.isChild;ud.bag.visible=leaving&&!ud.pushing&&!ud.isChild;}
+        if(!ud.pushing)animPerson(g,now/1000,sp*(ud.elder?.9:1.3));else{const w=now/1000*6.2*sp+ud.ph,s=Math.sin(w);ud.legs.forEach((l,j)=>{const sg=j?1:-1;l.rotation.x=sg*s*.5;l.userData.sh.rotation.x=Math.max(0,-sg*Math.cos(w))*.8;});}});}
       const w=stage.clientWidth,h=stage.clientHeight;
       overlay.forEach(o=>{v3.copy(o.v).project(camera);const off=v3.z>1||v3.x<-1.1||v3.x>1.1||v3.y<-1.1||v3.y>1.1;o.el.style.visibility=off?'hidden':'visible';if(!off)o.el.style.transform='translate('+((v3.x+1)/2*w).toFixed(1)+'px,'+((1-v3.y)/2*h).toFixed(1)+'px)'+(o.kind==='lbl'?' translate(-50%,-50%)':'');});
       renderer.render(scene,camera);
