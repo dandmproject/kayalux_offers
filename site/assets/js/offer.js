@@ -1297,7 +1297,7 @@ const space=(function(){
         const plume=new T.Sprite(new T.SpriteMaterial({map:spr,color:0xffe2a8,transparent:true,opacity:.5,depthWrite:false,blending:T.AdditiveBlending}));plume.position.set(p[0]+d[0]*.17,p[1]+.55,p[2]+d[2]*.17);plume.scale.set(.5,.7,1);room.add(plume);
         const Rr=Math.sqrt(A/U.length/Math.PI);const wm=new T.MeshBasicMaterial({color:0xd4af63,transparent:true,opacity:0,depthWrite:false,side:T.DoubleSide});wm.userData.own=true;const wave=new T.Mesh(new T.RingGeometry(.94,1,48),wm);wave.rotation.x=-Math.PI/2;wave.position.set(p[0]+d[0]*Math.min(Rr,2.2),.02,p[2]+d[2]*Math.min(Rr,2.2));room.add(wave);
         const light=new T.PointLight(0xffc56a,.35,6,2);light.position.set(p[0]+d[0]*.5,p[1]-.2,p[2]+d[2]*.5);room.add(light);
-        const pin=document.createElement('button');pin.type='button';pin.className='pin';pin.textContent=i+1;pin.setAttribute('aria-label','Система '+(i+1)+': '+u.zone);
+        const pin=document.createElement('button');pin.type='button';pin.className='pin';pin.innerHTML='<b>'+(i+1)+'</b><span>Дифузер</span><i>'+(u.title||(PL?'Prime Lux':'Plug’n Go'))+'</i>';pin.setAttribute('aria-label','Дифузер '+(i+1)+' ('+(u.title||'')+'): '+u.zone);
         pin.addEventListener('click',e=>{e.stopPropagation();pick(i);});ovl.appendChild(pin);
         overlay.push({el:pin,v:new T.Vector3(p[0]+d[0]*.2,p[1]+.55,p[2]+d[2]*.2),kind:'pin'});
         S.units.push({p,d,info:u,led,light,plume,wave,R:Rr,ph:i/U.length,pin});pin.classList.toggle('pl',PL);
