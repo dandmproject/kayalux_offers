@@ -1,0 +1,49 @@
+# KAYA LUX · частни оферти, достъп само с линк
+# Поставя се в тайната папка (напр. /home/USER/oferti/k7x2-9qzv-m4pd-avanti/).
+# Apache 2.4 / LiteSpeed (cPanel). Нужни: mod_rewrite, mod_headers.
+
+# ---------- 1. Никакво листване, никакви служебни файлове ----------
+Options -Indexes -MultiViews
+DirectoryIndex index.html
+<FilesMatch "^\.">
+  Require all denied
+</FilesMatch>
+<FilesMatch "\.(htpasswd|htaccess|ini|log|sh|bak|sql|env|md|txt|zip|tgz)$">
+  Require all denied
+</FilesMatch>
+# robots.txt е изключение от горното: трябва да се чете
+<Files "robots.txt">
+  Require all granted
+</Files>
+
+# ---------- 2. Само HTTPS ----------
+RewriteEngine On
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# ---------- 3. Известни ботове и търсачки: 403 ----------
+# Google уважава noindex, но тук изобщо не им даваме страницата.
+RewriteCond %{HTTP_USER_AGENT} (googlebot|bingbot|yandex|baiduspider|duckduckbot|slurp|applebot|facebookexternalhit|facebot|twitterbot|linkedinbot|pinterest|whatsapp|telegrambot|discordbot|slackbot|skypeuripreview|embedly|quora|outbrain|vkshare|w3c_validator|semrush|ahrefs|mj12bot|dotbot|petalbot|bytespider|gptbot|ccbot|claudebot|anthropic|amazonbot|archive\.org_bot|ia_archiver|wget|curl|python-requests|scrapy|httpclient|libwww) [NC]
+RewriteRule ^ - [F,L]
+
+# ---------- 4. Заглавки: не индексирай, не кеширай, не вграждай ----------
+<IfModule mod_headers.c>
+  Header always set X-Robots-Tag "noindex, nofollow, noarchive, nosnippet, noimageindex, notranslate"
+  Header always set Referrer-Policy "no-referrer"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "DENY"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), interest-cohort=()"
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+  Header always set Cross-Origin-Opener-Policy "same-origin"
+  Header always set Content-Security-Policy "default-src 'none'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+  Header always set Cache-Control "private, no-store, max-age=0"
+  Header unset ETag
+</IfModule>
+FileETag None
+
+# ---------- 5. Само GET/HEAD ----------
+<LimitExcept GET HEAD>
+  Require all denied
+</LimitExcept>
+
+ServerSignature Off
