@@ -2301,8 +2301,8 @@
 					const blob = new Blob( [ bufferView ], {
 						type: source.mimeType
 					} );
-					sourceURI = URL.createObjectURL( blob );
-					return sourceURI;
+					isObjectURL = false;
+					return new Promise( function ( res, rej ) { const fr = new FileReader(); fr.onload = function () { sourceURI = fr.result; res( sourceURI ); }; fr.onerror = rej; fr.readAsDataURL( blob ); } );
 
 				} );
 
