@@ -1,0 +1,49 @@
+# KAYA LUX · частни оферти
+# Поставя се в папката на офертите (напр. public_html/oferti/ или отделен поддомейн).
+# Изисква Apache 2.4 с mod_rewrite, mod_headers, mod_authn_file, mod_auth_basic (cPanel ги има).
+
+# ---------- 1. Никакво листване на папки, никакви скрити файлове ----------
+Options -Indexes -MultiViews
+<FilesMatch "^\.">
+  Require all denied
+</FilesMatch>
+<FilesMatch "\.(htpasswd|htaccess|ini|log|sh|bak|sql|env|md|txt)$">
+  Require all denied
+</FilesMatch>
+
+# ---------- 2. Само HTTPS ----------
+RewriteEngine On
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# ---------- 3. Парола: по един потребител за всеки клиент ----------
+# Файлът .htpasswd е ИЗВЪН public_html (виж инструкцията). Смени пътя с твоя.
+AuthType Basic
+AuthName "KAYA LUX - oferta"
+AuthUserFile /home/CPANEL_USER/oferti.htpasswd
+Require valid-user
+
+# ---------- 4. Забрана за индексиране: HTTP header, не само meta таг ----------
+<IfModule mod_headers.c>
+  Header always set X-Robots-Tag "noindex, nofollow, noarchive, nosnippet, noimageindex"
+  Header always set Referrer-Policy "no-referrer"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "DENY"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+  Header always set Cross-Origin-Opener-Policy "same-origin"
+  # Офертата е самодостатъчна (шрифтове и лого вградени). Външен код: само three.js от cdnjs.
+  Header always set Content-Security-Policy "default-src 'none'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+  # Нищо да не се кешира извън браузъра на клиента (и там само кратко)
+  Header always set Cache-Control "private, no-store, max-age=0"
+  Header unset ETag
+</IfModule>
+FileETag None
+
+# ---------- 5. Само GET/HEAD ----------
+<LimitExcept GET HEAD>
+  Require all denied
+</LimitExcept>
+
+# ---------- 6. Без сървърни подписи ----------
+ServerSignature Off
