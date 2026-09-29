@@ -856,7 +856,7 @@ input[type=range]{height:28px;padding:6px 0;box-sizing:border-box}
       <div><dt>На вниманието на</dt><dd>г-жа Татяна Попова</dd></div>
       <div><dt>Дата</dt><dd>28.09.2026 г.</dd></div>
       <div><dt>Валидност</dt><dd>15 дни, до 13.10.2026 г.<br><span class="valid-left" id="validLeft">остават 15 дни</span></dd></div>
-      <div><dt>Месечно, без ДДС</dt><dd><span class="total num"><span data-bind="total">1&nbsp;701,00&nbsp;€</span><small data-bind="modeLabel">Пълно работно време, с регионалната добавка</small></span>
+      <div><dt>Месечно, без ДДС</dt><dd><span class="total num"><span data-bind="total">1&nbsp;701,00&nbsp;€</span><small data-bind="modeLabel">Пълно работно време, за 48 обекта</small></span>
         <div class="seg" role="radiogroup" aria-label="Режим на работа" data-mode-group>
           <button type="button" role="radio" data-mode="std" aria-checked="false">Стандартен</button>
           <button type="button" role="radio" data-mode="full" aria-checked="true">Пълно работно време</button>
@@ -1098,18 +1098,18 @@ input[type=range]{height:28px;padding:6px 0;box-sizing:border-box}
   <div class="wrap">
     <div class="head">
       <div class="no"><b>V</b><span>Сервиз</span></div>
-      <div><h2>Сервизът извън София</h2></div>
+      <div><h2>Сервиз в цялата страна</h2></div>
     </div>
     <div class="map-grid">
       <div>
         <div class="prose">
-          <p>Транспортните разходи в първоначалната оферта бяха калкулирани за сервизни маршрути в рамките на София. За 40-те обекта в София те остават изцяло включени в цената.</p>
-          <p>През двата месеца обслужване на 8-те обекта във Варна, Бургас и Велико Търново се оказа, че за тях са нужни отделни пътувания на сервизен екип от София или от Варна. Тези пътувания струват гориво, пътни такси и командировъчни. През пилотния период поехме тези разходи изцяло.</p>
-          <p>Занапред тези пътувания са включени в базовата такса за всеки обект, еднаква за София и за страната. По-голямата част от разхода за пътуване продължаваме да поемаме ние.</p>
+          <p>Веригата има 40 обекта в София и 8 във Варна, Бургас и Велико Търново. Всички 48 се обслужват по един и същ стандарт: редовно зареждане, поддръжка, мониторинг и реакция до 48 часа при технически проблем.</p>
+          <p>Обектите в София се обслужват от екипа ни в София. За обектите във Варна, Бургас и Велико Търново пътуват сервизни екипи от София и от Варна. През пилотния период през юли и август опознахме маршрутите и работното време на всеки обект.</p>
+          <p>Транспортът, монтажът и сервизът са включени в цената на всеки обект, еднакво за София и за страната. Няма отделни такси или пътни разходи.</p>
         </div>
         <div class="facts">
-          <div><b class="num">40</b><span>обекта в София: транспортът е изцяло включен в цената</span></div>
-          <div><b class="num">8</b><span>обекта извън София: сервизът е включен в цената, без добавки</span></div>
+          <div><b class="num">48</b><span>обекта с един стандарт на обслужване, в четири града</span></div>
+          <div><b class="num">0 €</b><span>отделни такси за транспорт, пътни разходи или сервиз</span></div>
         </div>
       </div>
       <div class="mapbox">
@@ -1126,14 +1126,14 @@ input[type=range]{height:28px;padding:6px 0;box-sizing:border-box}
   <div class="wrap">
     <div class="head">
       <div class="no"><b>VI</b><span>Цени</span></div>
-      <div><h2>Два режима на работа и цена</h2><p class="lead">Цената за всеки обект се определя според площта му, както в първоначалната оферта. Транспортът и сервизът за всички 48 обекта са включени в цената.</p></div>
+      <div><h2>Два режима на работа и цена</h2><p class="lead">Цената за всеки обект се определя според площта му, както в първоначалната оферта. Транспортът, монтажът и сервизът са включени.</p></div>
     </div>
 
     <div class="formula">
       <div>
         <div class="mark">Цена за обект, стандартен режим</div>
         <div class="eq num">10,75 € <em>+</em> 0,15 € × м²</div>
-        <p class="muted" style="margin-top:12px;font-size:14.5px">Базова такса 10,75 € плюс 0,15 € на кв. м, закръглено до 0,25 €. Базовата такса включва транспорта и сервиза за всички обекти, в София и извън нея. Така са изчислени всички цени в таблицата за стандартен режим.</p>
+        <p class="muted" style="margin-top:12px;font-size:14.5px">Базова такса 10,75 € плюс 0,15 € на кв. м, закръглено до 0,25 €. Така са изчислени всички цени в таблицата за стандартен режим.</p>
       </div>
       <div class="calc">
         <div class="row"><label for="areaRange">Площ на обекта</label><output id="calcArea" class="num" style="font-size:1.4rem">140 м²</output></div>
@@ -1224,7 +1224,7 @@ input[type=range]{height:28px;padding:6px 0;box-sizing:border-box}
           <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Ароматно масло. Можете да избирате от над 40 аромата и да сменяте аромата до 4 пъти годишно.</span></li>
         </ul></section>
         <section><h4>Монтаж и захранване</h4><ul>
-          <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Транспорт, монтаж и настройка на системите (за обектите в София без никакви допълнителни разходи).</span></li>
+          <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Транспорт, монтаж и настройка на системите във всички обекти, без допълнителни разходи.</span></li>
           <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Електрическо свързване на системите (кабели, разклонители, монтаж) изцяло за наша сметка.</span></li>
           <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Батерии за автономните системи (3 бр. алкални LR20/D на система), които доставяме и сменяме.</span></li>
         </ul></section>
@@ -1649,8 +1649,8 @@ const cityApi=(function(){
     const cn=el('text',{x:x,y:y,class:'c'});cn.textContent=n;g.appendChild(cn);
     const lx=c.at==='left'?x-(r+10):c.at==='right'?x+r+10:x,an=c.at==='left'?'end':c.at==='right'?'start':'middle',ly=c.at==='top'?y-r-26:y-2;
     const t=el('text',{x:lx,y:ly,'text-anchor':an});t.textContent=c.id;g.appendChild(t);
-    const s=el('text',{x:lx,y:ly+15,'text-anchor':an,class:'s'});s.textContent='транспортът е включен';g.appendChild(s);
-    if(c.base){const b=el('text',{x:x,y:y+r+22,'text-anchor':'middle',class:'base'});b.textContent='СЕРВИЗЕН ЕКИП';g.appendChild(b);}
+    const s=el('text',{x:lx,y:ly+15,'text-anchor':an,class:'s'});s.textContent=c.base?'сервизен екип':'обслужва се от екипа във '+(c.id==='Велико Търново'?'София':'Варна');g.appendChild(s);
+    
     g.addEventListener('click',()=>sel(c.id));g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();sel(c.id);}});
     svg.appendChild(g);G[c.id]=g;
   });
@@ -1658,7 +1658,7 @@ const cityApi=(function(){
   function sel(id){
     Object.entries(G).forEach(([k,g])=>g.classList.toggle('on',k===id));$$('#cityChips .chip').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.c===id)));
     const list=ROWS.filter(r=>r.city===id);
-    panel.innerHTML='<h4>'+id+' <small>'+list.length+' '+(list.length===1?'обект':'обекта')+' · транспортът е включен в цената</small></h4>'+
+    panel.innerHTML='<h4>'+id+' <small>'+list.length+' '+(list.length===1?'обект':'обекта')+'</small></h4>'+
       '<ul>'+list.map(r=>'<li><b style="font-weight:500">'+r.name+'</b><span class="num">'+fmt(r.area)+' м²</span></li>').join('')+'</ul>'+
       '<button type="button" class="btn small" id="cityGo">Покажи в таблицата с цените</button>';
     $('#cityGo').addEventListener('click',()=>{tableApi.setCity(id);$('#ceni .controls').scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});});
