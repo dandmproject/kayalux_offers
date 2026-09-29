@@ -1,34 +1,15 @@
 # Реални хора в 3D схемата (assets/models)
 
-Схемата рисува хората процедурно, докато тук няма модели. Сложиш ли GLB файлове и ги опишеш в `manifest.json`, страницата ги зарежда сама и ги ползва вместо процедурните фигури (върви и без тях – нищо не се чупи).
+В папката са 32 реалистични човешки модела (GLB, ~0,7 MB всеки) от Microsoft Rocketbox Avatar Library (лиценз MIT), с текстури 768/512 px, и общ файл с анимации `rb-anims.glb` (ходене, бавно ходене, стоене, чакане на опашка, оглеждане, телефон, торба в ръка – мъжки и женски версии, in-place).
 
-## Откъде се вземат модели с реален вид
+`manifest.json` описва всеки модел: файл, височина, роля. Роли (`tags`): `m` мъж, `f` жена, `child` дете, `elderly` възрастен (бавна походка), `staff` персонал (касиер). Схемата зарежда моделите постепенно (по 2 наведнъж), започвайки с по един от всяка роля, и ги ползва вместо процедурните фигури; докато нещо не е заредено, се вижда процедурна фигура. Без тази папка страницата работи както преди.
 
-1. **Mixamo (Adobe, безплатно с Adobe ID)** – https://www.mixamo.com → *Characters*: Remy, Stefani, Regina, Malcolm, Pete, Ely, Jolleen, Kaya, Megan, Josh, Leonard, Louise… (реалистични хора в ежедневни дрехи).
-   Download → Format **FBX Binary**, Skin **With Skin**, без анимация (T-pose). Конвертира се до GLB с:
-   ```
-   npx fbx2gltf -i Remy.fbx -o remy.glb --binary
-   ```
-   (Може и *Walking* / *Idle* анимации „with skin“ – тогава клиповете вътре се ползват директно; иначе се ползват общите от `anim.glb`.)
-2. **Ready Player Me** – https://readyplayer.me → създаваш аватар от снимка, копираш линка `…/xxxx.glb` и го сваляш. Полуреалистичен стил, дрехи по избор.
-3. **Sketchfab** (лиценз CC0/CC-BY, търси „rigged human mixamo“) – Download → glTF.
+## Да добавиш или смениш модел
 
-Условие: скелетът да е Mixamo-съвместим (кости Hips, Spine, LeftArm… с или без префикс `mixamorig:`). Височина, пол и роля се дават в manifest-а.
+1. Rocketbox: `tools/rocketbox/rb_avatar.sh Adults Male_Adult_19` (списък: https://github.com/microsoft/Microsoft-Rocketbox/tree/master/Assets/Avatars). Нужен е `npm pack fbx2gltf` за конвертора и Python с Pillow.
+2. Mixamo / Ready Player Me модели също вървят, но с друг скелет – за тях трябва ретаргет; засега loader-ът очаква Rocketbox скелет (кости `Bip01 …`).
+3. Добави ред в `manifest.json`: `{"file":"male_adult_19.glb","height":1.80,"tags":["m"]}`.
 
-## manifest.json
+## Тегло
 
-```json
-[
-  {"file":"remy.glb",    "height":1.78, "tags":["m"]},
-  {"file":"stefani.glb", "height":1.66, "tags":["f"]},
-  {"file":"child.glb",   "height":1.15, "tags":["child"]},
-  {"file":"leonard.glb", "height":1.72, "tags":["elderly","m"]},
-  {"file":"cashier.glb", "height":1.68, "tags":["staff","f"]}
-]
-```
-
-`tags`: `m`, `f`, `child`, `elderly`, `staff` – по тях схемата избира кого да пусне в магазина. Пълен набор за реалистична картина: 3–4 мъже, 3–4 жени, 1–2 деца, 1–2 възрастни, 1 касиер.
-
-## Тегло и производителност
-
-Един Mixamo персонаж е 1–4 MB (текстури 1024–2048 px). За 10 модела това са ~25 MB първо зареждане; после браузърът ги кешира. Ако е много: при конвертирането свали текстурите до 1024 px (`npx fbx2gltf … --binary` пази оригиналните).
+32 модела ≈ 23 MB; зареждат се на заден план и се кешират от браузъра. Ако е много за хостинга, махни редове от `manifest.json` (файловете може да останат) – 12–15 модела са достатъчни за разнообразие.
