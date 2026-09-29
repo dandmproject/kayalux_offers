@@ -889,7 +889,7 @@ input[type=range]{height:28px;padding:6px 0;box-sizing:border-box}
       <div class="figs">
         <div class="fig"><b class="num">48</b><span>обекта с общ ароматен подпис</span></div>
         <div class="fig"><b class="num">13</b><span>пилотни обекта през юли и август</span></div>
-        <div class="fig"><b class="num">96&nbsp;ч</b><span>седмично работят системите в повечето обекти</span></div>
+        <div class="fig"><b class="num">96&nbsp;ч</b><span>седмично работят системите в 38 от 48-те обекта</span></div>
         <div class="fig"><b class="num">&lt;&nbsp;0,25&nbsp;€</b><span>на ден за обект е разликата за пълно работно време</span></div>
       </div>
     </div>
@@ -973,10 +973,7 @@ input[type=range]{height:28px;padding:6px 0;box-sizing:border-box}
         <span><i class="lg-std"></i>Първоначална калкулация, 12 ч на ден</span>
         <span><i class="lg-open"></i>Работно време на обекта</span>
       </div>
-      <div class="seg" role="group" aria-label="Вид обект" id="schedVar">
-        <button type="button" data-v="typ" aria-pressed="true">Повечето обекти</button>
-        <button type="button" data-v="late" aria-pressed="false">Обект до 22:00 ч.</button>
-      </div>
+      <div class="field" style="min-width:min(100%,360px)"><label class="lab" for="schedStore">Обект</label><select id="schedStore" class="select"></select></div>
     </div>
     <div class="chartbox" id="chartbox">
       <svg class="chart" id="chart" viewBox="0 0 760 344" role="img" aria-labelledby="chartT"><title id="chartT">Седмичен график на ароматизацията спрямо първоначалната калкулация от 12 часа на ден</title></svg>
@@ -984,16 +981,16 @@ input[type=range]{height:28px;padding:6px 0;box-sizing:border-box}
     </div>
     <div class="hours3">
       <div><b class="num">84 ч</b><span>седмично по първоначалната калкулация: 12 ч × 7 дни</span></div>
-      <div><b class="num" id="h96">96 ч<sup>+14%</sup></b><span>за повечето обекти: пон.–съб. 6:50–20:50 и нед. 7:50–19:50</span></div>
-      <div><b class="num">104 ч<sup>+24%</sup></b><span>при обект, който работи до 22:00 ч. (пример)</span></div>
+      <div><b class="num" id="hStore">…</b><span id="hStoreT">…</span></div>
+      <div><b class="num" id="hChain">…</b><span id="hChainT">…</span></div>
     </div>
 
     <div class="cols2">
       <p>Настроихме графиците на системите по работното време на обектите, което ни предоставихте. <strong>Всяка система се включва 10 минути преди отварянето на обекта и се изключва 10 минути преди затварянето.</strong> Така ароматът е наличен още при влизането на първите клиенти.</p>
-      <p>За повечето обекти системите работят от понеделник до събота от 6:50 до 20:50 ч. (14 часа) и в неделя от 7:50 до 19:50 ч. (12 часа). Това прави 96 часа седмично, около 14% повече от заложеното. В обектите, които работят до 22:00 ч., увеличението е до 24%. Точният график на всеки обект ще бъде описан в Приложение № 1.</p>
+      <p>Графиците са по работното време на всеки обект от предоставения ни списък. 38 обекта работят от понеделник до събота 07:00–21:00 и в неделя 08:00–20:00: системите им работят 96 часа седмично, около 14% повече от заложеното. 4 обекта работят до 22:00 ч.: при тях увеличението е до 24%. Останалите 6 обекта са с отделни графици. Изберете обект над графика, за да видите точния му график; той ще бъде описан и в Приложение № 1.</p>
       <p><strong>Ароматното масло е най-големият разход в услугата.</strong> Разходът му расте с часовете работа и с обема на помещенията. Затова при по-дълъг работен режим се изразходва повече масло.</p>
     </div>
-    <div class="live"><i aria-hidden="true"></i><p><b>Текущо състояние.</b> В момента всички 48 системи работят в режим „Пълно работно време“ по графика на съответния обект. Работното време на всеки обект е по предоставения ни списък на веригата: 37 обекта работят пон.–съб. 07:00–21:00 и нед. 08:00–20:00; 4 обекта работят до 22:00 ч.; останалите 7 са с отделни графици. Точният график на всеки обект се вижда в часовника под 3D схемата в глава IV и ще бъде описан в Приложение № 1.</p></div>
+    <div class="live"><i aria-hidden="true"></i><p><b>Текущо състояние.</b> В момента всички 48 системи работят в режим „Пълно работно време“ по графика на съответния обект. Точният график на всеки обект се вижда в графика по-горе и в часовника под 3D схемата в глава IV.</p></div>
   </div>
 </section>
 
@@ -1591,14 +1588,18 @@ themeSubs.push(paintLogos);
   sel(0);
 })();
 
+const HOURS={1:[420,1260,480,1200],2:[420,1260,480,1200],3:[420,1260,480,1200],4:[420,1260,480,1200],5:[420,1260,480,1200],6:[480,1260,480,1200],7:[420,1260,480,1200],8:[420,1260,480,1200],9:[420,1260,480,1200],10:[420,1260,480,1200],11:[420,1260,480,1200],12:[420,1260,480,1200],13:[480,1260,540,1200],14:[480,1260,540,1200],15:[420,1260,480,1200],16:[420,1260,480,1200],17:[420,1260,480,1200],18:[420,1260,480,1200],19:[480,1290,510,1230],20:[420,1260,480,1200],21:[420,1260,480,1200],22:[420,1260,480,1200],23:[420,1260,480,1200],24:[420,1260,480,1200],25:[420,1320,480,1320],26:[420,1260,480,1200],27:[420,1320,480,1320],28:[420,1260,480,1200],29:[420,1260,480,1200],30:[420,1260,480,1200],31:[420,1260,480,1200],32:[420,1260,480,1200],33:[420,1260,480,1200],34:[420,1260,480,1200],35:[480,1320,480,1320],36:[480,1320,480,1320],37:[420,1260,480,1200],38:[420,1260,480,1200],39:[420,1260,480,1200],40:[480,1290,480,1200],41:[480,1260,540,1200],42:[420,1260,480,1200],43:[450,1290,480,1200],44:[420,1260,480,1200],45:[420,1260,480,1200],46:[420,1260,480,1200],47:[420,1260,480,1200],48:[420,1260,480,1200]};
+function hoursFor(n){const h=HOURS[n]||[420,1260,480,1200];const mk=(o,c)=>{const full=[o-10,c-10];let s0=Math.max(o,480),s1=Math.min(c,s0+720);if(c-o<=720){s0=o-10;s1=c-10;}return {open:o,close:c,full,std:[s0,s1]};};return {wd:mk(h[0],h[1]),sun:mk(h[2],h[3])};}
+const weekHours=n=>{const h=hoursFor(n);return ((h.wd.full[1]-h.wd.full[0])*6+(h.sun.full[1]-h.sun.full[0]))/60;};
 /* ---------- III: weekly schedule chart ---------- */
 (function(){
   const svg=$('#chart'),tip=$('#tip'),box=$('#chartbox'),NS='http://www.w3.org/2000/svg';
   const DAYS=['Понеделник','Вторник','Сряда','Четвъртък','Петък','Събота','Неделя'],SH=['Пон','Вт','Ср','Чет','Пет','Съб','Нед'];
-  const V={typ:{wd:[410,1250,420,1260],sun:[470,1190,480,1200]},late:{wd:[410,1310,420,1320],sun:[470,1310,480,1320]}};
   const X0=78,X1=688,H0=6*60,H1=23*60,x=m=>X0+(m-H0)/(H1-H0)*(X1-X0),top=44,rh=38;
   const el=(n,a)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);return e;};
-  let v='typ';
+  let cur=7;const selS=$('#schedStore');
+  ['София','Варна','Бургас','Велико Търново'].forEach(c=>{const og=document.createElement('optgroup');const L=ROWS.filter(r=>r.city===c);og.label=c+' ('+L.length+')';L.forEach(r=>{const o=document.createElement('option');o.value=r.n;const wk=weekHours(r.n);o.textContent='№ '+r.n+' · '+r.name+' · '+(wk%1?wk.toFixed(1).replace('.',','):wk)+' ч/седм.';og.appendChild(o);});selS.appendChild(og);});
+  selS.value=cur;
   function draw(){
     [...svg.childNodes].forEach(n=>{if(n.nodeName!=='title')svg.removeChild(n);});
     const defs=el('defs',{}),pat=el('pattern',{id:'hatch',width:'5',height:'5',patternUnits:'userSpaceOnUse',patternTransform:'rotate(45)'});
@@ -1607,7 +1608,7 @@ themeSubs.push(paintLogos);
     const narrow=box.clientWidth<600;for(let h=6;h<=23;h++){const xx=x(h*60);if((narrow?(h%3===0):(h%2===0))||h===23){svg.appendChild(el('line',{x1:xx,x2:xx,y1:top-8,y2:top+rh*7,class:'grid'}));const t=el('text',{x:xx,y:top-16,'text-anchor':'middle',class:'ax'});t.textContent=String(h).padStart(2,'0')+':00';svg.appendChild(t);}}
     let total=0;
     for(let d=0;d<7;d++){
-      const y=top+d*rh,[s,e,o,c]=V[v][d===6?'sun':'wd'],hrs=(e-s)/60;total+=hrs;
+      const H=hoursFor(cur)[d===6?'sun':'wd'],y=top+d*rh,[s,e]=H.full,o=H.open,c=H.close,hrs=(e-s)/60;total+=hrs;
       const dl=el('text',{x:X0-14,y:y+rh/2+4,'text-anchor':'end',class:'day'});dl.textContent=SH[d];svg.appendChild(dl);
       svg.appendChild(el('rect',{x:x(480),y:y+7,width:x(1200)-x(480),height:rh-14,class:'band'}));
       svg.appendChild(el('line',{x1:x(o),x2:x(c),y1:y+rh-5,y2:y+rh-5,class:'openl'}));
@@ -1617,7 +1618,9 @@ themeSubs.push(paintLogos);
       hit.addEventListener('pointermove',ev=>show(ev,d,s,e,o,c,hrs));hit.addEventListener('pointerleave',()=>tip.hidden=true);
       svg.appendChild(hit);
     }
-    const sum=el('text',{x:X1+14,y:top+rh*7+20,class:'hrs'});sum.textContent='= '+total+' ч';svg.appendChild(sum);
+    const sum=el('text',{x:X1+14,y:top+rh*7+20,class:'hrs'});sum.textContent='= '+(total%1?total.toFixed(1).replace('.',','):total)+' ч';svg.appendChild(sum);
+    const r=ROWS.find(r=>r.n===cur),h=hoursFor(cur),pct=Math.round((total/84-1)*100);
+    $('#hStore').innerHTML=(total%1?total.toFixed(1).replace('.',','):total)+' ч<sup>'+(pct>=0?'+':'')+pct+'%</sup>';$('#hStoreT').textContent='№ '+r.n+' · '+r.name+': пон.–съб. '+hm(h.wd.full[0])+'–'+hm(h.wd.full[1])+', нед. '+hm(h.sun.full[0])+'–'+hm(h.sun.full[1]);
     const base=el('text',{x:X0,y:top+rh*7+20,class:'ax'});base.textContent='Първоначална калкулация: 12 ч × 7 дни = 84 ч седмично';svg.appendChild(base);
   }
   function show(ev,d,s,e,o,c,hrs){
@@ -1625,8 +1628,11 @@ themeSubs.push(paintLogos);
     tip.innerHTML='<b>'+DAYS[d]+'</b><br>Ароматизация: '+hm(s)+'–'+hm(e)+' · '+hrs+' ч<br>Обектът работи: '+hm(o)+'–'+hm(c)+'<br>Първоначална калкулация: 08:00–20:00 · 12 ч';
     tip.hidden=false;tip.style.left=clamp(ev.clientX-r.left+box.scrollLeft,110,box.scrollWidth-110)+'px';tip.style.top=(ev.clientY-r.top)+'px';
   }
-  $$('#schedVar button').forEach(b=>b.addEventListener('click',()=>{v=b.dataset.v;$$('#schedVar button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));draw();}));
+  selS.addEventListener('change',()=>{cur=+selS.value;draw();});
   draw();
+  // chain-wide figures for the tiles
+  {const all=ROWS.map(r=>weekHours(r.n)),n96=all.filter(v=>Math.abs(v-96)<.01).length,mx=Math.max(...all),mn=Math.min(...all),avg=all.reduce((a,b)=>a+b,0)/all.length;
+   $('#hChain').innerHTML=avg.toFixed(1).replace('.',',')+' ч<sup>+'+Math.round((avg/84-1)*100)+'%</sup>';$('#hChainT').textContent='средно за 48-те обекта · от '+mn+' до '+mx+' ч · '+n96+' обекта са с 96 ч';}
 })();
 
 /* ---------- V: map of the chain ---------- */
@@ -1769,12 +1775,10 @@ const tableApi=(function(){
 })();
 
 /* ---------- IV: the store in 3D ---------- */
-const HOURS={1:[420,1260,480,1200],2:[420,1260,480,1200],3:[420,1260,480,1200],4:[420,1260,480,1200],5:[420,1260,480,1200],6:[480,1260,480,1200],7:[420,1260,480,1200],8:[420,1260,480,1200],9:[420,1260,480,1200],10:[420,1260,480,1200],11:[420,1260,480,1200],12:[420,1260,480,1200],13:[480,1260,540,1200],14:[480,1260,540,1200],15:[420,1260,480,1200],16:[420,1260,480,1200],17:[420,1260,480,1200],18:[420,1260,480,1200],19:[480,1290,510,1230],20:[420,1260,480,1200],21:[420,1260,480,1200],22:[420,1260,480,1200],23:[420,1260,480,1200],24:[420,1260,480,1200],25:[420,1320,480,1320],26:[420,1260,480,1200],27:[420,1320,480,1320],28:[420,1260,480,1200],29:[420,1260,480,1200],30:[420,1260,480,1200],31:[420,1260,480,1200],32:[420,1260,480,1200],33:[420,1260,480,1200],34:[420,1260,480,1200],35:[480,1320,480,1320],36:[480,1320,480,1320],37:[420,1260,480,1200],38:[420,1260,480,1200],39:[420,1260,480,1200],40:[480,1290,480,1200],41:[480,1260,540,1200],42:[420,1260,480,1200],43:[450,1290,480,1200],44:[420,1260,480,1200],45:[420,1260,480,1200],46:[420,1260,480,1200],47:[420,1260,480,1200],48:[420,1260,480,1200]};
-function hoursFor(n){const h=HOURS[n]||[420,1260,480,1200];const mk=(o,c)=>{const full=[o-10,c-10];let s0=Math.max(o,480),s1=Math.min(c,s0+720);if(c-o<=720){s0=o-10;s1=c-10;}return {open:o,close:c,full,std:[s0,s1]};};return {wd:mk(h[0],h[1]),sun:mk(h[2],h[3])};}
-let HRS=hoursFor(16);
+let HRS=hoursFor(7);
 const space=(function(){
   const stage=$('#stage'),ovl=$('#ovl'),sel=$('#storeSel'),hud=$('#hud');
-  const state={n:16,ceil:3.0,t:450,day:'wd',unit:0,playing:false};
+  const state={n:7,ceil:3.0,t:450,day:'wd',unit:0,playing:false};
   // store picker
   ['София','Варна','Бургас','Велико Търново'].forEach(c=>{const og=document.createElement('optgroup');const L=ROWS.filter(r=>r.city===c);og.label=c+' ('+L.length+')';
     L.forEach(r=>{const o=document.createElement('option');o.value=r.n;o.textContent='№ '+r.n+' · '+r.name+' · '+fmt(r.area)+' м²';og.appendChild(o);});sel.appendChild(og);});
