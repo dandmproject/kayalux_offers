@@ -12,6 +12,11 @@ header('Cache-Control: private, no-store, max-age=0');
 <title>Търговска оферта за АВАНТИ</title>
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
 <meta name="referrer" content="no-referrer">
+<link rel="preload" as="image" href="assets/img/logo.jpg">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/cormorant-garamond-cyrillic-500-normal.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/cormorant-garamond-cyrillic-400-italic.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-cyrillic-400-normal.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-cyrillic-500-normal.woff2">
 <link rel="stylesheet" href="assets/css/offer.css">
 </head>
 <body>
@@ -401,7 +406,6 @@ header('Cache-Control: private, no-store, max-age=0');
         <tfoot><tr class="tot3"><td colspan="4" id="tLabel">Общо на месец, 48 обекта, без ДДС</td><td class="r cs" id="tStd">1&nbsp;447,00&nbsp;€</td><td class="r cf" id="tFull">1&nbsp;701,00&nbsp;€</td></tr></tfoot>
       </table>
     </div>
-    <button type="button" class="chip more" id="more" hidden>Покажи всички 48 обекта</button>
     <div class="fine">
       <p>Натиснете ред, за да видите изчислението за обекта и да го отворите в 3D.</p>
       <p>Окончателните цени се прилагат от фактурата за месец септември 2026&nbsp;г. Фактурите за пилотните обекти за юли и август 2026&nbsp;г. остават без промяна.</p>
@@ -546,10 +550,11 @@ header('Cache-Control: private, no-store, max-age=0');
   <div class="wrap"><span>KAYA LUX · www.kayalux.bg · scent@kayalux.bg · <a href="tel:+359999999883">0999 999 883</a> · <a href="viber://chat?number=%2B359999999883">Viber</a></span><span>Оферта №&nbsp;2026-148-А (актуализирана) · 28.09.2026&nbsp;г.</span></div>
 </footer>
 
-<script src="assets/js/three.min.js"></script>
-<script src="assets/js/GLTFLoader.js"></script>
-<script src="assets/js/SkeletonUtils.js"></script>
-<script src="assets/js/people-gltf.js"></script>
-<script src="assets/js/offer.js"></script>
+<script defer src="assets/js/three.min.js"></script>
+<script defer src="assets/js/GLTFLoader.js"></script>
+<script defer src="assets/js/SkeletonUtils.js"></script>
+<script defer src="assets/js/people-gltf.js"></script>
+<script defer src="assets/js/offer.js"></script>
+<script>/* моделите тръгват, когато 3D схемата наближи екрана */addEventListener('DOMContentLoaded',function(){var st=document.getElementById('stage');if(!st||!window.KL_GLTF)return;if('IntersectionObserver' in window){var io=new IntersectionObserver(function(en){if(en[0].isIntersecting){KL_GLTF.start();io.disconnect();}},{rootMargin:'900px'});io.observe(st);}else KL_GLTF.start();});</script>
 </body>
 </html>

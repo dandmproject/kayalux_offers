@@ -7,7 +7,7 @@
   if(!window.THREE) return;
   var BASE=(document.currentScript&&document.currentScript.src)?document.currentScript.src.replace(/assets\/js\/[^/]*$/,''):'';
   var G=window.KL_GLTF={ready:false,models:[],pending:[],anims:null,instances:[],failed:false,loading:0};
-  var CLIPS=['walk','walkslow','idle','wait','look','phone','bag'];
+  var CLIPS=['walk','walkslow','idle','wait','look','phone','bag','talk','talk2','listen','phonetalk'];
   function fitHeight(o,h){o.updateMatrixWorld(true);var b=new THREE.Box3().setFromObject(o);var cur=b.max.y-b.min.y;if(!(cur>0))return 1;var s=h/cur;o.scale.setScalar(s);o.updateMatrixWorld(true);b=new THREE.Box3().setFromObject(o);var c=b.getCenter(new THREE.Vector3());o.position.set(-c.x,-b.min.y,-c.z);return s;}
   G.has=function(kind){return G.models.some(function(m){return !kind||m.tags.indexOf(kind)>=0;});};
   /* profile {kind:'m'|'f'|'child'|'elderly'|'staff', height, avoid:[files]} → Group с userData {mixer, play(name,fade), setSpeed, kind, file} */
@@ -30,6 +30,9 @@
     g.userData.gltf=true;g.userData.mixer=mixer;g.userData.kind=src.tags[0];g.userData.file=src.file;g.userData.sex=sex;g.userData.scale=scale;g.userData.height=profile.height||src.height;
     g.userData.play=function(n,fade){var a=acts[n]||acts.idle;if(!a||a===cur)return;a.reset().setEffectiveWeight(1).play();if(cur)cur.crossFadeTo(a,fade||0.3,false);cur=a;g.userData.clip=n;};
     g.userData.setSpeed=function(mps){/* ходене: клипът е ~1.3 m/s при timeScale 1 */var a=acts.walk;if(a)a.setEffectiveTimeScale(Math.max(.4,Math.min(1.8,mps/1.3)));var b=acts.walkslow;if(b)b.setEffectiveTimeScale(Math.max(.4,Math.min(1.8,mps/0.8)));};
+    /* лицеви форми (ако моделът е с blendshapes): face('smile'|'blink'|'aa'|'oh'|'ee'|'jaw'|'brows', 0..1) */
+    var morphs=[];root.traverse(function(x){if(x.isMesh&&x.morphTargetDictionary&&x.morphTargetInfluences)morphs.push(x);});
+    if(morphs.length){g.userData.face=function(name,w){for(var i=0;i<morphs.length;i++){var k=morphs[i].morphTargetDictionary[name];if(k!=null)morphs[i].morphTargetInfluences[k]=w;}};g.userData.faces=Object.keys(morphs[0].morphTargetDictionary);}
     g.userData.play('idle');G.instances.push(g);return g;};
   G.update=function(dt){for(var i=0;i<G.instances.length;i++){var g=G.instances[i];if(g.visible&&g.parent)g.userData.mixer.update(dt);}};
   G.release=function(g){var i=G.instances.indexOf(g);if(i>=0)G.instances.splice(i,1);};
@@ -41,12 +44,18 @@
       G.models.push({scene:gl.scene,file:m.file,height:m.height||1.72,tags:m.tags||['m'],used:0});G.ready=true;
       document.dispatchEvent(new CustomEvent('kl-gltf-model',{detail:{file:m.file,count:G.models.length}}));
     }).catch(function(e){console.warn('KL_GLTF',m.file,e);}).then(function(){G.loading--;if(!G.pending.length&&!G.loading)document.dispatchEvent(new CustomEvent('kl-gltf-ready',{detail:G}));next();});}
-  G.promise=fetch(BASE+'assets/models/manifest.json',{cache:'no-store'}).then(function(r){return r.ok?r.json():[];}).then(function(list){
+  var started=false;
+  /* зареждането започва едва когато 3D схемата наближи (offer.js вика KL_GLTF.start()); първите 12 модела веднага, останалите в свободно време */
+  G.start=function(){if(started)return G.promise;started=true;
+  G.promise=fetch(BASE+'assets/models/manifest.json',{cache:'default'}).then(function(r){return r.ok?r.json():[];}).then(function(list){
     if(!Array.isArray(list)||!list.length)return;
     return load(BASE+'assets/models/rb-anims.glb').then(function(a){G.anims={};a.animations.forEach(function(c){G.anims[c.name]=c;});var p0=a.scene.getObjectByName('Bip01_Pelvis');G.pelvisY=p0?p0.position.length():0;
       /* първо по един от всяка група, после останалите – за да има разнообразие още при първите хора */
       var groups={};list.forEach(function(m){var k=(m.tags||['m']).join(',');(groups[k]=groups[k]||[]).push(m);});
       var order=[],more=true;while(more){more=false;for(var k in groups){if(groups[k].length){order.push(groups[k].shift());more=true;}}}
-      G.pending=order;next();next();});
-  }).catch(function(e){G.failed=true;console.warn('KL_GLTF',e);});
+      var first=order.slice(0,12),rest=order.slice(12);G.pending=first;next();next();
+      var idle=window.requestIdleCallback||function(f){setTimeout(f,1500);};idle(function(){G.pending=G.pending.concat(rest);next();next();});});
+  }).catch(function(e){G.failed=true;console.warn('KL_GLTF',e);});return G.promise;};
+  /* ако никой не извика start() до 8 s след зареждане, започваме сами (за всеки случай) */
+  setTimeout(function(){if(!started&&document.getElementById('stage'))G.start();},8000);
 })();

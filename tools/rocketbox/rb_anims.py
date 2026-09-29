@@ -16,7 +16,7 @@ for n in nodes: n.pop('mesh',None); n.pop('skin',None)
 name2i={n.get('name'):i for i,n in enumerate(nodes)}
 g={'asset':{'version':'2.0','generator':'kayalux-rocketbox-anims'},'scene':0,'scenes':[{'nodes':base['scenes'][0]['nodes']}],'nodes':nodes,'animations':[],'accessors':[],'bufferViews':[],'buffers':[{}]}
 out=bytearray()
-clips={'walk_m':'m_walk_neutral','walk_f':'f_walk_neutral','walkslow_m':'m_walk_slow_01','walkslow_f':'f_walk_slow_01','idle_m':'m_idle_neutral_01','idle_f':'f_idle_neutral_01','wait_m':'m_idle_waiting_01','wait_f':'f_idle_waiting_01','look_m':'m_idle_look_around_01','look_f':'f_idle_look_around_01','phone_m':'m_cell_phone_textmessage','phone_f':'f_cell_phone_textmessage','bag_m':'m_hold_bag_idle','bag_f':'f_hold_bag_idle_01'}
+clips={'walk_m':'m_walk_neutral','walk_f':'f_walk_neutral','walkslow_m':'m_walk_slow_01','walkslow_f':'f_walk_slow_01','idle_m':'m_idle_neutral_01','idle_f':'f_idle_neutral_01','wait_m':'m_idle_waiting_01','wait_f':'f_idle_waiting_01','look_m':'m_idle_look_around_01','look_f':'f_idle_look_around_01','phone_m':'m_cell_phone_textmessage','phone_f':'f_cell_phone_textmessage','bag_m':'m_hold_bag_idle','bag_f':'f_hold_bag_idle_01','talk_m':'m_gestic_talk_neutral_01','talk_f':'f_gestic_talk_neutral_01','talk2_m':'m_gestic_talk_relaxed_01','talk2_f':'f_gestic_talk_relaxed_01','listen_m':'m_cell_phone_listen_01','listen_f':'f_hold_bag_listen','phonetalk_m':'m_cell_phone_talk_01'}
 MAXSEC=8.0
 for cname,fn in clips.items():
     j,bin_=read('anims/%s.glb'%fn); a=j['animations'][0]
