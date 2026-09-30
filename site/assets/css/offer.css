@@ -257,8 +257,9 @@ em{font-style:italic}
 .cols2 p strong{color:var(--ink);font-weight:600}
 .live{display:flex;gap:14px;align-items:flex-start;border:1px solid var(--line);padding:16px 18px;margin-top:40px;background:var(--surface)}
 .live i{flex:0 0 auto;width:9px;height:9px;border-radius:50%;background:var(--ok);margin-top:8px;box-shadow:0 0 0 0 var(--ok)}
- .live i{animation:beat 2.4s infinite} 
-@keyframes beat{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--ok) 60%,transparent)}70%{box-shadow:0 0 0 10px transparent}100%{box-shadow:0 0 0 0 transparent}}
+/* the green dot beats: a ring that grows and fades on the compositor (transform + opacity), no box-shadow repaints */
+.live i{position:relative}.live i::before{content:"";position:absolute;inset:-1px;border-radius:50%;border:2px solid var(--ok);opacity:0;pointer-events:none;will-change:transform,opacity;animation:liveRing 2.4s ease-out infinite}
+@keyframes liveRing{0%{transform:scale(1);opacity:.8}70%,100%{transform:scale(2.4);opacity:0}}
 .live b{color:var(--ok);font-weight:600}
 @media (max-width:760px){ .cols2{grid-template-columns:1fr} .hours3{grid-template-columns:1fr} .hours3 div{border-bottom:1px solid var(--line);padding:10px 16px} }
 
@@ -1058,7 +1059,6 @@ input[type=range]{height:28px;padding:6px 0;box-sizing:border-box}
 
   .dbtn:not(.up)::after{animation:dockRing 2.8s ease-out infinite}.dbtn.viber::after{animation-delay:1.4s}
   .pin b{animation:none}.pin b::before{animation:pinRing 2.4s ease-out infinite}
-  .live i{animation:none}
 
 @keyframes dockRing{0%{transform:scale(1);opacity:.75}70%,100%{transform:scale(1.42);opacity:0}}
 @keyframes pinRing{0%{transform:scale(1);opacity:.7}70%,100%{transform:scale(1.6);opacity:0}}
