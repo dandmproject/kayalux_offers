@@ -1513,8 +1513,9 @@ const space=(function(){
     const GL=()=>{const g=window.KL_GLTF;return g&&g.ready&&!g.failed?g:null;};
     const usedFiles=()=>people.concat(extras).map(p=>p.userData.file).filter(Boolean);
     let warmT=0;const warmSoon=()=>{if(!warmT)warmT=setTimeout(()=>{warmT=0;warm();},120);};
-    function gltfPerson(spec){const G=GL();if(!G)return null;warmSoon();spec=spec||{};let kind=spec.staff?'staff':spec.isChild?'child':spec.elder?'elderly':(spec.fem?'f':'m');if(!G.has(kind)){if(kind==='child')return null;kind=spec.fem?'f':'m';if(!G.has(kind))return null;}
-      const g=G.spawn({kind,height:spec.h||(spec.isChild?1.18:1.72),avoid:usedFiles()});if(!g)return null;const ud=g.userData,k=(ud.height||1.72)/1.72;
+    const WARMED=new Set(); // model files whose shaders are already compiled
+    function gltfPerson(spec){const G=GL();if(!G)return null;spec=spec||{};let kind=spec.staff?'staff':spec.isChild?'child':spec.elder?'elderly':(spec.fem?'f':'m');if(!G.has(kind)){if(kind==='child')return null;kind=spec.fem?'f':'m';if(!G.has(kind))return null;}
+      const g=G.spawn({kind,height:spec.h||(spec.isChild?1.18:1.72),avoid:usedFiles()});if(!g)return null;if(!WARMED.has(g.userData.file)){WARMED.add(g.userData.file);warmSoon();}const ud=g.userData,k=(ud.height||1.72)/1.72;
       ud.gltfP=true;ud.k=k;ud.elder=!!spec.elder||ud.kind==='elderly';ud.isChild=!!spec.isChild||ud.kind==='child';ud.yaw=0;ud.dist=0;ud.blend=0;ud.phone=!!spec.phone;ud.hipY=.9*k;
       ud.rh=g.getObjectByName('Bip01_R_Hand')||g.getObjectByName('Bip02_R_Hand')||null;ud.lh=g.getObjectByName('Bip01_L_Hand')||null;
       const basket=new T.Group();basket.add(new T.Mesh(SHARED.basket(),M.vc2));
