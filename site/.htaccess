@@ -4,7 +4,7 @@
 
 # ---------- 1. Никакво листване, никакви служебни файлове ----------
 Options -Indexes -MultiViews
-DirectoryIndex index.html
+DirectoryIndex index.php index.html
 <FilesMatch "^\.">
   Require all denied
 </FilesMatch>

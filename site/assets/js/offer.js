@@ -1100,13 +1100,13 @@ const space=(function(){
     function gltfHeads(dt){people.concat(extras).forEach(g=>{const ud=g.userData;if(!ud.gltfP||!g.visible||ud.culled){ud.hShow=null;ud.nShow=null;return;}if(ud.pushing)pushArms(g);else hands(g,dt);if(ud.headB===undefined)ud.headB=g.getObjectByName('Bip01_Head')||g.getObjectByName('Bip02_Head')||null;const hb=ud.headB;if(!hb)return;
       // a living face (the models carry smile, squint, blink, jaw, oh, brows): a friendly resting expression of their own, natural blinks,
       // now and then a real smile with the eyes, a big one at the till and when taking the bag, the mouth moving while talking; near faces only
-      if(ud.face&&g.position.distanceToSquared(camera.position)<110){const f=ud.fx||(ud.fx={t:0,mood:ud.cashier?.95:.7+Math.random()*.35,blink:1+Math.random()*3,grin:3+Math.random()*9,gT:0,sm:0,br:0});f.t+=dt;
+      if(ud.face&&g.position.distanceToSquared(camera.position)<110){const f=ud.fx||(ud.fx={t:0,mood:ud.cashier?1.7:1.3+Math.random()*.4,blink:1+Math.random()*3,grin:3+Math.random()*9,gT:0,sm:0,br:0});f.t+=dt;
         let bl=0;const tb=f.t-f.blink;if(tb>0){bl=tb<.07?tb/.07:(tb<.17?1-(tb-.07)/.1:0);if(tb>=.17)f.blink=f.t+(Math.random()<.18?.25:2+Math.random()*4.5);}
         if(f.t>f.grin){f.gT=1.4+Math.random()*1.6;f.grin=f.t+6+Math.random()*12;}if(f.gT>0)f.gT-=dt;
         const atTill=ud.cashier&&qOcc&&qOcc[0],happy=ud.phase==='bag'||!!ud.pay||atTill||f.gT>0,talk=!!ud.clip&&ud.clip.indexOf('talk')===0;
-        const smT=happy?1.45:f.mood;f.sm+=(smT-f.sm)*Math.min(1,dt*(smT>f.sm?4:1.6));f.br+=((happy?.32:0)-f.br)*Math.min(1,dt*3);
+        const smT=happy?2.2:f.mood;f.sm+=(smT-f.sm)*Math.min(1,dt*(smT>f.sm?4:1.6));f.br+=((happy?.32:0)-f.br)*Math.min(1,dt*3);
         const jaw=talk?Math.max(0,.2+.22*Math.sin(f.t*10.5)*Math.sin(f.t*3.1)):0,oh=talk?.16*Math.max(0,Math.sin(f.t*7.7+1)):0;
-        ud.face('smile',f.sm);ud.face('squint',f.sm*.42);ud.face('blink',bl);ud.face('jaw',jaw);ud.face('oh',oh);ud.face('brows',f.br);}
+        ud.face('smile',f.sm);ud.face('squint',f.sm*.38);ud.face('blink',bl);ud.face('jaw',jaw);ud.face('oh',oh);ud.face('brows',f.br);}
       // the turn is always applied to the animation's own head pose, never on top of last frame's turn: when the clip leaves the head alone
       // (or the mixer skipped a frame) the old offset is taken off first, so a head can never keep spinning
       if(ud.hQ&&hb.quaternion.equals(ud.hQ))hb.quaternion.copy(ud.hQ0);ud.hQ=null;
@@ -1174,7 +1174,7 @@ const space=(function(){
     const LD={el:$('#stageLoad'),p:0,done:false,t0:performance.now()};
     const pf={t:0,n:0,half:TIER===0,slowN:0}; // frame-time meter for the adaptive quality
     function ldSet(p){if(LD.done)return;LD.p=Math.max(LD.p,Math.min(100,p));const e=LD.el;if(e){e.querySelector('.sl-bar i').style.transform='scaleX('+(LD.p/100).toFixed(3)+')';e.querySelector('.sl-pct').textContent=Math.round(LD.p)+'%';e.setAttribute('aria-valuenow',Math.round(LD.p));}if(LD.p>=100)ldDone();}
-    function toFirstKey(){if(view.name!=='tour'||!S.units||!S.units.length)return;const K=tourKeys();tween=null;Object.assign(view,viewFrom(K[0].cam,K[0].tgt));apply();tour.k=0;tour.t=0;tour.first=false;}
+    function toFirstKey(){if(view.name!=='tour'||!S.units||!S.units.length)return;const K=tourKeys();tween=null;Object.assign(view,viewFrom(K[0].cam,K[0].tgt));apply();tour.k=0;tour.t=0;tour.first=false;tour.top=false;}
     // the bar leaves only once the first real frame (the store from the street) has been drawn under it: never a glimpse of a wall
     function ldDone(){if(LD.done)return;LD.done=true;if(DIAG)dlog('зареждането приключи за '+((performance.now()-LD.t0)/1000).toFixed(1)+' s');toFirstKey();try{renderer.render(scene,camera);}catch(e){}
       if(LD.el)requestAnimationFrame(()=>requestAnimationFrame(()=>{LD.el.classList.add('out');setTimeout(()=>{LD.el.hidden=true;},600);}));kick();}
@@ -1506,7 +1506,9 @@ const space=(function(){
       K.push({cam:V3(dx,1.7,hd+2.5),tgt:V3(dx,1.45,hd-2.5),dur:1.6,tw:2.6});                            // at the entrance, a moment to see where we are
       K.push({cam:V3(dx,1.72,hd-1.4),tgt:V3(dx*.4,1.45,hd-6),dur:1.2,tw:2.2});                         // through the door, inside
       S.units.forEach((u,i)=>K.push(unitKey(i)));                                                        // the diffusers
-      const p=presets('persp');K.push({view:{...p,theta:.35,phi:.46,r:p.r*1.62,tz:p.tz+S.hd*.3},dur:7,tw:3,drift:.1});    // the whole store from above (a real top view: coverage and labels switch on here)
+      if(S.cashier&&nav&&nav.queue&&nav.queue[0]){const c=S.cashier,q=nav.queue[0],dx=c[0]-q[0],dz=c[1]-q[1],L=Math.hypot(dx,dz)||1,ux=dx/L,uz=dz/L; // at the till, over the cashier's shoulder: the customer's face, the items, the card
+        K.push({cam:V3(q[0]-ux*.95+uz*.7,1.72,q[1]-uz*.95-ux*.7),tgt:V3(c[0],1.3,c[1]),dur:5.5,tw:2.4,till:1});} /* from beside the customer: the cashier's smiling face, the counter, the items */
+      const p=presets('persp');K.push({view:{...p,theta:.35,phi:.62,r:p.r*1.5,tz:p.tz+S.hd*.18},dur:7,tw:3,drift:.1});    // the whole store from above (a real top view: coverage and labels switch on here)
       return K;}
     const _tc=new T.Vector3(),_tt=new T.Vector3();
     function viewFrom(cam,tgt){const dx=cam.x-tgt.x,dy=cam.y-tgt.y,dz=cam.z-tgt.z,r=Math.max(.01,Math.hypot(dx,dy,dz));return {theta:Math.atan2(dx,dz),phi:Math.acos(clamp(dy/r,-1,1)),r,tx:tgt.x,ty:tgt.y,tz:tgt.z};}
@@ -1522,7 +1524,7 @@ const space=(function(){
     ['lyCover','lyLabels'].forEach(id=>{const el=$('#'+id);if(el)el.addEventListener('change',e=>{if(e.isTrusted)delete el.dataset.auto;});});
     function tourStep(dt){if(!S.units||!S.units.length)return;const K=tourKeys();
       if(tour.k<0||tour.t>=K[tour.k%K.length].dur){tour.k=(tour.k+1)%K.length;tour.t=0;const key=K[tour.k];
-        autoLayers(!!key.view);
+        tour.top=!!key.view;autoLayers(tour.top);
         if(tour.first||tour.k===0&&tour.cold){tour.first=false;tour.cold=false;Object.assign(view,viewFrom(key.cam,key.tgt));apply();}else flyTo(key,key.tw||2.2);
         if(key.u!=null)pick(key.u);return;}
       tour.t+=dt;const key=K[tour.k];if(key.drift){view.theta+=dt*key.drift;apply();}}
@@ -1699,7 +1701,7 @@ const space=(function(){
       let HR=null;if(hud&&hudIn&&hud.offsetParent){const a=hud.getBoundingClientRect(),b=stage.getBoundingClientRect();HR=[a.left-b.left,a.top-b.top,a.right-b.left,a.bottom-b.top];}
       overlay.filter(o=>o.kind==='lbl'&&!o.off).sort((a,b)=>a.sz-b.sz).forEach(o=>{if(!o.w){o.w=o.el.offsetWidth||80;o.h=o.el.offsetHeight||18;}if(HR&&o.sx+o.w/2>HR[0]&&o.sx-o.w/2<HR[2]&&o.sy+o.h/2>HR[1]&&o.sy-o.h/2<HR[3]){o.off=true;return;}if(kept.some(k=>Math.abs(k.sx-o.sx)<(k.w+o.w)/2+4&&Math.abs(k.sy-o.sy)<(k.h+o.h)/2+2))o.off=true;else kept.push(o);});
       {const cp=camera.position,inside=cp.z<S.hd&&Math.abs(cp.x)<S.hw;if(view.name==='tour'&&tour.k<3&&!inside)overlay.forEach(o=>{if(o.kind==='pin')o.off=true;});} // numbers only once we are inside (still shown from above)
-      {const top=view.name==='plan'||(view.name==='tour'&&tour.k>=3+S.units.length);if(!top)autoLayers(false);} // leaving the top view by any path (a diffuser number, a store switch…) switches them off
+      {const top=view.name==='plan'||(view.name==='tour'&&!!tour.top);if(!top)autoLayers(false);} // leaving the top view by any path (a diffuser number, a store switch…) switches them off
       helpFrame();tipFrame(w,h);
       overlay.forEach(o=>{if(o.kind==='pin'&&HR&&!o.off&&o.sx>HR[0]-20&&o.sx<HR[2]+20&&o.sy>HR[1]-20&&o.sy<HR[3]+20)o.off=true;});
       overlay.forEach(o=>{if(o.vis!==!o.off){o.vis=!o.off;o.el.style.visibility=o.off?'hidden':'visible';}if(!o.off){const tf='translate('+o.sx.toFixed(1)+'px,'+o.sy.toFixed(1)+'px)'+(o.kind==='lbl'?' translate(-50%,-50%)':' translate(-50%,-100%)');if(o.tf!==tf){o.tf=tf;o.el.style.transform=tf;}}}); // DOM written only when something changed
