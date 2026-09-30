@@ -439,7 +439,7 @@ const space=(function(){
     $('#scServe').textContent='≈ '+Math.round(r.area/n)+' м² площ и ≈ '+Math.round(r.area*H()/n)+' м³ обем'+(n>1?' (своята зона)':'');
     $('#scModel').textContent=u.model;$('#scRun').textContent=schedText();
     $('#sysList').innerHTML=U.map((x,j)=>'<button type="button" data-u="'+j+'" aria-pressed="'+(j===i)+'">'+(j+1)+' · '+x.info.zone+'</button>').join('');
-    hud.innerHTML='<b>№ '+r.n+' · '+r.name+'</b><span class="num">'+(S.shape==='L'?'Г-образен план · ':S.shape==='sq'?'квадратен план · ':'правоъгълен план · ')+fmt(r.area)+' м² · таван '+state.ceil.toFixed(1).replace('.',',')+' м · обем ≈ '+Math.round(r.area*H())+' м³ · '+n+' '+(n===1?'система':'системи')+'</span><em class="tag">'+(mdl==='PL'?'Дифузер Prime Lux · черно стъкло, рамка шампанско':'Дифузер · '+(col==='w'?'бял корпус':'черен корпус'))+' · план: типичен</em>';
+    hud.innerHTML='<span class="num">'+(S.shape==='L'?'Г-образен план · ':S.shape==='sq'?'квадратен план · ':'правоъгълен план · ')+fmt(r.area)+' м² · таван '+state.ceil.toFixed(1).replace('.',',')+' м · обем ≈ '+Math.round(r.area*H())+' м³ · '+n+' '+(n===1?'система':'системи')+'</span><em class="tag">'+(mdl==='PL'?'Дифузер Prime Lux · черно стъкло, рамка шампанско':'Дифузер · '+(col==='w'?'бял корпус':'черен корпус'))+' · план: типичен</em>';
     $$('.pin',ovl).forEach((p,j)=>p.classList.toggle('on',j===i));
   }
   let focusUnit=()=>{};
