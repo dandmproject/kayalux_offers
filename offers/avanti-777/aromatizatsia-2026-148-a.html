@@ -2088,11 +2088,20 @@ const space=(function(){
     const tour={k:-1,t:0,first:false};
     const V3=(x,y,z)=>new T.Vector3(x,y,z);
     function inRoom(x,z,m){return Math.abs(x)<S.hw-m&&Math.abs(z)<S.hd-m;}
-    function unitKey(i){const u=S.units[i],d=u.d,o=u.o,tgt=V3(o[0]+d[0]*.9,Math.max(1.1,o[1]-.45),o[2]+d[2]*.9);let best=null;
-      for(const sg of [1,-1])for(const sp of [.7,.45]){const a=Math.atan2(d[0],d[2])+sg*sp;let r=4.6,x=0,z=0;for(;r>2;r-=.2){x=o[0]+Math.sin(a)*r;z=o[2]+Math.cos(a)*r;if(inRoom(x,z,.45))break;}
-        const sc=r-(sp<.6?.3:0);if(!best||sc>best.sc)best={sc,cam:V3(x,Math.min(S.H-.45,1.95),z)};}
+    // the static things a shelf view can hide the diffuser behind (walls, gondolas, coolers) — built once per store, reused for every line-of-sight test
+    function losMeshes(){if(S._losTok===buildTok)return S._los;const L=[];room.traverse(o=>{if(o.isMesh&&!o.isSkinnedMesh&&!o.isInstancedMesh&&o.geometry&&o.visible&&!(o.material&&o.material.depthWrite===false)&&!(o.parent&&o.parent.userData&&o.parent.userData.gltf))L.push(o);});S._los=L;S._losTok=buildTok;return L;}
+    const _rcU=new T.Raycaster(),_cv=new T.Vector3(),_dv=new T.Vector3();
+    function clearLOS(cx,cy,cz,o){_cv.set(cx,cy,cz);_dv.set(o[0]-cx,o[1]-cy,o[2]-cz);const dist=_dv.length();_dv.normalize();_rcU.set(_cv,_dv);_rcU.near=.05;_rcU.far=dist-.35;const h=_rcU.intersectObjects(losMeshes(),false);return h.length===0;} // nothing stands between the camera and the diffuser
+    function unitKey(i){const u=S.units[i],d=u.d,o=u.o;
+      if(u._camTok!==buildTok){ // find (once per store) a spot in front of the diffuser with a clear view of it; cached so the per-frame tour stays cheap
+        let best=null;const cy=Math.min(S.H-.45,1.95),base=Math.atan2(d[0],d[2]);
+        for(const sp of [0,.3,.55,.85,1.15])for(const sg of [1,-1]){if(sp===0&&sg<0)continue;const a=base+sg*sp;
+          for(let r=4.8;r>=2;r-=.3){const x=o[0]+Math.sin(a)*r,z=o[2]+Math.cos(a)*r;if(!inRoom(x,z,.45))continue;
+            const clear=clearLOS(x,cy,z,o),sc=(clear?100:0)+r-sp*1.5;if(!best||sc>best.sc)best={sc,x,z,clear};if(clear)break;}}
+        u._cam=V3(best.x,cy,best.z);u._camTok=buildTok;u._clear=best.clear;}
+      const tgt=V3(o[0],Math.max(1.1,o[1]-.12),o[2]); // aim at the diffuser itself, not the air in front of it
       const inf=u.info||{},words=((inf.title||'')+' '+(inf.zone||'')+' '+(inf.why||'')).split(/\s+/).length;
-      return {cam:best.cam,tgt,u:i,dur:clamp(1.8+words/3.2,S.units.length>2?4.2:5.5,8),tw:2.4,drift:.02};} // long enough to read the note under the diffuser
+      return {cam:u._cam,tgt,u:i,dur:clamp(1.8+words/3.2,S.units.length>2?4.2:5.5,8),tw:2.4,drift:.02};} // long enough to read the note under the diffuser
     function tourKeys(){const dx=S.door.x,hd=S.hd,H=S.H,dist=Math.max(7,Math.min(11,S.W*.55)),K=[];
       {const vf=camera.fov*Math.PI/180,hf=2*Math.atan(Math.tan(vf/2)*camera.aspect),half=S.W/2+.8,far=clamp(half/Math.tan(hf/2),Math.max(8,dist),34); // the whole front fits, sign included, on any screen
         K.push({cam:V3(0,2.1+far*.05,hd+far),tgt:V3(0,1.6,hd),dur:3,tw:2.4,street:1});}                 // on the street: the АВАНТИ front, a little way back
@@ -2122,6 +2131,12 @@ const space=(function(){
         if(key.u!=null)pick(key.u);return;}
       if(!(HELP.on&&tour.k===2))tour.t+=dt;const key=K[tour.k];if(key.drift){view.theta+=dt*key.drift;apply();}} // the tour waits inside the door while the help is up, so the help and a diffuser note are never on screen together
     window.__tourK=()=>view.name==='tour'?tour.k:-1;
+    window.__diffAudit=()=>S.units.map((u,i)=>{const k=unitKey(i),cam=k.cam.clone(),o=new T.Vector3(u.o[0],u.o[1],u.o[2]);
+      const dir=o.clone().sub(cam),dist=dir.length();dir.normalize();
+      const rc=new T.Raycaster(cam,dir,.05,dist+.6);const L=[];room.traverse(o=>{if(o.isMesh&&!o.isSkinnedMesh&&o.geometry&&o.visible&&!(o.material&&o.material.depthWrite===false))L.push(o);});const hits=rc.intersectObjects(L,false);
+      const first=hits.length?hits[0].distance:1e9;const fwd=k.tgt.clone().sub(cam).normalize(),toO=o.clone().sub(cam).normalize();
+      const ang=Math.acos(Math.max(-1,Math.min(1,fwd.dot(toO))))*180/Math.PI;
+      return {i,at:u.info&&u.info.at,dist:+dist.toFixed(2),firstHit:first>1e8?-1:+first.toFixed(2),occluded:first<dist-.4,offAxis:+ang.toFixed(1)};});
     focusUnit=i=>{if(!S.units||!S.units[i])return;view.name='focus';TIP.fu=i;idle=0;$$('.views [data-view]').forEach(b=>b.setAttribute('aria-pressed','false'));flyTo(unitKey(i),1.8);};
     function apply(){const s=Math.sin(view.phi);camera.position.set(view.tx+view.r*s*Math.sin(view.theta),view.ty+view.r*Math.cos(view.phi),view.tz+view.r*s*Math.cos(view.theta));camera.lookAt(view.tx,view.ty,view.tz);}
     function go(name,instant){
