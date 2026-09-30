@@ -1024,3 +1024,8 @@ input[type=range]{height:28px;padding:6px 0;box-sizing:border-box}
   @keyframes dockPulse{0%{box-shadow:0 0 0 0 currentColor}70%,100%{box-shadow:0 0 0 12px transparent}}
 }
 .hero::after{display:block!important;content:"";position:absolute;left:0;right:0;bottom:0;height:140px;background:linear-gradient(to bottom,transparent,var(--ground));pointer-events:none;z-index:-1}
+/* логото от KAYA LUX (landing): монограм + надпис, в оригиналното злато */
+.brand{gap:10px}
+.brand .bm{width:auto;height:40px}
+.brand .bw{width:auto;height:17px}
+@media (max-width:600px){.brand .bm{height:36px}}

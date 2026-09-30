@@ -17,7 +17,7 @@ header('Cache-Control: private, no-store, max-age=0');
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/cormorant-garamond-cyrillic-400-italic.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-cyrillic-400-normal.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-cyrillic-500-normal.woff2">
-<link rel="stylesheet" href="assets/css/offer.min.css?v=ded759ba">
+<link rel="stylesheet" href="assets/css/offer.min.css?v=5a939198">
 </head>
 <body>
 <div class="grain" aria-hidden="true"></div>
@@ -26,7 +26,7 @@ header('Cache-Control: private, no-store, max-age=0');
   <div class="wrap">
     <a class="brand" href="#top" aria-label="KAYA LUX, към началото">
       <svg viewBox="0 0 26 36" aria-hidden="true"><ellipse cx="13" cy="18" rx="12.2" ry="17.2" fill="none" stroke="var(--gold)" stroke-width="1"/><ellipse cx="13" cy="18" rx="10.4" ry="15.2" fill="var(--gold)"/><text x="11.4" y="17.6" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="12.5" fill="var(--ground)">K</text><text x="14.6" y="27.4" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="12.5" fill="var(--ground)">L</text></svg>
-      <img class="bm" id="navMono" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="" width="22" height="30"><img class="bw" id="navWord" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="KAYA LUX" width="80" height="15">
+      <img class="bm" src="assets/img/logo-mark.png" alt="" width="36" height="48"><img class="bw" src="assets/img/logo-word.png" alt="KAYA LUX" width="106" height="20">
     </a>
     <span class="doc">Търговска оферта <b>АВАНТИ</b></span>
     <ul class="chapters">
@@ -160,7 +160,7 @@ header('Cache-Control: private, no-store, max-age=0');
           <li>Зареждаме го едновременно във всички 48 обекта.</li>
         </ol>
         <p class="note" id="seasonText" aria-live="polite">Tobacco Vanille е топъл аромат и е подходящ за есенно-зимния сезон. Затова той е първият сезонен аромат на веригата. Ако някой аромат стане любим на клиентите и екипите, той може да се връща всяка година в същия сезон и да стане разпознаваем символ на АВАНТИ.</p>
-        <p class="note"><b>Следващото тримесечие.</b> За сезона, започващ от декември 2026&nbsp;г., със голяма част от служителите се насочваме към аромат: <strong>Toffee</strong>, мляко, карамел и коледно настроение. В случай, че голяма част от персонала се спрат на него, той ще бъде зареден едновременно във всички 48 обекта през посещението на обектите за месец декември.</p>
+        <p class="note"><b>Следващото тримесечие.</b> За сезона, започващ от декември 2026&nbsp;г., с голяма част от служителите се насочваме към аромата <strong>Toffee</strong>: мляко, карамел и коледно настроение. В случай че голяма част от персонала се спре на него, той ще бъде зареден едновременно във всички 48 обекта при посещението на обектите през декември.</p>
       </div>
     </div>
   </div>
@@ -278,7 +278,7 @@ header('Cache-Control: private, no-store, max-age=0');
       <div>
         <div class="prose">
           <p>Веригата има 40 обекта в София и 8 във Варна, Бургас и Велико Търново. Всички 48 се обслужват по един и същ стандарт: редовно зареждане, поддръжка, мониторинг и реакция до 48 часа при технически проблем.</p>
-          <p>Обектите в София се обслужват от екипа ни в София. За обектите във Варна, Бургас и Велико Търново пътуват сервизни екипи от София и от Варна. През тестовия период през юли и август опознахме маршрутите и работното време на всеки обект.</p>
+          <p>Обектите в София се обслужват от екипа ни в София. За обектите във Варна, Бургас и Велико Търново пътуват сервизни екипи от София и от Варна. По време на тестовия период през юли и август опознахме маршрутите и работното време на всеки обект.</p>
           <p>Транспортът, монтажът и сервизът са включени в цената на всеки обект, еднакво за София и за страната. Няма отделни такси или пътни разходи.</p>
         </div>
         <div class="facts">
@@ -487,7 +487,7 @@ header('Cache-Control: private, no-store, max-age=0');
 </footer>
 
 <script defer src="assets/js/three.min.js"></script>
-<script defer src="assets/js/app.min.js?v=74fee59e"></script>
+<script defer src="assets/js/app.min.js?v=24440bb8"></script>
 <script>/* моделите (~5 MB, кеширани) тръгват на заден план след зареждането на страницата или когато 3D схемата наближи */addEventListener('DOMContentLoaded',function(){var st=document.getElementById('stage');if(!st||!window.KL_GLTF)return;var go=function(){KL_GLTF.start();};addEventListener('load',function(){setTimeout(function(){(window.requestIdleCallback||function(f){f();})(go);},1500);});if('IntersectionObserver' in window){var io=new IntersectionObserver(function(en){if(en[0].isIntersecting){go();io.disconnect();}},{rootMargin:'1400px'});io.observe(st);}else go();});</script>
 </body>
 </html>
