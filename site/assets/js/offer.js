@@ -1153,8 +1153,7 @@ const space=(function(){
       for(let i=-1;i<=1;i++){const ix=doorX+i*1.3,iz=hd-1.9;if(ix>-hw+.8&&ix<hw-.8){cbox(.62,.004,.62,'#a88a4e',ix,.002,iz);cbox(.56,.005,.56,'#0c0c0c',ix,.003,iz);}}
       // exterior: black fascia with red АВАНТИ + subtitle, poster, canopy with round downlights, pavement, steps, ramp with railing, street backdrop
       {const fz=hd+t+.05;LAYER=vaccF;cbox(W+2*t+.3,Hh-gH+.35,.1,'#151515',0,(Hh+gH)/2+.1,fz);LAYER=null;const fp=new T.Mesh(new T.PlaneGeometry(Math.min(W,9),Hh-gH+.2),M.facade);fp.position.set(doorX,(Hh+gH)/2+.08,fz+.06);room.add(fp);
-        // the АВАНТИ sign from every angle: a see-through copy above the entrance, always facing the camera, shown when the real sign is not readable
-        {const sm=new T.SpriteMaterial({map:M.facade.map,transparent:true,opacity:0,depthTest:false,depthWrite:false});sm.userData.own=true;const sp=new T.Sprite(sm);const sw=Math.min(W*.5,4.4);sp.scale.set(sw,sw/8,1);sp.position.set(doorX,Hh+.75,hd);sp.renderOrder=9;room.add(sp);S.signSprite=sp;}
+        // only the real АВАНТИ sign on the fascia (no floating copy above the store)
         const ps=new T.Mesh(new T.PlaneGeometry(1.4,2.1),M.adPoster);ps.position.set(Math.min(hw-.9,doorX+doorW/2+1.3),1.35,hd+t/2+.03);room.add(ps);
         LAYER=vaccF;cbox(doorW+3.2,.14,1.7,'#1c1c1c',doorX+.4,gH+.02,hd+.95);for(let i=-1;i<=1;i+=2){const dl=new T.CylinderGeometry(.13,.13,.02,12);cgeo(dl,'#ffffff',doorX+.4+i*.9,gH-.06,hd+1.0);}LAYER=null;
         const av=new T.Mesh(new T.PlaneGeometry(.3,.4),M.avantiRed);av.position.set((hw-(doorX+doorW/2)>.75)?doorX+doorW/2+.36:doorX-doorW/2-.36,.85,hd+t/2+.02);room.add(av);
@@ -1506,7 +1505,7 @@ const space=(function(){
       // the back and left walls fade out when the camera is behind them
       {const fade=(m,out)=>{const tg=out?.1:1;m.opacity+=(tg-m.opacity)*Math.min(1,dt*5);const tr=m.opacity<.985;if(m.transparent!==tr){m.transparent=tr;m.depthWrite=!tr;m.needsUpdate=true;}};fade(M.wallB,camera.position.z<-S.hd);fade(M.wallL,camera.position.x<-S.hw);
         const high=camera.position.y>S.H*.95;[M.vcF,M.wallF].forEach(m=>fade(m,high&&camera.position.z>S.hd));{const m=M.facade,tg=high&&camera.position.z>S.hd?.72:1;m.opacity+=(tg-m.opacity)*Math.min(1,dt*5);const tr=m.opacity<.985;if(m.transparent!==tr){m.transparent=tr;m.needsUpdate=true;}}
-        if(S.signSprite){const cp_=camera.position,front=cp_.z>S.hd+.4&&cp_.y<S.H*1.6,inside=cp_.y<S.H&&Math.abs(cp_.x)<S.hw&&Math.abs(cp_.z)<S.hd,m=S.signSprite.material,tg=front||inside?0:.78;m.opacity+=(tg-m.opacity)*Math.min(1,dt*4);S.signSprite.visible=m.opacity>.02;}if(S.ceil){const hide=camera.position.y>S.H-.3;S.ceil.forEach(o=>o.visible=!hide);}}
+        if(S.ceil){const hide=camera.position.y>S.H-.3;S.ceil.forEach(o=>o.visible=!hide);}}
       lightK+=((open?1:.45)-lightK)*Math.min(1,dt*3);M.cool.emissiveIntensity=.5*lightK;
       S.units.forEach(u=>{u.led.visible=on;u.pin.classList.toggle('off',!on);});
       M.led.color.setScalar(.3+.7*clamp((lightK-.45)/.55,0,1));if(S.lights)S.lights.forEach(l=>{l.intensity=.22*lightK;});if(S.coolLight)S.coolLight.intensity=.3*(.4+.6*lightK);
