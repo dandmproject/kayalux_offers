@@ -37,7 +37,7 @@
   G.update=function(dt){for(var i=0;i<G.instances.length;i++){var g=G.instances[i];if(g.visible&&g.parent)g.userData.mixer.update(dt);}};
   G.release=function(g){var i=G.instances.indexOf(g);if(i>=0)G.instances.splice(i,1);};
   if(!THREE.GLTFLoader||!THREE.SkeletonUtils){G.failed=true;return;}
-  var L=new THREE.GLTFLoader();
+  var L=new THREE.GLTFLoader();if(window.MeshoptDecoder)L.setMeshoptDecoder(window.MeshoptDecoder); /* моделите са свити с gltfpack -cc (EXT_meshopt_compression) */
   function load(url){return new Promise(function(res,rej){L.load(url,res,undefined,rej);});}
   function next(){if(G.loading>=2||!G.pending.length)return;var m=G.pending.shift();G.loading++;
     load(BASE+'assets/models/'+m.file).then(function(gl){gl.scene.traverse(function(x){if(x.isMesh&&x.material){x.material.side=x.material.transparent||x.material.alphaTest?THREE.DoubleSide:THREE.FrontSide;}});
