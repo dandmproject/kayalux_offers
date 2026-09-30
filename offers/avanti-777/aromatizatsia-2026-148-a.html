@@ -1052,7 +1052,8 @@ const space=(function(){
       basket:()=>b||(b=(()=>{const L=[[new T.CylinderGeometry(.15,.12,.2,8,1,true),'#d0212b'],[new T.CircleGeometry(.12,8).rotateX(Math.PI/2).translate(0,-.1,0),'#d0212b'],[new T.TorusGeometry(.14,.008,4,10,Math.PI).translate(0,.1,0),'#3a1a14']];[[-.05,.06,.04,'#e8e2d0'],[.05,.08,-.03,'#1f3a24'],[0,.05,.05,'#c9a24a'],[-.04,.09,-.05,'#7a1f1f'],[.06,.04,.05,'#2f6fb5']].forEach(([x,y,z,c])=>L.push([new T.CylinderGeometry(.025,.025,.11,6).translate(x,y,z),c]));return mergeColored(L);})()),
       bag:()=>{if(!bg)bg=mkBag(1);return bg.clone();},
       phone:()=>ph||(ph=mergeColored([[new T.BoxGeometry(.07,.14,.01),'#111111']])),
-      blob:()=>bl||(bl=new T.CircleGeometry(1,12))};})();
+      blob:()=>bl||(bl=new T.CircleGeometry(1,12)),
+      item:(()=>{const c=[];return i=>{i=i%5;if(!c[i]){const col=['#c8382e','#2f6fb5','#e0b23a','#3c7a3e','#e8e2d0'][i];c[i]=i%2?mergeColored([[new T.CylinderGeometry(.032,.032,.22,8),col]]):mergeColored([[new T.BoxGeometry(.085,.12,.055),col]]);}return c[i];};})()};})();
     // one InstancedMesh per product family for the whole store; each item = [x,y,z,sx,sy,sz,colour]
     function instanced(geo,list,shadow,pal,mat){const im=new T.InstancedMesh(geo,mat,list.length),m4=new T.Matrix4(),q=new T.Quaternion(),v=new T.Vector3(),sc=new T.Vector3(),c=new T.Color();
       list.forEach((p,i)=>{v.set(p[0],p[1]+p[4]/2,p[2]);sc.set(p[3],p[4],p[5]);m4.compose(v,q,sc);im.setMatrixAt(i,m4);c.set(p[6]||pal[(Math.random()*pal.length)|0]).convertSRGBToLinear();im.setColorAt(i,c);});
@@ -1362,7 +1363,7 @@ const space=(function(){
     const PARAMS={
       lambda:{7:18,8:28,9:20,10:14,11:18,12:30,13:26,14:14,15:14,16:22,17:36,18:42,19:34,20:22,21:10}, // §1 customers/hour, weekday, ~350 customers/day
       dayMul:{wd:1,sun:.6},areaRef:350,                                                                    // §1 Sunday morning ×0.6; λ scales with area (350 m² = 1.0)
-      densityMult:30,timeScale:.28,payScale:.15,speedScale:.55,                                                         // scene-time: visible density and shortened durations, ratios kept
+      densityMult:30,timeScale:.28,payScale:.3,speedScale:.55,                                                         // scene-time: visible density and shortened durations, ratios kept
       age:{elder:.2,teen:.05},speed:{adult:[1.2,1.4],browse:[.6,.9],elder:[.9,1.1]},                         // §2
       group:{couple:.12,child:.10},items:[[.45,1,1],[.35,2,3],[.15,4,6],[.05,7,12]],basketMin:4,basketP:.15,basketPickup:[2,4],phoneP:.35, // §2
       dwellMedian:180,impulseP:.65,grab:[3,8],browse:[15,60],browseP:{adult:.3,elder:.45,lunch:.2},standOff:[.4,.7],reach:[1,2], // §3
@@ -1449,17 +1450,20 @@ const space=(function(){
       if(ud.basket){ud.basket.visible=false;ud.bag.visible=false;}poseAny(g,T_,dt,v*ud.blend);}
     // §6 checkout at the head of the queue: greeting → scan n items → cash | card → bagging → goodbye; the next customer advances only afterwards
     function checkout(g,T_){const ud=g.userData,ts=PARAMS.payScale;const P=PARAMS;
-      if(!ud.pay){const n=Math.max(1,Math.min(ud.items||1,8)),cash=Math.random()<P.cashP,eld=ud.elder?P.elderPayMul:1;const d={greet:rr(P.greet),scan:n*P.scanPerItem,pay:(cash?rr(P.cash):rr(P.card))*eld,bag:n>1?rr([2,P.bagging[1]*.4]):0,bye:rr(P.goodbye)};let acc=0;const ph=[];for(const k of ['greet','scan','pay','bag','bye']){acc+=d[k]*ts;ph.push([k,acc]);}
+      if(!ud.pay){const n=Math.max(1,Math.min(ud.items||1,8)),cash=Math.random()<P.cashP,eld=ud.elder?P.elderPayMul:1;const d={greet:rr(P.greet)+n*.85/ts,scan:n*P.scanPerItem,pay:(cash?rr(P.cash):rr(P.card))*eld,bag:n>1?rr([2,P.bagging[1]*.4]):0,bye:rr(P.goodbye)};let acc=0;const ph=[];for(const k of ['greet','scan','pay','bag','bye']){acc+=d[k]*ts;ph.push([k,acc]);}
         ud.pay={t0:T_,n,cash,ph,total:acc};if(S.counterBasket)S.counterBasket.visible=!!ud.hasBasket;if(ud.basket)ud.basket.visible=false;}
       const e=T_-ud.pay.t0,cs=extras.find(x=>x.userData.cashier);let phase='bye';for(const [k,t] of ud.pay.ph){if(e<t){phase=k;break;}}
       ud.phase=phase==='pay'?(ud.pay.cash?'cash':'tap'):phase;
       if(cs){cs.userData.state=phase==='scan'?'scan':(phase==='greet'||phase==='bye')?'greet':'queue';cs.userData.lookAtP=(phase==='greet'||phase==='bye'||phase==='tap'||phase==='cash')?[g.position.x,g.position.z]:null;cs.userData.talking=phase==='greet';cs.userData.smile=phase!=='scan';}
       ud.lookAtP=(phase==='greet'||phase==='bye'||phase==='bag')?[cs?cs.position.x:g.position.x,cs?cs.position.z:g.position.z]:null;ud.talking=phase==='bye';ud.smile=phase!=='scan';
       if(S.beep)S.beep.visible=phase==='scan'&&((e-ud.pay.ph[0][1])%(PARAMS.scanPerItem*ts))<.25;
-      if(S.counterItems){const n=ud.pay.n,k=phase==='greet'?0:phase==='scan'?Math.floor((e-ud.pay.ph[0][1])/(PARAMS.scanPerItem*ts)):n,bagged=phase==='bag'||phase==='bye';
-        S.counterItems.forEach((m,j)=>{m.visible=j<n&&!bagged;if(m.visible){const P=j<k?m.userData.b:m.userData.a;m.position.set(P[0],P[1],P[2]);}});}
+      if(S.counterItems){const n=ud.pay.n,g0=ud.pay.ph[0][1],put=phase==='greet'?clamp((e/Math.max(.01,g0))*n,0,n):n,k=phase==='greet'?0:phase==='scan'?Math.floor((e-g0)/(PARAMS.scanPerItem*ts)):n,bagged=phase==='bag'||phase==='bye';
+        S.counterItems.forEach((m,j)=>{m.visible=j<Math.floor(put)&&!bagged;if(m.visible){const P=j<k?m.userData.b:m.userData.a;m.position.set(P[0],P[1],P[2]);}});
+        // the customer's hand puts each item down; the cashier's hand follows the one being scanned
+        const pj=clamp(Math.floor(put)||0,0,n-1);ud.placeTg=phase==='greet'&&put<n?S.counterItems[pj].userData.a:null;ud.placeQ=put%1;
+        if(cs){const sj=clamp(k||0,0,n-1);cs.userData.scanTg=phase==='scan'?S.counterItems[sj].userData.a:null;cs.userData.scanQ=phase==='scan'?((e-g0)/(PARAMS.scanPerItem*ts))%1:0;}}
       if(phase==='bag'||phase==='bye'){if(S.counterBasket)S.counterBasket.visible=false;}
-      if(e>=ud.pay.total){if(S.counterItems)S.counterItems.forEach(m=>m.visible=false);ud.pay=null;ud.phase=null;ud.lookAtP=null;ud.talking=false;ud.smile=false;if(cs){cs.userData.lookAtP=null;cs.userData.talking=false;cs.userData.smile=false;}qOcc[0]=null;navNext(g,T_);}}
+      if(e>=ud.pay.total){if(S.counterItems)S.counterItems.forEach(m=>m.visible=false);ud.placeTg=null;if(cs)cs.userData.scanTg=null;ud.pay=null;ud.phase=null;ud.lookAtP=null;ud.talking=false;ud.smile=false;if(cs){cs.userData.lookAtP=null;cs.userData.talking=false;cs.userData.smile=false;}qOcc[0]=null;navNext(g,T_);}}
     function stepPeople(dt,T_,open){
       people.forEach((g,i)=>{const ud=g.userData;if(!open){g.visible=false;if(ud.stroller)ud.stroller.visible=false;return;}
         if(ud.follow!=null){followParent(g,dt,T_);return;}
@@ -1528,6 +1532,7 @@ const space=(function(){
       basket.visible=false;g.add(basket);
       const bag=SHARED.bag();bag.visible=false;g.add(bag);
       const ph=new T.Mesh(SHARED.phone(),M.vc2);ph.visible=false;g.add(ph);
+      const it=new T.Mesh(SHARED.item((Math.random()*5)|0),M.vc);it.visible=false;it.castShadow=false;g.add(it);ud.itemM=it;
       const bl=new T.Mesh(SHARED.blob(),M.blob);bl.scale.setScalar(.34*k);bl.rotation.x=-Math.PI/2;bl.position.y=.012;bl.renderOrder=1;g.add(bl);
       ud.basket=basket;ud.bag=bag;ud.phoneM=ph;ud.arms=[{userData:{hd:ud.lh||g}},{userData:{hd:ud.rh||g}}];ud.legs=[];return g;}
     const _hv=new T.Vector3();
@@ -1555,11 +1560,35 @@ const space=(function(){
     // after the mixer: head yaw toward whoever the person looks at, pitch for a child looking up / elderly looking down / a nod when handed the bag
     const _q=new T.Quaternion(),_ax=new T.Vector3();
     const _a=new T.Vector3(),_b=new T.Vector3(),_c=new T.Vector3(),_qa=new T.Quaternion(),_qb=new T.Quaternion();
-    function aimBone(bone,child,target){bone.getWorldPosition(_a);child.getWorldPosition(_b);_b.sub(_a).normalize();_c.copy(target).sub(_a).normalize();_qa.setFromUnitVectors(_b,_c);
+    const _qw=new T.Quaternion();
+    function aimBone(bone,child,target,w){bone.getWorldPosition(_a);child.getWorldPosition(_b);_b.sub(_a).normalize();_c.copy(target).sub(_a).normalize();_qa.setFromUnitVectors(_b,_c);if(w!=null&&w<1){_qw.set(0,0,0,1).slerp(_qa,w);_qa.copy(_qw);}
       bone.getWorldQuaternion(_qb);_qb.premultiply(_qa);bone.parent.getWorldQuaternion(_q).invert();bone.quaternion.copy(_q.multiply(_qb));bone.updateMatrixWorld(true);}
     function pushArms(g){const ud=g.userData,st=ud.stroller;if(!st||ud.state!=='walk')return;if(!ud.armB){const B=n=>g.getObjectByName('Bip01_'+n)||g.getObjectByName('Bip02_'+n);ud.armB=['L','R'].map(s=>[B(s+'_UpperArm'),B(s+'_Forearm'),B(s+'_Hand')]);}
       st.updateMatrixWorld(true);ud.armB.forEach((a,i)=>{if(!a[0]||!a[1]||!a[2])return;const tgt=new T.Vector3(i?-.16:.16,1.0,-.22);st.localToWorld(tgt);aimBone(a[0],a[1],tgt);aimBone(a[1],a[2],tgt);});}
-    function gltfHeads(dt){people.concat(extras).forEach(g=>{const ud=g.userData;if(!ud.gltfP||!g.visible||ud.culled)return;if(ud.pushing)pushArms(g);if(ud.headB===undefined)ud.headB=g.getObjectByName('Bip01_Head')||g.getObjectByName('Bip02_Head')||null;const hb=ud.headB;if(!hb)return;
+    // hands at work: a shopper at a shelf or fridge reaches in and takes a product (it rides in the hand to the basket), a customer at the till
+    // puts the items on the counter one by one, the cashier reaches for each item she scans – arm bones aimed on top of the clip, nothing new to load
+    const _rt=new T.Vector3();
+    function reachArm(g,tg,w){const ud=g.userData;if(!ud.armB){const B=n=>g.getObjectByName('Bip01_'+n)||g.getObjectByName('Bip02_'+n);ud.armB=['L','R'].map(s_=>[B(s_+'_UpperArm'),B(s_+'_Forearm'),B(s_+'_Hand')]);}
+      const a=ud.armB[1];if(!a[0]||!a[1]||!a[2]||w<.01)return;aimBone(a[0],a[1],tg,w);aimBone(a[1],a[2],tg,w);}
+    function handItem(g,show){const ud=g.userData,it=ud.itemM;if(!it)return;it.visible=show;if(show&&ud.rh){ud.rh.getWorldPosition(_hv);g.worldToLocal(_hv);it.position.set(_hv.x,_hv.y-.02,_hv.z);}}
+    function hands(g,dt){const ud=g.userData;let show=false;
+      if(ud.state==='browse'&&!ud.pushing&&!ud.isChild&&!ud.phone){const r=ud.rch||(ud.rch={t:0,next:.5+Math.random()*1.2,p:-1});r.t+=dt;
+        if(r.p<0&&r.t>r.next&&(ud.until||0)-performance.now()/1000>1.9){r.p=0;const fa=ud.faceAng!=null?ud.faceAng:g.rotation.y,k=ud.k||1,h=(.85+Math.random()*.7)*k;r.tg=[g.position.x+Math.sin(fa)*.55,g.position.y+h,g.position.z+Math.cos(fa)*.55];}
+        if(r.p>=0){r.p+=dt/1.8;const w=r.p<.38?r.p/.38:r.p<.55?1:Math.max(0,(1-r.p)/.45);_rt.set(r.tg[0],r.tg[1],r.tg[2]);reachArm(g,_rt,w*.95);show=r.p>.46&&r.p<.97;if(r.p>=1){r.p=-1;r.next=r.t+1.6+Math.random()*2.8;}}}
+      else if(ud.rch){ud.rch.p=-1;}
+      if(ud.placeTg){const q=ud.placeQ||0,w=Math.sin(Math.PI*q);_rt.set(ud.placeTg[0],ud.placeTg[1]+.04,ud.placeTg[2]);reachArm(g,_rt,w*.9);show=show||q<.5;}
+      if(ud.scanTg){const w=.55+.35*Math.sin(ud.scanQ*Math.PI*2);_rt.set(ud.scanTg[0],ud.scanTg[1]+.05,ud.scanTg[2]);reachArm(g,_rt,w);}
+      handItem(g,show);}
+    function gltfHeads(dt){people.concat(extras).forEach(g=>{const ud=g.userData;if(!ud.gltfP||!g.visible||ud.culled)return;if(ud.pushing)pushArms(g);else hands(g,dt);if(ud.headB===undefined)ud.headB=g.getObjectByName('Bip01_Head')||g.getObjectByName('Bip02_Head')||null;const hb=ud.headB;if(!hb)return;
+      // a living face (the models carry smile, squint, blink, jaw, oh, brows): a friendly resting expression of their own, natural blinks,
+      // now and then a real smile with the eyes, a big one at the till and when taking the bag, the mouth moving while talking; near faces only
+      if(ud.face&&g.position.distanceToSquared(camera.position)<110){const f=ud.fx||(ud.fx={t:0,mood:ud.cashier?.7:.4+Math.random()*.35,blink:1+Math.random()*3,grin:3+Math.random()*9,gT:0,sm:0,br:0});f.t+=dt;
+        let bl=0;const tb=f.t-f.blink;if(tb>0){bl=tb<.07?tb/.07:(tb<.17?1-(tb-.07)/.1:0);if(tb>=.17)f.blink=f.t+(Math.random()<.18?.25:2+Math.random()*4.5);}
+        if(f.t>f.grin){f.gT=1.4+Math.random()*1.6;f.grin=f.t+6+Math.random()*12;}if(f.gT>0)f.gT-=dt;
+        const atTill=ud.cashier&&qOcc&&qOcc[0],happy=ud.phase==='bag'||!!ud.pay||atTill||f.gT>0,talk=!!ud.clip&&ud.clip.indexOf('talk')===0;
+        const smT=happy?1.2:f.mood;f.sm+=(smT-f.sm)*Math.min(1,dt*(smT>f.sm?4:1.6));f.br+=((happy?.32:0)-f.br)*Math.min(1,dt*3);
+        const jaw=talk?Math.max(0,.2+.22*Math.sin(f.t*10.5)*Math.sin(f.t*3.1)):0,oh=talk?.16*Math.max(0,Math.sin(f.t*7.7+1)):0;
+        ud.face('smile',f.sm);ud.face('squint',f.sm*.4);ud.face('blink',bl);ud.face('jaw',jaw);ud.face('oh',oh);ud.face('brows',f.br);}
       // the turn is always applied to the animation's own head pose, never on top of last frame's turn: when the clip leaves the head alone
       // (or the mixer skipped a frame) the old offset is taken off first, so a head can never keep spinning
       if(ud.hQ&&hb.quaternion.equals(ud.hQ))hb.quaternion.copy(ud.hQ0);ud.hQ=null;
@@ -2051,12 +2080,20 @@ const space=(function(){
       if(f>.08)dlog('дълъг кадър '+Math.round(f*1000)+' ms · изглед '+view.name+(view.name==='tour'?' '+tour.k:'')+(LD.done?'':' · зареждане'));
       const np=renderer.info.programs.length;if(DG.prog&&np>DG.prog)dlog('нов шейдър (общо '+np+')');DG.prog=np;
       const rg=window.__regenN||0,ru=(window.KL_GLTF&&KL_GLTF.reused)||0;if(rg>DG.regen)dlog('нов клиент · '+(ru>DG.reused?'от пула':'клониран'));DG.regen=rg;DG.reused=ru;
+      // people: a shopper standing still while walking (stuck), a head that snaps round in one frame, someone outside the walls
+      if(!DG.pp)DG.pp=new WeakMap();const _q1=DG.q1||(DG.q1=new T.Quaternion()),_q2=DG.q2||(DG.q2=new T.Quaternion());
+      people.forEach(g=>{const ud=g.userData;if(!g.visible)return;let r=DG.pp.get(g);if(!r){r={x:g.position.x,z:g.position.z,t:now,snap:0};DG.pp.set(g,r);}
+        if(ud.state==='walk'){if(Math.hypot(g.position.x-r.x,g.position.z-r.z)>.08){r.x=g.position.x;r.z=g.position.z;r.t=now;r.warn=0;}else if(now-r.t>9000&&!r.warn){r.warn=1;dlog('клиент стои на място 9 s, докато върви (заседнал?) · '+g.position.x.toFixed(1)+', '+g.position.z.toFixed(1));}}else{r.x=g.position.x;r.z=g.position.z;r.t=now;}
+        if(ud.gltfP&&ud.headB&&!ud.culled){ud.headB.getWorldQuaternion(_q1);g.getWorldQuaternion(_q2);_q2.invert().multiply(_q1);if(r.hq){const ang=r.hq.angleTo(_q2);if(ang>.45&&now-r.snap>3000){r.snap=now;dlog('рязко обръщане на глава '+Math.round(ang*57)+'° за един кадър · '+(ud.state||'')+' '+(ud.clip||''));}}else r.hq=new T.Quaternion();r.hq.copy(_q2);}
+        if(Math.abs(g.position.x)>S.hw+.3&&!(Math.abs(g.position.x-S.door.x)<S.door.w&&g.position.z>S.hd-.5)&&g.position.z<S.hd+2&&!r.out){r.out=1;dlog('човек извън стените · '+g.position.x.toFixed(1)+', '+g.position.z.toFixed(1));}});
       if(now-DG.last<500)return;DG.last=now;const a=DG.ft.slice().sort((x,y)=>x-y),n=a.length||1,avg=a.reduce((x,y)=>x+y,0)/n;
       const mem=performance.memory?Math.round(performance.memory.usedJSHeapSize/1e6)+' MB':'—',ri=renderer.info;
       DG.el.lastChild.textContent='KAYA LUX · диагностика (?diag=1)\n'+
         'кадри: '+(1000/avg).toFixed(1)+' fps · средно '+avg.toFixed(1)+' ms · 95% '+a[Math.floor(n*.95)|0].toFixed(0)+' ms · макс '+a[n-1].toFixed(0)+' ms\n'+
         'засечки: '+Math.round((pf.jank||0)*100)+'% · ниво '+TIER+' · резолюция '+dpr.toFixed(2)+' · '+(pf.half?'30 fps':'пълна скорост')+(pf.probing?' (проба)':'')+' · стъпка '+(pf.q||0)+' · сенки '+(renderer.shadowMap.enabled?'да':'не')+'\n'+
         'рисувания '+ri.render.calls+' · триъгълници '+ri.render.triangles+' · шейдъри '+np+' · геометрии '+ri.memory.geometries+' · текстури '+ri.memory.textures+'\n'+
+        (()=>{const c={};people.forEach(g=>{if(g.visible){const k=g.userData.pay?'каса':g.userData.state||'?';c[k]=(c[k]||0)+1;}});const pa=people.find(g=>g.userData.pay);let al=0;for(let i=0;i<PN;i++)if(pAl[i]>.02)al++;
+          return 'хора: '+Object.entries(c).map(([k,v])=>k+' '+v).join(', ')+' · опашка '+qOcc.map(q=>q?'●':'○').join('')+(pa?' · каса: '+(pa.userData.phase||'')+' '+(pa.userData.pay.n)+' ст.':'')+'\nаромат: пръскат '+S.units.filter(u=>u.act).length+'/'+S.units.length+' дифузера · частици '+al+'/'+PN+'\n';})()+
         'хора '+people.length+' · пул '+((window.KL_GLTF&&KL_GLTF.poolN)||0)+' · памет '+mem+' · време '+Math.round((now-DG.t0)/1000)+' s\n'+
         'видеокарта: '+DG.gpu+'\n'+navigator.userAgent.replace(/^Mozilla\/5.0 /,'')+'\n\n'+DG.log.join('\n');}
     // the note under a diffuser: appears once the camera has arrived (tour or a click on its number), stays for the reading time, fades out on the move
