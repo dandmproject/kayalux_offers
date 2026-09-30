@@ -1044,3 +1044,11 @@ input[type=range]{height:28px;padding:6px 0;box-sizing:border-box}
   .views button{min-height:44px;min-width:44px}.stage-bar label,.layers label{min-height:44px;display:inline-flex;align-items:center}
   .stage-pick select{min-height:44px;font-size:16px}.pin b{width:30px;height:30px;line-height:30px}
   .stage-under .hint{display:block!important;font-size:12px;line-height:1.45}}
+/* phones: every view button visible (two tidy rows), no hidden horizontal strip */
+@media (max-width:560px){.stage-bar .views{display:grid;grid-template-columns:repeat(12,1fr);overflow:visible;gap:4px;width:100%}
+  .stage-bar .views button{grid-column:span 4;padding:4px 2px;white-space:nowrap;min-width:0}
+  .stage-bar .views [data-view="persp"]{grid-column:span 5}.stage-bar .views [data-view="plan"]{grid-column:span 3}
+  .stage-bar .views [data-zoom]{grid-column:span 2;font-size:18px}
+  .stage-bar .layers{flex-wrap:wrap;row-gap:0}}
+/* phones: while the 3D set is on screen the quick-contact buttons step back (smaller, see-through) so they do not cover the set or its buttons */
+@media (max-width:560px){.dock{transition:opacity .3s,transform .3s;transform-origin:100% 100%}.dock.dim{opacity:.4;transform:scale(.78)}.dock.dim:active,.dock.dim:focus-within{opacity:1;transform:none}}
