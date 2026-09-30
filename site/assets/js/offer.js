@@ -1097,7 +1097,7 @@ const space=(function(){
         ud.cardM.visible=!!tap;ud.noteM.visible=!!cash;const pm=tap?ud.cardM:cash?ud.noteM:null;if(pm&&ud.rh){ud.rh.getWorldPosition(_hv);g.worldToLocal(_hv);pm.position.set(_hv.x,_hv.y-.01,_hv.z);pm.rotation.set(-.4,g.rotation.y*0,0);}}
       if(ud.scanTg){const w=.55+.35*Math.sin(ud.scanQ*Math.PI*2);_rt.set(ud.scanTg[0],ud.scanTg[1]+.05,ud.scanTg[2]);reachArm(g,_rt,w);}
       handItem(g,show);}
-    function gltfHeads(dt){people.concat(extras).forEach(g=>{const ud=g.userData;if(!ud.gltfP||!g.visible||ud.culled){ud.hShow=null;return;}if(ud.pushing)pushArms(g);else hands(g,dt);if(ud.headB===undefined)ud.headB=g.getObjectByName('Bip01_Head')||g.getObjectByName('Bip02_Head')||null;const hb=ud.headB;if(!hb)return;
+    function gltfHeads(dt){people.concat(extras).forEach(g=>{const ud=g.userData;if(!ud.gltfP||!g.visible||ud.culled){ud.hShow=null;ud.nShow=null;return;}if(ud.pushing)pushArms(g);else hands(g,dt);if(ud.headB===undefined)ud.headB=g.getObjectByName('Bip01_Head')||g.getObjectByName('Bip02_Head')||null;const hb=ud.headB;if(!hb)return;
       // a living face (the models carry smile, squint, blink, jaw, oh, brows): a friendly resting expression of their own, natural blinks,
       // now and then a real smile with the eyes, a big one at the till and when taking the bag, the mouth moving while talking; near faces only
       if(ud.face&&g.position.distanceToSquared(camera.position)<110){const f=ud.fx||(ud.fx={t:0,mood:ud.cashier?.95:.7+Math.random()*.35,blink:1+Math.random()*3,grin:3+Math.random()*9,gT:0,sm:0,br:0});f.t+=dt;
@@ -1114,6 +1114,7 @@ const space=(function(){
       if(ud.elder&&ud.state==='browse')pitch+=.15;if(ud.phase==='bag'){ud.nodT=(ud.nodT||0)+dt;pitch+=.18*Math.max(0,Math.sin(ud.nodT*6));}else ud.nodT=0;
       {const mv=dt*2.1,e=(v,t)=>{const d=(t-v)*Math.min(1,dt*3.5);return v+Math.max(-mv,Math.min(mv,d));};ud.hy=e(ud.hy||0,yaw);ud.hp=e(ud.hp||0,pitch);} /* a natural head turn: eased and never faster than ~120°/s */(ud.hQ0||(ud.hQ0=new T.Quaternion())).copy(hb.quaternion);
       if(Math.abs(ud.hy)>=.01||Math.abs(ud.hp)>=.01){hb.parent.getWorldQuaternion(_q).invert();_ax.set(0,1,0).applyQuaternion(_q);hb.rotateOnAxis(_ax,ud.hy);_ax.set(Math.cos(g.rotation.y),0,-Math.sin(g.rotation.y)).applyQuaternion(_q);hb.rotateOnAxis(_ax,ud.hp);}
+      {const nk=ud.neckB!==undefined?ud.neckB:(ud.neckB=g.getObjectByName('Bip01_Neck')||g.getObjectByName('Bip02_Neck')||null);if(nk){if(ud.nShow){const an=ud.nShow.angleTo(nk.quaternion),mn=dt*5;if(an>mn){ud.nShow.slerp(nk.quaternion,mn/an);nk.quaternion.copy(ud.nShow);}else ud.nShow.copy(nk.quaternion);}else ud.nShow=nk.quaternion.clone();}}
       // the head never jumps: a clip that loops or blends with a seam is caught here and eased at most ~7 rad/s
       if(ud.hShow){const ang=ud.hShow.angleTo(hb.quaternion),mx=dt*7;if(ang>mx){ud.hShow.slerp(hb.quaternion,mx/ang);hb.quaternion.copy(ud.hShow);}else ud.hShow.copy(hb.quaternion);}else ud.hShow=hb.quaternion.clone();
       ud.hQ=(ud.hQb||(ud.hQb=new T.Quaternion())).copy(hb.quaternion);});}
@@ -1623,7 +1624,8 @@ const space=(function(){
     // „you can steer it yourself“: shown while the presentation plays by itself, gone the moment the visitor takes over, back when it resumes
     const HELP={el:$('#stageHelp'),on:false,h:0,last:-1e9};
     ['pointerdown','touchstart','wheel'].forEach(t=>stage.addEventListener(t,()=>{HELP.last=performance.now();},{passive:true,capture:true}));
-    function helpFrame(){if(!HELP.el)return;const on=LD.done&&view.name==='tour'&&performance.now()-HELP.last>15000;if(on!==HELP.on){HELP.on=on;HELP.el.classList.toggle('on',on);if(on&&!HELP.h)HELP.h=HELP.el.offsetHeight;}}
+    function helpFrame(){if(!HELP.el)return;const nw=performance.now();if(HELP.at==null&&view.name==='tour'&&tour.k===2&&!tween&&LD.done)HELP.at=nw; /* once: ~5 s just after the camera has come inside, then only the 3D chip stays */
+      const on=HELP.at!=null&&nw-HELP.at<5200&&view.name==='tour'&&nw-HELP.last>1500;if(on!==HELP.on){HELP.on=on;HELP.el.classList.toggle('on',on);if(on&&!HELP.h)HELP.h=HELP.el.offsetHeight;}}
     {const e=document.createElement('div');e.className='unit-tip';e.setAttribute('aria-live','polite');e.innerHTML='<b></b><span></span><p></p>';ovl.appendChild(e);TIP.el=e;}
     function tipFrame(w,h){let u=-1;
       if(!tween&&!drag&&!TCH.n&&S.units&&S.units.length){if(view.name==='tour'&&tour.k>=3&&tour.k-3<S.units.length&&tour.t>.15)u=tour.k-3;else if(view.name==='focus'&&TIP.fu!=null)u=TIP.fu;}
@@ -1641,7 +1643,7 @@ const space=(function(){
       raf=0;if((!vis&&LD.done)||document.hidden)return; // while it is still getting ready it keeps working off-screen, so it is ready when the visitor scrolls to it
       if(window.__klBusy){if(!raf)raf=requestAnimationFrame(frame);return;} // някой подписва: пауза на рендера
       if(pf.half&&(fno++&1)){if(!raf)raf=requestAnimationFrame(frame);return;} // weak machines: every other display frame, a steady 30 fps instead of an uneven 40-50
-      {const f=Math.min(.25,(now-(lastR||now))/1000);lastR=now;if(f>0){pf.t+=f;pf.n++;if(f>(pf.half?.05:.03))pf.j=(pf.j||0)+1;}if(DIAG&&f>0)diagTick(now,f);
+      {const f=Math.min(.25,(now-(lastR||now))/1000);lastR=now;if(f>0&&f<.2){pf.t+=f;pf.n++;if(f>(pf.half?.05:.03))pf.j=(pf.j||0)+1;}if(DIAG&&f>0)diagTick(now,f);
         if(pf.t>(LD.done?2:1.1)){const jank=(pf.j||0)/pf.n,avg0=pf.t/pf.n,avg=jank>.15?Math.max(avg0,1):avg0;pf.t=0;pf.n=0;pf.j=0;pf.avg=avg0;pf.jank=+jank.toFixed(2); // uneven frames count as slow even when the average looks fine (a hot laptop, a busy browser)
           // adaptive smoothness, decided on two slow windows in a row (a single busy moment changes nothing):
           // 1) a steady 30 fps – free to switch and REVERSIBLE: every 20–120 s the full frame rate is tried again and kept if the machine copes;
@@ -1723,7 +1725,7 @@ const space=(function(){
     window.__place=(i,x,z,ry,st)=>{const p=people[i];if(!p)return;p.position.set(x,0,z);p.rotation.y=ry;p.visible=true;if(st){p.userData.state=st;p.userData.blend=st==='walk'?1:0;}posePerson(p,performance.now()/1000,.016,st==='walk'?.5:0);if(p.userData.stroller)p.userData.stroller.visible=false;};
     window.__dbg=()=>{const p=people[0];if(!p)return {people:people.length};const out={people:people.length,pos:[p.position.x,p.position.y,p.position.z],children:[]};p.traverse(o=>{if(o.isMesh){const b=new T.Box3().setFromObject(o);out.children.push([o.geometry.type,o.material.color?'#'+o.material.color.getHexString():'-',+(b.max.y-b.min.y).toFixed(2),+(b.min.y).toFixed(2),+(b.max.y).toFixed(2)]);}});return out;};
     let flown=false;
-    if('IntersectionObserver' in window)new IntersectionObserver(es=>{vis=es[0].isIntersecting;if(vis&&!flown){flown=true;if(view.name==='tour'){tour.k=-1;tour.t=0;tour.first=true;}}kick();},{threshold:.15}).observe(stage);else vis=true;
+    if('IntersectionObserver' in window)new IntersectionObserver(es=>{vis=es[0].isIntersecting;root.classList.toggle('klive',vis);if(vis&&!flown){flown=true;if(view.name==='tour'){tour.k=-1;tour.t=0;tour.first=true;}}kick();},{threshold:.15}).observe(stage);else vis=true;
     document.addEventListener('visibilitychange',kick);
     three={build};
     resize();build();paintCard();kick();

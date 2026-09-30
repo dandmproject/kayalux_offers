@@ -28,7 +28,7 @@
     if(!src.clips){src.clips={};var pel=null,prefix='Bip01';src.scene.traverse(function(o){if(!pel&&/^Bip\d+_Pelvis$/.test(o.name)){pel=o;prefix=o.name.replace('_Pelvis','');}});var ratio=(pel&&G.pelvisY>0)?pel.position.length()/G.pelvisY:1;
       CLIPS.forEach(function(n){var c=G.anims[n+'_'+sex]||G.anims[n+'_m'];if(!c)return;var k=c.clone();k.tracks=k.tracks.filter(function(t){return !/^Bip01\./.test(t.name)&&!/Footsteps/.test(t.name);});
         k.tracks.forEach(function(t){if(/Bip01_Pelvis\.position$/.test(t.name)){for(var i=0;i<t.values.length;i++)t.values[i]*=ratio;}if(prefix!=='Bip01')t.name=t.name.replace(/^Bip01_/,prefix+'_');});src.clips[n]=k;});}
-    if(!P)CLIPS.forEach(function(n){if(src.clips[n])acts[n]=mixer.clipAction(src.clips[n]);});
+    if(!P)CLIPS.forEach(function(n){if(src.clips[n]){acts[n]=mixer.clipAction(src.clips[n]);if(!/^walk/.test(n))acts[n].setLoop(THREE.LoopPingPong,Infinity);}}); /* standing clips go back and forth: no jump where a loop starts again */
     var cur=null;
     g.userData.gltf=true;g.userData.kl={root:root,mixer:mixer,acts:acts,scale:scale,h:profile.height||src.height,file:src.file};g.userData.mixer=mixer;g.userData.kind=src.tags[0];g.userData.file=src.file;g.userData.sex=sex;g.userData.scale=scale;g.userData.height=profile.height||src.height;
     g.userData.play=function(n,fade){var a=acts[n]||acts.idle;if(!a||a===cur)return;a.reset().setEffectiveWeight(1).play();if(cur)cur.crossFadeTo(a,fade||0.3,false);cur=a;g.userData.clip=n;};
