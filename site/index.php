@@ -16,7 +16,7 @@ header('Cache-Control: private, no-store, max-age=0');
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/cormorant-garamond-cyrillic-400-italic.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-cyrillic-400-normal.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-cyrillic-500-normal.woff2">
-<link rel="stylesheet" href="assets/css/offer.min.css?v=ddd477c6">
+<link rel="stylesheet" href="assets/css/offer.min.css?v=6a94d368">
 </head>
 <body>
 <div class="grain" aria-hidden="true"></div>
@@ -216,7 +216,7 @@ header('Cache-Control: private, no-store, max-age=0');
           <div class="stage-chip" aria-hidden="true"><svg viewBox="0 0 24 24" width="13" height="13"><path d="M12 3a9 9 0 1 0 9 9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M21 3v6h-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>3D · <span class="h-mouse">въртете и приближавайте</span><span class="h-touch">управлявайте с пръсти</span></div>
           <div class="stage-help" id="stageHelp" role="note">
             <span class="sh-ico" aria-hidden="true"><svg viewBox="0 0 48 32" width="44" height="30"><path class="sh-arr" d="M6 16h36M6 16l5-5M6 16l5 5M42 16l-5-5M42 16l-5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><g class="sh-hand"><circle cx="24" cy="16" r="5.5" fill="currentColor" opacity=".9"/><circle cx="24" cy="16" r="9.5" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".45"/></g></svg></span>
-            <span class="sh-txt"><b>Можете да управлявате сами</b><i class="h-mouse">Плъзнете с мишката, за да завъртите · скролерът приближава · кликнете номер на дифузер</i><i class="h-touch">Плъзнете с пръст, за да завъртите · два пръста: приближаване и завъртане · докоснете номер на дифузер</i></span>
+            <span class="sh-txt"><b>Можете да управлявате сами</b><i class="h-mouse">Плъзнете с мишката, за да завъртите · скролерът приближава · кликнете номер на дифузер</i><i class="h-touch">Плъзнете с пръст за въртене · с два пръста приближавате и завъртате · докоснете номер на дифузер</i></span>
           </div>
           <div class="stage-load" id="stageLoad" role="progressbar" aria-label="Зареждане на 3D схемата" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="sl-in"><b>Зареждаме 3D схемата на магазина</b><div class="sl-bar"><i></i></div><span class="sl-pct">0%</span></div></div>
           <div class="stage-fallback" id="stageFallback" hidden><p>3D изгледът не можа да се зареди в този браузър.<br>Описанието на системите вдясно важи и без него.</p></div>
