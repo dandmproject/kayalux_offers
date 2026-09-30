@@ -3,7 +3,8 @@
 
 Пуска папката site/ като сайт: gzip за текста, дълго кеширане за модели, шрифтове и снимки
 (вторият път всичко идва от кеша на браузъра), index.php без PHP частта.
-Порт: първият свободен от 5340 нагоре. Друг порт: serve.py 5400
+Порт: 5340. Ако на него върви по-старо копие на офертата, то се спира и новото поема порта;
+ако портът е зает от друга програма – първият свободен след него. Друг порт: serve.py 5400
 Вижда се и от телефон в същата Wi-Fi мрежа (адресът се изписва при старта).
 Само Python 3, без допълнителни пакети.
 
@@ -48,6 +49,13 @@ class Handler(SimpleHTTPRequestHandler):
             self.send_header('Content-Length', str(len(data)))
             self.end_headers()
             self.wfile.write(data)
+            return
+        if path == '/__quit' and self.client_address[0] in ('127.0.0.1', '::1'):  # a newer copy started on this computer takes the port over
+            self.send_response(200)
+            self.send_header('Content-Length', '0')
+            self.end_headers()
+            print('Спрян: на този компютър е стартирано друго копие на офертата и то поема порта.', flush=True)
+            threading.Thread(target=self.server.shutdown, daemon=True).start()
             return
         if path.startswith('/api/') or '/.' in path:
             self.send_error(404)
@@ -203,16 +211,73 @@ def updater_loop():
         update(quiet=True)
 
 
+def _busy(p):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        if os.name != 'nt':  # like the server itself: closed connections (TIME_WAIT) do not count as busy
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        try:
+            s.bind(('0.0.0.0', p))
+            return False
+        except OSError:
+            return True
+
+
+def _pids_on(port):
+    """PIDs listening on the port (Windows: netstat, macOS/Linux: lsof)."""
+    import subprocess
+    try:
+        if os.name == 'nt':
+            out = subprocess.run(['netstat', '-ano', '-p', 'TCP'], capture_output=True, text=True, errors='replace', timeout=10).stdout
+            return {int(c[-1]) for c in (l.split() for l in out.splitlines())
+                    if len(c) >= 5 and c[1].endswith(':%d' % port) and c[2] in ('0.0.0.0:0', '[::]:0') and c[-1].isdigit() and c[-1] != '0'}  # listening rows, whatever the Windows language
+        out = subprocess.run(['lsof', '-ti', 'tcp:%d' % port, '-sTCP:LISTEN'], capture_output=True, text=True, timeout=10).stdout
+        return {int(x) for x in out.split() if x.isdigit()}
+    except Exception:
+        return set()
+
+
+def take_over(port):
+    """An older copy of this offer on the same port (e.g. started from an earlier ZIP) is stopped, so the
+    address the client already has always shows the newest version. Anything else on the port is left alone."""
+    if not _busy(port):
+        return True
+    try:
+        page = urllib.request.urlopen('http://127.0.0.1:%d/' % port, timeout=4).read(400000)
+    except Exception:
+        return False
+    if 'АВАНТИ'.encode() not in page and b'KAYA LUX' not in page:
+        return False
+    print('На порт %d върви по-старо копие на офертата, спирам я...' % port, flush=True)
+    try:
+        urllib.request.urlopen('http://127.0.0.1:%d/__quit' % port, timeout=4).read()
+    except Exception:
+        pass
+    for i in range(24):
+        if not _busy(port):
+            return True
+        if i == 6:  # an older copy without /__quit
+            import signal
+            for pid in _pids_on(port):
+                if pid == os.getpid():
+                    continue
+                try:
+                    if os.name == 'nt':
+                        import subprocess
+                        subprocess.run(['taskkill', '/PID', str(pid), '/F'], capture_output=True, timeout=10)
+                    else:
+                        os.kill(pid, signal.SIGTERM)
+                except Exception:
+                    pass
+        time.sleep(.5)
+    return not _busy(port)
+
+
 def free_port(start):
     for p in range(start, start + 60):
         if p in SKIP:
             continue
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            try:
-                s.bind(('0.0.0.0', p))
-                return p
-            except OSError:
-                continue
+        if not _busy(p):
+            return p
     raise SystemExit('Няма свободен порт между %d и %d' % (start, start + 60))
 
 
@@ -231,10 +296,16 @@ def main():
         update()
         threading.Thread(target=updater_loop, daemon=True).start()
     nums = [a for a in sys.argv[1:] if a.isdigit()]
-    port = free_port(int(nums[0]) if nums else 5340)
+    want = int(nums[0]) if nums else 5340
+    port = want if take_over(want) else free_port(want)
+    ThreadingHTTPServer.allow_reuse_port = False  # never share the port with another server (newer Pythons turn this on)
+    if os.name == 'nt':  # on Windows SO_REUSEADDR would let two servers share one port
+        ThreadingHTTPServer.allow_reuse_address = False
     httpd = ThreadingHTTPServer(('0.0.0.0', port), Handler)
     url = 'http://localhost:%d/' % port
-    print('KAYA LUX · оферта АВАНТИ')
+    print('KAYA LUX · оферта АВАНТИ · версия %s' % (current_version()[:7] or 'без номер'))
+    if port != want:
+        print('!!! Порт %d е зает от друга програма, затова офертата е на порт %d !!!' % (want, port))
     print('  на този компютър:  ' + url)
     ip = lan_ip()
     if ip:
