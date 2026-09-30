@@ -205,10 +205,10 @@ themeSubs.push(paintLogos);
 (function(){
   $$('.head').forEach(h=>{const b=$('.no b',h);if(b)h.setAttribute('data-no',b.textContent);});
   if(reduce||!('IntersectionObserver' in window))return;
-  const sel='.head,.parties,.letter-grid > *,.timeline li,.accord,.why3 > div,.seasons > *,.sched-top,.chartbox,.hours3,.cols2 > *,.live,.set,.clock,.flat,.map-grid > *,.formula,.modes > *,.regional,.summary,.controls,.tablebox,.incl section,.energy > *,.status-strip,.decide > *,.deadlines li,.paper';
+  const sel='.head,.parties,.letter-grid > *,.timeline li,.accord,.why3 > div,.seasons > *,.sched-top,.chartbox,.hours3,.cols2 > *,.live,.clock,.flat,.map-grid > *,.formula,.modes > *,.regional,.summary,.controls,.tablebox,.incl section,.energy > *,.status-strip,.decide > *,.deadlines li,.paper';
   const els=$$(sel).filter(e=>!e.closest('.hero'));
   const vh=innerHeight;
-  const io=new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting)return;const el=e.target;const sib=[...el.parentNode.children].filter(x=>x.classList.contains('rv'));const i=Math.max(0,sib.indexOf(el));el.style.transitionDelay=(Math.min(i,4)*.05)+'s';el.classList.remove('pre');io.unobserve(el);}),{rootMargin:'0px 0px -8% 0px'});
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting)return;const el=e.target;const sib=[...el.parentNode.children].filter(x=>x.classList.contains('rv'));const i=Math.max(0,sib.indexOf(el));el.style.transitionDelay=(Math.min(i,4)*.05)+'s';el.classList.remove('pre');io.unobserve(el);}),{rootMargin:'0px 0px 12% 0px'}); // revealed just before they scroll in, never an empty band
   els.forEach(el=>{el.classList.add('rv');if(el.getBoundingClientRect().top>vh*.95){el.classList.add('pre');io.observe(el);}});
   // counters in the letter figures
   const figs=$$('.fig b');
@@ -1624,7 +1624,7 @@ const space=(function(){
     const _fr=new T.Frustum(),_fm=new T.Matrix4(),_sp=new T.Sphere(new T.Vector3(),1.15);let vis=false,raf=0,last=0,lightK=1,hover=false,fno=0,lastR=0;window.__q=()=>({TIER,dpr,shadows:renderer.shadowMap.enabled,avg:pf.avg,half:!!pf.half,q:pf.q||0,probing:!!pf.probing,jank:pf.jank});const v3=new T.Vector3();
     const touchUI=matchMedia('(hover: none)').matches;stage.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse'){hover=true;kick();}});stage.addEventListener('pointerleave',()=>{hover=false;});
     function frame(now){
-      raf=0;if(!vis||document.hidden)return;
+      raf=0;if((!vis&&LD.done)||document.hidden)return; // while it is still getting ready it keeps working off-screen, so it is ready when the visitor scrolls to it
       if(window.__klBusy){if(!raf)raf=requestAnimationFrame(frame);return;} // някой подписва: пауза на рендера
       if(pf.half&&(fno++&1)){if(!raf)raf=requestAnimationFrame(frame);return;} // weak machines: every other display frame, a steady 30 fps instead of an uneven 40-50
       {const f=Math.min(.25,(now-(lastR||now))/1000);lastR=now;if(f>0){pf.t+=f;pf.n++;if(f>(pf.half?.05:.03))pf.j=(pf.j||0)+1;}if(DIAG&&f>0)diagTick(now,f);
@@ -1688,7 +1688,7 @@ const space=(function(){
       const pT1=performance.now();renderer.render(scene,camera);if(window.__prof){const P=window.__prof;P.js+=pT1-pT0;if(pT1-pT0>(P.max||0))P.max=pT1-pT0;(P.h=P.h||[]).push(+(pT1-pT0).toFixed(1));P.gl+=performance.now()-pT1;P.n++;}if(window.__perf){window.__perf.frames=(window.__perf.frames||0)+1;if(!window.__perf.first)window.__perf.first=performance.now();}
       if(!raf)raf=requestAnimationFrame(frame); // exactly one loop: a kick() during this frame (a tour key, a click) has already scheduled the next one
     }
-    kick=()=>{if(!raf&&vis){last=0;raf=requestAnimationFrame(frame);}};
+    kick=()=>{if(!raf&&(vis||!LD.done)){last=0;raf=requestAnimationFrame(frame);}};
     window.__renderNow=()=>{renderer.render(scene,camera);};window.__gl=()=>({renderer,scene,camera,M});window.__view=()=>({...view,spin:spin.vx});
     window.__cam=(x,y,z,tx,ty,tz)=>{view.name='free';tween=null;camera.position.set(x,y,z);camera.lookAt(tx,ty,tz);$$('.views [data-view]').forEach(b=>b.setAttribute('aria-pressed','false'));kick();};
     window.__tri=()=>{renderer.render(scene,camera);return {tri:renderer.info.render.triangles,calls:renderer.info.render.calls,geo:renderer.info.memory.geometries,tex:renderer.info.memory.textures};};
@@ -1717,6 +1717,8 @@ const space=(function(){
   let started=false;
   const boot=()=>{if(started)return;started=true;window.__perf={boot:performance.now()};init3D();};
   if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>{if(es[0].isIntersecting){boot();io.disconnect();}},{rootMargin:'600px'});io.observe(stage);}else boot();
+  // …and in any case quietly right after the page has loaded, so scrolling down never meets an empty set
+  addEventListener('load',()=>setTimeout(()=>{if(window.requestIdleCallback)requestIdleCallback(boot,{timeout:2500});else boot();},400));
   if(location.hash==='#prostranstvo')boot();
   paintCard();paintClock();
   return {show};
