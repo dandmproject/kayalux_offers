@@ -962,3 +962,7 @@ input[type=range]{height:28px;padding:6px 0;box-sizing:border-box}
   .js .rv.pre{opacity:0;transform:translateY(14px);filter:none}
 }
 @keyframes logoFast{from{opacity:0;transform:scale(1.03)}to{opacity:1;transform:none}}
+/* по-слаби машини: без пълноекранно зърно, винетка и замъгляване зад лентите */
+.lowfx .grain,.lowfx .vignette{display:none!important}
+.lowfx .nav,.lowfx .hud-card,.lowfx .views,.lowfx .dbtn.up,.lowfx .theme-pop{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.lowfx .nav{background:color-mix(in srgb,var(--ground) 95%,transparent)}

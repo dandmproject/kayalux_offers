@@ -6,6 +6,6 @@ set -e
 SRC="$1"; DST="$2"; TMP=$(mktemp -d)
 for f in "$SRC"/*.glb; do n=$(basename "$f")
   if [ "$n" = rb-anims.glb ]; then npx gltfpack -i "$f" -o "$DST/$n" -cc -kn -af 24
-  else python3 "$(dirname "$0")/prep_textures.py" "$f" "$TMP/$n" && npx gltfpack -i "$TMP/$n" -o "$DST/$n" -cc -kn; fi
+  else python3 "$(dirname "$0")/prep_textures.py" "$f" "$TMP/$n" && npx gltfpack -i "$TMP/$n" -o "$DST/$n" -cc -kn -si 0.5; fi
 done
 rm -rf "$TMP"

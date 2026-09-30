@@ -54,7 +54,7 @@
       var groups={};list.forEach(function(m){var k=(m.tags||['m']).join(',');(groups[k]=groups[k]||[]).push(m);});
       var order=[],more=true;while(more){more=false;for(var k in groups){if(groups[k].length){order.push(groups[k].shift());more=true;}}}
       var first=order.slice(0,12),rest=order.slice(12);G.pending=first;next();next();
-      var idle=window.requestIdleCallback||function(f){setTimeout(f,1500);};idle(function(){G.pending=G.pending.concat(rest);next();next();});});
+      var more=function(){G.pending=G.pending.concat(rest);next();next();};if(window.requestIdleCallback)requestIdleCallback(more,{timeout:2500});else setTimeout(more,1500);});
   }).catch(function(e){G.failed=true;console.warn('KL_GLTF',e);});return G.promise;};
   /* ако никой не извика start() до 8 s след зареждане, започваме сами (за всеки случай) */
   setTimeout(function(){if(!started&&document.getElementById('stage'))G.start();},8000);

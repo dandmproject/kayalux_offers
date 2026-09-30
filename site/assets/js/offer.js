@@ -5,6 +5,13 @@ const root=document.documentElement;
 root.classList.add('js');
 const $=(s,r)=>(r||document).querySelector(s), $$=(s,r)=>[...(r||document).querySelectorAll(s)];
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+/* quality tier for the 3D set: 2 strong machine, 1 laptop / phone, 0 weak (no shadows, no antialias, lower resolution); ?q=0|1|2 forces one */
+const TIER=(()=>{try{const q=new URLSearchParams(location.search).get('q');if(q!=null&&q!=='')return Math.max(0,Math.min(2,+q|0));}catch(e){}
+  const mem=navigator.deviceMemory||8,cores=navigator.hardwareConcurrency||8,mob=/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);let gpu='';
+  try{const c=document.createElement('canvas'),gl=c.getContext('webgl');const e=gl&&gl.getExtension('WEBGL_debug_renderer_info');gpu=e?String(gl.getParameter(e.UNMASKED_RENDERER_WEBGL)):'';const lx=gl&&gl.getExtension('WEBGL_lose_context');if(lx)lx.loseContext();}catch(e){}
+  let t=2;if(mob||mem<=4||cores<=4||/Intel|Mali|Adreno|PowerVR|SwiftShader|llvmpipe|Microsoft Basic/i.test(gpu))t=1;
+  if(mem<=2||cores<=2||/SwiftShader|llvmpipe|Microsoft Basic|Mali-[4T]|Adreno \(TM\) [3-5]|PowerVR SGX/i.test(gpu))t=0;return t;})();
+if(TIER<2)root.classList.add('lowfx');
 const NB=' ';
 const fmt=v=>{const [i,d]=Math.abs(v).toFixed(2).split('.');return (v<0?'−':'')+i.replace(/\B(?=(\d{3})+(?!\d))/g,NB)+','+d;};
 const eur=v=>fmt(v)+NB+'€';
@@ -216,7 +223,7 @@ themeSubs.push(paintLogos);
   const svg=$('#ring'),NS='http://www.w3.org/2000/svg',txt=$('#seasonText');
   const S=[
     {k:'Есен',c1:'Tobacco Vanille',c2:'ЕСЕН · СЕГА',t:'Tobacco Vanille е топъл аромат и е подходящ за есенно-зимния сезон. Затова той е първият сезонен аромат на веригата. Ако някой аромат стане любим на клиентите и екипите, той може да се връща всяка година в същия сезон и да стане разпознаваем символ на АВАНТИ.'},
-    {k:'Зима',c1:'Toffee',c2:'ЗИМА · ОТ ДЕКЕМВРИ',t:'За тримесечието от декември 2026 г. служителите избраха Toffee: мляко, карамел и коледно настроение. Топъл гурме аромат, който подхожда на празничния сезон. Ще бъде зареден едновременно във всички 48 обекта в началото на декември.'},
+    {k:'Зима',c1:'Toffee',c2:'ЗИМА · ОТ ДЕКЕМВРИ',t:'За сезона, започващ от декември 2026 г., със голяма част от служителите се насочваме към аромат: Toffee, мляко, карамел и коледно настроение. В случай, че голяма част от персонала се спрат на него, той ще бъде зареден едновременно във всички 48 обекта през посещението на обектите за месец декември.'},
     {k:'Пролет',c1:'Изборът на екипите',c2:'ПРОЛЕТ',t:'В началото на пролетта предлагаме нови подходящи аромата. Изборът отново е на екипите, а смяната става едновременно в цялата верига.'},
     {k:'Лято',c1:'Изборът на екипите',c2:'ЛЯТО',t:'В началото на лятото ароматът се сменя по същия начин: предложение, избор от служителите и едновременно зареждане във всички 48 обекта.'}
   ];
@@ -474,11 +481,11 @@ const space=(function(){
 
   function init3D(){
     const T=window.THREE;if(!T){fallback();return;}
-    let renderer;try{renderer=new T.WebGLRenderer({antialias:true,alpha:true,powerPreference:'high-performance'});}catch(e){fallback();return;}
+    let renderer;try{renderer=new T.WebGLRenderer({antialias:TIER>0,alpha:true,powerPreference:'high-performance'});}catch(e){fallback();return;}
     if(!renderer.getContext()){fallback();return;}
     const small=()=>stage.clientWidth<640;
-    renderer.setPixelRatio(Math.min(devicePixelRatio||1,(small()||stage.clientWidth*(devicePixelRatio||1)>1800)?1.25:1.5));
-    renderer.outputEncoding=T.sRGBEncoding;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;
+    const DPR=devicePixelRatio||1,dprMax=TIER===2?Math.min(DPR,1.5):TIER===1?Math.min(DPR,1.15):Math.min(DPR,.85);let dpr=dprMax;renderer.setPixelRatio(dpr);
+    renderer.outputEncoding=T.sRGBEncoding;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;renderer.shadowMap.enabled=TIER>0;renderer.shadowMap.autoUpdate=false; /* shadows of the fixed store only: drawn once per build, not every frame */renderer.shadowMap.type=TIER===2?T.PCFSoftShadowMap:T.PCFShadowMap;
     renderer.domElement.setAttribute('aria-hidden','true');
     stage.insertBefore(renderer.domElement,stage.firstChild);
     const scene=new T.Scene(),camera=new T.PerspectiveCamera(38,1,.1,300);
@@ -579,13 +586,13 @@ const space=(function(){
     const edgeMat=new T.LineBasicMaterial({transparent:true,opacity:.45}),gridMat=new T.LineBasicMaterial({transparent:true,opacity:.22}),flowMat=new T.LineDashedMaterial({dashSize:.42,gapSize:.3,transparent:true,opacity:.95});
 
     // scent particles: custom shader so every particle can fade on its own
-    const PN=small()?650:1400;
+    const PN=TIER===2?(small()?800:1400):TIER===1?800:420,MIST=TIER===2?4:5,PMAX=(TIER===2?150:TIER===1?110:80).toFixed(1);
     const pSz=new Float32Array(PN).fill(1),pPos=new Float32Array(PN*3),pAl=new Float32Array(PN),pv=new Float32Array(PN*3),page=new Float32Array(PN),plife=new Float32Array(PN),pown=new Int8Array(PN).fill(-1);
     const pg=new T.BufferGeometry();pg.setAttribute('position',new T.BufferAttribute(pPos,3));pg.setAttribute('alpha',new T.BufferAttribute(pAl,1));pg.setAttribute('psize',new T.BufferAttribute(pSz,1));
     const spr=(()=>{const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d'),gr=g.createRadialGradient(32,32,0,32,32,32);gr.addColorStop(0,'rgba(255,255,255,1)');gr.addColorStop(.4,'rgba(255,255,255,.4)');gr.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gr;g.fillRect(0,0,64,64);return new T.CanvasTexture(c);})();
     const pm=new T.ShaderMaterial({transparent:true,depthWrite:false,blending:T.AdditiveBlending,
       uniforms:{uTex:{value:spr},uColor:{value:new T.Color(0xd4af63)},uSize:{value:.42},uScale:{value:400},uOp:{value:.5}},
-      vertexShader:'attribute float alpha;attribute float psize;varying float vA;uniform float uSize;uniform float uScale;void main(){vA=alpha;vec4 mv=modelViewMatrix*vec4(position,1.0);gl_PointSize=min(256.0,uSize*psize*uScale/max(.1,-mv.z));gl_Position=projectionMatrix*mv;}',
+      vertexShader:'attribute float alpha;attribute float psize;varying float vA;uniform float uSize;uniform float uScale;void main(){vA=alpha;vec4 mv=modelViewMatrix*vec4(position,1.0);gl_PointSize=min('+PMAX+',uSize*psize*uScale/max(.1,-mv.z));gl_Position=projectionMatrix*mv;}',
       fragmentShader:'uniform sampler2D uTex;uniform vec3 uColor;uniform float uOp;varying float vA;void main(){vec4 t=texture2D(uTex,gl_PointCoord);float a=t.a*vA*uOp;if(a<.004)discard;gl_FragColor=vec4(uColor,a);}'});
     const points=new T.Points(pg,pm);points.frustumCulled=false;points.renderOrder=5;scene.add(points);
 
@@ -661,7 +668,7 @@ const space=(function(){
         const role=o.material.userData&&o.material.userData.role;if(role)ranges.push([role,vc,n]);vc+=n;parts.push(ge);o.parent.remove(o);o.geometry.dispose();});
       const merged=mergeAttrs(parts,['position','normal','uv','color','skinIndex','skinWeight']);
       const mat=new T.MeshStandardMaterial({map:faceT,vertexColors:true,roughness:.78,side:T.DoubleSide,envMapIntensity:.3,skinning:true});
-      const sm=new T.SkinnedMesh(merged,mat);sm.castShadow=true;sm.frustumCulled=false;g.add(sm);sm.bind(new T.Skeleton(bones));
+      const sm=new T.SkinnedMesh(merged,mat);sm.castShadow=false;sm.frustumCulled=false;g.add(sm);sm.bind(new T.Skeleton(bones));
       g.userData.skin=sm;g.userData.ranges=ranges;return sm;}
     const SG=(r,a,b,...q)=>new T.SphereGeometry(r,Math.max(5,Math.round(a*.5)),Math.max(3,Math.round(b*.5)),...q),CG=(a,b,h,rs,...q)=>new T.CylinderGeometry(a,b,h,Math.max(5,Math.round((rs||8)*.65)),...q),TG=(r,t,rs,ts,...q)=>new T.TorusGeometry(r,t,Math.max(3,Math.round(rs*.7)),Math.max(8,Math.round(ts*.7)),...q);
     function makePerson(i,pr){pr=pr||{};
@@ -784,7 +791,7 @@ const space=(function(){
       wheel(-.21,-.14,.13);wheel(.21,-.14,.13);wheel(0,.5,.09);
       m(new T.CylinderGeometry(.008,.008,.46,6),fr,0,.135,-.14,0,0,Math.PI/2);
       m(new T.SphereGeometry(.065,10,8),hx(pick_(SKIN)),0,.7,.06);m(new T.BoxGeometry(.26,.06,.3),'#e8dcc8',0,.6,.2);
-      const mesh=new T.Mesh(mergeColored(L),M.vc2);mesh.castShadow=true;g.add(mesh);const bg=mkBag(.9);bg.position.set(.12,.8,-.25);bg.visible=false;g.add(bg);g.userData.bag=bg;return g;
+      const mesh=new T.Mesh(mergeColored(L),M.vc2);g.add(mesh);const bg=mkBag(.9);bg.position.set(.12,.8,-.25);bg.visible=false;g.add(bg);g.userData.bag=bg;return g;
     }
     // full-body pose: walk cycle driven by distance travelled (no foot sliding), blended with idle behaviour
     const sm01=x=>{x=x<0?0:x>1?1:x;return x*x*(3-2*x);};
@@ -1088,7 +1095,7 @@ const space=(function(){
       room.traverse(o=>{if(o.geometry&&!GEOSET.has(o.geometry))o.geometry.dispose();if(o.isSkinnedMesh){o.skeleton.dispose();if(o.material.map)o.material.map.dispose();o.material.dispose();}if(o.isSprite||(o.material&&o.material.userData&&o.material.userData.own))o.material.dispose();});
       room.clear();overlay.forEach(o=>o.el.remove());overlay.length=0;people.length=0;extras.length=0;heat=null;flowLine=null;flowCurve=null;acc={};vacc=[];vaccM=[];vaccF=[];vaccC=[];LAYER=null;}
     let acc={},vacc=[],vaccM=[],vaccF=[],vaccC=[],LAYER=null,buildTok=0,pending=[]; // LAYER: the shop front (fades when seen from above) or the ceiling fixtures (hidden from above)
-    function later(fn){const tok=buildTok;pending.push(requestAnimationFrame(()=>{if(tok!==buildTok)return;fn();kick();}));}
+    function later(fn){const tok=buildTok;pending.push(requestAnimationFrame(()=>{if(tok!==buildTok)return;fn();renderer.shadowMap.needsUpdate=true;kick();}));}
     function boxG(w,h,d,s){const g=new T.BoxGeometry(w,h,d);if(s){const uv=g.attributes.uv,dims=[[d,h],[d,h],[w,d],[w,d],[w,h],[w,h]];for(let i=0;i<uv.count;i++){const f=(i/4)|0;uv.setXY(i,uv.getX(i)*dims[f][0]/s,uv.getY(i)*dims[f][1]/s);}}return g;}
     // boxes are collected per material and merged into one mesh each at the end of build()
     function box(w,h,d,m,x,y,z,sh){const g=boxG(w,h,d,m.map?1.5:0);g.translate(x,y,z);const key=m.uuid+(sh!==false?'s':'n');if(!acc[key])acc[key]={m,sh:sh!==false,geos:[]};acc[key].geos.push(g);}
@@ -1140,7 +1147,7 @@ const space=(function(){
       {// automatic sliding door: two glass leaves in black frames; they open when someone comes near and close behind them
         S.doorLeaves=[];S.doorK=0;const lw=doorW/2;
         for(const s of [-1,1]){const lf=new T.Group(),gl=new T.Mesh(new T.PlaneGeometry(lw-.06,2.16),M.glassC);gl.position.y=1.13;gl.renderOrder=3;
-          const fr=new T.Mesh(mergeColored([[new T.BoxGeometry(lw,.05,.045).translate(0,.05,0),BLK],[new T.BoxGeometry(lw,.05,.045).translate(0,2.2,0),BLK],[new T.BoxGeometry(.035,2.2,.045).translate(-lw/2+.018,1.13,0),BLK],[new T.BoxGeometry(.035,2.2,.045).translate(lw/2-.018,1.13,0),BLK]]),M.vc);fr.castShadow=true;
+          const fr=new T.Mesh(mergeColored([[new T.BoxGeometry(lw,.05,.045).translate(0,.05,0),BLK],[new T.BoxGeometry(lw,.05,.045).translate(0,2.2,0),BLK],[new T.BoxGeometry(.035,2.2,.045).translate(-lw/2+.018,1.13,0),BLK],[new T.BoxGeometry(.035,2.2,.045).translate(lw/2-.018,1.13,0),BLK]]),M.vc);
           lf.add(gl,fr);lf.userData.x0=doorX+s*lw/2;lf.userData.s=s;lf.position.set(lf.userData.x0,0,hd+t/2-.035);room.add(lf);S.doorLeaves.push(lf);}
         cbox(.26,.06,.07,'#202020',doorX,2.2,hd-.02);cgeo(new T.SphereGeometry(.012,6,4),'#d23b2e',doorX+.09,2.17,hd-.055);
         const sg=new T.Mesh(new T.PlaneGeometry(.34,.22),M.signOpen);sg.position.set(doorX+doorW/2-.32,1.75,hd+t/2+.03);room.add(sg);S.sign=sg;
@@ -1247,9 +1254,9 @@ const space=(function(){
       {LAYER=vaccC;const sl=len+1.6;aisles.forEach(ax=>box(.09,.025,sl,M.ledC,ax,Hh-.02,zc+.3,false));box(W*.7,.025,.09,M.ledC,0,Hh-.02,hd-1.3,false);box(W*.6,.025,.09,M.ledC,0,Hh-.02,zTop-.9,false);
         const gz=[zTop+1.2,zBot-1.2];if(D>10)gz.push(zc);gz.forEach(z=>box(.6,.03,.6,M.grille,W*.1,Hh-.02,z,false));
         const spots=(x,z,L)=>{cbox(.04,.03,L,BLK,x,Hh-.03,z);for(let i=0;i<3;i++){const sg=new T.CylinderGeometry(.045,.04,.13,8);sg.rotateX(.6);cgeo(sg,BLK,x,Hh-.13,z-L/2+.3+i*(L-.6)/2);}};spots(hw*.45,zW+.9,3);spots(doorX-1.4,hd-2.1,2.4);LAYER=null;
-        const NL=phone?2:(A>150?4:3),nx=Math.max(1,Math.round(Math.sqrt(NL*W/D))),ny=Math.max(1,Math.ceil(NL/nx));S.lights=[];
+        const NL=TIER===2?2:TIER===1?1:0,nx=Math.max(1,Math.round(Math.sqrt(NL*W/D))),ny=Math.max(1,Math.ceil(NL/nx));S.lights=[];
         for(let i=0;i<nx;i++)for(let j=0;j<ny;j++){if(S.lights.length>=NL)break;const l=new T.PointLight(0xfff4e2,.22,Math.max(W,D)*.7,2);l.position.set(-hw+W*(i+.5)/nx,Hh-.15,-hd+D*(j+.5)/ny);room.add(l);S.lights.push(l);}
-        const lt=new T.PointLight(0xd8ecff,.3,Math.max(4,len*.8),1.8);lt.position.set(-hw+1,1.5,zTop+1.8);room.add(lt);S.coolLight=lt;}
+        if(TIER===2){const lt=new T.PointLight(0xd8ecff,.3,Math.max(4,len*.8),1.8);lt.position.set(-hw+1,1.5,zTop+1.8);room.add(lt);S.coolLight=lt;}else S.coolLight=null;S.ambAdd=.06*(2-NL);}
       // diffusers
       const U=unitsFor(A);
       U.forEach((u,i)=>{
@@ -1280,13 +1287,11 @@ const space=(function(){
           g.add(body,grille,badge,led);
         }
         room.add(g);
-        // power cable: from the unit down the door frame to a socket (door-mounted unit), or straight down the wall
-        if(u.at==='D'){const cx=doorX+doorW/2+.06;cbox(cx-doorX,.012,.012,'#111',(doorX+cx)/2,p[1]-bh/2-.02,hd-.02);cbox(.012,p[1]-bh/2-.02-.3,.012,'#111',cx,(p[1]-bh/2-.02+.3)/2,hd-.02);cbox(.07,.07,.02,WHT,cx,.3,hd-.02);}
-        else{cbox(.012,.5,.012,'#111',p[0]+d[0]*.02,p[1]-bh/2-.27,p[2]+d[2]*.02);}
+        // no visible cables: the wiring runs hidden in the wall / door frame
         const plume=new T.Sprite(new T.SpriteMaterial({map:spr,color:0xffe2a8,transparent:true,opacity:.5,depthWrite:false,blending:T.AdditiveBlending}));const o=PL?[p[0]+d[0]*.09,p[1]+bh/2+.04,p[2]+d[2]*.09]:[p[0]+d[0]*.1-(d[2]?d[2]*bw*.3:0),p[1]+bh*.38,p[2]+d[2]*.1+(d[0]?d[0]*bw*.3:0)];plume.position.set(o[0]+d[0]*.25,o[1]+.3,o[2]+d[2]*.25);plume.scale.set(.5,.7,1);room.add(plume);
         const Rr=Math.sqrt(A/U.length/Math.PI);const wm=new T.MeshBasicMaterial({color:0xd4af63,transparent:true,opacity:0,depthWrite:false,side:T.DoubleSide});wm.userData.own=true;const wave=new T.Mesh(new T.RingGeometry(.94,1,48),wm);wave.rotation.x=-Math.PI/2;wave.position.set(p[0]+d[0]*Math.min(Rr,2.2),.02,p[2]+d[2]*Math.min(Rr,2.2));room.add(wave);
-        const light=new T.PointLight(0xffc56a,.35,6,2);light.position.set(p[0]+d[0]*.5,p[1]-.2,p[2]+d[2]*.5);room.add(light);
-        const pin=document.createElement('button');pin.type='button';pin.className='pin';pin.innerHTML='<b>'+(i+1)+'</b><i>'+(u.title||(PL?'Prime Lux':'Plug’n Go'))+'</i>';pin.setAttribute('aria-label','Дифузер '+(i+1)+' ('+(u.title||'')+'): '+u.zone);
+        const light={intensity:0};
+        const pin=document.createElement('button');pin.type='button';pin.className='pin';pin.innerHTML='<b>'+(i+1)+'</b><i>Дифузер '+(i+1)+'</i>';pin.setAttribute('aria-label','Дифузер '+(i+1)+' ('+(u.title||'')+'): '+u.zone);
         pin.addEventListener('click',e=>{e.stopPropagation();pick(i);focusUnit(i);});ovl.appendChild(pin);
         overlay.push({el:pin,v:new T.Vector3(p[0]+d[0]*.1,p[1]+bh/2+.1,p[2]+d[2]*.1),kind:'pin'});
         S.units.push({p,d,o,info:u,led,light,plume,wave,R:Rr,ph:i/U.length,pin,PL});pin.classList.toggle('pl',PL);
@@ -1316,7 +1321,7 @@ const space=(function(){
       key.position.set(-W*.25,Hh*4.2,D*.4);key.target.position.set(0,0,0);const sc=key.shadow.camera,R=Math.max(W,D)*.85;sc.left=-R;sc.right=R;sc.top=R;sc.bottom=-R;sc.near=.5;sc.far=Hh*10+Math.max(W,D)*4;sc.updateProjectionMatrix();
       recolor();labelsVis();M.badge.map=badgeTex();M.badge.needsUpdate=true;
       pown.fill(-1);pAl.fill(0);emitAcc=0;
-      go(view.name==='free'?'persp':view.name,true);try{renderer.compile(scene,camera);}catch(e){}
+      go(view.name==='free'?'persp':view.name,true);renderer.shadowMap.needsUpdate=true;try{renderer.compile(scene,camera);}catch(e){}
       if(window.__perf)window.__perf.build0=performance.now()-t0;
       // progressive fill: products over the next frames, then the particle warm-up, then people
       later(()=>{if(FAM.bottle.length)instanced(GEO.bottle,FAM.bottle,false,SPIRIT,M.bottle);if(FAM.can.length)instanced(GEO.can,FAM.can,false,CANS,M.can);
@@ -1331,7 +1336,7 @@ const space=(function(){
       const hmm=new T.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false});hmm.userData.own=true;const hm_=new T.Mesh(new T.PlaneGeometry(W,D),hmm);hm_.rotation.x=-Math.PI/2;hm_.position.y=.012;hm_.renderOrder=2;hm_.visible=$('#lyCover').checked;room.add(hm_);
       heat={cols,rows,data,acc:hacc,tex,mesh:hm_,timer:0};}
     function castPeople(A,phone){
-      const nP=phone?(A<90?4:(A<150?6:7)):(A<60?5:(A<90?7:(A<150?10:(A<220?13:15))));
+      const nP=Math.max(4,Math.round((phone?(A<90?4:(A<150?6:7)):(A<60?5:(A<90?7:(A<150?10:(A<220?13:15)))))*(TIER===2?1:TIER===1?.8:.55)));
       const spec=[
         {mk:()=>makePerson(0,{h:1.68,fem:true,hairStyle:'bob',hair:0x3b2a1a,coat:0x1b1917,collar:0x3a3a3a,top:0x3a3a3a,bot:0x2c3a5a,scarf:0x7a2f2f,skin:0xf3d9c4,handbag:0x2a1f16,shoe:0xe8e2d6,iris:'#4a6a3a'}),p:{fem:true,h:1.68},u:.05,lane:0,sp:.55},
         {mk:()=>makePerson(1,{h:1.84,skin:0x6b4028,hairStyle:'receding',hair:0x1a1410,beard:true,stubble:true,jacket:0x2d3a4f,hood:true,collar:0x3a3a3a,top:0x3a3a3a,bot:0x1e232b,belly:.25,cap:0x1b1917,shoe:0x14110e,iris:'#2b2b2b'}),p:{fem:false,h:1.84},u:.3,lane:-.2,sp:.5},
@@ -1374,7 +1379,7 @@ const space=(function(){
         if(z<-hd){z=-hd;vz=Math.abs(vz)*.3;}else if(z>hd){z=hd;vz=-Math.abs(vz)*.3;}
         if(y<.2){y=.2;vy=Math.abs(vy)*.3;}else if(y>Hh-.12){y=Hh-.12;vy=-Math.abs(vy)*.3;}
         pPos[j]=x;pPos[j+1]=y;pPos[j+2]=z;pv[j]=vx;pv[j+1]=vy;pv[j+2]=vz;
-        const k2=page[i]/plife[i];if(i%3===0){pSz[i]=1.2+7*Math.sqrt(k2);pAl[i]=.3*Math.min(1,page[i]/1.5)*(1-k2);}else{pSz[i]=1;pAl[i]=Math.min(1,page[i]/.8)*(1-k2)*(1-k2);}
+        const k2=page[i]/plife[i];if(i%MIST===0){pSz[i]=1.2+7*Math.sqrt(k2);pAl[i]=.42*Math.min(1,page[i]/1.5)*(1-k2);}else{pSz[i]=1;pAl[i]=Math.min(1,page[i]/.8)*(1-k2)*(1-k2);}
       }
       if(!warm){pg.attributes.position.needsUpdate=true;pg.attributes.alpha.needsUpdate=true;pg.attributes.psize.needsUpdate=true;}
     }
@@ -1393,7 +1398,7 @@ const space=(function(){
       edgeMat.color=lin(c('--gold-soft'));edgeMat.opacity=dark?.4:.7;gridMat.color=lin('#8a7348');gridMat.opacity=.2;flowMat.color=lin('#E6C27A'); /* the floor is black in every theme */
       const gh=(c('--gold')||'#D4AF63').replace('#','');gold=[parseInt(gh.slice(0,2),16),parseInt(gh.slice(2,4),16),parseInt(gh.slice(4,6),16)];
       pm.uniforms.uColor.value=new T.Color(c('--gold'));pm.blending=dark?T.AdditiveBlending:T.NormalBlending;pm.uniforms.uOp.value=dark?.4:.32;pm.needsUpdate=true;
-      hemi.intensity=dark?.42:.5;key.intensity=dark?.5:.42;amb.intensity=dark?.14:.22;const fc=lin(c('--stage-b')||'#090705');scene.fog=new T.Fog(fc,Math.max(S.W||10,S.D||10)*1.3,Math.max(S.W||10,S.D||10)*4.2);S.units&&S.units.forEach(u=>{u.plume.material.blending=dark?T.AdditiveBlending:T.NormalBlending;u.plume.material.color.copy(dark?new T.Color(c('--gold')).lerp(new T.Color('#ffffff'),.55):new T.Color(c('--gold-soft')));u.wave.material.color.set(c('--gold'));u.plume.material.needsUpdate=true;});
+      hemi.intensity=dark?.42:.5;key.intensity=dark?.5:.42;amb.intensity=(dark?.14:.22)+(S.ambAdd||0);const fc=lin(c('--stage-b')||'#090705');scene.fog=new T.Fog(fc,Math.max(S.W||10,S.D||10)*1.3,Math.max(S.W||10,S.D||10)*4.2);S.units&&S.units.forEach(u=>{u.plume.material.blending=dark?T.AdditiveBlending:T.NormalBlending;u.plume.material.color.copy(dark?new T.Color(c('--gold')).lerp(new T.Color('#ffffff'),.55):new T.Color(c('--gold-soft')));u.wave.material.color.set(c('--gold'));u.plume.material.needsUpdate=true;});
     }
     themeSubs.push(()=>{recolor();kick();});
 
@@ -1408,7 +1413,7 @@ const space=(function(){
       return {theta:.62,phi:.9,r:Math.max(7,R/Math.sin(f/2)*.74),tx:0,ty:.2,tz:.25};}
     // guided tour: the whole store (a slow sweep over the open side), then each diffuser in turn with the scent leaving it
     const tour={k:-1,t:0,first:false};
-    function tourKeys(){const K=[{all:1,dur:8}];S.units.forEach((u,i)=>K.push({u:i,dur:S.units.length>2?5:6.5}));return K;}
+    function tourKeys(){const K=[];S.units.forEach((u,i)=>K.push({u:i,dur:S.units.length>2?5:6.5}));K.push({all:1,dur:7});return K;} // the diffusers first, then the whole store
     function tourView(key){const p=presets('persp');if(key.all)return {...p,theta:.1};
       const u=S.units[key.u],d=u.d,o=u.o,tx=o[0]+d[0]*1.8,tz=o[2]+d[2]*1.8,ty=Math.max(1.2,o[1]-1.0),phi=1.2;let best=null;
       for(const sg of [1,-1]){const a=Math.atan2(d[0],d[2])+sg*.95;let r=6.2,cx=0,cz=0;
@@ -1417,7 +1422,7 @@ const space=(function(){
       return best.v;}
     function tweenTo(p,dur){const from={theta:view.theta,phi:view.phi,r:view.r,tx:view.tx,ty:view.ty,tz:view.tz};let dth=p.theta-from.theta;dth=((dth+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;tween={from,to:{...p,theta:from.theta+dth},t:0,dur};kick();}
     function tourStep(dt){if(!S.units||!S.units.length)return;const K=tourKeys();
-      if(tour.k<0||tour.t>=K[tour.k%K.length].dur){tour.k=(tour.k+1)%K.length;tour.t=0;const key=K[tour.k];if(tour.first){tour.first=false;Object.assign(view,tourView(key));apply();}else tweenTo(tourView(key),2.1);if(key.u!=null)pick(key.u);return;}
+      if(tour.k<0||tour.t>=K[tour.k%K.length].dur){tour.k=(tour.k+1)%K.length;tour.t=0;const key=K[tour.k];if(tour.first){tour.first=false;Object.assign(view,tourView({all:1}));apply();tweenTo(tourView(key),2.4);}else tweenTo(tourView(key),2.1);/* opens on the store and zooms straight into diffuser 1 */if(key.u!=null)pick(key.u);return;}
       tour.t+=dt;const key=K[tour.k];view.theta+=dt*(key.all?.15:.045);apply();}
     focusUnit=i=>{if(!S.units||!S.units[i])return;view.name='focus';idle=0;$$('.views [data-view]').forEach(b=>b.setAttribute('aria-pressed','false'));tweenTo(tourView({u:i}),1.6);};
     function apply(){const s=Math.sin(view.phi);camera.position.set(view.tx+view.r*s*Math.sin(view.theta),view.ty+view.r*Math.cos(view.phi),view.tz+view.r*s*Math.cos(view.theta));camera.lookAt(view.tx,view.ty,view.tz);}
@@ -1453,13 +1458,21 @@ const space=(function(){
     if('ResizeObserver' in window)new ResizeObserver(resize).observe(stage);else addEventListener('resize',resize);
 
     // loop
-    let vis=false,raf=0,last=0,lightK=1,hover=false,fno=0;const v3=new T.Vector3();
+    let vis=false,raf=0,last=0,lightK=1,hover=false,fno=0,lastR=0;const pf={t:0,n:0};window.__q=()=>({TIER,dpr,shadows:renderer.shadowMap.enabled,avg:pf.avg});const v3=new T.Vector3();
     stage.addEventListener('pointerenter',()=>{hover=true;kick();});stage.addEventListener('pointerleave',()=>{hover=false;});
     function frame(now){
       raf=0;if(!vis||document.hidden)return;
       if(window.__klBusy){raf=requestAnimationFrame(frame);return;} // някой подписва: пауза на рендера
-      {const quiet=!isOpen(state.t)&&!people.some(p=>p.visible);if(!hover&&!drag&&!tween&&(quiet?((fno++)%4)!==0:((fno++)&1))){raf=requestAnimationFrame(frame);return;}} // idle: 30 fps, closed store: 15 fps
-      const dt=Math.min(.05,(now-(last||now))/1000);last=now;
+      if(TIER===0&&now-lastR<30){raf=requestAnimationFrame(frame);return;} // weak machines: a steady 30 fps instead of an uneven 40-50
+      {const f=Math.min(.25,(now-(lastR||now))/1000);lastR=now;if(f>0){pf.t+=f;pf.n++;}
+        if(pf.t>1.5){const avg=pf.t/pf.n;pf.t=0;pf.n=0;const slow=TIER===0?.045:.024,fast=TIER===0?.036:.0175;pf.avg=avg;
+          // too slow: first a little less resolution, then no shadows, then resolution down to a floor; fast again: resolution back up
+          const floor=Math.min(dprMax,TIER===0?.62:.72);
+          if(avg>slow&&dpr>dprMax*.86){dpr=Math.max(floor,dpr*.9);renderer.setPixelRatio(dpr);w0=0;resize();}
+          else if(avg>slow&&renderer.shadowMap.enabled){renderer.shadowMap.enabled=false;scene.traverse(o=>{if(o.material){(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>m.needsUpdate=true);}});root.classList.add('lowfx');}
+          else if(avg>slow&&dpr>floor){dpr=Math.max(floor,dpr*.9);renderer.setPixelRatio(dpr);w0=0;resize();}
+          else if(avg<fast&&dpr<dprMax){dpr=Math.min(dprMax,dpr*1.06);renderer.setPixelRatio(dpr);w0=0;resize();}}}
+      const pT0=performance.now();const dt=Math.min(.05,(now-(last||now))/1000);last=now;
       if(state.playing){state.t+=dt*34;if(state.t>=1380){state.t=1380;state.playing=false;}paintClock();}
       if(tween){tween.t+=dt/tween.dur;const k=tween.t>=1?1:(tween.t<.5?4*tween.t**3:1-Math.pow(-2*tween.t+2,3)/2);['theta','phi','r','tx','ty','tz'].forEach(p=>view[p]=tween.from[p]+(tween.to[p]-tween.from[p])*k);apply();if(tween.t>=1)tween=null;}
       else if(!drag&&!reduce&&view.name==='tour')tourStep(dt);
@@ -1475,7 +1488,7 @@ const space=(function(){
       {const fade=(m,out)=>{const tg=out?.1:1;m.opacity+=(tg-m.opacity)*Math.min(1,dt*5);const tr=m.opacity<.985;if(m.transparent!==tr){m.transparent=tr;m.depthWrite=!tr;m.needsUpdate=true;}};fade(M.wallB,camera.position.z<-S.hd);fade(M.wallL,camera.position.x<-S.hw);
         const high=camera.position.y>S.H*.95;[M.vcF,M.wallF,M.facade].forEach(m=>fade(m,high&&camera.position.z>S.hd));if(S.ceil){const hide=camera.position.y>S.H-.05;S.ceil.forEach(o=>o.visible=!hide);}}
       lightK+=((open?1:.45)-lightK)*Math.min(1,dt*3);M.cool.emissiveIntensity=.5*lightK;
-      S.units.forEach(u=>{const tgt=on?1:0;u.light.intensity+=(tgt*.35-u.light.intensity)*Math.min(1,dt*4);u.led.visible=on;u.pin.classList.toggle('off',!on);});
+      S.units.forEach(u=>{u.led.visible=on;u.pin.classList.toggle('off',!on);});
       M.led.color.setScalar(.3+.7*clamp((lightK-.45)/.55,0,1));if(S.lights)S.lights.forEach(l=>{l.intensity=.22*lightK;});if(S.coolLight)S.coolLight.intensity=.3*(.4+.6*lightK);
       if(S.sign){const sm=open?M.signOpen:M.signClosed;if(S.sign.material!==sm){S.sign.material=sm;S.sign2.material=sm;}}
       extras.forEach(e=>{if(!e.userData.restocker)e.visible=open;if(e.visible)poseAny(e,now/1000,dt,0);});if(GL()){window.KL_GLTF.update(dt);gltfHeads(dt);}
@@ -1491,7 +1504,7 @@ const space=(function(){
       overlay.filter(o=>o.kind==='lbl'&&!o.off).sort((a,b)=>a.sz-b.sz).forEach(o=>{if(!o.w){o.w=o.el.offsetWidth||80;o.h=o.el.offsetHeight||18;}if(HR&&o.sx+o.w/2>HR[0]&&o.sx-o.w/2<HR[2]&&o.sy+o.h/2>HR[1]&&o.sy-o.h/2<HR[3]){o.off=true;return;}if(kept.some(k=>Math.abs(k.sx-o.sx)<(k.w+o.w)/2+4&&Math.abs(k.sy-o.sy)<(k.h+o.h)/2+2))o.off=true;else kept.push(o);});
       overlay.forEach(o=>{if(o.kind==='pin'&&HR&&!o.off&&o.sx>HR[0]-20&&o.sx<HR[2]+20&&o.sy>HR[1]-20&&o.sy<HR[3]+20)o.off=true;});
       overlay.forEach(o=>{o.el.style.visibility=o.off?'hidden':'visible';if(!o.off)o.el.style.transform='translate('+o.sx.toFixed(1)+'px,'+o.sy.toFixed(1)+'px)'+(o.kind==='lbl'?' translate(-50%,-50%)':' translate(-50%,-100%)');});
-      renderer.render(scene,camera);if(window.__perf){window.__perf.frames=(window.__perf.frames||0)+1;if(!window.__perf.first)window.__perf.first=performance.now();}
+      const pT1=performance.now();renderer.render(scene,camera);if(window.__prof){const P=window.__prof;P.js+=pT1-pT0;P.gl+=performance.now()-pT1;P.n++;}if(window.__perf){window.__perf.frames=(window.__perf.frames||0)+1;if(!window.__perf.first)window.__perf.first=performance.now();}
       raf=requestAnimationFrame(frame);
     }
     kick=()=>{if(!raf&&vis){last=0;raf=requestAnimationFrame(frame);}};

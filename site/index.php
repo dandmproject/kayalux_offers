@@ -17,7 +17,7 @@ header('Cache-Control: private, no-store, max-age=0');
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/cormorant-garamond-cyrillic-400-italic.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-cyrillic-400-normal.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-cyrillic-500-normal.woff2">
-<link rel="stylesheet" href="assets/css/offer.css?v=20260930">
+<link rel="stylesheet" href="assets/css/offer.min.css?v=20260930b">
 </head>
 <body>
 <div class="grain" aria-hidden="true"></div>
@@ -55,7 +55,7 @@ header('Cache-Control: private, no-store, max-age=0');
     <div class="offer-word rise d1" role="heading" aria-level="1">ОФЕРТА<em>за професионална ароматизация на 48-те търговски обекта на&nbsp;веригата&nbsp;„АВАНТИ“</em></div>
     <h1 class="rise d2" aria-level="2" role="heading">Един аромат. <em>Четиридесет и осем</em> обекта.</h1>
     <p class="lead rise d3">Окончателни и обосновани цени, изготвени по реалните данни от тестовия период и от монтажа.</p>
-    <div class="tech rise d3"><span>Премиум нано-дифузия от последно поколение</span><span>Bluetooth управление</span><span>100% чисти парфюмни масла, без разреждане с вода и без нагряване</span><span>Сега: Tobacco Vanille · от декември: Toffee, избран от екипите</span></div>
+    <div class="tech rise d3"><span>Премиум нано-дифузия от последно поколение</span><span>Bluetooth управление</span><span>100% чисти парфюмни масла, без разреждане с вода и без нагряване</span><span>Сега: Tobacco Vanille · за декември: Toffee</span></div>
   </div>
   <div class="wrap">
     <dl class="credits rise d4" aria-label="Данни за офертата">
@@ -131,7 +131,7 @@ header('Cache-Control: private, no-store, max-age=0');
           <li><i class="drop" style="background:radial-gradient(circle at 35% 35%,#8a5a3c,#4a2a18 60%,#24130a)"></i><span class="n">Какао</span><span class="t">сърце</span></li>
           <li><i class="drop" style="background:radial-gradient(circle at 35% 35%,#a8545f,#6b2732 60%,#3a121a)"></i><span class="n">Сушени плодове</span><span class="t">база</span></li>
         </ul>
-        <div class="mark" style="margin-top:22px;padding-top:16px;border-top:1px solid var(--line)">Избор на екипите · от декември 2026</div>
+        <div class="mark" style="margin-top:22px;padding-top:16px;border-top:1px solid var(--line)">Предложение за декември 2026</div>
         <div class="name" style="margin-top:10px"><em>Toffee</em></div>
         <div class="by">мляко, карамел и коледно настроение · топъл гурме аромат за зимния сезон</div>
         <ul class="notes">
@@ -160,7 +160,7 @@ header('Cache-Control: private, no-store, max-age=0');
           <li>Зареждаме го едновременно във всички 48 обекта.</li>
         </ol>
         <p class="note" id="seasonText" aria-live="polite">Tobacco Vanille е топъл аромат и е подходящ за есенно-зимния сезон. Затова той е първият сезонен аромат на веригата. Ако някой аромат стане любим на клиентите и екипите, той може да се връща всяка година в същия сезон и да стане разпознаваем символ на АВАНТИ.</p>
-        <p class="note"><b>Следващото тримесечие.</b> За сезона, започващ от декември 2026&nbsp;г., служителите вече избраха аромата <strong>Toffee</strong>: мляко, карамел и коледно настроение. Той ще бъде зареден едновременно във всички 48 обекта в началото на декември.</p>
+        <p class="note"><b>Следващото тримесечие.</b> За сезона, започващ от декември 2026&nbsp;г., със голяма част от служителите се насочваме към аромат: <strong>Toffee</strong>, мляко, карамел и коледно настроение. В случай, че голяма част от персонала се спрат на него, той ще бъде зареден едновременно във всички 48 обекта през посещението на обектите за месец декември.</p>
       </div>
     </div>
   </div>
@@ -490,11 +490,7 @@ header('Cache-Control: private, no-store, max-age=0');
 </footer>
 
 <script defer src="assets/js/three.min.js"></script>
-<script defer src="assets/js/GLTFLoader.js"></script>
-<script defer src="assets/js/SkeletonUtils.js"></script>
-<script defer src="assets/js/meshopt_decoder.js"></script>
-<script defer src="assets/js/people-gltf.js?v=20260930"></script>
-<script defer src="assets/js/offer.js?v=20260930"></script>
+<script defer src="assets/js/app.min.js?v=20260930b"></script>
 <script>/* моделите (~5 MB, кеширани) тръгват на заден план след зареждането на страницата или когато 3D схемата наближи */addEventListener('DOMContentLoaded',function(){var st=document.getElementById('stage');if(!st||!window.KL_GLTF)return;var go=function(){KL_GLTF.start();};addEventListener('load',function(){setTimeout(function(){(window.requestIdleCallback||function(f){f();})(go);},1500);});if('IntersectionObserver' in window){var io=new IntersectionObserver(function(en){if(en[0].isIntersecting){go();io.disconnect();}},{rootMargin:'1400px'});io.observe(st);}else go();});</script>
 </body>
 </html>

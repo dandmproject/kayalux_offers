@@ -29,9 +29,9 @@ html = read('index.php')
 html = re.sub(r'^<\?php.*?\?>', '', html, count=1, flags=re.S)
 # preloads are pointless once everything is inline
 html = re.sub(r'<link rel="preload"[^>]*>\n', '', html)
-css = read('assets/css/offer.css')
+css = read('assets/css/offer.min.css')
 css = re.sub(r'url\(\.\./fonts/([^)]+)\)', lambda m: 'url(' + data_uri('assets/fonts/' + m.group(1)) + ')', css)
-html = re.sub(r'<link rel="stylesheet" href="assets/css/offer\.css[^"]*">', lambda m: '<style>\n' + css + '\n</style>', html)
+html = re.sub(r'<link rel="stylesheet" href="assets/css/offer(\.min)?\.css[^"]*">', lambda m: '<style>\n' + css + '\n</style>', html)
 # real people (models + decoder + loader start) stay on the hosted site
 for s in ('GLTFLoader.js', 'SkeletonUtils.js', 'meshopt_decoder.js', 'people-gltf.js'):
     html = re.sub(r'<script defer src="assets/js/' + re.escape(s) + r'[^"]*"></script>\n', '', html)
@@ -45,6 +45,8 @@ def inline_js(m):
     return '<script>\n' + js.replace('</script', '<\\/script') + '\n</script>'
 
 
+# the hosted bundle (app.min.js) carries the model loader too; the single file only needs offer.js
+html = re.sub(r'<script defer src="assets/js/app\.min\.js[^"]*"></script>', '<script defer src="assets/js/offer.js"></script>', html)
 html = re.sub(r'<script defer src="assets/js/([^"?]+)[^"]*"></script>', inline_js, html)
 html = re.sub(r'(src|href)="(assets/img/[^"]+)"', lambda m: m.group(1) + '="' + data_uri(m.group(2)) + '"', html)
 os.makedirs(os.path.dirname(OUT), exist_ok=True)
