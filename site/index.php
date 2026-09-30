@@ -17,7 +17,7 @@ header('Cache-Control: private, no-store, max-age=0');
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/cormorant-garamond-cyrillic-400-italic.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-cyrillic-400-normal.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-cyrillic-500-normal.woff2">
-<link rel="stylesheet" href="assets/css/offer.min.css?v=20260930b">
+<link rel="stylesheet" href="assets/css/offer.min.css?v=ded759ba">
 </head>
 <body>
 <div class="grain" aria-hidden="true"></div>
@@ -194,6 +194,7 @@ header('Cache-Control: private, no-store, max-age=0');
 
     <div class="set">
       <div class="stage-col">
+        <div class="stage-pick"><label for="storeSel">Обект от веригата</label><select id="storeSel" class="select"></select></div>
         <div class="stage-bar">
           <div class="views" role="group" aria-label="Изглед">
             <button type="button" data-view="tour" aria-pressed="true">Обиколка</button>
@@ -214,6 +215,7 @@ header('Cache-Control: private, no-store, max-age=0');
           <div class="sky" aria-hidden="true"></div>
           <div id="ovl" aria-hidden="false"></div>
           <div class="stage-note" id="stageNote" aria-live="polite"></div>
+          <div class="stage-load" id="stageLoad" role="progressbar" aria-label="Зареждане на 3D схемата" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="sl-in"><b>Зареждаме 3D схемата на магазина</b><div class="sl-bar"><i></i></div><span class="sl-pct">0%</span></div></div>
           <div class="stage-fallback" id="stageFallback" hidden><p>3D изгледът не можа да се зареди в този браузър.<br>Описанието на системите вдясно важи и без него.</p></div>
         </div>
         <div class="stage-under">
@@ -226,10 +228,6 @@ header('Cache-Control: private, no-store, max-age=0');
         </div>
       </div>
       <div class="panel">
-        <div class="field">
-          <label for="storeSel">Обект от веригата</label>
-          <select id="storeSel" class="select"></select>
-        </div>
         <div class="field">
           <label class="lab" for="ceilRange">Височина на тавана: <output id="ceilOut" class="num" style="color:var(--gold)">3,0 м</output></label>
           <input type="range" id="ceilRange" min="2.8" max="3.4" step="0.1" value="3" style="width:100%;accent-color:var(--gold);margin:0">
@@ -363,7 +361,6 @@ header('Cache-Control: private, no-store, max-age=0');
       </table>
     </div>
     <div class="fine">
-      <p>Натиснете ред, за да видите изчислението за обекта и да го отворите в 3D.</p>
       <p>Окончателните цени се прилагат от фактурата за месец септември 2026&nbsp;г. Фактурите за тестовите обекти за юли и август 2026&nbsp;г. остават без промяна.</p>
     </div>
   </div>
@@ -490,7 +487,7 @@ header('Cache-Control: private, no-store, max-age=0');
 </footer>
 
 <script defer src="assets/js/three.min.js"></script>
-<script defer src="assets/js/app.min.js?v=20260930b"></script>
+<script defer src="assets/js/app.min.js?v=74fee59e"></script>
 <script>/* моделите (~5 MB, кеширани) тръгват на заден план след зареждането на страницата или когато 3D схемата наближи */addEventListener('DOMContentLoaded',function(){var st=document.getElementById('stage');if(!st||!window.KL_GLTF)return;var go=function(){KL_GLTF.start();};addEventListener('load',function(){setTimeout(function(){(window.requestIdleCallback||function(f){f();})(go);},1500);});if('IntersectionObserver' in window){var io=new IntersectionObserver(function(en){if(en[0].isIntersecting){go();io.disconnect();}},{rootMargin:'1400px'});io.observe(st);}else go();});</script>
 </body>
 </html>

@@ -966,3 +966,61 @@ input[type=range]{height:28px;padding:6px 0;box-sizing:border-box}
 .lowfx .grain,.lowfx .vignette{display:none!important}
 .lowfx .nav,.lowfx .hud-card,.lowfx .views,.lowfx .dbtn.up,.lowfx .theme-pop{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
 .lowfx .nav{background:color-mix(in srgb,var(--ground) 95%,transparent)}
+/* таблица с цени: без разгъване по обект, по-широки колони с цени, № в средата */
+.obj tbody tr.row{cursor:default}
+.obj th[data-k="n"] button,.obj td.n{text-align:center}
+.obj th[data-k="n"]{width:64px}
+.obj td.cs,.obj td.cf,.obj th.cs button,.obj th.cf button{padding-left:44px}
+.obj td.cf,.obj th.cf button{padding-right:24px}
+.obj tfoot tr.tot3 td.cs,.obj tfoot tr.tot3 td.cf{font-size:2rem;white-space:nowrap;padding-left:44px}
+.obj tfoot tr.tot3 td.cf{padding-right:24px}
+@media (max-width:760px){.obj td.cs,.obj td.cf,.obj th.cs button,.obj th.cf button,.obj tfoot tr.tot3 td.cs,.obj tfoot tr.tot3 td.cf{padding-left:22px}.obj tfoot tr.tot3 td.cs,.obj tfoot tr.tot3 td.cf{font-size:1.5rem}}
+/* началото на офертата: центрирано */
+.hero-in{justify-items:center;text-align:center;margin-inline:auto}
+.hero-in > *{margin-left:auto!important;margin-right:auto!important}
+.hero .logo-stage{margin-left:auto!important;margin-right:auto!important}
+.offer-word em{margin-left:auto;margin-right:auto}
+.hero h1::before{margin-left:auto;margin-right:auto}
+.hero .lead{margin-left:auto;margin-right:auto}
+.hero .tech{justify-content:center}
+.obj th button{white-space:nowrap}
+.obj td.r{white-space:nowrap}
+.obj td.cs,.obj td.cf,.obj th.cs button,.obj th.cf button{padding-left:34px}
+@media (max-width:600px){
+  .obj tr.row{padding:12px 12px 12px 6px}
+  .obj tr.row td.cs,.obj tr.row td.cf{padding-left:0!important;padding-right:0!important}
+  .obj tbody tr.alt td{background:transparent}
+  .obj tbody tr.alt{background:color-mix(in srgb,var(--surface) 60%,transparent)}
+  .obj tfoot tr.tot3{padding-left:6px;padding-right:12px}
+  .obj tfoot tr.tot3 td.cs,.obj tfoot tr.tot3 td.cf{padding-left:0!important;padding-right:0!important}
+}
+/* изборът на обект: над схемата, на видно място */
+.stage-pick{display:flex;align-items:center;gap:10px 16px;flex-wrap:wrap;padding:12px;border-bottom:1px solid var(--line);background:var(--surface-2)}
+.stage-pick label{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:600;white-space:nowrap}
+.stage-pick .select{flex:1 1 280px;max-width:520px;min-height:44px;font-size:15px}
+@media (max-width:560px){.stage-pick{padding:10px}.stage-pick .select{flex-basis:100%;max-width:none}}
+/* лента за зареждане на 3D схемата */
+.stage-load{position:absolute;inset:0;z-index:6;display:grid;place-items:center;background:radial-gradient(120% 90% at 50% 30%,var(--stage-a),var(--stage-b));transition:opacity .5s ease}
+.stage-load.out{opacity:0;pointer-events:none}
+.sl-in{width:min(360px,78%);display:grid;gap:12px;text-align:center}
+.sl-in b{font-family:var(--display);font-weight:500;font-size:1.25rem;color:var(--ink)}
+.sl-bar{height:3px;background:color-mix(in srgb,var(--gold) 18%,transparent);overflow:hidden}
+.sl-bar i{display:block;height:100%;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform .35s ease}
+.sl-pct{font-size:12px;letter-spacing:.16em;color:var(--ink-soft)}
+/* без линията под офертата */
+.hero + main > .reel:first-child,#pilot{border-top:0!important}
+/* телефон и Viber: ясни, над зърното и затъмнението по ъглите, с дискретен пулс */
+.dock{z-index:95}
+.dbtn{filter:none;opacity:1;box-shadow:0 6px 18px -6px rgba(0,0,0,.55)}
+.dbtn:not(.up){position:relative}
+.dbtn:not(.up)::after{content:"";position:absolute;inset:0;border-radius:50%;box-shadow:0 0 0 0 currentColor;pointer-events:none}
+.dbtn[href^="tel"]{background:#E3BC6A;color:#14100a}
+.dbtn.viber{background:#7360F2;color:#fff}
+.dbtn[href^="tel"]::after{color:rgba(227,188,106,.55)}
+.dbtn.viber::after{color:rgba(115,96,242,.55)}
+@media (prefers-reduced-motion:no-preference){
+  .dbtn:not(.up)::after{animation:dockPulse 2.8s ease-out infinite}
+  .dbtn.viber::after{animation-delay:1.4s}
+  @keyframes dockPulse{0%{box-shadow:0 0 0 0 currentColor}70%,100%{box-shadow:0 0 0 12px transparent}}
+}
+.hero::after{display:block!important;content:"";position:absolute;left:0;right:0;bottom:0;height:140px;background:linear-gradient(to bottom,transparent,var(--ground));pointer-events:none;z-index:-1}

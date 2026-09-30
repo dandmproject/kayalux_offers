@@ -10,9 +10,9 @@ def prep(src,dst):
         if i in imgbv:
             im=Image.open(io.BytesIO(data));kind=imgbv[i].get('name','body')
             if kind=='opacity' or im.mode in ('RGBA','LA','P'):
-                im=im.convert('RGBA').resize((256,256),Image.LANCZOS).quantize(colors=48,method=Image.FASTOCTREE);bo=io.BytesIO();im.save(bo,'PNG',optimize=True);data=bo.getvalue();imgbv[i]['mimeType']='image/png'
+                im=im.convert('RGBA').resize((160,160),Image.LANCZOS).quantize(colors=32,method=Image.FASTOCTREE);bo=io.BytesIO();im.save(bo,'PNG',optimize=True);data=bo.getvalue();imgbv[i]['mimeType']='image/png'
             else:
-                sz={'head':384}.get(kind,512);im=im.convert('RGB').resize((sz,sz),Image.LANCZOS);bo=io.BytesIO();im.save(bo,'JPEG',quality=76,optimize=True,progressive=False);data=bo.getvalue();imgbv[i]['mimeType']='image/jpeg'
+                sz={'head':256}.get(kind,384);im=im.convert('RGB').resize((sz,sz),Image.LANCZOS);bo=io.BytesIO();im.save(bo,'JPEG',quality=72,optimize=True,progressive=False);data=bo.getvalue();imgbv[i]['mimeType']='image/jpeg'
         while len(out)%4: out+=b'\0'
         nb=dict(bv);nb['byteOffset']=len(out);nb['byteLength']=len(data)
         if i in imgbv: nb.pop('byteStride',None)

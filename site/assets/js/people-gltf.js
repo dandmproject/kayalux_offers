@@ -34,14 +34,19 @@
     var morphs=[];root.traverse(function(x){if(x.isMesh&&x.morphTargetDictionary&&x.morphTargetInfluences)morphs.push(x);});
     if(morphs.length){g.userData.face=function(name,w){for(var i=0;i<morphs.length;i++){var k=morphs[i].morphTargetDictionary[name];if(k!=null)morphs[i].morphTargetInfluences[k]=w;}};g.userData.faces=Object.keys(morphs[0].morphTargetDictionary);}
     g.userData.play('idle');G.instances.push(g);return g;};
-  G.update=function(dt){for(var i=0;i<G.instances.length;i++){var g=G.instances[i];if(g.visible&&g.parent)g.userData.mixer.update(dt);}};
-  G.release=function(g){var i=G.instances.indexOf(g);if(i>=0)G.instances.splice(i,1);};
+  G.update=function(dt){for(var i=0;i<G.instances.length;i++){var g=G.instances[i];if(g.visible&&g.parent&&!g.userData.culled)g.userData.mixer.update(dt);}}; /* off-screen people are not animated */
+  /* a person leaves the scene: free what was made only for them (their skeleton's bone texture, the animation mixer's cache);
+     models, geometry and materials are shared and stay */
+  G.release=function(g){var i=G.instances.indexOf(g);if(i>=0)G.instances.splice(i,1);var seen=[];
+    g.traverse(function(x){if(x.isSkinnedMesh&&x.skeleton&&seen.indexOf(x.skeleton)<0){seen.push(x.skeleton);x.skeleton.dispose();}});
+    var mx=g.userData.mixer;if(mx){mx.stopAllAction();mx.uncacheRoot(mx.getRoot());}};
   if(!THREE.GLTFLoader||!THREE.SkeletonUtils){G.failed=true;return;}
   var L=new THREE.GLTFLoader();if(window.MeshoptDecoder)L.setMeshoptDecoder(window.MeshoptDecoder); /* моделите са свити с gltfpack -cc (EXT_meshopt_compression) */
   function load(url){return new Promise(function(res,rej){L.load(url,res,undefined,rej);});}
   function next(){if(G.loading>=2||!G.pending.length)return;var m=G.pending.shift();G.loading++;
     load(BASE+'assets/models/'+m.file).then(function(gl){gl.scene.traverse(function(x){if(x.isMesh&&x.material){x.material.side=x.material.transparent||x.material.alphaTest?THREE.DoubleSide:THREE.FrontSide;}});
       G.models.push({scene:gl.scene,file:m.file,height:m.height||1.72,tags:m.tags||['m'],used:0});G.ready=true;
+      if(G.renderer)gl.scene.traverse(function(x){if(x.isMesh&&x.material){['map','normalMap','alphaMap'].forEach(function(k){if(x.material[k])G.renderer.initTexture(x.material[k]);});}}); /* textures go to the GPU now, during the loading bar, not when the person first walks into view */
       document.dispatchEvent(new CustomEvent('kl-gltf-model',{detail:{file:m.file,count:G.models.length}}));
     }).catch(function(e){console.warn('KL_GLTF',m.file,e);}).then(function(){G.loading--;if(!G.pending.length&&!G.loading)document.dispatchEvent(new CustomEvent('kl-gltf-ready',{detail:G}));next();});}
   var started=false;
