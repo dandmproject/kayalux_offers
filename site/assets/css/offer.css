@@ -1052,3 +1052,13 @@ input[type=range]{height:28px;padding:6px 0;box-sizing:border-box}
   .stage-bar .layers{flex-wrap:wrap;row-gap:0}}
 /* phones: while the 3D set is on screen the quick-contact buttons step back (smaller, see-through) so they do not cover the set or its buttons */
 @media (max-width:560px){.dock{transition:opacity .3s,transform .3s;transform-origin:100% 100%}.dock.dim{opacity:.4;transform:scale(.78)}.dock.dim:active,.dock.dim:focus-within{opacity:1;transform:none}}
+/* pulses run on the compositor (transform + opacity of a ring), not as animated box-shadows that repaint every frame over the 3D set */
+.dbtn:not(.up)::after{box-shadow:none;border:2px solid currentColor;will-change:transform,opacity;opacity:0}
+.pin b{position:relative}.pin b::before{content:"";position:absolute;inset:-1px;border-radius:50%;border:2px solid var(--gold);opacity:0;pointer-events:none;will-change:transform,opacity}
+@media (prefers-reduced-motion:no-preference){
+  .dbtn:not(.up)::after{animation:dockRing 2.8s ease-out infinite}.dbtn.viber::after{animation-delay:1.4s}
+  .pin b{animation:none}.pin b::before{animation:pinRing 2.4s ease-out infinite}
+  .live i{animation:none}
+}
+@keyframes dockRing{0%{transform:scale(1);opacity:.75}70%,100%{transform:scale(1.42);opacity:0}}
+@keyframes pinRing{0%{transform:scale(1);opacity:.7}70%,100%{transform:scale(1.6);opacity:0}}

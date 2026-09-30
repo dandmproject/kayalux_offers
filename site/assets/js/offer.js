@@ -1082,7 +1082,21 @@ const space=(function(){
       ['state','visit','legI','path','pi','until','faceAng','slot','hasBasket','buyer','items','trail','ang','sp','follow','partner','gap','turning','pay','phase','placed','ph','camAng','stroller','pushing','fallback','qT'].forEach(k=>{if(ud[k]!==undefined)nu[k]=ud[k];});
       g.position.copy(old.position);g.rotation.copy(old.rotation);g.visible=old.visible;room.remove(old);old.traverse(o=>{if(o.isSkinnedMesh){o.skeleton.dispose();if(o.material.map)o.material.map.dispose();o.material.dispose();}else if(o.geometry&&!GEOSET.has(o.geometry))o.geometry.dispose();});
       qOcc.forEach((q,j)=>{if(q===old)qOcc[j]=g;});people[i]=g;room.add(g);if(camSub===old)camSub=g;return g;}
-    function upgradeCashier(){const i=extras.findIndex(x=>x.userData.cashier&&!x.userData.gltfP);if(i<0||!GL())return;const old=extras[i];const g=gltfPerson({staff:true,h:1.72});if(!g)return;g.position.copy(old.position);g.rotation.copy(old.rotation);const nu=g.userData;nu.state='queue';nu.blend=0;nu.ph=old.userData.ph;nu.cashier=true;if(nu.basket)nu.basket.visible=false;room.remove(old);old.traverse(o=>{if(o.isSkinnedMesh){o.skeleton.dispose();if(o.material.map)o.material.map.dispose();o.material.dispose();}});extras[i]=g;room.add(g);}
+    // the cashier wears the chain's uniform over her dark suit: a red АВАНТИ vest with a white name badge, so she reads as the seller, not as a guard
+    let vestTex=null;const VEST=0xc41f2b;
+    function dressCashier(g){const B=n=>g.getObjectByName('Bip01_'+n)||g.getObjectByName('Bip02_'+n);const sp=B('Spine2')||B('Spine1')||B('Spine'),nk=B('Neck'),pv=B('Pelvis'),la=B('L_UpperArm'),ra=B('R_UpperArm');if(!sp||!nk||!pv)return;
+      if(g.userData.mixer)g.userData.mixer.update(0);g.updateMatrixWorld(true);const L=o=>g.worldToLocal(o.getWorldPosition(new T.Vector3()));const pn=L(nk),pp=L(pv),ps=L(sp);
+      const k=g.userData.k||1,sh=la&&ra?L(la).distanceTo(L(ra)):.34*k,rx=Math.max(.14,sh*.5),rz=rx*.82,top=pn.y-.07,bot=pp.y-.1,h=top-bot;
+      if(!vestTex){const c=document.createElement('canvas');c.width=512;c.height=256;const x=c.getContext('2d');x.fillStyle='#c41f2b';x.fillRect(0,0,512,256);
+        x.fillStyle='#9e1720';x.fillRect(0,0,512,12);x.fillRect(0,244,512,12);x.fillRect(252,0,8,256); // hems and the front zip
+        x.fillStyle='#fff';x.font='bold 30px Arial, sans-serif';x.textAlign='center';x.fillText('АВАНТИ',256,78);
+        x.fillStyle='#fff';x.fillRect(276,104,62,26);x.fillStyle='#c41f2b';x.font='bold 15px Arial, sans-serif';x.fillText('КАСА',307,123);
+        vestTex=new T.CanvasTexture(c);vestTex.encoding=T.sRGBEncoding;vestTex.anisotropy=4;}
+      // a thin shell hugging the torso: front of the texture (u = .5) faces the way she looks
+      const geo=new T.CylinderGeometry(rx,rx*1.06,h,28,1,true,-Math.PI,Math.PI*2);geo.scale(1,1,rz/rx);
+      const vest=new T.Mesh(geo,new T.MeshStandardMaterial({map:vestTex,roughness:.85,side:T.DoubleSide}));vest.castShadow=true;vest.position.set(ps.x,(top+bot)/2,ps.z+.03);
+      g.add(vest);g.updateMatrixWorld(true);sp.attach(vest);g.userData.vest=vest;}
+    function upgradeCashier(){const i=extras.findIndex(x=>x.userData.cashier&&!x.userData.gltfP);if(i<0||!GL())return;const old=extras[i];const g=gltfPerson({staff:true,h:1.72});if(!g)return;dressCashier(g);g.position.copy(old.position);g.rotation.copy(old.rotation);const nu=g.userData;nu.state='queue';nu.blend=0;nu.ph=old.userData.ph;nu.cashier=true;if(nu.basket)nu.basket.visible=false;room.remove(old);old.traverse(o=>{if(o.isSkinnedMesh){o.skeleton.dispose();if(o.material.map)o.material.map.dispose();o.material.dispose();}});extras[i]=g;room.add(g);}
     let upBusy=false;
     document.addEventListener('kl-gltf-model',e=>{if(!room||!people.length||upBusy)return;if(!(e.detail.count>=8||window.KL_GLTF&&KL_GLTF.has('staff')&&e.detail.count>=5))return;upBusy=true;people.forEach(p=>{p.userData.noUp=false;});
       const step=()=>{const i=people.findIndex(p=>!p.userData.gltfP&&!p.userData.noUp);if(i<0){try{upgradeCashier();}catch(err){}upBusy=false;kick();return;}try{if(!upgrade(i))people[i].userData.noUp=true;}catch(err){people[i].userData.noUp=true;console.warn('upgrade',err);}kick();requestAnimationFrame(step);};requestAnimationFrame(step);});
@@ -1114,7 +1128,7 @@ const space=(function(){
 
     // loading bar over the set: store built → figures placed → real people models; the presentation starts when it is full
     const LD={el:$('#stageLoad'),p:0,done:false,t0:performance.now()};
-    const pf={t:0,n:0,half:TIER===0}; // frame-time meter for the adaptive quality
+    const pf={t:0,n:0,half:TIER===0,slowN:0}; // frame-time meter for the adaptive quality
     function ldSet(p){if(LD.done)return;LD.p=Math.max(LD.p,Math.min(100,p));const e=LD.el;if(e){e.querySelector('.sl-bar i').style.transform='scaleX('+(LD.p/100).toFixed(3)+')';e.querySelector('.sl-pct').textContent=Math.round(LD.p)+'%';e.setAttribute('aria-valuenow',Math.round(LD.p));}if(LD.p>=100)ldDone();}
     function ldDone(){if(LD.done)return;LD.done=true;if(LD.el){LD.el.classList.add('out');setTimeout(()=>{LD.el.hidden=true;},600);}if(view.name==='tour'){tour.k=-1;tour.t=0;tour.first=true;}kick();}
     function ldTick(){if(LD.done)return;const G=window.KL_GLTF,need=(G&&G.total)||19,now_=performance.now();let mp=1;if(G&&!G.failed)mp=Math.min(1,(G.doneN||0)/need);
@@ -1368,7 +1382,7 @@ const space=(function(){
       if(false&&S.restock&&!phone){const st=gltfPerson({h:1.76,fem:false})||mkRandom({h:1.76,hairStyle:'crop',hair:0x3b2a1a,vest:0x1e7a3c,top:0x8a8a8a,tshirt:true,bot:0x1f3a2a,skin:0xd9ae8a,shoe:0x14110e});const p=S.restock.p;st.position.set(p[0],floorY(p[0],p[1]),p[1]);st.rotation.y=Math.atan2(-S.restock.f[0],-S.restock.f[1]);st.userData.state='restock';st.userData.restocker=true;st.userData.blend=0;st.userData.basket.visible=false;
         const bx=new T.Mesh(mergeColored([[new T.BoxGeometry(.36,.24,.28),'#b08a5a']]),M.vc2);if(st.userData.torso){bx.position.set(0,.02,.34);st.userData.torso.add(bx);}else{bx.position.set(0,.55,.35);st.add(bx);}room.add(st);extras.push(st);}
       // cashier first (always visible at the till), then the customers three per frame
-      const [cx,cz]=S.cashier;const cs=gltfPerson({staff:true,h:1.72})||makePerson(8,{h:1.74,hairStyle:'crop',hair:0x1a1410,vest:0x1e7a3c,top:0x8a8a8a,tshirt:true,bot:0x1f3a2a,skin:0xe8c4a4,shoe:0x14110e,iris:'#3a2a1a'});cs.position.set(cx,0,cz);cs.rotation.y=Math.PI*.5+.6;cs.userData.state='queue';cs.userData.blend=0;cs.userData.ph=Math.random()*6.28;cs.userData.basket.visible=false;cs.userData.cashier=true;room.add(cs);extras.push(cs);
+      const [cx,cz]=S.cashier;const cs=gltfPerson({staff:true,h:1.72})||makePerson(8,{h:1.74,hairStyle:'crop',hair:0x1a1410,vest:0xc41f2b,top:0x8a8a8a,tshirt:true,bot:0x1f3a2a,skin:0xe8c4a4,shoe:0x14110e,iris:'#3a2a1a'});if(cs.userData.gltfP)dressCashier(cs);cs.position.set(cx,0,cz);cs.rotation.y=Math.PI*.5+.6;cs.userData.state='queue';cs.userData.blend=0;cs.userData.ph=Math.random()*6.28;cs.userData.basket.visible=false;cs.userData.cashier=true;room.add(cs);extras.push(cs);
       const step=i=>{spec.slice(i,i+3).forEach(one);if(i+3<spec.length)later(()=>step(i+3));else{LD.base=45;ldTick();if(window.__perf&&!window.__perf.done)window.__perf.done=performance.now();}};
       step(0);
     }
@@ -1512,20 +1526,26 @@ const space=(function(){
 
     // loop
     const hudIn=!!(hud&&stage.contains(hud)); // the info card sits under the set now: no per-frame measuring against it
-    const _fr=new T.Frustum(),_fm=new T.Matrix4(),_sp=new T.Sphere(new T.Vector3(),1.15);let vis=false,raf=0,last=0,lightK=1,hover=false,fno=0,lastR=0;window.__q=()=>({TIER,dpr,shadows:renderer.shadowMap.enabled,avg:pf.avg});const v3=new T.Vector3();
+    const _fr=new T.Frustum(),_fm=new T.Matrix4(),_sp=new T.Sphere(new T.Vector3(),1.15);let vis=false,raf=0,last=0,lightK=1,hover=false,fno=0,lastR=0;window.__q=()=>({TIER,dpr,shadows:renderer.shadowMap.enabled,avg:pf.avg,half:!!pf.half,q:pf.q||0,probing:!!pf.probing});const v3=new T.Vector3();
     const touchUI=matchMedia('(hover: none)').matches;stage.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse'){hover=true;kick();}});stage.addEventListener('pointerleave',()=>{hover=false;});
     function frame(now){
       raf=0;if(!vis||document.hidden)return;
       if(window.__klBusy){raf=requestAnimationFrame(frame);return;} // някой подписва: пауза на рендера
       if(pf.half&&(fno++&1)){raf=requestAnimationFrame(frame);return;} // weak machines: every other display frame, a steady 30 fps instead of an uneven 40-50
       {const f=Math.min(.25,(now-(lastR||now))/1000);lastR=now;if(f>0){pf.t+=f;pf.n++;}
-        if(pf.t>(pf.q?2.4:1.1)){const avg=pf.t/pf.n;pf.t=0;pf.n=0;const slow=pf.half?.045:.024;pf.avg=avg;
-          // after the first measuring window: 1) a steady 30 fps (free to switch), 2) resolution one step down, 3) no shadows, 4) resolution once more.
-          // never back up and never more: every resolution/shadow change re-allocates the canvas or recompiles, and that itself is the stutter people see
-          if((LD.done||LD.settle)&&(pf.w=(pf.w||0)+1)>1){if(avg<=slow||(pf.q||0)>=4)pf.ok=1;}if((LD.done||LD.settle)&&pf.w>1&&avg>slow&&(pf.q||0)<4){pf.q=(pf.q||0)+1;const floor=Math.min(dprMax,TIER===0?.62:.72);
-            if(!pf.half){pf.half=true;fno=0;}
-            else if(pf.q!==3&&dpr>floor){dpr=Math.max(floor,dpr*(pf.q<=2?.75:.85));renderer.setPixelRatio(dpr);pm.uniforms.uScale.value=stage.clientHeight*dpr/2/Math.tan(camera.fov*Math.PI/360)*.5;}
-            else if(renderer.shadowMap.enabled){renderer.shadowMap.enabled=false;scene.traverse(o=>{if(o.material){(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>m.needsUpdate=true);}});warm();root.classList.add('lowfx');}}}}
+        if(pf.t>(LD.done?2:1.1)){const avg=pf.t/pf.n;pf.t=0;pf.n=0;pf.avg=avg;
+          // adaptive smoothness, decided on two slow windows in a row (a single busy moment changes nothing):
+          // 1) a steady 30 fps – free to switch and REVERSIBLE: every 20–120 s the full frame rate is tried again and kept if the machine copes;
+          // 2) only if even 30 fps is not held: resolution one step down, then no shadows, then resolution once more (these never go back,
+          //    because each one re-allocates the canvas or recompiles, and that itself would be a stutter)
+          if(LD.done||LD.settle){const nowS=performance.now();let changed=false;
+            if(pf.probing){pf.probing=false;changed=true;if(avg<=.021){pf.half=false;pf.back=20000;}else{pf.half=true;fno=0;pf.back=Math.min(120000,(pf.back||20000)*2);pf.probeAt=nowS+pf.back;}}
+            else if(!pf.half){if(avg>.024){if(++pf.slowN>=2){pf.half=true;fno=0;pf.slowN=0;changed=true;pf.back=pf.back||20000;pf.probeAt=nowS+pf.back;}}else pf.slowN=0;}
+            else if(avg>.045){if(++pf.slowN>=2&&(pf.q||0)<3){pf.slowN=0;changed=true;pf.q=(pf.q||0)+1;const floor=Math.min(dprMax,TIER===0?.62:.72);
+                if(pf.q!==2&&dpr>floor){dpr=Math.max(floor,dpr*(pf.q===1?.75:.85));renderer.setPixelRatio(dpr);pm.uniforms.uScale.value=stage.clientHeight*dpr/2/Math.tan(camera.fov*Math.PI/360)*.5;}
+                else if(renderer.shadowMap.enabled){renderer.shadowMap.enabled=false;scene.traverse(o=>{if(o.material){(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>m.needsUpdate=true);}});warm();root.classList.add('lowfx');}}}
+            else{pf.slowN=0;if(TIER>0&&LD.done&&pf.probeAt&&nowS>pf.probeAt){pf.probing=true;pf.half=false;changed=true;}}
+            if(!changed&&(pf.slowN===0||(pf.q||0)>=3))pf.ok=1;}}}
       const pT0=performance.now();const dt=Math.min(.05,(now-(last||now))/1000);last=now;
       if(state.playing){state.t+=dt*34;if(state.t>=1380){state.t=1380;state.playing=false;}paintClock();}
       if(tween){tween.t+=dt/tween.dur;const k=tween.t>=1?1:(tween.t<.5?4*tween.t**3:1-Math.pow(-2*tween.t+2,3)/2);
