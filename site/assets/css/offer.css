@@ -1029,3 +1029,4 @@ input[type=range]{height:28px;padding:6px 0;box-sizing:border-box}
 .brand .bm{width:auto;height:40px}
 .brand .bw{width:auto;height:17px}
 @media (max-width:600px){.brand .bm{height:36px}}
+#klUpd{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:96;background:var(--gold);color:var(--on-gold);border:0;border-radius:999px;padding:12px 20px;font:600 14px var(--body);box-shadow:0 10px 30px -10px rgba(0,0,0,.6);cursor:pointer}

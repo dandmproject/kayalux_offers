@@ -38,8 +38,11 @@ RewriteRule ^ - [F,L]
   Header always set Content-Security-Policy "default-src 'none'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
   # страницата и API: без кеш; статичните файлове (assets/): дълъг кеш, за да не се теглят 26 MB при всяко отваряне
   Header always set Cache-Control "private, no-store, max-age=0"
-  <FilesMatch "\.(css|js|woff2|png|jpg|jpeg|webp|svg|glb|json)$">
+  <FilesMatch "\.(css|js|woff2)$">
     Header always set Cache-Control "private, max-age=31536000, immutable"
+  </FilesMatch>
+  <FilesMatch "\.(png|jpg|jpeg|webp|svg|glb|json)$">
+    Header always set Cache-Control "private, max-age=3600"
   </FilesMatch>
 </IfModule>
 

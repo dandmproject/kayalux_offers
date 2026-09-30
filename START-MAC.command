@@ -1,5 +1,6 @@
 #!/bin/bash
-# KAYA LUX · оферта АВАНТИ: първият свободен порт от 5340 нагоре, браузърът се отваря сам.
+# KAYA LUX · оферта АВАНТИ: пуска сайта на първия свободен порт от 5340 нагоре.
+# tools/serve.py сам проверява в GitHub за нова версия (при старта и на всеки 3 минути) и я изтегля.
 cd "$(dirname "$0")"
 if command -v python3 >/dev/null; then exec python3 tools/serve.py "$@"; fi
 URL=http://localhost:5340/index.php

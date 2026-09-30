@@ -7,6 +7,14 @@ cd /d "%~dp0"
 rem Proverka: ZIP-at trabva da e razarhiviran
 if not exist "tools\serve.py" goto nozip
 
+rem Nova versiya na tozi fail ot predishnoto obnovyavane
+if exist "START-WINDOWS.new" (
+  copy /y "START-WINDOWS.new" "START-WINDOWS.bat" >nul
+  del "START-WINDOWS.new" >nul
+)
+
+rem tools\serve.py sam proveryava v GitHub za nova versiya (pri starta i na vseki 3 minuti)
+
 rem Tarsim istinski Python 3 (ne praznata vrazka kam Microsoft Store)
 set "PY="
 py -3 -c "import sys" >nul 2>nul && set "PY=py -3"
