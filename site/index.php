@@ -16,7 +16,7 @@ header('Cache-Control: private, no-store, max-age=0');
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/cormorant-garamond-cyrillic-400-italic.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-cyrillic-400-normal.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-cyrillic-500-normal.woff2">
-<link rel="stylesheet" href="assets/css/offer.min.css?v=a5801e66">
+<link rel="stylesheet" href="assets/css/offer.min.css?v=ddd477c6">
 </head>
 <body>
 <div class="grain" aria-hidden="true"></div>
@@ -213,12 +213,17 @@ header('Cache-Control: private, no-store, max-age=0');
           <div class="sky" aria-hidden="true"></div>
           <div id="ovl" aria-hidden="false"></div>
           <div class="stage-note" id="stageNote" aria-live="polite"></div>
+          <div class="stage-chip" aria-hidden="true"><svg viewBox="0 0 24 24" width="13" height="13"><path d="M12 3a9 9 0 1 0 9 9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M21 3v6h-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>3D · <span class="h-mouse">въртете и приближавайте</span><span class="h-touch">управлявайте с пръсти</span></div>
+          <div class="stage-help" id="stageHelp" role="note">
+            <span class="sh-ico" aria-hidden="true"><svg viewBox="0 0 48 32" width="44" height="30"><path class="sh-arr" d="M6 16h36M6 16l5-5M6 16l5 5M42 16l-5-5M42 16l-5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><g class="sh-hand"><circle cx="24" cy="16" r="5.5" fill="currentColor" opacity=".9"/><circle cx="24" cy="16" r="9.5" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".45"/></g></svg></span>
+            <span class="sh-txt"><b>Можете да управлявате сами</b><i class="h-mouse">Плъзнете с мишката, за да завъртите · скролерът приближава · кликнете номер на дифузер</i><i class="h-touch">Плъзнете с пръст, за да завъртите · два пръста: приближаване и завъртане · докоснете номер на дифузер</i></span>
+          </div>
           <div class="stage-load" id="stageLoad" role="progressbar" aria-label="Зареждане на 3D схемата" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="sl-in"><b>Зареждаме 3D схемата на магазина</b><div class="sl-bar"><i></i></div><span class="sl-pct">0%</span></div></div>
           <div class="stage-fallback" id="stageFallback" hidden><p>3D изгледът не можа да се зареди в този браузър.<br>Описанието на системите вдясно важи и без него.</p></div>
         </div>
         <div class="stage-under">
           <div class="hud-card" id="hud"><b>Обект</b><span>…</span></div>
-          <span class="hint"><span class="h-mouse">Плъзнете с мишката, за да завъртите · колелцето приближава</span><span class="h-touch">Един пръст встрани: въртене и наклон · два пръста: щипване за приближаване, завъртане на 360°, плъзгане за местене · двойно докосване: презентацията</span> · мрежата на пода е 1 × 1 м</span>
+          <span class="hint"><span class="h-mouse">Плъзнете с мишката, за да завъртите · скролерът приближава</span><span class="h-touch">Един пръст встрани: въртене и наклон · два пръста: щипване за приближаване, завъртане на 360°, плъзгане за местене · двойно докосване: презентацията</span> · мрежата на пода е 1 × 1 м</span>
         </div>
         <div class="stage-notes">
           <p class="honest"><b>Как е построена схемата</b>Моделът, броят и цветът на системите са реалните за избрания обект. Помещението е построено по реалната му квадратура, но планът и обзавеждането са типични за веригата (алкохол, цигари, солети, бонбони, чипс, млечни продукти), не заснети от обекта. Точните места ще бъдат описани в Приложение №&nbsp;1.</p>
@@ -485,7 +490,7 @@ header('Cache-Control: private, no-store, max-age=0');
 </footer>
 
 <script defer src="assets/js/three.min.js"></script>
-<script defer src="assets/js/app.min.js?v=3c2b0f7c"></script>
+<script defer src="assets/js/app.min.js?v=067477c3"></script>
 <script>/* моделите (~5 MB, кеширани) тръгват на заден план след зареждането на страницата или когато 3D схемата наближи */addEventListener('DOMContentLoaded',function(){var st=document.getElementById('stage');if(!st||!window.KL_GLTF)return;var go=function(){KL_GLTF.start();};addEventListener('load',function(){setTimeout(function(){(window.requestIdleCallback||function(f){f();})(go);},1500);});if('IntersectionObserver' in window){var io=new IntersectionObserver(function(en){if(en[0].isIntersecting){go();io.disconnect();}},{rootMargin:'1400px'});io.observe(st);}else go();});</script>
 <script>/* телефон: докато 3D схемата е на екрана, бутоните за контакт се отдръпват */(function(){var d=document.querySelector('.dock'),c=document.querySelector('.stage-col');if(!d||!c||!('IntersectionObserver' in window))return;new IntersectionObserver(function(e){d.classList.toggle('dim',e[0].isIntersecting);},{threshold:.25}).observe(c);})();</script>
 <script>/* локален сървър (tools/serve.py): след обновяване предлага презареждане; на хостинга /__version го няма и нищо не се показва */(function(){if(!document.querySelector('meta[name="kl-local"]'))return;var v=null;function chk(){fetch('/__version',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){if(!j||!j.sha)return;if(v===null){v=j.sha;return;}if(j.sha!==v&&!document.getElementById('klUpd')){var b=document.createElement('button');b.id='klUpd';b.type='button';b.textContent='Има нова версия на офертата · Обнови';b.onclick=function(){location.reload();};document.body.appendChild(b);}}).catch(function(){});}chk();setInterval(chk,60000);})();</script>

@@ -1039,7 +1039,7 @@ const space=(function(){
     let warmT=0;const warmSoon=()=>{if(!warmT)warmT=setTimeout(()=>{warmT=0;warm();},120);};
     const WARMED=new Set(); // model files whose shaders are already compiled
     function gltfPerson(spec){const G=GL();if(!G)return null;spec=spec||{};let kind=spec.staff?'staff':spec.isChild?'child':spec.elder?'elderly':(spec.fem?'f':'m');if(!G.has(kind)){if(kind==='child')return null;kind=spec.fem?'f':'m';if(!G.has(kind))return null;}
-      const g=G.spawn({kind,height:spec.h||(spec.isChild?1.18:1.72),avoid:usedFiles()});if(!g)return null;if(!WARMED.has(g.userData.file)){WARMED.add(g.userData.file);const mm=G.models.find(m=>m.file===g.userData.file);if(!mm||!mm.warm)warmSoon();} // models compiled behind the bar need no second pass (a full compile() costs 100+ ms in Firefox)const ud=g.userData,k=(ud.height||1.72)/1.72;
+      const g=G.spawn({kind,height:spec.h||(spec.isChild?1.18:1.72),avoid:usedFiles()});if(!g)return null;if(!WARMED.has(g.userData.file)){WARMED.add(g.userData.file);const mm=G.models.find(m=>m.file===g.userData.file);if(!mm||!mm.warm)warmSoon();} /* models compiled behind the bar need no second pass (a full compile() costs 100+ ms in Firefox) */const ud=g.userData,k=(ud.height||1.72)/1.72;
       ud.gltfP=true;ud.k=k;ud.elder=!!spec.elder||ud.kind==='elderly';ud.isChild=!!spec.isChild||ud.kind==='child';ud.yaw=0;ud.dist=0;ud.blend=0;ud.phone=!!spec.phone;ud.hipY=.9*k;
       ud.rh=g.getObjectByName('Bip01_R_Hand')||g.getObjectByName('Bip02_R_Hand')||null;ud.lh=g.getObjectByName('Bip01_L_Hand')||null;
       const basket=new T.Group();basket.add(new T.Mesh(SHARED.basket(),M.vc2));
@@ -1056,7 +1056,7 @@ const space=(function(){
       else if(st==='browse'||st==='restock'||st==='scan')clip='look';else if(ud.bag&&ud.bag.visible)clip='bag';
       if(v<=.04&&(ud.lookAtP||st==='chat'||st==='greet'))clip=ud.talking?(ud.ph>3?'talk2':'talk'):'listen';
       ud.play(clip,.3);
-      if(ud.face&&!ud.gltfP){const now=performance.now()/1000,F=ud.fw||(ud.fw={}); // real models get their faces in gltfHeads (living face)const ease=(k,tgt,rate)=>{F[k]=(F[k]||0)+(tgt-(F[k]||0))*Math.min(1,rate||.12);ud.face(k,F[k]);};
+      if(ud.face&&!ud.gltfP){const now=performance.now()/1000,F=ud.fw||(ud.fw={}); /* real models get their faces in gltfHeads (living face) */const ease=(k,tgt,rate)=>{F[k]=(F[k]||0)+(tgt-(F[k]||0))*Math.min(1,rate||.12);ud.face(k,F[k]);};
         // smile: greeting / paying / talking / a child looking up at the parent; elderly concentrate while browsing
         const happy=ud.smile||ud.chat||st==='chat'||st==='greet'||(ud.isChild&&ud.lookAtP);ease('smile',happy?1.0:0);ease('squint',happy?.45:(F.micro==='squint'?.18:0));
         ease('frown',(ud.elder&&st==='browse'&&!happy)?.35:0);
@@ -1474,7 +1474,7 @@ const space=(function(){
       const dark=isDark(),c=n=>cssVar(n);
       edgeMat.color=lin(c('--gold-soft'));edgeMat.opacity=dark?.4:.7;gridMat.color=lin('#8a7348');gridMat.opacity=.2;flowMat.color=lin('#E6C27A'); /* the floor is black in every theme */
       const gh=(c('--gold')||'#D4AF63').replace('#','');gold=[parseInt(gh.slice(0,2),16),parseInt(gh.slice(2,4),16),parseInt(gh.slice(4,6),16)];
-      pm.uniforms.uColor.value=new T.Color(dark?'#efe7d6':'#8c806a');pm.blending=T.NormalBlending;pm.uniforms.uOp.value=(dark?.17:.14)*(small()?1.5:1);pm.uniforms.uSize.value=small()?.44:.3; // small screens: a little larger and stronger so the dust still readspm.needsUpdate=true;
+      pm.uniforms.uColor.value=new T.Color(dark?'#efe7d6':'#8c806a');pm.blending=T.NormalBlending;pm.uniforms.uOp.value=(dark?.17:.14)*(small()?1.5:1);pm.uniforms.uSize.value=small()?.44:.3; /* small screens: a little larger and stronger so the dust still reads */pm.needsUpdate=true;
       hemi.intensity=dark?.42:.5;key.intensity=dark?.5:.42;amb.intensity=(dark?.14:.22)+(S.ambAdd||0);const fc=lin(c('--stage-b')||'#090705');scene.fog=new T.Fog(fc,Math.max(S.W||10,S.D||10)*1.3,Math.max(S.W||10,S.D||10)*4.2);S.units&&S.units.forEach(u=>{u.plume.material.blending=dark?T.AdditiveBlending:T.NormalBlending;u.plume.material.color.copy(dark?new T.Color(c('--gold')).lerp(new T.Color('#ffffff'),.55):new T.Color(c('--gold-soft')));u.wave.material.color.set(c('--gold'));u.plume.material.needsUpdate=true;});
     }
     themeSubs.push(()=>{recolor();kick();});
@@ -1603,7 +1603,7 @@ const space=(function(){
       const np=renderer.info.programs.length;if(DG.prog&&np>DG.prog)dlog('нов шейдър (общо '+np+')');DG.prog=np;
       const rg=window.__regenN||0,ru=(window.KL_GLTF&&KL_GLTF.reused)||0;if(rg>DG.regen)dlog('нов клиент · '+(ru>DG.reused?'от пула':'клониран'));DG.regen=rg;DG.reused=ru;
       // people: a shopper standing still while walking (stuck), a head that snaps round in one frame, someone outside the walls
-      if(!DG.pp||f>1)DG.pp=new WeakMap(); // after a pause (hidden tab) start watching afresh: no false 'stuck' alarmsconst _q1=DG.q1||(DG.q1=new T.Quaternion()),_q2=DG.q2||(DG.q2=new T.Quaternion());
+      if(!DG.pp||f>1)DG.pp=new WeakMap(); /* after a pause (hidden tab) start watching afresh: no false 'stuck' alarms */const _q1=DG.q1||(DG.q1=new T.Quaternion()),_q2=DG.q2||(DG.q2=new T.Quaternion());
       people.forEach(g=>{const ud=g.userData;if(!g.visible)return;let r=DG.pp.get(g);if(!r){r={x:g.position.x,z:g.position.z,t:now,snap:0};DG.pp.set(g,r);}
         if(ud.state==='walk'){if(Math.hypot(g.position.x-r.x,g.position.z-r.z)>.08){r.x=g.position.x;r.z=g.position.z;r.t=now;r.warn=0;}else if(now-r.t>9000&&!r.warn){r.warn=1;dlog('клиент стои на място 9 s, докато върви (заседнал?) · '+g.position.x.toFixed(1)+', '+g.position.z.toFixed(1));}}else{r.x=g.position.x;r.z=g.position.z;r.t=now;}
         if(ud.gltfP&&ud.headB&&!ud.culled){ud.headB.getWorldQuaternion(_q1);g.getWorldQuaternion(_q2);_q2.invert().multiply(_q1);if(r.hq){const ang=r.hq.angleTo(_q2);if(ang>.45&&now-r.snap>3000){r.snap=now;dlog('рязко обръщане на глава '+Math.round(ang*57)+'° за един кадър · '+(ud.state||'')+' '+(ud.clip||''));}}else r.hq=new T.Quaternion();r.hq.copy(_q2);}
@@ -1620,6 +1620,10 @@ const space=(function(){
         'видеокарта: '+DG.gpu+'\n'+navigator.userAgent.replace(/^Mozilla\/5.0 /,'')+'\n\n'+DG.log.join('\n');}
     // the note under a diffuser: appears once the camera has arrived (tour or a click on its number), stays for the reading time, fades out on the move
     const TIP={el:null,u:-1,on:false,w:0,h:0};
+    // „you can steer it yourself“: shown while the presentation plays by itself, gone the moment the visitor takes over, back when it resumes
+    const HELP={el:$('#stageHelp'),on:false,h:0,last:-1e9};
+    ['pointerdown','touchstart','wheel'].forEach(t=>stage.addEventListener(t,()=>{HELP.last=performance.now();},{passive:true,capture:true}));
+    function helpFrame(){if(!HELP.el)return;const on=LD.done&&view.name==='tour'&&performance.now()-HELP.last>15000;if(on!==HELP.on){HELP.on=on;HELP.el.classList.toggle('on',on);if(on&&!HELP.h)HELP.h=HELP.el.offsetHeight;}}
     {const e=document.createElement('div');e.className='unit-tip';e.setAttribute('aria-live','polite');e.innerHTML='<b></b><span></span><p></p>';ovl.appendChild(e);TIP.el=e;}
     function tipFrame(w,h){let u=-1;
       if(!tween&&!drag&&!TCH.n&&S.units&&S.units.length){if(view.name==='tour'&&tour.k>=3&&tour.k-3<S.units.length&&tour.t>.15)u=tour.k-3;else if(view.name==='focus'&&TIP.fu!=null)u=TIP.fu;}
@@ -1627,7 +1631,7 @@ const space=(function(){
       if(un){if(TIP.u!==u||TIP.tok!==buildTok){TIP.tok=buildTok;const i=un.info||{};TIP.el.children[0].textContent=(u+1)+' · '+(i.title||'Дифузер');TIP.el.children[1].textContent=i.zone||'';TIP.el.children[2].textContent=i.why||'';TIP.u=u;TIP.w=0;}
         v3.set(un.p[0]+un.d[0]*.14,un.p[1]-(un.PL?.24:.17),un.p[2]+un.d[2]*.14).project(camera);
         if(v3.z<1&&Math.abs(v3.x)<1.2&&Math.abs(v3.y)<1.2){if(!TIP.w){TIP.w=TIP.el.offsetWidth;TIP.h=TIP.el.offsetHeight;}
-          const x=clamp((v3.x+1)/2*w,TIP.w/2+8,w-TIP.w/2-8),y=clamp((1-v3.y)/2*h+12,8,h-TIP.h-8),tf='translate('+(x-TIP.w/2).toFixed(0)+'px,'+y.toFixed(0)+'px)',ax=clamp((v3.x+1)/2*w-(x-TIP.w/2),16,TIP.w-16).toFixed(0)+'px';
+          const x=clamp((v3.x+1)/2*w,TIP.w/2+8,w-TIP.w/2-8),y=clamp((1-v3.y)/2*h+12,8,h-TIP.h-(HELP.on?HELP.h+24:8)),tf='translate('+(x-TIP.w/2).toFixed(0)+'px,'+y.toFixed(0)+'px)',ax=clamp((v3.x+1)/2*w-(x-TIP.w/2),16,TIP.w-16).toFixed(0)+'px';
           if(TIP.tf!==tf){TIP.tf=tf;TIP.el.style.transform=tf;}if(TIP.ax!==ax){TIP.ax=ax;TIP.el.style.setProperty('--ax',ax);} /* the arrow points at the diffuser even when the note is pushed off-centre */if(!TIP.on){TIP.on=true;TIP.el.classList.add('on');}return;}}
       if(TIP.on){TIP.on=false;TIP.el.classList.remove('on');}if(!un)TIP.u=-1;}
     const hudIn=!!(hud&&stage.contains(hud)); // the info card sits under the set now: no per-frame measuring against it
@@ -1693,7 +1697,7 @@ const space=(function(){
       let HR=null;if(hud&&hudIn&&hud.offsetParent){const a=hud.getBoundingClientRect(),b=stage.getBoundingClientRect();HR=[a.left-b.left,a.top-b.top,a.right-b.left,a.bottom-b.top];}
       overlay.filter(o=>o.kind==='lbl'&&!o.off).sort((a,b)=>a.sz-b.sz).forEach(o=>{if(!o.w){o.w=o.el.offsetWidth||80;o.h=o.el.offsetHeight||18;}if(HR&&o.sx+o.w/2>HR[0]&&o.sx-o.w/2<HR[2]&&o.sy+o.h/2>HR[1]&&o.sy-o.h/2<HR[3]){o.off=true;return;}if(kept.some(k=>Math.abs(k.sx-o.sx)<(k.w+o.w)/2+4&&Math.abs(k.sy-o.sy)<(k.h+o.h)/2+2))o.off=true;else kept.push(o);});
       {const cp=camera.position,inside=cp.z<S.hd&&Math.abs(cp.x)<S.hw&&cp.y<S.H;if(view.name==='tour'&&!inside)overlay.forEach(o=>{if(o.kind==='pin')o.off=true;});} // numbers only once we are inside
-      tipFrame(w,h);
+      helpFrame();tipFrame(w,h);
       overlay.forEach(o=>{if(o.kind==='pin'&&HR&&!o.off&&o.sx>HR[0]-20&&o.sx<HR[2]+20&&o.sy>HR[1]-20&&o.sy<HR[3]+20)o.off=true;});
       overlay.forEach(o=>{if(o.vis!==!o.off){o.vis=!o.off;o.el.style.visibility=o.off?'hidden':'visible';}if(!o.off){const tf='translate('+o.sx.toFixed(1)+'px,'+o.sy.toFixed(1)+'px)'+(o.kind==='lbl'?' translate(-50%,-50%)':' translate(-50%,-100%)');if(o.tf!==tf){o.tf=tf;o.el.style.transform=tf;}}}); // DOM written only when something changed
       const pT1=performance.now();renderer.render(scene,camera);if(DIAG){const e=performance.now();DG.seg=[_t1-pT0,_t2-_t1,_t3-_t2,_t4-_t3,pT1-_t4,e-pT1,e-pT0];}if(window.__prof){const P=window.__prof;P.js+=pT1-pT0;if(pT1-pT0>(P.max||0))P.max=pT1-pT0;(P.h=P.h||[]).push(+(pT1-pT0).toFixed(1));P.gl+=performance.now()-pT1;P.n++;}if(window.__perf){window.__perf.frames=(window.__perf.frames||0)+1;if(!window.__perf.first)window.__perf.first=performance.now();}
