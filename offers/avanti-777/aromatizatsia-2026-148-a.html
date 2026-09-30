@@ -1000,6 +1000,8 @@ const space=(function(){
     // ceiling: white suspended tiles, 60 cm grid (2x2 per 1.2 m repeat)
     M.ceil=new T.MeshBasicMaterial({map:tex2(256,256,(g,w,h)=>{g.fillStyle='#e4e1da';g.fillRect(0,0,w,h);speck(g,w,h,2500,.06,'0,0,0',2);g.fillStyle='#bdb8ae';g.fillRect(0,0,w,2);g.fillRect(0,128,w,2);g.fillRect(0,0,2,h);g.fillRect(128,0,2,h);},true)});
     M.led=new T.MeshBasicMaterial({color:0xdcd9d2});
+    M.aoV=new T.MeshBasicMaterial({color:0x000000,transparent:true,opacity:.5,depthWrite:false,map:tex2(8,64,(g,w,h)=>{const gr=g.createLinearGradient(0,0,0,h);gr.addColorStop(0,'rgba(255,255,255,1)');gr.addColorStop(.4,'rgba(255,255,255,.3)');gr.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gr;g.fillRect(0,0,w,h);})}); // the shade every shelf throws on the goods below it
+    const signMats={};const signMat=t=>signMats[t]||(signMats[t]=new T.MeshBasicMaterial({map:tex2(512,96,(g,w,h)=>{g.fillStyle='#5a1620';g.fillRect(0,0,w,h);g.strokeStyle='#c9a86a';g.lineWidth=3;g.strokeRect(6,6,w-12,h-12);g.fillStyle='#e8d3a2';g.font='bold 40px Inter, Arial';g.textAlign='center';g.textBaseline='middle';g.fillText(t.toUpperCase(),w/2,h/2+2);})})); // printed category boards, burgundy with a gold rule
     M.ao=new T.MeshBasicMaterial({color:0x000000,transparent:true,opacity:.42,depthWrite:false,map:tex2(64,8,(g,w,h)=>{const gr=g.createLinearGradient(0,0,w,0);gr.addColorStop(0,'rgba(255,255,255,1)');gr.addColorStop(.35,'rgba(255,255,255,.35)');gr.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gr;g.fillRect(0,0,w,h);})});
     M.blob=new T.MeshBasicMaterial({color:0x000000,transparent:true,opacity:.5,depthWrite:false,map:tex2(64,64,(g,w,h)=>{const gr=g.createRadialGradient(32,32,2,32,32,32);gr.addColorStop(0,'rgba(255,255,255,.9)');gr.addColorStop(.5,'rgba(255,255,255,.35)');gr.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gr;g.fillRect(0,0,w,h);})});
     M.grille=new T.MeshStandardMaterial({roughness:.7,map:tex2(64,64,(g,w,h)=>{g.fillStyle='#8a8d90';g.fillRect(0,0,w,h);g.fillStyle='#3a3c3e';for(let i=0;i<8;i++)g.fillRect(4,4+i*7.5,56,3);})});
@@ -1773,7 +1775,7 @@ const space=(function(){
       S={A,W,D,H:Hh,hw,hd,sw,sd,hasStore:store_,units:[],shape,yF,zW,wine};
       const B='#7a1f2b',BD='#4a1119',BLK='#161616',STEEL='#c9cdd1',WHT='#ece9e2';
       const FAM={bottle:[],can:[],carton:[],pack:[],bag:[]};const put=(f,x,y,z,sx,sy,sz,c)=>FAM[f].push([x,y,z,sx,sy,sz,c]);
-      const strips=[],glassAcc=[],headAcc=[[],[],[]],aoAcc=[];const ao=(x,z,L,dx,dz)=>{const g=new T.PlaneGeometry(.42,L);g.rotateX(-Math.PI/2);g.rotateY(dx>0?0:dx<0?Math.PI:dz>0?-Math.PI/2:Math.PI/2);g.translate(x+dx*.21,.007,z+dz*.21);aoAcc.push(g);};
+      const strips=[],glassAcc=[],headAcc=[[],[],[]],aoAcc=[],aoVAcc=[];const shade=(x,y,z,L,side)=>{const g=new T.PlaneGeometry(L,.16);g.rotateY(side);g.translate(x,y-.1,z);aoVAcc.push(g);};const ao=(x,z,L,dx,dz)=>{const g=new T.PlaneGeometry(.42,L);g.rotateX(-Math.PI/2);g.rotateY(dx>0?0:dx<0?Math.PI:dz>0?-Math.PI/2:Math.PI/2);g.translate(x+dx*.21,.007,z+dz*.21);aoAcc.push(g);};
       const rail=(x,y,z,L,ry)=>{const sg=new T.PlaneGeometry(L,.04);sg.rotateY(ry);sg.translate(x,y,z);const uv=sg.attributes.uv;for(let i=0;i<uv.count;i++)uv.setX(i,uv.getX(i)*L/.96);strips.push(sg);};
       // floor (two levels when the wine corner is a step down)
       M.floor.map.repeat.set(W/1.2,D/1.2);M.floor.roughnessMap.repeat.set(W/1.2,D/1.2);
@@ -1855,7 +1857,8 @@ const space=(function(){
       {const x0=(shape==='L'?-hw+lw+t:-hw)+.15,x1=(store_?hw-sw:hw)-.15-(wine?1.2:0),wl=x1-x0;if(wl>1){const xm=(x0+x1)/2,nb=Math.max(1,Math.round(wl/1.0)),LV=[.4,.95,1.5];
         blk(xm,-hd+.22,wl+.1,.44);for(let x=x0+.5;x<x1-.4;x+=1)face(x,-hd+.44,0,1,'wine');
         box(wl,.12,.42,M.oak,xm,yF+.06,-hd+.21);box(wl,.05,.44,M.oak,xm,yF+2.15,-hd+.22,false);for(let i=0;i<=nb;i++)box(.04,2.1,.42,M.oak,x0+i*wl/nb,yF+1.05,-hd+.21,false);
-        LV.forEach(y=>{box(wl,.03,.4,M.oak,xm,yF+y,-hd+.2,false);rail(xm,yF+y+.01,-hd+.405,wl,0);for(const dz of [-hd+.13,-hd+.3])for(let x=x0+.08;x<x1-.06;x+=.1*dens){if(Math.random()<.03)continue;put('bottle',x,yF+y+.015,dz,.085,.3,.085,pick_(WINE));}});
+        {const sg=new T.Mesh(new T.PlaneGeometry(Math.min(wl*.8,3),.2),signMat('Вина'));sg.position.set(xm,yF+2.32,-hd+.03);room.add(sg);}
+        LV.forEach(y=>{box(wl,.03,.4,M.oak,xm,yF+y,-hd+.2,false);shade(xm,yF+y,-hd+.02,wl,0);rail(xm,yF+y+.01,-hd+.405,wl,0);for(const dz of [-hd+.13,-hd+.3])for(let x=x0+.08;x<x1-.06;x+=.1*dens){if(Math.random()<.03)continue;put('bottle',x,yF+y+.015,dz,.085,.3,.085,pick_(WINE));}});
         label('Вина',xm,yF+2.4,-hd+.3);
         if(wine&&zW+hd>2.3){const cx=x1+.65,cz=-hd+.32;blk(cx,cz,.9,.6);cbox(.85,1.8,.45,B,cx,yF+.9,cz);[.45,.95,1.45].forEach(y=>{cbox(.85,.03,.42,BD,cx,yF+y,cz);for(let i=0;i<3;i++)put('carton',cx-.26+i*.26,yF+y+.02,cz+.02,.16,.24,.14,pick_(['#c8382e','#1b1917','#e0b23a','#5a1a22']));});}
         cbox(.34,.26,.24,'#efe9dc',xm+.9,yF+1.5+.14,-hd+.21);cbox(.34,.05,.24,'#3c7a3e',xm+.9,yF+1.5+.28,-hd+.21);}}
@@ -1881,7 +1884,8 @@ const space=(function(){
         if(gi===1){cgeo(new T.CylinderGeometry(.065,.065,.48,8),'#c41e1e',x+.6,.24,zBot+.25);cgeo(new T.CylinderGeometry(.03,.05,.08,8),BLK,x+.6,.52,zBot+.25);}for(let z=zTop+.6;z<zBot-.5;z+=1){face(x-.5,z,-1,0,zone);face(x+.5,z,1,0,zone);}
         box(.08,1.7,len,M.oak,x,.85,zc);box(.96,.12,len,M.oak,x,.06,zc);box(.96,.05,len+.04,M.oak,x,1.72,zc,false);const nu=Math.max(1,Math.round(len/1.2));for(let i=0;i<=nu;i++)box(.96,1.7,.03,M.oak,x,.85,zTop+i*len/nu,false);
         cbox(.98,1.74,.04,B,x,.87,zBot+.02);cbox(.98,1.74,.04,B,x,.87,zTop-.02);
-        LV.forEach((y,li)=>{box(.92,.03,len,M.oak,x,y,zc,false);
+        {const sm=signMat(ZL[zone]),sw=Math.min(len*.9,2.6);for(const sd_ of [-1,1]){const sg=new T.Mesh(new T.PlaneGeometry(sw,.2),sm);sg.rotation.y=sd_>0?Math.PI/2:-Math.PI/2;sg.position.set(x+sd_*.5,1.86,zc);room.add(sg);}} // the category board on the gondola's top rail
+        LV.forEach((y,li)=>{box(.92,.03,len,M.oak,x,y,zc,false);shade(x-.045,y,zc,len,-Math.PI/2);shade(x+.045,y,zc,len,Math.PI/2);
           for(const sd_ of [-1,1]){rail(x+sd_*.47,y+.01,zc,len,sd_>0?Math.PI/2:-Math.PI/2);for(const px of [x+sd_*.36,x+sd_*.19]){ // two rows deep, the front one at the rail: a stocked shelf, as in the shops
             if(zone==='spirits'){if(li===1||li===2){for(let z=zTop+.14;z<zBot-.12;z+=.14*dens)if(Math.random()>.03)put('carton',px,y+.015,z,.12,.22,.1,pick_(['#c8382e','#1b1917','#3a2410','#e0b23a','#5a1a22']));}else{for(let z=zTop+.12;z<zBot-.1;z+=.1*dens)if(Math.random()>.03)put('bottle',px,y+.015,z,.085,.3,.085,pick_(SPIRIT));}}
             else if(zone==='sweets'){if(li<2){for(let z=zTop+.12;z<zBot-.1;z+=.12*dens)if(Math.random()>.03){put('pack',px,y+.015,z,.1,.15,.06,pick_(SWEET));if(Math.random()<.6)put('pack',px,y+.165,z,.1,.15,.06,pick_(SWEET));}}else{for(let z=zTop+.14;z<zBot-.12;z+=.14*dens)if(Math.random()>.03)put('carton',px,y+.015,z,.12,.18,.09,pick_(BISC));}}
@@ -1955,6 +1959,7 @@ const space=(function(){
       S.ceil=room.children.filter(o=>o.material===M.vcC||o.material===M.ledC||o.material===M.grille||o===S.ceilPlane);
       if(strips.length){const sm_=new T.Mesh(mergeGeos(strips),M.rail);room.add(sm_);}
       if(aoAcc.length){const am=new T.Mesh(mergeGeos(aoAcc),M.ao);am.renderOrder=1;room.add(am);}
+      if(aoVAcc.length){const av=new T.Mesh(mergeGeos(aoVAcc),M.aoV);av.renderOrder=1;room.add(av);} // one mesh for all shelf shades
       if(glassAcc.length){const gm=new T.Mesh(mergeGeos(glassAcc),M.glassC);room.add(gm);}
       headAcc.forEach((h,i)=>{if(h.length)room.add(new T.Mesh(mergeGeos(h),[M.headCoke,M.headBeer,M.headBurg][i]));});
       // navigation grid from the registered props; entry/exit on the door apron, queue slots beside the till
