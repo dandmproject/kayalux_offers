@@ -142,10 +142,10 @@ em{font-style:italic}
 .valid-left{color:var(--ok);font-size:13px;display:inline-flex;align-items:center;gap:7px}
 .valid-left::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
 .valid-left.gone{color:var(--warn)}
-@media (prefers-reduced-motion:no-preference){
+
   .hero .rise{animation:rise 1s cubic-bezier(.2,.7,.2,1) both}
   .hero .rise.d1{animation-delay:.12s}.hero .rise.d2{animation-delay:.24s}.hero .rise.d3{animation-delay:.36s}.hero .rise.d4{animation-delay:.5s}
-}
+
 @keyframes rise{from{opacity:.18;transform:translateY(14px)}to{opacity:1;transform:none}}
 @media (max-width:900px){ .hero-grid{grid-template-columns:1fr} .credits{max-width:520px} }
 
@@ -157,10 +157,10 @@ em{font-style:italic}
 .head .no span{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-soft)}
 .head .lead{color:var(--ink-soft);max-width:64ch;margin-top:18px;font-size:1.12rem}
 @media (max-width:760px){ .head{grid-template-columns:1fr} .head .no{flex-direction:row;align-items:baseline;gap:14px} .head .no b{font-size:2rem} }
-@media (prefers-reduced-motion:no-preference){
+
   .js .reveal{transition:transform .9s cubic-bezier(.2,.7,.2,1),opacity .9s}
   .js .reveal.pre{transform:translateY(18px);opacity:.35}
-}
+
 
 /* ---------- letter + parties ---------- */
 .parties{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);margin-bottom:56px}
@@ -257,7 +257,7 @@ em{font-style:italic}
 .cols2 p strong{color:var(--ink);font-weight:600}
 .live{display:flex;gap:14px;align-items:flex-start;border:1px solid var(--line);padding:16px 18px;margin-top:40px;background:var(--surface)}
 .live i{flex:0 0 auto;width:9px;height:9px;border-radius:50%;background:var(--ok);margin-top:8px;box-shadow:0 0 0 0 var(--ok)}
-@media (prefers-reduced-motion:no-preference){ .live i{animation:beat 2.4s infinite} }
+ .live i{animation:beat 2.4s infinite} 
 @keyframes beat{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--ok) 60%,transparent)}70%{box-shadow:0 0 0 10px transparent}100%{box-shadow:0 0 0 0 transparent}}
 .live b{color:var(--ok);font-weight:600}
 @media (max-width:760px){ .cols2{grid-template-columns:1fr} .hours3{grid-template-columns:1fr} .hours3 div{border-bottom:1px solid var(--line);padding:10px 16px} }
@@ -486,7 +486,7 @@ table.obj{width:100%;border-collapse:collapse;min-width:760px;font-size:16px}
 footer.foot{border-top:1px solid var(--line);padding-block:26px 34px;color:var(--ink-soft);font-size:13px}
 footer.foot .wrap{display:flex;justify-content:space-between;gap:10px 24px;flex-wrap:wrap}
 
-@media (prefers-reduced-motion:reduce){ *{animation:none!important;transition:none!important} html{scroll-behavior:auto} }
+
 @media print{ .nav,.grain,.stage-hud,.stage-foot,.clock,.controls,.more,.copy,.theme-btn{display:none!important} .reel,.close{padding-block:36px;break-inside:avoid-page} .hero{padding-block:40px} }
 
 /* ===== cinematic layer (round 2) ===== */
@@ -497,11 +497,11 @@ footer.foot .wrap{display:flex;justify-content:space-between;gap:10px 24px;flex-
 .vignette{position:fixed;inset:0;pointer-events:none;z-index:58;background:radial-gradient(ellipse 75% 70% at 50% 50%,transparent 50%,var(--vig) 100%)}
 .bars{pointer-events:none}
 .bars i{position:fixed;left:0;right:0;height:14vh;background:#000;z-index:90;display:none}
-@media (prefers-reduced-motion:no-preference){
+
   .bars i{display:block}
   .bars i:first-child{top:0;animation:barUp 1.5s .45s cubic-bezier(.75,0,.2,1) forwards}
   .bars i:last-child{bottom:0;animation:barDown 1.5s .45s cubic-bezier(.75,0,.2,1) forwards}
-}
+
 @keyframes barUp{to{transform:translateY(-101%)}}
 @keyframes barDown{to{transform:translateY(101%)}}
 .hero::after{display:none}
@@ -511,11 +511,11 @@ footer.foot .wrap{display:flex;justify-content:space-between;gap:10px 24px;flex-
 .logo-stage{position:relative;width:min(340px,70vw);margin:0 0 30px -8px;aspect-ratio:775/562}
 .logo-stage img{width:100%;height:100%;display:block}
 .logo-stage .sheen{position:absolute;inset:0;pointer-events:none;background:linear-gradient(100deg,transparent 38%,rgba(255,246,222,.95) 50%,transparent 62%);background-size:260% 100%;background-position:160% 0;-webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;opacity:0}
-@media (prefers-reduced-motion:no-preference){
+
   .logo-stage{animation:logoIn 2.2s .55s cubic-bezier(.2,.7,.2,1) both}
   .logo-stage.ready .sheen{opacity:1;animation:sheen 6.5s 2.4s ease-in-out infinite}
   .hero .rise.d1{animation-delay:.9s}.hero .rise.d2{animation-delay:1.1s}.hero .rise.d3{animation-delay:1.3s}.hero .rise.d4{animation-delay:1.5s}
-}
+
 @keyframes logoIn{from{opacity:.05;filter:blur(16px);transform:scale(1.08) translateY(10px);letter-spacing:.2em}to{opacity:1;filter:none;transform:none}}
 @keyframes sheen{0%{background-position:160% 0}45%,100%{background-position:-60% 0}}
 .hero dl.credits{display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) minmax(0,1.5fr);margin:clamp(44px,7vw,84px) 0 0;padding:0;max-width:none}
@@ -526,7 +526,7 @@ footer.foot .wrap{display:flex;justify-content:space-between;gap:10px 24px;flex-
 .hero dl.credits .seg{margin-top:10px}
 .hero .cue{position:absolute;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--ink-soft);text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:8px}
 .hero .cue::after{content:"";width:1px;height:34px;background:linear-gradient(var(--gold),transparent)}
-@media (prefers-reduced-motion:no-preference){.hero .cue::after{animation:cue 2.2s ease-in-out infinite}}
+.hero .cue::after{animation:cue 2.2s ease-in-out infinite}
 @keyframes cue{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
 @media (max-width:1000px){.hero dl.credits{grid-template-columns:1fr 1fr}.hero dl.credits > div{border-left:0!important;border-top:1px solid var(--line)}.hero dl.credits > div:last-child{grid-column:1/-1}.hero .cue{display:none}}
 .brand .bm{width:22px;height:auto}
@@ -536,18 +536,18 @@ footer.foot .wrap{display:flex;justify-content:space-between;gap:10px 24px;flex-
 .head{position:relative;isolation:isolate}
 .head::before{content:attr(data-no);position:absolute;right:0;top:-.42em;font-family:var(--display);font-style:italic;font-weight:400;font-size:clamp(7rem,17vw,14rem);line-height:1;color:var(--gold);opacity:.07;z-index:-1;pointer-events:none}
 /* scroll reveal: only below-the-fold elements, only with JS */
-@media (prefers-reduced-motion:no-preference){
+
   .js .rv{transition:opacity 1.1s cubic-bezier(.2,.7,.2,1),transform 1.1s cubic-bezier(.2,.7,.2,1),filter 1.1s}
   .js .rv.pre{opacity:0;transform:translateY(34px);filter:blur(6px)}
-}
+
 /* living details */
-@media (prefers-reduced-motion:no-preference){
+
   .drop{animation:drift 5s ease-in-out infinite alternate}
   .notes li:nth-child(2) .drop{animation-delay:-1.2s}.notes li:nth-child(3) .drop{animation-delay:-2.4s}.notes li:nth-child(4) .drop{animation-delay:-3.6s}
   .map .route{animation:dash 1.8s linear infinite}
   .map .city circle.h{transform-box:fill-box;transform-origin:center;animation:ping 2.8s ease-out infinite}
   .timeline li.now::before{animation:ping2 2.4s ease-out infinite}
-}
+
 @keyframes drift{from{transform:rotate(-45deg) translateY(0)}to{transform:rotate(-38deg) translateY(-5px)}}
 @keyframes dash{to{stroke-dashoffset:-24}}
 @keyframes ping{0%{transform:scale(.85);opacity:.9}100%{transform:scale(1.9);opacity:0}}
@@ -931,7 +931,7 @@ input[type=range]{height:28px;padding:6px 0;box-sizing:border-box}
 .stage.show-labels .pin i,.pin.on i,.pin:hover i,.pin:focus-visible i{display:block}
 .pin.on b{background:var(--ground);color:var(--gold);box-shadow:0 0 0 2px var(--gold),0 0 0 7px color-mix(in srgb,var(--gold) 25%,transparent)}
 .pin.on span,.pin.on i{color:var(--ink)}
-@media (prefers-reduced-motion:no-preference){.pin b{animation:pinPulse 2.4s ease-in-out infinite}@keyframes pinPulse{50%{box-shadow:0 0 0 7px color-mix(in srgb,var(--gold) 0%,transparent),0 3px 10px rgba(0,0,0,.45)}}}
+.pin b{animation:pinPulse 2.4s ease-in-out infinite}@keyframes pinPulse{50%{box-shadow:0 0 0 7px color-mix(in srgb,var(--gold) 0%,transparent),0 3px 10px rgba(0,0,0,.45)}}
 @media (max-width:980px){.stage{aspect-ratio:4/3.2;min-height:320px}}
 @media (max-width:560px){.stage{aspect-ratio:1/1.05;min-height:0;max-height:none}.stage-bar{padding:8px}.stage-bar .views button{padding:5px 8px;font-size:12px;min-height:38px}.stage-bar .layers{gap:2px 12px}.stage-under{padding:8px 10px}.stage-under .hud-card span{font-size:12.5px}.stage-under .hud-card .tag{display:none}}
 /* quick contact: always on screen, a column bottom right; the "up" arrow on top appears after the hero */
@@ -954,13 +954,13 @@ input[type=range]{height:28px;padding:6px 0;box-sizing:border-box}
 @media (max-width:560px){.stage-bar .views{flex-wrap:nowrap;overflow-x:auto;max-width:100%;scrollbar-width:none;-webkit-overflow-scrolling:touch}.stage-bar .views::-webkit-scrollbar{display:none}.stage-bar .views button{flex:0 0 auto}.dbtn{width:44px;height:44px}.dock{gap:8px;right:10px}}
 /* бързо отваряне: без кино-ленти, без размазване, всичко видимо до ~0,6 s */
 .bars{display:none!important}
-@media (prefers-reduced-motion:no-preference){
+
   .logo-stage{animation:logoFast .7s .05s cubic-bezier(.2,.7,.2,1) both}
   .hero .rise{animation-duration:.6s}
   .hero .rise.d1{animation-delay:.08s}.hero .rise.d2{animation-delay:.14s}.hero .rise.d3{animation-delay:.2s}.hero .rise.d4{animation-delay:.26s}
   .js .rv{transition:opacity .45s ease-out,transform .45s ease-out;filter:none!important}
   .js .rv.pre{opacity:0;transform:translateY(14px);filter:none}
-}
+
 @keyframes logoFast{from{opacity:0;transform:scale(1.03)}to{opacity:1;transform:none}}
 /* по-слаби машини: без пълноекранно зърно, винетка и замъгляване зад лентите */
 .lowfx .grain,.lowfx .vignette{display:none!important}
@@ -1018,11 +1018,11 @@ input[type=range]{height:28px;padding:6px 0;box-sizing:border-box}
 .dbtn.viber{background:#7360F2;color:#fff}
 .dbtn[href^="tel"]::after{color:rgba(227,188,106,.55)}
 .dbtn.viber::after{color:rgba(115,96,242,.55)}
-@media (prefers-reduced-motion:no-preference){
+
   .dbtn:not(.up)::after{animation:dockPulse 2.8s ease-out infinite}
   .dbtn.viber::after{animation-delay:1.4s}
   @keyframes dockPulse{0%{box-shadow:0 0 0 0 currentColor}70%,100%{box-shadow:0 0 0 12px transparent}}
-}
+
 .hero::after{display:block!important;content:"";position:absolute;left:0;right:0;bottom:0;height:140px;background:linear-gradient(to bottom,transparent,var(--ground));pointer-events:none;z-index:-1}
 /* логото от KAYA LUX (landing): монограм + надпис, в оригиналното злато */
 .brand{gap:10px}
@@ -1034,9 +1034,9 @@ input[type=range]{height:28px;padding:6px 0;box-sizing:border-box}
 .hero .logo-stage{display:none}
 .offer-word .shine{display:inline-block;color:var(--gold);background:linear-gradient(100deg,var(--gold) 0%,var(--gold) 38%,#fff6dc 48%,#ffffff 50%,#fff6dc 52%,var(--gold) 62%,var(--gold) 100%);background-size:250% 100%;background-position:100% 0;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 :root[data-theme="olive"] .offer-word .shine{--gold:var(--gold-soft)}
-@media (prefers-reduced-motion:no-preference){.offer-word .shine{animation:klShine 4.8s cubic-bezier(.45,.05,.3,1) .9s infinite}}
+.offer-word .shine{animation:klShine 4.8s cubic-bezier(.45,.05,.3,1) .9s infinite}
 @keyframes klShine{0%{background-position:100% 0}38%,100%{background-position:0 0}}
-@media (prefers-reduced-motion:reduce){.offer-word .shine{animation:klShine 7s ease-in-out 1.2s infinite!important}}
+
 .hero h1::before{display:none!important}
 /* finger-friendly set: the right hint per device, 44 px touch targets for the view/zoom buttons and the layer switches */
 .hint .h-touch{display:none}
@@ -1055,10 +1055,20 @@ input[type=range]{height:28px;padding:6px 0;box-sizing:border-box}
 /* pulses run on the compositor (transform + opacity of a ring), not as animated box-shadows that repaint every frame over the 3D set */
 .dbtn:not(.up)::after{box-shadow:none;border:2px solid currentColor;will-change:transform,opacity;opacity:0}
 .pin b{position:relative}.pin b::before{content:"";position:absolute;inset:-1px;border-radius:50%;border:2px solid var(--gold);opacity:0;pointer-events:none;will-change:transform,opacity}
-@media (prefers-reduced-motion:no-preference){
+
   .dbtn:not(.up)::after{animation:dockRing 2.8s ease-out infinite}.dbtn.viber::after{animation-delay:1.4s}
   .pin b{animation:none}.pin b::before{animation:pinRing 2.4s ease-out infinite}
   .live i{animation:none}
-}
+
 @keyframes dockRing{0%{transform:scale(1);opacity:.75}70%,100%{transform:scale(1.42);opacity:0}}
 @keyframes pinRing{0%{transform:scale(1);opacity:.7}70%,100%{transform:scale(1.6);opacity:0}}
+/* the note under a diffuser during the presentation */
+.unit-tip{position:absolute;left:0;top:0;width:min(300px,76%);padding:11px 14px 12px;background:color-mix(in srgb,var(--ground) 90%,transparent);border:1px solid var(--gold-soft);border-top:2px solid var(--gold);box-shadow:0 10px 28px rgba(0,0,0,.45);color:var(--ink);pointer-events:none;opacity:0;transition:opacity .45s ease;z-index:3;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.unit-tip.on{opacity:1}
+.unit-tip::before{content:"";position:absolute;top:-8px;left:var(--ax,50%);margin-left:-7px;border:7px solid transparent;border-top:0;border-bottom:7px solid var(--gold)}
+.unit-tip b{display:block;font:500 clamp(16px,2vw,19px)/1.2 var(--display);color:var(--gold);letter-spacing:.01em}
+.unit-tip span{display:block;margin-top:3px;font:600 10.5px/1.3 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft)}
+.unit-tip p{margin:7px 0 0;font:400 13px/1.5 var(--body);color:var(--ink)}
+@media (max-width:560px){.unit-tip{width:min(270px,84%);padding:9px 12px 10px}.unit-tip p{font-size:12.5px}}
+
+/* one site for everyone: iPhone “Reduce Motion” changes nothing here (the presentation, pulses and map dots run the same) */

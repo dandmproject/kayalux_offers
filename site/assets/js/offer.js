@@ -4,7 +4,7 @@
 const root=document.documentElement;
 root.classList.add('js');
 const $=(s,r)=>(r||document).querySelector(s), $$=(s,r)=>[...(r||document).querySelectorAll(s)];
-const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const reduce=false; // Reduce Motion (on for many iPhones) must not change the site: same animations, same presentation
 /* quality tier for the 3D set: 2 strong machine, 1 laptop / phone, 0 weak (no shadows, no antialias, lower resolution); ?q=0|1|2 forces one */
 const TIER=(()=>{try{const q=new URLSearchParams(location.search).get('q');if(q!=null&&q!=='')return Math.max(0,Math.min(2,+q|0));}catch(e){}
   const mem=navigator.deviceMemory||8,cores=navigator.hardwareConcurrency||8,mob=/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);let gpu='';
@@ -1076,7 +1076,7 @@ const space=(function(){
       if(ud.hQ&&hb.quaternion.equals(ud.hQ))hb.quaternion.copy(ud.hQ0);ud.hQ=null;
       let yaw=0,pitch=0;if(ud.lookAtP){let a=Math.atan2(ud.lookAtP[0]-g.position.x,ud.lookAtP[1]-g.position.z)-g.rotation.y;a=((a+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;yaw=Math.max(-.9,Math.min(.9,a));if(ud.isChild)pitch=-.35;}
       if(ud.elder&&ud.state==='browse')pitch+=.15;if(ud.phase==='bag'){ud.nodT=(ud.nodT||0)+dt;pitch+=.18*Math.max(0,Math.sin(ud.nodT*6));}else ud.nodT=0;
-      {const mv=dt*2.1,e=(v,t)=>{const d=(t-v)*Math.min(1,dt*3.5);return v+Math.max(-mv,Math.min(mv,d));};ud.hy=e(ud.hy||0,yaw);ud.hp=e(ud.hp||0,pitch);} // a natural head turn: eased and never faster than ~120°/sif(Math.abs(ud.hy)<.01&&Math.abs(ud.hp)<.01)return;
+      {const mv=dt*2.1,e=(v,t)=>{const d=(t-v)*Math.min(1,dt*3.5);return v+Math.max(-mv,Math.min(mv,d));};ud.hy=e(ud.hy||0,yaw);ud.hp=e(ud.hp||0,pitch);} /* a natural head turn: eased and never faster than ~120°/s */if(Math.abs(ud.hy)<.01&&Math.abs(ud.hp)<.01)return;
       (ud.hQ0||(ud.hQ0=new T.Quaternion())).copy(hb.quaternion);hb.parent.getWorldQuaternion(_q).invert();_ax.set(0,1,0).applyQuaternion(_q);hb.rotateOnAxis(_ax,ud.hy);_ax.set(Math.cos(g.rotation.y),0,-Math.sin(g.rotation.y)).applyQuaternion(_q);hb.rotateOnAxis(_ax,ud.hp);ud.hQ=(ud.hQb||(ud.hQb=new T.Quaternion())).copy(hb.quaternion);});}
     // swap a procedural figure for a real model in place (used after the models arrive; re-entries do it automatically)
     function upgrade(i){const old=people[i],ud=old.userData;if(ud.gltfP||!GL())return null;const spec={fem:!!ud.fem,elder:!!ud.elder,isChild:!!ud.isChild,h:ud.isChild?1.18:1.6+Math.random()*.3,phone:!!ud.phone};const g=gltfPerson(spec);if(!g)return null;const nu=g.userData;
@@ -1452,9 +1452,11 @@ const space=(function(){
     function unitKey(i){const u=S.units[i],d=u.d,o=u.o,tgt=V3(o[0]+d[0]*.9,Math.max(1.1,o[1]-.45),o[2]+d[2]*.9);let best=null;
       for(const sg of [1,-1])for(const sp of [.7,.45]){const a=Math.atan2(d[0],d[2])+sg*sp;let r=4.6,x=0,z=0;for(;r>2;r-=.2){x=o[0]+Math.sin(a)*r;z=o[2]+Math.cos(a)*r;if(inRoom(x,z,.45))break;}
         const sc=r-(sp<.6?.3:0);if(!best||sc>best.sc)best={sc,cam:V3(x,Math.min(S.H-.45,1.95),z)};}
-      return {cam:best.cam,tgt,u:i,dur:S.units.length>2?4.2:5.5,tw:2.4,drift:.035};}
+      const inf=u.info||{},words=((inf.title||'')+' '+(inf.zone||'')+' '+(inf.why||'')).split(/\s+/).length;
+      return {cam:best.cam,tgt,u:i,dur:clamp(1.8+words/3.2,S.units.length>2?4.2:5.5,11),tw:2.4,drift:.02};} // long enough to read the note under the diffuser
     function tourKeys(){const dx=S.door.x,hd=S.hd,H=S.H,dist=Math.max(7,Math.min(11,S.W*.55)),K=[];
-      K.push({cam:V3(dx*.55,1.75,hd+dist),tgt:V3(dx*.55,1.7,hd),dur:3,tw:2.4,street:1});             // on the street: the АВАНТИ front
+      {const vf=camera.fov*Math.PI/180,hf=2*Math.atan(Math.tan(vf/2)*camera.aspect),half=S.W/2+.8,far=clamp(half/Math.tan(hf/2),Math.max(8,dist),34); // the whole front fits, sign included, on any screen
+        K.push({cam:V3(0,2.1+far*.05,hd+far),tgt:V3(0,1.6,hd),dur:3,tw:2.4,street:1});}                 // on the street: the АВАНТИ front, a little way back
       K.push({cam:V3(dx,1.7,hd+2.5),tgt:V3(dx,1.45,hd-2.5),dur:1.6,tw:2.6});                            // at the entrance, a moment to see where we are
       K.push({cam:V3(dx,1.72,hd-1.4),tgt:V3(dx*.4,1.45,hd-6),dur:1.2,tw:2.2});                         // through the door, inside
       S.units.forEach((u,i)=>K.push(unitKey(i)));                                                        // the diffusers
@@ -1474,7 +1476,7 @@ const space=(function(){
         if(key.u!=null)pick(key.u);return;}
       tour.t+=dt;const key=K[tour.k];if(key.drift){view.theta+=dt*key.drift;apply();}}
     window.__tourK=()=>view.name==='tour'?tour.k:-1;
-    focusUnit=i=>{if(!S.units||!S.units[i])return;view.name='focus';idle=0;$$('.views [data-view]').forEach(b=>b.setAttribute('aria-pressed','false'));flyTo(unitKey(i),1.8);};
+    focusUnit=i=>{if(!S.units||!S.units[i])return;view.name='focus';TIP.fu=i;idle=0;$$('.views [data-view]').forEach(b=>b.setAttribute('aria-pressed','false'));flyTo(unitKey(i),1.8);};
     function apply(){const s=Math.sin(view.phi);camera.position.set(view.tx+view.r*s*Math.sin(view.theta),view.ty+view.r*Math.cos(view.phi),view.tz+view.r*s*Math.cos(view.theta));camera.lookAt(view.tx,view.ty,view.tz);}
     function go(name,instant){
       view.name=name;idle=0;if(name==='walk')walkSnap=true;$$('.views [data-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view===name)));
@@ -1491,14 +1493,21 @@ const space=(function(){
     const freeView=()=>{idle=0;tween=null;if(view.name!=='free'){if(view.name==='walk')apply();view.name='free';$$('.views [data-view]').forEach(b=>b.setAttribute('aria-pressed','false'));}};
     const zoomR=r=>{const m=Math.max(S.W,S.D);return clamp(r,m*.35,m*3.2+10);};
     const tpts=e=>[...e.touches].map(t=>[t.clientX,t.clientY]);
+    const twoInit=P=>{TCH.lock='two';TCH.d0=Math.hypot(P[0][0]-P[1][0],P[0][1]-P[1][1])||1;TCH.r0=view.r;TCH.mx=(P[0][0]+P[1][0])/2;TCH.my=(P[0][1]+P[1][1])/2;TCH.a=Math.atan2(P[1][1]-P[0][1],P[1][0]-P[0][0]);freeView();};
+    ['gesturestart','gesturechange'].forEach(t=>stage.addEventListener(t,e=>e.preventDefault(),{passive:false})); // Safari: no page zoom while the fingers work the set
     const onUI=e=>e.target.closest&&e.target.closest('button,label,input,select,a,.hud-card');
     stage.addEventListener('touchstart',e=>{if(onUI(e))return;const P=tpts(e);TCH.n=P.length;spin.vx=spin.vy=0;TCH.t=performance.now();
       if(P.length===1){TCH.x0=TCH.x=P[0][0];TCH.y0=TCH.y=P[0][1];TCH.lock=null;TCH.vx=TCH.vy=0;}
-      else if(P.length===2){e.preventDefault();TCH.lock='two';TCH.d0=Math.hypot(P[0][0]-P[1][0],P[0][1]-P[1][1])||1;TCH.r0=view.r;TCH.mx=(P[0][0]+P[1][0])/2;TCH.my=(P[0][1]+P[1][1])/2;freeView();}},{passive:false});
+      else if(P.length===2){e.preventDefault();twoInit(P);}},{passive:false});
     stage.addEventListener('touchmove',e=>{if(onUI(e)||!TCH.n)return;const P=tpts(e),now_=performance.now(),dtm=Math.max(1,now_-TCH.t);TCH.t=now_;
-      if(P.length>=2){e.preventDefault();if(TCH.lock!=='two'){TCH.lock='two';TCH.d0=Math.hypot(P[0][0]-P[1][0],P[0][1]-P[1][1])||1;TCH.r0=view.r;TCH.mx=(P[0][0]+P[1][0])/2;TCH.my=(P[0][1]+P[1][1])/2;freeView();return;}
-        const d=Math.hypot(P[0][0]-P[1][0],P[0][1]-P[1][1])||1,mx=(P[0][0]+P[1][0])/2,my=(P[0][1]+P[1][1])/2;
-        view.r=zoomR(TCH.r0*TCH.d0/d);view.theta-=(mx-TCH.mx)*.0065;view.phi=clamp(view.phi-(my-TCH.my)*.006,.07,1.5);TCH.mx=mx;TCH.my=my;apply();kick();return;}
+      if(P.length>=2){e.preventDefault();if(TCH.lock!=='two'){twoInit(P);return;}
+        // two fingers, all at once: pinch = zoom, twist = turn the store a full 360°, move together = slide the view across the floor
+        const d=Math.hypot(P[0][0]-P[1][0],P[0][1]-P[1][1])||1,mx=(P[0][0]+P[1][0])/2,my=(P[0][1]+P[1][1])/2,a=Math.atan2(P[1][1]-P[0][1],P[1][0]-P[0][0]);
+        let da=a-TCH.a;da=((da+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;TCH.a=a;view.theta-=da;
+        view.r=zoomR(TCH.r0*TCH.d0/d);
+        const k=view.r*.0017,dx=mx-TCH.mx,dy=my-TCH.my,ct=Math.cos(view.theta),st=Math.sin(view.theta);
+        view.tx=clamp(view.tx-dx*k*ct-dy*k*st,-S.hw-3,S.hw+3);view.tz=clamp(view.tz+dx*k*st-dy*k*ct,-S.hd-3,S.hd+8);
+        TCH.mx=mx;TCH.my=my;apply();kick();return;}
       if(TCH.lock==='two'||TCH.lock==='page')return;const x=P[0][0],y=P[0][1];
       if(!TCH.lock){const ax=Math.abs(x-TCH.x0),ay=Math.abs(y-TCH.y0);if(ax<7&&ay<7)return;if(ay>ax*1.15){TCH.lock='page';return;}TCH.lock='orbit';TCH.x=x;TCH.y=y;freeView();}
       e.preventDefault();const dx=x-TCH.x,dy=y-TCH.y;TCH.x=x;TCH.y=y;view.theta-=dx*.0072;view.phi=clamp(view.phi-dy*.005,.07,1.5);
@@ -1550,6 +1559,18 @@ const space=(function(){
         'рисувания '+ri.render.calls+' · триъгълници '+ri.render.triangles+' · шейдъри '+np+' · геометрии '+ri.memory.geometries+' · текстури '+ri.memory.textures+'\n'+
         'хора '+people.length+' · пул '+((window.KL_GLTF&&KL_GLTF.poolN)||0)+' · памет '+mem+' · време '+Math.round((now-DG.t0)/1000)+' s\n'+
         'видеокарта: '+DG.gpu+'\n'+navigator.userAgent.replace(/^Mozilla\/5.0 /,'')+'\n\n'+DG.log.join('\n');}
+    // the note under a diffuser: appears once the camera has arrived (tour or a click on its number), stays for the reading time, fades out on the move
+    const TIP={el:null,u:-1,on:false,w:0,h:0};
+    {const e=document.createElement('div');e.className='unit-tip';e.setAttribute('aria-live','polite');e.innerHTML='<b></b><span></span><p></p>';ovl.appendChild(e);TIP.el=e;}
+    function tipFrame(w,h){let u=-1;
+      if(!tween&&!drag&&!TCH.n&&S.units&&S.units.length){if(view.name==='tour'&&tour.k>=3&&tour.k-3<S.units.length&&tour.t>.15)u=tour.k-3;else if(view.name==='focus'&&TIP.fu!=null)u=TIP.fu;}
+      const un=u>=0?S.units[u]:null;
+      if(un){if(TIP.u!==u||TIP.tok!==buildTok){TIP.tok=buildTok;const i=un.info||{};TIP.el.children[0].textContent=(u+1)+' · '+(i.title||'Дифузер');TIP.el.children[1].textContent=i.zone||'';TIP.el.children[2].textContent=i.why||'';TIP.u=u;TIP.w=0;}
+        v3.set(un.p[0]+un.d[0]*.14,un.p[1]-(un.PL?.24:.17),un.p[2]+un.d[2]*.14).project(camera);
+        if(v3.z<1&&Math.abs(v3.x)<1.2&&Math.abs(v3.y)<1.2){if(!TIP.w){TIP.w=TIP.el.offsetWidth;TIP.h=TIP.el.offsetHeight;}
+          const x=clamp((v3.x+1)/2*w,TIP.w/2+8,w-TIP.w/2-8),y=clamp((1-v3.y)/2*h+12,8,h-TIP.h-8),tf='translate('+(x-TIP.w/2).toFixed(0)+'px,'+y.toFixed(0)+'px)',ax=clamp((v3.x+1)/2*w-(x-TIP.w/2),16,TIP.w-16).toFixed(0)+'px';
+          if(TIP.tf!==tf){TIP.tf=tf;TIP.el.style.transform=tf;}if(TIP.ax!==ax){TIP.ax=ax;TIP.el.style.setProperty('--ax',ax);} /* the arrow points at the diffuser even when the note is pushed off-centre */if(!TIP.on){TIP.on=true;TIP.el.classList.add('on');}return;}}
+      if(TIP.on){TIP.on=false;TIP.el.classList.remove('on');}if(!un)TIP.u=-1;}
     const hudIn=!!(hud&&stage.contains(hud)); // the info card sits under the set now: no per-frame measuring against it
     const _fr=new T.Frustum(),_fm=new T.Matrix4(),_sp=new T.Sphere(new T.Vector3(),1.15);let vis=false,raf=0,last=0,lightK=1,hover=false,fno=0,lastR=0;window.__q=()=>({TIER,dpr,shadows:renderer.shadowMap.enabled,avg:pf.avg,half:!!pf.half,q:pf.q||0,probing:!!pf.probing,jank:pf.jank});const v3=new T.Vector3();
     const touchUI=matchMedia('(hover: none)').matches;stage.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse'){hover=true;kick();}});stage.addEventListener('pointerleave',()=>{hover=false;});
@@ -1558,14 +1579,14 @@ const space=(function(){
       if(window.__klBusy){if(!raf)raf=requestAnimationFrame(frame);return;} // някой подписва: пауза на рендера
       if(pf.half&&(fno++&1)){if(!raf)raf=requestAnimationFrame(frame);return;} // weak machines: every other display frame, a steady 30 fps instead of an uneven 40-50
       {const f=Math.min(.25,(now-(lastR||now))/1000);lastR=now;if(f>0){pf.t+=f;pf.n++;if(f>(pf.half?.05:.03))pf.j=(pf.j||0)+1;}if(DIAG&&f>0)diagTick(now,f);
-        if(pf.t>(LD.done?2:1.1)){const jank=(pf.j||0)/pf.n,avg0=pf.t/pf.n,avg=jank>.08?Math.max(avg0,1):avg0;pf.t=0;pf.n=0;pf.j=0;pf.avg=avg0;pf.jank=+jank.toFixed(2); // uneven frames count as slow even when the average looks fine (a hot laptop, a busy browser)
+        if(pf.t>(LD.done?2:1.1)){const jank=(pf.j||0)/pf.n,avg0=pf.t/pf.n,avg=jank>.15?Math.max(avg0,1):avg0;pf.t=0;pf.n=0;pf.j=0;pf.avg=avg0;pf.jank=+jank.toFixed(2); // uneven frames count as slow even when the average looks fine (a hot laptop, a busy browser)
           // adaptive smoothness, decided on two slow windows in a row (a single busy moment changes nothing):
           // 1) a steady 30 fps – free to switch and REVERSIBLE: every 20–120 s the full frame rate is tried again and kept if the machine copes;
           // 2) only if even 30 fps is not held: resolution one step down, then no shadows, then resolution once more (these never go back,
           //    because each one re-allocates the canvas or recompiles, and that itself would be a stutter)
           if(LD.done||LD.settle){const nowS=performance.now();let changed=false;
             if(pf.probing){pf.probing=false;changed=true;if(avg<=.021){pf.half=false;pf.back=45000;}else{pf.half=true;fno=0;pf.back=Math.min(300000,(pf.back||45000)*2);pf.probeAt=nowS+pf.back;}}
-            else if(!pf.half){if(avg>.024){if(++pf.slowN>=2){pf.half=true;fno=0;pf.slowN=0;changed=true;pf.back=pf.back||45000;pf.probeAt=nowS+pf.back;}}else pf.slowN=0;}
+            else if(!pf.half){if(avg>.024){if(++pf.slowN>=3){pf.half=true;fno=0;pf.slowN=0;changed=true;pf.back=pf.back||45000;pf.probeAt=nowS+pf.back;}}else pf.slowN=0;}
             else if(avg>.045){if(++pf.slowN>=2&&(pf.q||0)<3){pf.slowN=0;changed=true;pf.q=(pf.q||0)+1;const floor=Math.min(dprMax,TIER===0?.62:.72);
                 if((pf.q!==2||LD.done)&&dpr>floor){dpr=Math.max(floor,dpr*(pf.q===1?.75:.85));renderer.setPixelRatio(dpr);pm.uniforms.uScale.value=stage.clientHeight*dpr/2/Math.tan(camera.fov*Math.PI/360)*.5;}
                 else if(renderer.shadowMap.enabled&&!LD.done){renderer.shadowMap.enabled=false;scene.traverse(o=>{if(o.material){(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>m.needsUpdate=true);}});warm();root.classList.add('lowfx');}}}
@@ -1608,6 +1629,8 @@ const space=(function(){
       const kept=[],LBL=stage.classList.contains('show-labels');overlay.forEach(o=>{if(o.kind==='lbl'&&!LBL){o.off=true;return;}v3.copy(o.v).project(camera);o.sx=(v3.x+1)/2*w;o.sy=(1-v3.y)/2*h;o.sz=v3.z;o.off=v3.z>1||v3.x<-1.1||v3.x>1.1||v3.y<-1.1||v3.y>1.1;});
       let HR=null;if(hud&&hudIn&&hud.offsetParent){const a=hud.getBoundingClientRect(),b=stage.getBoundingClientRect();HR=[a.left-b.left,a.top-b.top,a.right-b.left,a.bottom-b.top];}
       overlay.filter(o=>o.kind==='lbl'&&!o.off).sort((a,b)=>a.sz-b.sz).forEach(o=>{if(!o.w){o.w=o.el.offsetWidth||80;o.h=o.el.offsetHeight||18;}if(HR&&o.sx+o.w/2>HR[0]&&o.sx-o.w/2<HR[2]&&o.sy+o.h/2>HR[1]&&o.sy-o.h/2<HR[3]){o.off=true;return;}if(kept.some(k=>Math.abs(k.sx-o.sx)<(k.w+o.w)/2+4&&Math.abs(k.sy-o.sy)<(k.h+o.h)/2+2))o.off=true;else kept.push(o);});
+      {const cp=camera.position,inside=cp.z<S.hd&&Math.abs(cp.x)<S.hw&&cp.y<S.H;if(view.name==='tour'&&!inside)overlay.forEach(o=>{if(o.kind==='pin')o.off=true;});} // numbers only once we are inside
+      tipFrame(w,h);
       overlay.forEach(o=>{if(o.kind==='pin'&&HR&&!o.off&&o.sx>HR[0]-20&&o.sx<HR[2]+20&&o.sy>HR[1]-20&&o.sy<HR[3]+20)o.off=true;});
       overlay.forEach(o=>{if(o.vis!==!o.off){o.vis=!o.off;o.el.style.visibility=o.off?'hidden':'visible';}if(!o.off){const tf='translate('+o.sx.toFixed(1)+'px,'+o.sy.toFixed(1)+'px)'+(o.kind==='lbl'?' translate(-50%,-50%)':' translate(-50%,-100%)');if(o.tf!==tf){o.tf=tf;o.el.style.transform=tf;}}}); // DOM written only when something changed
       const pT1=performance.now();renderer.render(scene,camera);if(window.__prof){const P=window.__prof;P.js+=pT1-pT0;if(pT1-pT0>(P.max||0))P.max=pT1-pT0;(P.h=P.h||[]).push(+(pT1-pT0).toFixed(1));P.gl+=performance.now()-pT1;P.n++;}if(window.__perf){window.__perf.frames=(window.__perf.frames||0)+1;if(!window.__perf.first)window.__perf.first=performance.now();}
