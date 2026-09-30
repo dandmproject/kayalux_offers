@@ -2043,8 +2043,8 @@ const space=(function(){
     const touchUI=matchMedia('(hover: none)').matches;stage.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse'){hover=true;kick();}});stage.addEventListener('pointerleave',()=>{hover=false;});
     function frame(now){
       raf=0;if(!vis||document.hidden)return;
-      if(window.__klBusy){raf=requestAnimationFrame(frame);return;} // някой подписва: пауза на рендера
-      if(pf.half&&(fno++&1)){raf=requestAnimationFrame(frame);return;} // weak machines: every other display frame, a steady 30 fps instead of an uneven 40-50
+      if(window.__klBusy){if(!raf)raf=requestAnimationFrame(frame);return;} // някой подписва: пауза на рендера
+      if(pf.half&&(fno++&1)){if(!raf)raf=requestAnimationFrame(frame);return;} // weak machines: every other display frame, a steady 30 fps instead of an uneven 40-50
       {const f=Math.min(.25,(now-(lastR||now))/1000);lastR=now;if(f>0){pf.t+=f;pf.n++;if(f>(pf.half?.05:.03))pf.j=(pf.j||0)+1;}if(DIAG&&f>0)diagTick(now,f);
         if(pf.t>(LD.done?2:1.1)){const jank=(pf.j||0)/pf.n,avg0=pf.t/pf.n,avg=jank>.08?Math.max(avg0,1):avg0;pf.t=0;pf.n=0;pf.j=0;pf.avg=avg0;pf.jank=+jank.toFixed(2); // uneven frames count as slow even when the average looks fine (a hot laptop, a busy browser)
           // adaptive smoothness, decided on two slow windows in a row (a single busy moment changes nothing):
@@ -2099,7 +2099,7 @@ const space=(function(){
       overlay.forEach(o=>{if(o.kind==='pin'&&HR&&!o.off&&o.sx>HR[0]-20&&o.sx<HR[2]+20&&o.sy>HR[1]-20&&o.sy<HR[3]+20)o.off=true;});
       overlay.forEach(o=>{if(o.vis!==!o.off){o.vis=!o.off;o.el.style.visibility=o.off?'hidden':'visible';}if(!o.off){const tf='translate('+o.sx.toFixed(1)+'px,'+o.sy.toFixed(1)+'px)'+(o.kind==='lbl'?' translate(-50%,-50%)':' translate(-50%,-100%)');if(o.tf!==tf){o.tf=tf;o.el.style.transform=tf;}}}); // DOM written only when something changed
       const pT1=performance.now();renderer.render(scene,camera);if(window.__prof){const P=window.__prof;P.js+=pT1-pT0;if(pT1-pT0>(P.max||0))P.max=pT1-pT0;(P.h=P.h||[]).push(+(pT1-pT0).toFixed(1));P.gl+=performance.now()-pT1;P.n++;}if(window.__perf){window.__perf.frames=(window.__perf.frames||0)+1;if(!window.__perf.first)window.__perf.first=performance.now();}
-      raf=requestAnimationFrame(frame);
+      if(!raf)raf=requestAnimationFrame(frame); // exactly one loop: a kick() during this frame (a tour key, a click) has already scheduled the next one
     }
     kick=()=>{if(!raf&&vis){last=0;raf=requestAnimationFrame(frame);}};
     window.__renderNow=()=>{renderer.render(scene,camera);};window.__gl=()=>({renderer,scene,camera,M});window.__view=()=>({...view,spin:spin.vx});
