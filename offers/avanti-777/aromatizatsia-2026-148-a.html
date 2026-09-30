@@ -500,6 +500,7 @@ const TIER=(()=>{try{const q=new URLSearchParams(location.search).get('q');if(q!
   let t=2;if(mob||mem<=4||cores<=4||/Intel|Mali|Adreno|PowerVR|SwiftShader|llvmpipe|Microsoft Basic/i.test(gpu))t=1;
   if(mem<=2||cores<=2||/SwiftShader|llvmpipe|Microsoft Basic|Mali-[4T]|Adreno \(TM\) [3-5]|PowerVR SGX/i.test(gpu))t=0;return t;})();
 if(TIER<2)root.classList.add('lowfx');
+const DIAG=/[?&]diag=1/.test(location.search); // ?diag=1: live performance panel over the page (for finding a stutter on a real machine)
 const NB=' ';
 const fmt=v=>{const [i,d]=Math.abs(v).toFixed(2).split('.');return (v<0?'−':'')+i.replace(/\B(?=(\d{3})+(?!\d))/g,NB)+','+d;};
 const eur=v=>fmt(v)+NB+'€';
@@ -955,7 +956,7 @@ const space=(function(){
     if(!renderer.getContext()){fallback();return;}
     if(window.KL_GLTF){KL_GLTF.renderer=renderer;KL_GLTF.models.forEach(m=>m.scene.traverse(x=>{if(x.isMesh&&x.material)['map','normalMap','alphaMap'].forEach(k=>{if(x.material[k])renderer.initTexture(x.material[k]);});}));}
     const small=()=>stage.clientWidth<640;
-    const DPR=devicePixelRatio||1,dprMax=TIER===2?Math.min(DPR,1.5):TIER===1?Math.min(DPR,1.15):Math.min(DPR,.85);let dpr=dprMax;renderer.setPixelRatio(dpr);
+    const DPR=devicePixelRatio||1,dprMax=TIER===2?Math.min(DPR,1.25):TIER===1?Math.min(DPR,1.15):Math.min(DPR,.85);let dpr=dprMax;renderer.setPixelRatio(dpr);
     renderer.outputEncoding=T.sRGBEncoding;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;renderer.shadowMap.enabled=TIER>0;renderer.shadowMap.autoUpdate=false; /* shadows of the fixed store only: drawn once per build, not every frame */renderer.shadowMap.type=TIER===2?T.PCFSoftShadowMap:T.PCFShadowMap;
     renderer.domElement.setAttribute('aria-hidden','true');
     stage.insertBefore(renderer.domElement,stage.firstChild);
@@ -1621,7 +1622,7 @@ const space=(function(){
     const LD={el:$('#stageLoad'),p:0,done:false,t0:performance.now()};
     const pf={t:0,n:0,half:TIER===0,slowN:0}; // frame-time meter for the adaptive quality
     function ldSet(p){if(LD.done)return;LD.p=Math.max(LD.p,Math.min(100,p));const e=LD.el;if(e){e.querySelector('.sl-bar i').style.transform='scaleX('+(LD.p/100).toFixed(3)+')';e.querySelector('.sl-pct').textContent=Math.round(LD.p)+'%';e.setAttribute('aria-valuenow',Math.round(LD.p));}if(LD.p>=100)ldDone();}
-    function ldDone(){if(LD.done)return;LD.done=true;if(LD.el){LD.el.classList.add('out');setTimeout(()=>{LD.el.hidden=true;},600);}if(view.name==='tour'){tour.k=-1;tour.t=0;tour.first=true;}kick();}
+    function ldDone(){if(LD.done)return;LD.done=true;if(DIAG)dlog('зареждането приключи за '+((performance.now()-LD.t0)/1000).toFixed(1)+' s');if(LD.el){LD.el.classList.add('out');setTimeout(()=>{LD.el.hidden=true;},600);}if(view.name==='tour'){tour.k=-1;tour.t=0;tour.first=true;}kick();}
     function ldTick(){if(LD.done)return;const G=window.KL_GLTF,need=(G&&G.total)||19,now_=performance.now();let mp=1;if(G&&!G.failed)mp=Math.min(1,(G.doneN||0)/need);
       // last stretch behind the bar: everything to the GPU, then a few seconds of measured frames so a slow phone settles its quality here, not during the presentation
       if(LD.base>=45&&(mp>=1||now_-LD.t0>16000)){if(!LD.settle){LD.settle=now_;warmModels();warm();pf.t=0;pf.n=0;pf.w=0;pf.ok=0;}
@@ -2016,15 +2017,36 @@ const space=(function(){
     if('ResizeObserver' in window)new ResizeObserver(resize).observe(stage);else addEventListener('resize',resize);
 
     // loop
+    // ---------- ?diag=1: what the machine is doing, live, plus a log of every event that can cost a frame ----------
+    const DG={el:null,log:[],ft:[],last:0,t0:performance.now(),prog:0,regen:0,reused:0,gpu:''};
+    function dlog(m){const t=(performance.now()-DG.t0)/1000,mm=String(Math.floor(t/60)).padStart(2,'0'),ss=String(Math.floor(t%60)).padStart(2,'0');DG.log.unshift('['+mm+':'+ss+'] '+m);if(DG.log.length>40)DG.log.length=40;}
+    if(DIAG){const e=document.createElement('div');e.id='klDiag';e.style.cssText='position:fixed;left:8px;bottom:8px;z-index:200;max-width:min(430px,94vw);max-height:62vh;overflow:auto;background:rgba(0,0,0,.84);color:#e8e2d0;font:11px/1.4 ui-monospace,Consolas,monospace;padding:8px 10px;border:1px solid #d4af63;white-space:pre-wrap;pointer-events:auto';
+      const b=document.createElement('button');b.type='button';b.textContent='Копирай';b.style.cssText='float:right;margin:0 0 4px 8px;font:11px sans-serif;background:#d4af63;color:#111;border:0;padding:3px 8px;cursor:pointer';
+      b.onclick=()=>{const txt=DG.el.lastChild.textContent;(navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>{b.textContent='Копирано';},()=>{const r=document.createRange();r.selectNodeContents(DG.el.lastChild);const sl=getSelection();sl.removeAllRanges();sl.addRange(r);b.textContent='Ctrl+C';});};
+      const body=document.createElement('div');e.append(b,body);document.body.appendChild(e);DG.el=e;
+      try{const gl=renderer.getContext(),x=gl.getExtension('WEBGL_debug_renderer_info');DG.gpu=x?String(gl.getParameter(x.UNMASKED_RENDERER_WEBGL)):String(gl.getParameter(gl.RENDERER));}catch(err){}
+      document.addEventListener('visibilitychange',()=>dlog(document.hidden?'разделът е скрит':'разделът е видим'));dlog('старт · ниво '+TIER);}
+    function diagTick(now,f){DG.ft.push(f*1000);if(DG.ft.length>240)DG.ft.shift();
+      if(f>.08)dlog('дълъг кадър '+Math.round(f*1000)+' ms · изглед '+view.name+(view.name==='tour'?' '+tour.k:'')+(LD.done?'':' · зареждане'));
+      const np=renderer.info.programs.length;if(DG.prog&&np>DG.prog)dlog('нов шейдър (общо '+np+')');DG.prog=np;
+      const rg=window.__regenN||0,ru=(window.KL_GLTF&&KL_GLTF.reused)||0;if(rg>DG.regen)dlog('нов клиент · '+(ru>DG.reused?'от пула':'клониран'));DG.regen=rg;DG.reused=ru;
+      if(now-DG.last<500)return;DG.last=now;const a=DG.ft.slice().sort((x,y)=>x-y),n=a.length||1,avg=a.reduce((x,y)=>x+y,0)/n;
+      const mem=performance.memory?Math.round(performance.memory.usedJSHeapSize/1e6)+' MB':'—',ri=renderer.info;
+      DG.el.lastChild.textContent='KAYA LUX · диагностика (?diag=1)\n'+
+        'кадри: '+(1000/avg).toFixed(1)+' fps · средно '+avg.toFixed(1)+' ms · 95% '+a[Math.floor(n*.95)|0].toFixed(0)+' ms · макс '+a[n-1].toFixed(0)+' ms\n'+
+        'засечки: '+Math.round((pf.jank||0)*100)+'% · ниво '+TIER+' · резолюция '+dpr.toFixed(2)+' · '+(pf.half?'30 fps':'пълна скорост')+(pf.probing?' (проба)':'')+' · стъпка '+(pf.q||0)+' · сенки '+(renderer.shadowMap.enabled?'да':'не')+'\n'+
+        'рисувания '+ri.render.calls+' · триъгълници '+ri.render.triangles+' · шейдъри '+np+' · геометрии '+ri.memory.geometries+' · текстури '+ri.memory.textures+'\n'+
+        'хора '+people.length+' · пул '+((window.KL_GLTF&&KL_GLTF.poolN)||0)+' · памет '+mem+' · време '+Math.round((now-DG.t0)/1000)+' s\n'+
+        'видеокарта: '+DG.gpu+'\n'+navigator.userAgent.replace(/^Mozilla\/5.0 /,'')+'\n\n'+DG.log.join('\n');}
     const hudIn=!!(hud&&stage.contains(hud)); // the info card sits under the set now: no per-frame measuring against it
-    const _fr=new T.Frustum(),_fm=new T.Matrix4(),_sp=new T.Sphere(new T.Vector3(),1.15);let vis=false,raf=0,last=0,lightK=1,hover=false,fno=0,lastR=0;window.__q=()=>({TIER,dpr,shadows:renderer.shadowMap.enabled,avg:pf.avg,half:!!pf.half,q:pf.q||0,probing:!!pf.probing});const v3=new T.Vector3();
+    const _fr=new T.Frustum(),_fm=new T.Matrix4(),_sp=new T.Sphere(new T.Vector3(),1.15);let vis=false,raf=0,last=0,lightK=1,hover=false,fno=0,lastR=0;window.__q=()=>({TIER,dpr,shadows:renderer.shadowMap.enabled,avg:pf.avg,half:!!pf.half,q:pf.q||0,probing:!!pf.probing,jank:pf.jank});const v3=new T.Vector3();
     const touchUI=matchMedia('(hover: none)').matches;stage.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse'){hover=true;kick();}});stage.addEventListener('pointerleave',()=>{hover=false;});
     function frame(now){
       raf=0;if(!vis||document.hidden)return;
       if(window.__klBusy){raf=requestAnimationFrame(frame);return;} // някой подписва: пауза на рендера
       if(pf.half&&(fno++&1)){raf=requestAnimationFrame(frame);return;} // weak machines: every other display frame, a steady 30 fps instead of an uneven 40-50
-      {const f=Math.min(.25,(now-(lastR||now))/1000);lastR=now;if(f>0){pf.t+=f;pf.n++;}
-        if(pf.t>(LD.done?2:1.1)){const avg=pf.t/pf.n;pf.t=0;pf.n=0;pf.avg=avg;
+      {const f=Math.min(.25,(now-(lastR||now))/1000);lastR=now;if(f>0){pf.t+=f;pf.n++;if(f>(pf.half?.05:.03))pf.j=(pf.j||0)+1;}if(DIAG&&f>0)diagTick(now,f);
+        if(pf.t>(LD.done?2:1.1)){const jank=(pf.j||0)/pf.n,avg0=pf.t/pf.n,avg=jank>.08?Math.max(avg0,1):avg0;pf.t=0;pf.n=0;pf.j=0;pf.avg=avg0;pf.jank=+jank.toFixed(2); // uneven frames count as slow even when the average looks fine (a hot laptop, a busy browser)
           // adaptive smoothness, decided on two slow windows in a row (a single busy moment changes nothing):
           // 1) a steady 30 fps – free to switch and REVERSIBLE: every 20–120 s the full frame rate is tried again and kept if the machine copes;
           // 2) only if even 30 fps is not held: resolution one step down, then no shadows, then resolution once more (these never go back,
@@ -2036,6 +2058,7 @@ const space=(function(){
                 if((pf.q!==2||LD.done)&&dpr>floor){dpr=Math.max(floor,dpr*(pf.q===1?.75:.85));renderer.setPixelRatio(dpr);pm.uniforms.uScale.value=stage.clientHeight*dpr/2/Math.tan(camera.fov*Math.PI/360)*.5;}
                 else if(renderer.shadowMap.enabled&&!LD.done){renderer.shadowMap.enabled=false;scene.traverse(o=>{if(o.material){(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>m.needsUpdate=true);}});warm();root.classList.add('lowfx');}}}
             else{pf.slowN=0;if(TIER>0&&LD.done&&pf.probeAt&&nowS>pf.probeAt){pf.probing=true;pf.half=false;changed=true;}}
+            if(DIAG&&changed)dlog('качество: '+(pf.half?'30 fps':'пълна скорост')+(pf.probing?' (проба)':'')+' · стъпка '+(pf.q||0)+' · резолюция '+dpr.toFixed(2)+' · средно '+(avg0*1000).toFixed(0)+' ms, засечки '+Math.round(jank*100)+'%');
             if(!changed&&(pf.slowN===0||(pf.q||0)>=3))pf.ok=1;}}}
       const pT0=performance.now();const dt=Math.min(.05,(now-(last||now))/1000);last=now;
       if(state.playing){state.t+=dt*34;if(state.t>=1380){state.t=1380;state.playing=false;}paintClock();}
