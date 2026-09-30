@@ -1109,6 +1109,9 @@ const space=(function(){
     // everything goes to the GPU up front (shader programs + textures), not on the first frame an object comes into view: no hitch when the camera enters the store
     const TEXK=['map','roughnessMap','metalnessMap','normalMap','alphaMap','emissiveMap','bumpMap','aoMap','envMap'];
     function warm(){try{scene.traverse(o=>{const ms=o.material?(Array.isArray(o.material)?o.material:[o.material]):null;if(ms)ms.forEach(m=>TEXK.forEach(k=>{const t=m[k];if(t&&t.isTexture&&t.userData.up!==t.version){renderer.initTexture(t);t.userData.up=t.version;}}));});renderer.compile(scene,camera);}catch(e){}}
+    // every person model's materials compiled up front (their originals are briefly part of the scene for the compile): a model walking in for
+    // the first time a minute into the presentation must not stall the frame – on Windows/ANGLE (Firefox, Chrome) one shader compile costs 100+ ms
+    function warmModels(){const G=GL();if(!G)return;const hold=new T.Group();hold.visible=false;G.models.forEach(m=>{if(!m.warm){m.warm=1;hold.add(m.scene);}});if(!hold.children.length)return;scene.add(hold);warm();scene.remove(hold);[...hold.children].forEach(c=>hold.remove(c));}
     function later(fn){const tok=buildTok;pending.push(requestAnimationFrame(()=>{if(tok!==buildTok)return;fn();warm();renderer.shadowMap.needsUpdate=true;kick();}));}
     function boxG(w,h,d,s){const g=new T.BoxGeometry(w,h,d);if(s){const uv=g.attributes.uv,dims=[[d,h],[d,h],[w,d],[w,d],[w,h],[w,h]];for(let i=0;i<uv.count;i++){const f=(i/4)|0;uv.setXY(i,uv.getX(i)*dims[f][0]/s,uv.getY(i)*dims[f][1]/s);}}return g;}
     // boxes are collected per material and merged into one mesh each at the end of build()
@@ -1133,7 +1136,7 @@ const space=(function(){
     function ldDone(){if(LD.done)return;LD.done=true;if(LD.el){LD.el.classList.add('out');setTimeout(()=>{LD.el.hidden=true;},600);}if(view.name==='tour'){tour.k=-1;tour.t=0;tour.first=true;}kick();}
     function ldTick(){if(LD.done)return;const G=window.KL_GLTF,need=(G&&G.total)||19,now_=performance.now();let mp=1;if(G&&!G.failed)mp=Math.min(1,(G.doneN||0)/need);
       // last stretch behind the bar: everything to the GPU, then a few seconds of measured frames so a slow phone settles its quality here, not during the presentation
-      if(LD.base>=45&&(mp>=1||now_-LD.t0>16000)){if(!LD.settle){LD.settle=now_;warm();pf.t=0;pf.n=0;pf.w=0;pf.ok=0;}
+      if(LD.base>=45&&(mp>=1||now_-LD.t0>16000)){if(!LD.settle){LD.settle=now_;warmModels();warm();pf.t=0;pf.n=0;pf.w=0;pf.ok=0;}
         const st=now_-LD.settle;ldSet(92+Math.min(7,st/600));if(st>1000&&(pf.ok||st>6500))ldSet(100);return;}
       ldSet((LD.base||0)+(92-(LD.base||0))*(LD.base>=45?mp:0));}
     function build(){
@@ -1539,11 +1542,11 @@ const space=(function(){
           // 2) only if even 30 fps is not held: resolution one step down, then no shadows, then resolution once more (these never go back,
           //    because each one re-allocates the canvas or recompiles, and that itself would be a stutter)
           if(LD.done||LD.settle){const nowS=performance.now();let changed=false;
-            if(pf.probing){pf.probing=false;changed=true;if(avg<=.021){pf.half=false;pf.back=20000;}else{pf.half=true;fno=0;pf.back=Math.min(120000,(pf.back||20000)*2);pf.probeAt=nowS+pf.back;}}
-            else if(!pf.half){if(avg>.024){if(++pf.slowN>=2){pf.half=true;fno=0;pf.slowN=0;changed=true;pf.back=pf.back||20000;pf.probeAt=nowS+pf.back;}}else pf.slowN=0;}
+            if(pf.probing){pf.probing=false;changed=true;if(avg<=.021){pf.half=false;pf.back=45000;}else{pf.half=true;fno=0;pf.back=Math.min(300000,(pf.back||45000)*2);pf.probeAt=nowS+pf.back;}}
+            else if(!pf.half){if(avg>.024){if(++pf.slowN>=2){pf.half=true;fno=0;pf.slowN=0;changed=true;pf.back=pf.back||45000;pf.probeAt=nowS+pf.back;}}else pf.slowN=0;}
             else if(avg>.045){if(++pf.slowN>=2&&(pf.q||0)<3){pf.slowN=0;changed=true;pf.q=(pf.q||0)+1;const floor=Math.min(dprMax,TIER===0?.62:.72);
-                if(pf.q!==2&&dpr>floor){dpr=Math.max(floor,dpr*(pf.q===1?.75:.85));renderer.setPixelRatio(dpr);pm.uniforms.uScale.value=stage.clientHeight*dpr/2/Math.tan(camera.fov*Math.PI/360)*.5;}
-                else if(renderer.shadowMap.enabled){renderer.shadowMap.enabled=false;scene.traverse(o=>{if(o.material){(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>m.needsUpdate=true);}});warm();root.classList.add('lowfx');}}}
+                if((pf.q!==2||LD.done)&&dpr>floor){dpr=Math.max(floor,dpr*(pf.q===1?.75:.85));renderer.setPixelRatio(dpr);pm.uniforms.uScale.value=stage.clientHeight*dpr/2/Math.tan(camera.fov*Math.PI/360)*.5;}
+                else if(renderer.shadowMap.enabled&&!LD.done){renderer.shadowMap.enabled=false;scene.traverse(o=>{if(o.material){(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>m.needsUpdate=true);}});warm();root.classList.add('lowfx');}}}
             else{pf.slowN=0;if(TIER>0&&LD.done&&pf.probeAt&&nowS>pf.probeAt){pf.probing=true;pf.half=false;changed=true;}}
             if(!changed&&(pf.slowN===0||(pf.q||0)>=3))pf.ok=1;}}}
       const pT0=performance.now();const dt=Math.min(.05,(now-(last||now))/1000);last=now;
