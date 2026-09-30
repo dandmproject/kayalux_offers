@@ -1492,7 +1492,7 @@ const space=(function(){
             pos.push(a[0]+nx,ya,a[1]+nz, a[0]-nx,ya,a[1]-nz, b[0]+nx,yb,b[1]+nz, b[0]+nx,yb,b[1]+nz, a[0]-nx,ya,a[1]-nz, b[0]-nx,yb,b[1]-nz);uv.push(u,1,u,0,u1,1,u1,1,u,0,u1,0);u=u1;a=b;}});
         // one GPU buffer for the whole visit, rewritten in place (no new buffers every 0.4 s); it grows only if a path ever needs more room
         let fg=flowLine.geometry,cap=fg.userData.cap||0;const nv=pos.length/3;
-        if(nv>cap){cap=Math.max(1024,1<<Math.ceil(Math.log2(nv)));fg.dispose();fg=new T.BufferGeometry();fg.userData.cap=cap;
+        if(nv>cap||!fg.attributes.position){cap=Math.max(1024,1<<Math.ceil(Math.log2(nv)));fg.dispose();fg=new T.BufferGeometry();fg.userData.cap=cap;
           const pa=new T.BufferAttribute(new Float32Array(cap*3),3),ua=new T.BufferAttribute(new Float32Array(cap*2),2);pa.setUsage(T.DynamicDrawUsage);ua.setUsage(T.DynamicDrawUsage);fg.setAttribute('position',pa);fg.setAttribute('uv',ua);flowLine.geometry=fg;}
         const pa=fg.attributes.position,ua=fg.attributes.uv;pa.array.set(pos);ua.array.set(uv);pa.updateRange.offset=0;pa.updateRange.count=pos.length;ua.updateRange.offset=0;ua.updateRange.count=uv.length;pa.needsUpdate=true;ua.needsUpdate=true;fg.setDrawRange(0,nv);}
     }
@@ -2052,7 +2052,7 @@ const space=(function(){
       overlay.filter(o=>o.kind==='lbl'&&!o.off).sort((a,b)=>a.sz-b.sz).forEach(o=>{if(!o.w){o.w=o.el.offsetWidth||80;o.h=o.el.offsetHeight||18;}if(HR&&o.sx+o.w/2>HR[0]&&o.sx-o.w/2<HR[2]&&o.sy+o.h/2>HR[1]&&o.sy-o.h/2<HR[3]){o.off=true;return;}if(kept.some(k=>Math.abs(k.sx-o.sx)<(k.w+o.w)/2+4&&Math.abs(k.sy-o.sy)<(k.h+o.h)/2+2))o.off=true;else kept.push(o);});
       overlay.forEach(o=>{if(o.kind==='pin'&&HR&&!o.off&&o.sx>HR[0]-20&&o.sx<HR[2]+20&&o.sy>HR[1]-20&&o.sy<HR[3]+20)o.off=true;});
       overlay.forEach(o=>{if(o.vis!==!o.off){o.vis=!o.off;o.el.style.visibility=o.off?'hidden':'visible';}if(!o.off){const tf='translate('+o.sx.toFixed(1)+'px,'+o.sy.toFixed(1)+'px)'+(o.kind==='lbl'?' translate(-50%,-50%)':' translate(-50%,-100%)');if(o.tf!==tf){o.tf=tf;o.el.style.transform=tf;}}}); // DOM written only when something changed
-      const pT1=performance.now();renderer.render(scene,camera);if(window.__prof){const P=window.__prof;P.js+=pT1-pT0;P.gl+=performance.now()-pT1;P.n++;}if(window.__perf){window.__perf.frames=(window.__perf.frames||0)+1;if(!window.__perf.first)window.__perf.first=performance.now();}
+      const pT1=performance.now();renderer.render(scene,camera);if(window.__prof){const P=window.__prof;P.js+=pT1-pT0;if(pT1-pT0>(P.max||0))P.max=pT1-pT0;(P.h=P.h||[]).push(+(pT1-pT0).toFixed(1));P.gl+=performance.now()-pT1;P.n++;}if(window.__perf){window.__perf.frames=(window.__perf.frames||0)+1;if(!window.__perf.first)window.__perf.first=performance.now();}
       raf=requestAnimationFrame(frame);
     }
     kick=()=>{if(!raf&&vis){last=0;raf=requestAnimationFrame(frame);}};
