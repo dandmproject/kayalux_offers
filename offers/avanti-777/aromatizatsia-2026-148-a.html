@@ -1053,6 +1053,8 @@ const space=(function(){
       bag:()=>{if(!bg)bg=mkBag(1);return bg.clone();},
       phone:()=>ph||(ph=mergeColored([[new T.BoxGeometry(.07,.14,.01),'#111111']])),
       blob:()=>bl||(bl=new T.CircleGeometry(1,12)),
+      card:(()=>{let c=null;return ()=>c||(c=mergeColored([[new T.BoxGeometry(.085,.054,.006),'#1d4f9a']]));})(),
+      note:(()=>{let c=null;return ()=>c||(c=mergeColored([[new T.BoxGeometry(.13,.065,.003),'#5f8f55']]));})(),
       item:(()=>{const c=[];return i=>{i=i%5;if(!c[i]){const col=['#c8382e','#2f6fb5','#e0b23a','#3c7a3e','#e8e2d0'][i];c[i]=i%2?mergeColored([[new T.CylinderGeometry(.032,.032,.22,8),col]]):mergeColored([[new T.BoxGeometry(.085,.12,.055),col]]);}return c[i];};})()};})();
     // one InstancedMesh per product family for the whole store; each item = [x,y,z,sx,sy,sz,colour]
     function instanced(geo,list,shadow,pal,mat){const im=new T.InstancedMesh(geo,mat,list.length),m4=new T.Matrix4(),q=new T.Quaternion(),v=new T.Vector3(),sc=new T.Vector3(),c=new T.Color();
@@ -1486,7 +1488,7 @@ const space=(function(){
         const leg=ud.visit[ud.legI],leaving=leg&&(leg.kind==='exit'||leg.kind==='returnBasket'),entering=ud.state==='enter';
         if(ud.basket){ud.basket.visible=!!ud.hasBasket&&!leaving&&!entering&&!ud.pay;ud.bag.visible=!!ud.buyer&&(leaving||ud.phase==='bag'||ud.phase==='bye');}
         if(ud.stroller&&ud.stroller.userData.bag){ud.stroller.userData.bag.visible=ud.bag.visible;ud.bag.visible=false;}
-        if(ud.phoneM)ud.phoneM.visible=!!ud.phone&&ud.state==='queue'&&!ud.pay;
+        if(ud.phoneM)ud.phoneM.visible=!!ud.phone&&ud.state==='queue'&&!ud.pay&&!ud.pushing;
         ud.lookDir=0;poseAny(g,T_,dt,ud.state==='walk'&&!ud.turning&&!ud.yielding?ud.sp*ud.blend:0);});
       // §8 restocking staff: on the shelf 10–20 min every 1–2 h (scene-time scaled)
       const rs=extras.find(x=>x.userData.state==='restock'||x.userData.restocker);if(rs){const u=rs.userData;u.restocker=true;if(u.rsUntil==null){u.rsOn=true;u.rsUntil=T_+rr(PARAMS.restockOn)*PARAMS.timeScale*.15;}if(T_>u.rsUntil){u.rsOn=!u.rsOn;u.rsUntil=T_+(u.rsOn?rr(PARAMS.restockOn):rr(PARAMS.restockEvery)*.25)*PARAMS.timeScale*.15;}rs.visible=open&&u.rsOn;}
@@ -1513,7 +1515,7 @@ const space=(function(){
       if(!fem&&!elder&&Math.random()<.35){o.beard=true;o.stubble=true;}
       if(fem&&Math.random()<.3)o.handbag=pick_([0x2a1f16,0x5a1f1f,0x1b1917]);
       return o;}
-    function mkRandom(sp){const g=gltfPerson(sp)||makePerson(9,sp);if(sp.cane){const k=g.userData.k;const cane=new T.Mesh(mergeColored([[new T.CylinderGeometry(.012,.014,.84*k,6).translate(0,-.4*k,.02),'#5a3a1a'],[new T.SphereGeometry(.02,6,5).translate(0,.02,.02),'#c9a24a']]),M.vc2);cane.castShadow=true;g.userData.arms[0].userData.hd.add(cane);g.userData.cane=true;}
+    function mkRandom(sp){const g=gltfPerson(sp)||makePerson(9,sp);if(sp.cane&&!g.userData.gltfP){const k=g.userData.k;const cane=new T.Mesh(mergeColored([[new T.CylinderGeometry(.012,.014,.84*k,6).translate(0,-.4*k,.02),'#5a3a1a'],[new T.SphereGeometry(.02,6,5).translate(0,.02,.02),'#c9a24a']]),M.vc2);cane.castShadow=true;g.userData.arms[0].userData.hd.add(cane);g.userData.cane=true;}
       g.userData.phone=!!sp.phone;g.userData.sp=(sp.elder?rr(PARAMS.speed.elder):rr(PARAMS.speed.adult))*PARAMS.speedScale;return g;}
     function regen(i){window.__regenN=(window.__regenN||0)+1;const old=people[i],ud=old.userData,g=mkRandom(randomSpec()),nu=g.userData;nu.ph=Math.random()*6.28;if(ud.follow!=null)nu.follow=ud.follow;if(ud.partner!=null)nu.partner=ud.partner;if(ud.stroller){nu.stroller=ud.stroller;nu.pushing=true;nu.basket.visible=false;}
       room.remove(old);if(ud.gltfP){window.KL_GLTF.release(old);}else old.traverse(o=>{if(o.isSkinnedMesh){o.skeleton.dispose();if(o.material.map)o.material.map.dispose();o.material.dispose();}else if(o.geometry&&!GEOSET.has(o.geometry))o.geometry.dispose();});
@@ -1525,14 +1527,14 @@ const space=(function(){
     let warmT=0;const warmSoon=()=>{if(!warmT)warmT=setTimeout(()=>{warmT=0;warm();},120);};
     const WARMED=new Set(); // model files whose shaders are already compiled
     function gltfPerson(spec){const G=GL();if(!G)return null;spec=spec||{};let kind=spec.staff?'staff':spec.isChild?'child':spec.elder?'elderly':(spec.fem?'f':'m');if(!G.has(kind)){if(kind==='child')return null;kind=spec.fem?'f':'m';if(!G.has(kind))return null;}
-      const g=G.spawn({kind,height:spec.h||(spec.isChild?1.18:1.72),avoid:usedFiles()});if(!g)return null;if(!WARMED.has(g.userData.file)){WARMED.add(g.userData.file);warmSoon();}const ud=g.userData,k=(ud.height||1.72)/1.72;
+      const g=G.spawn({kind,height:spec.h||(spec.isChild?1.18:1.72),avoid:usedFiles()});if(!g)return null;if(!WARMED.has(g.userData.file)){WARMED.add(g.userData.file);const mm=G.models.find(m=>m.file===g.userData.file);if(!mm||!mm.warm)warmSoon();} // models compiled behind the bar need no second pass (a full compile() costs 100+ ms in Firefox)const ud=g.userData,k=(ud.height||1.72)/1.72;
       ud.gltfP=true;ud.k=k;ud.elder=!!spec.elder||ud.kind==='elderly';ud.isChild=!!spec.isChild||ud.kind==='child';ud.yaw=0;ud.dist=0;ud.blend=0;ud.phone=!!spec.phone;ud.hipY=.9*k;
       ud.rh=g.getObjectByName('Bip01_R_Hand')||g.getObjectByName('Bip02_R_Hand')||null;ud.lh=g.getObjectByName('Bip01_L_Hand')||null;
       const basket=new T.Group();basket.add(new T.Mesh(SHARED.basket(),M.vc2));
       basket.visible=false;g.add(basket);
       const bag=SHARED.bag();bag.visible=false;g.add(bag);
       const ph=new T.Mesh(SHARED.phone(),M.vc2);ph.visible=false;g.add(ph);
-      const it=new T.Mesh(SHARED.item((Math.random()*5)|0),M.vc);it.visible=false;it.castShadow=false;g.add(it);ud.itemM=it;
+      const it=new T.Mesh(SHARED.item((Math.random()*5)|0),M.vc);it.visible=false;it.castShadow=false;g.add(it);ud.itemM=it;const cd=new T.Mesh(SHARED.card(),M.vc);cd.visible=false;g.add(cd);ud.cardM=cd;const nt=new T.Mesh(SHARED.note(),M.vc);nt.visible=false;g.add(nt);ud.noteM=nt;
       const bl=new T.Mesh(SHARED.blob(),M.blob);bl.scale.setScalar(.34*k);bl.rotation.x=-Math.PI/2;bl.position.y=.012;bl.renderOrder=1;g.add(bl);
       ud.basket=basket;ud.bag=bag;ud.phoneM=ph;ud.arms=[{userData:{hd:ud.lh||g}},{userData:{hd:ud.rh||g}}];ud.legs=[];return g;}
     const _hv=new T.Vector3();
@@ -1542,7 +1544,7 @@ const space=(function(){
       else if(st==='browse'||st==='restock'||st==='scan')clip='look';else if(ud.bag&&ud.bag.visible)clip='bag';
       if(v<=.04&&(ud.lookAtP||st==='chat'||st==='greet'))clip=ud.talking?(ud.ph>3?'talk2':'talk'):'listen';
       ud.play(clip,.3);
-      if(ud.face){const now=performance.now()/1000,F=ud.fw||(ud.fw={});const ease=(k,tgt,rate)=>{F[k]=(F[k]||0)+(tgt-(F[k]||0))*Math.min(1,rate||.12);ud.face(k,F[k]);};
+      if(ud.face&&!ud.gltfP){const now=performance.now()/1000,F=ud.fw||(ud.fw={}); // real models get their faces in gltfHeads (living face)const ease=(k,tgt,rate)=>{F[k]=(F[k]||0)+(tgt-(F[k]||0))*Math.min(1,rate||.12);ud.face(k,F[k]);};
         // smile: greeting / paying / talking / a child looking up at the parent; elderly concentrate while browsing
         const happy=ud.smile||ud.chat||st==='chat'||st==='greet'||(ud.isChild&&ud.lookAtP);ease('smile',happy?1.0:0);ease('squint',happy?.45:(F.micro==='squint'?.18:0));
         ease('frown',(ud.elder&&st==='browse'&&!happy)?.35:0);
@@ -1577,25 +1579,32 @@ const space=(function(){
         if(r.p>=0){r.p+=dt/1.8;const w=r.p<.38?r.p/.38:r.p<.55?1:Math.max(0,(1-r.p)/.45);_rt.set(r.tg[0],r.tg[1],r.tg[2]);reachArm(g,_rt,w*.95);show=r.p>.46&&r.p<.97;if(r.p>=1){r.p=-1;r.next=r.t+1.6+Math.random()*2.8;}}}
       else if(ud.rch){ud.rch.p=-1;}
       if(ud.placeTg){const q=ud.placeQ||0,w=Math.sin(Math.PI*q);_rt.set(ud.placeTg[0],ud.placeTg[1]+.04,ud.placeTg[2]);reachArm(g,_rt,w*.9);show=show||q<.5;}
+      if(ud.phoneM){const on=!!ud.clip&&ud.clip.indexOf('phone')===0&&!!ud.rh;ud.phoneM.visible=on; // a phone really in the hand while looking at it
+        if(on){const lh=ud.lh||ud.rh;ud.rh.getWorldPosition(_hv);lh.getWorldPosition(_rt);const hand=_rt.y>_hv.y?lh:ud.rh;hand.getWorldPosition(_hv);g.worldToLocal(_hv);ud.phoneM.position.set(_hv.x,_hv.y+.02,_hv.z);if(ud.headB){ud.headB.getWorldPosition(_rt);ud.phoneM.lookAt(_rt);}}}
+      if(ud.cardM){const tap=ud.phase==='tap'&&S.termP,cash=ud.phase==='cash'&&S.counterItems;if(tap){_rt.set(S.termP[0],S.termP[1]+.06,S.termP[2]);reachArm(g,_rt,.9);}else if(cash){const a_=S.counterItems[0].userData.a;_rt.set(a_[0]-.05,a_[1]+.03,a_[2]);reachArm(g,_rt,.8);}
+        ud.cardM.visible=!!tap;ud.noteM.visible=!!cash;const pm=tap?ud.cardM:cash?ud.noteM:null;if(pm&&ud.rh){ud.rh.getWorldPosition(_hv);g.worldToLocal(_hv);pm.position.set(_hv.x,_hv.y-.01,_hv.z);pm.rotation.set(-.4,g.rotation.y*0,0);}}
       if(ud.scanTg){const w=.55+.35*Math.sin(ud.scanQ*Math.PI*2);_rt.set(ud.scanTg[0],ud.scanTg[1]+.05,ud.scanTg[2]);reachArm(g,_rt,w);}
       handItem(g,show);}
-    function gltfHeads(dt){people.concat(extras).forEach(g=>{const ud=g.userData;if(!ud.gltfP||!g.visible||ud.culled)return;if(ud.pushing)pushArms(g);else hands(g,dt);if(ud.headB===undefined)ud.headB=g.getObjectByName('Bip01_Head')||g.getObjectByName('Bip02_Head')||null;const hb=ud.headB;if(!hb)return;
+    function gltfHeads(dt){people.concat(extras).forEach(g=>{const ud=g.userData;if(!ud.gltfP||!g.visible||ud.culled){ud.hShow=null;return;}if(ud.pushing)pushArms(g);else hands(g,dt);if(ud.headB===undefined)ud.headB=g.getObjectByName('Bip01_Head')||g.getObjectByName('Bip02_Head')||null;const hb=ud.headB;if(!hb)return;
       // a living face (the models carry smile, squint, blink, jaw, oh, brows): a friendly resting expression of their own, natural blinks,
       // now and then a real smile with the eyes, a big one at the till and when taking the bag, the mouth moving while talking; near faces only
-      if(ud.face&&g.position.distanceToSquared(camera.position)<110){const f=ud.fx||(ud.fx={t:0,mood:ud.cashier?.7:.4+Math.random()*.35,blink:1+Math.random()*3,grin:3+Math.random()*9,gT:0,sm:0,br:0});f.t+=dt;
+      if(ud.face&&g.position.distanceToSquared(camera.position)<110){const f=ud.fx||(ud.fx={t:0,mood:ud.cashier?.95:.7+Math.random()*.35,blink:1+Math.random()*3,grin:3+Math.random()*9,gT:0,sm:0,br:0});f.t+=dt;
         let bl=0;const tb=f.t-f.blink;if(tb>0){bl=tb<.07?tb/.07:(tb<.17?1-(tb-.07)/.1:0);if(tb>=.17)f.blink=f.t+(Math.random()<.18?.25:2+Math.random()*4.5);}
         if(f.t>f.grin){f.gT=1.4+Math.random()*1.6;f.grin=f.t+6+Math.random()*12;}if(f.gT>0)f.gT-=dt;
         const atTill=ud.cashier&&qOcc&&qOcc[0],happy=ud.phase==='bag'||!!ud.pay||atTill||f.gT>0,talk=!!ud.clip&&ud.clip.indexOf('talk')===0;
-        const smT=happy?1.2:f.mood;f.sm+=(smT-f.sm)*Math.min(1,dt*(smT>f.sm?4:1.6));f.br+=((happy?.32:0)-f.br)*Math.min(1,dt*3);
+        const smT=happy?1.45:f.mood;f.sm+=(smT-f.sm)*Math.min(1,dt*(smT>f.sm?4:1.6));f.br+=((happy?.32:0)-f.br)*Math.min(1,dt*3);
         const jaw=talk?Math.max(0,.2+.22*Math.sin(f.t*10.5)*Math.sin(f.t*3.1)):0,oh=talk?.16*Math.max(0,Math.sin(f.t*7.7+1)):0;
-        ud.face('smile',f.sm);ud.face('squint',f.sm*.4);ud.face('blink',bl);ud.face('jaw',jaw);ud.face('oh',oh);ud.face('brows',f.br);}
+        ud.face('smile',f.sm);ud.face('squint',f.sm*.42);ud.face('blink',bl);ud.face('jaw',jaw);ud.face('oh',oh);ud.face('brows',f.br);}
       // the turn is always applied to the animation's own head pose, never on top of last frame's turn: when the clip leaves the head alone
       // (or the mixer skipped a frame) the old offset is taken off first, so a head can never keep spinning
       if(ud.hQ&&hb.quaternion.equals(ud.hQ))hb.quaternion.copy(ud.hQ0);ud.hQ=null;
       let yaw=0,pitch=0;if(ud.lookAtP){let a=Math.atan2(ud.lookAtP[0]-g.position.x,ud.lookAtP[1]-g.position.z)-g.rotation.y;a=((a+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;yaw=Math.max(-.9,Math.min(.9,a));if(ud.isChild)pitch=-.35;}
       if(ud.elder&&ud.state==='browse')pitch+=.15;if(ud.phase==='bag'){ud.nodT=(ud.nodT||0)+dt;pitch+=.18*Math.max(0,Math.sin(ud.nodT*6));}else ud.nodT=0;
-      {const mv=dt*2.1,e=(v,t)=>{const d=(t-v)*Math.min(1,dt*3.5);return v+Math.max(-mv,Math.min(mv,d));};ud.hy=e(ud.hy||0,yaw);ud.hp=e(ud.hp||0,pitch);} /* a natural head turn: eased and never faster than ~120°/s */if(Math.abs(ud.hy)<.01&&Math.abs(ud.hp)<.01)return;
-      (ud.hQ0||(ud.hQ0=new T.Quaternion())).copy(hb.quaternion);hb.parent.getWorldQuaternion(_q).invert();_ax.set(0,1,0).applyQuaternion(_q);hb.rotateOnAxis(_ax,ud.hy);_ax.set(Math.cos(g.rotation.y),0,-Math.sin(g.rotation.y)).applyQuaternion(_q);hb.rotateOnAxis(_ax,ud.hp);ud.hQ=(ud.hQb||(ud.hQb=new T.Quaternion())).copy(hb.quaternion);});}
+      {const mv=dt*2.1,e=(v,t)=>{const d=(t-v)*Math.min(1,dt*3.5);return v+Math.max(-mv,Math.min(mv,d));};ud.hy=e(ud.hy||0,yaw);ud.hp=e(ud.hp||0,pitch);} /* a natural head turn: eased and never faster than ~120°/s */(ud.hQ0||(ud.hQ0=new T.Quaternion())).copy(hb.quaternion);
+      if(Math.abs(ud.hy)>=.01||Math.abs(ud.hp)>=.01){hb.parent.getWorldQuaternion(_q).invert();_ax.set(0,1,0).applyQuaternion(_q);hb.rotateOnAxis(_ax,ud.hy);_ax.set(Math.cos(g.rotation.y),0,-Math.sin(g.rotation.y)).applyQuaternion(_q);hb.rotateOnAxis(_ax,ud.hp);}
+      // the head never jumps: a clip that loops or blends with a seam is caught here and eased at most ~7 rad/s
+      if(ud.hShow){const ang=ud.hShow.angleTo(hb.quaternion),mx=dt*7;if(ang>mx){ud.hShow.slerp(hb.quaternion,mx/ang);hb.quaternion.copy(ud.hShow);}else ud.hShow.copy(hb.quaternion);}else ud.hShow=hb.quaternion.clone();
+      ud.hQ=(ud.hQb||(ud.hQb=new T.Quaternion())).copy(hb.quaternion);});}
     // swap a procedural figure for a real model in place (used after the models arrive; re-entries do it automatically)
     function upgrade(i){const old=people[i],ud=old.userData;if(ud.gltfP||!GL())return null;const spec={fem:!!ud.fem,elder:!!ud.elder,isChild:!!ud.isChild,h:ud.isChild?1.18:1.6+Math.random()*.3,phone:!!ud.phone};const g=gltfPerson(spec);if(!g)return null;const nu=g.userData;
       ['state','visit','legI','path','pi','until','faceAng','slot','hasBasket','buyer','items','trail','ang','sp','follow','partner','gap','turning','pay','phase','placed','ph','camAng','stroller','pushing','fallback','qT'].forEach(k=>{if(ud[k]!==undefined)nu[k]=ud[k];});
@@ -1736,7 +1745,7 @@ const space=(function(){
       {const po=new T.Mesh(new T.PlaneGeometry(.6,.5),M.poster);po.position.set(ckX+ckW/2-.5,.55,ckZ+.41);room.add(po);
         const px=ckX+ckW/2-.3;cbox(.3,.02,.2,BLK,px,1.05,ckZ-.05);cbox(.03,.14,.03,BLK,px,1.12,ckZ-.05);
         const mon=new T.Group();mon.position.set(px,1.3,ckZ-.05);mon.rotation.y=-.35;mon.rotation.x=-.15;const bz=new T.Mesh(new T.BoxGeometry(.34,.24,.02),M.unit);const sc=new T.Mesh(new T.PlaneGeometry(.31,.21),M.screen);sc.position.z=.011;mon.add(bz,sc);room.add(mon);S.screen=sc;
-        const term=new T.Group();term.position.set(px+.02,1.06,ckZ+.25);term.rotation.y=.5;term.rotation.x=-.3;const tb=new T.Mesh(new T.BoxGeometry(.085,.03,.15),M.unit);const ts=new T.Mesh(new T.PlaneGeometry(.06,.035),M.screen2);ts.rotation.x=-Math.PI/2;ts.position.set(0,.016,-.045);const keys=new T.Mesh(new T.PlaneGeometry(.06,.06),M.keys);keys.rotation.x=-Math.PI/2;keys.position.set(0,.016,.03);term.add(tb,ts,keys);room.add(term);
+        const term=new T.Group();term.position.set(px+.02,1.06,ckZ+.25);term.rotation.y=.5;term.rotation.x=-.3;const tb=new T.Mesh(new T.BoxGeometry(.085,.03,.15),M.unit);const ts=new T.Mesh(new T.PlaneGeometry(.06,.035),M.screen2);ts.rotation.x=-Math.PI/2;ts.position.set(0,.016,-.045);const keys=new T.Mesh(new T.PlaneGeometry(.06,.06),M.keys);keys.rotation.x=-Math.PI/2;keys.position.set(0,.016,.03);term.add(tb,ts,keys);room.add(term);S.termP=[term.position.x,term.position.y,term.position.z];
         cbox(.16,.1,.2,BLK,px-.32,1.09,ckZ-.15);cbox(.1,.02,.02,WHT,px-.32,1.15,ckZ-.06);cbox(.06,.06,.06,BLK,ckX-ckW/2+.3,1.07,ckZ+.15);S.cashier=[px-.55,ckZ-.85];}
       label('Каса',ckX,1.5,ckZ);
       {const tz0=ckZ-.9,tz1=Math.min(ckZ+.6,hd-.25),tl=tz1-tz0;if(tl>.8){blk(-hw+.16,(tz0+tz1)/2,.34,tl);box(.3,2.2,tl,M.oak,-hw+.16,1.1,(tz0+tz1)/2);for(let lv=0;lv<7;lv++)box(.34,.015,tl,M.oak,-hw+.18,.22+lv*.27,(tz0+tz1)/2,false);for(let lv=0;lv<7;lv++)for(let z=tz0+.06;z<tz1-.05;z+=.1*dens)put('pack',-hw+.33,.23+lv*.27,z,.055,.09,.024,pick_(['#c9a24a','#b7b7b7','#274a7a','#8c3b2e','#e6e2d8','#3a3a3a','#2f6fb5']));label('Цигари',-hw+.35,2.45,(tz0+tz1)/2);
@@ -2077,11 +2086,12 @@ const space=(function(){
       try{const gl=renderer.getContext(),x=gl.getExtension('WEBGL_debug_renderer_info');DG.gpu=x?String(gl.getParameter(x.UNMASKED_RENDERER_WEBGL)):String(gl.getParameter(gl.RENDERER));}catch(err){}
       document.addEventListener('visibilitychange',()=>dlog(document.hidden?'разделът е скрит':'разделът е видим'));dlog('старт · ниво '+TIER);}
     function diagTick(now,f){DG.ft.push(f*1000);if(DG.ft.length>240)DG.ft.shift();
-      if(f>.08)dlog('дълъг кадър '+Math.round(f*1000)+' ms · изглед '+view.name+(view.name==='tour'?' '+tour.k:'')+(LD.done?'':' · зареждане'));
+      if(f>.08){const g_=DG.seg||[0,0,0,0,0,0,0],r=x=>Math.round(x);dlog('дълъг кадър '+r(f*1000)+' ms · изглед '+view.name+(view.name==='tour'?' '+tour.k:'')+(LD.done?'':' · зареждане')+
+        ' · код '+r(g_[6])+' ms (камера '+r(g_[0])+', сцена '+r(g_[1])+', анимации/лица '+r(g_[2])+', хора и аромат '+r(g_[3])+', надписи/DOM '+r(g_[4])+', рисуване '+r(g_[5])+')'+(g_[6]<f*1000*.4?' → извън кода: браузър / боклук / видеокарта':''));}
       const np=renderer.info.programs.length;if(DG.prog&&np>DG.prog)dlog('нов шейдър (общо '+np+')');DG.prog=np;
       const rg=window.__regenN||0,ru=(window.KL_GLTF&&KL_GLTF.reused)||0;if(rg>DG.regen)dlog('нов клиент · '+(ru>DG.reused?'от пула':'клониран'));DG.regen=rg;DG.reused=ru;
       // people: a shopper standing still while walking (stuck), a head that snaps round in one frame, someone outside the walls
-      if(!DG.pp)DG.pp=new WeakMap();const _q1=DG.q1||(DG.q1=new T.Quaternion()),_q2=DG.q2||(DG.q2=new T.Quaternion());
+      if(!DG.pp||f>1)DG.pp=new WeakMap(); // after a pause (hidden tab) start watching afresh: no false 'stuck' alarmsconst _q1=DG.q1||(DG.q1=new T.Quaternion()),_q2=DG.q2||(DG.q2=new T.Quaternion());
       people.forEach(g=>{const ud=g.userData;if(!g.visible)return;let r=DG.pp.get(g);if(!r){r={x:g.position.x,z:g.position.z,t:now,snap:0};DG.pp.set(g,r);}
         if(ud.state==='walk'){if(Math.hypot(g.position.x-r.x,g.position.z-r.z)>.08){r.x=g.position.x;r.z=g.position.z;r.t=now;r.warn=0;}else if(now-r.t>9000&&!r.warn){r.warn=1;dlog('клиент стои на място 9 s, докато върви (заседнал?) · '+g.position.x.toFixed(1)+', '+g.position.z.toFixed(1));}}else{r.x=g.position.x;r.z=g.position.z;r.t=now;}
         if(ud.gltfP&&ud.headB&&!ud.culled){ud.headB.getWorldQuaternion(_q1);g.getWorldQuaternion(_q2);_q2.invert().multiply(_q1);if(r.hq){const ang=r.hq.angleTo(_q2);if(ang>.45&&now-r.snap>3000){r.snap=now;dlog('рязко обръщане на глава '+Math.round(ang*57)+'° за един кадър · '+(ud.state||'')+' '+(ud.clip||''));}}else r.hq=new T.Quaternion();r.hq.copy(_q2);}
@@ -2141,6 +2151,7 @@ const space=(function(){
       if(view.name==='walk'&&people.length){let p=(camSub&&camSub.parent&&camSub.visible&&camSub.userData.state==='walk')?camSub:null;const inside=g=>g.visible&&g.parent&&g.position.z<S.hd-1.2&&Math.abs(g.position.x)<S.hw-.2;const browsing=g=>{const u=g.userData,l=u.visit&&u.visit[u.legI];return !!l&&l.kind==='browse';};if(p&&(!inside(p)||!browsing(p)))p=null;if(!p){const w=people.filter(g=>inside(g)&&browsing(g)&&g.userData.follow==null&&g.userData.state==='walk'&&!g.userData.turning&&Math.cos(g.rotation.y)<.3);if(w.length){w.sort((a,b)=>a.position.distanceToSquared(camera.position)-b.position.distanceToSquared(camera.position));p=w[0];}}if(p)camSub=p;p=camSub&&camSub.parent&&inside(camSub)?camSub:(people.find(g=>inside(g)&&g.userData.follow==null)||people.find(inside)||people[0]);const ud=p.userData;if(ud.state==='walk'&&!ud.turning&&inside(p))ud.camAng=p.rotation.y;else ud.camAng=Math.atan2((S.mainX||0)*.3-p.position.x,-S.hd*.3-p.position.z);const fw=new T.Vector3(0,0,1).applyAxisAngle(new T.Vector3(0,1,0),ud.camAng),side=new T.Vector3(fw.z,0,-fw.x);
         let want=null;for(let d=3.2;d>=1.2;d-=.2){const x=p.position.x-fw.x*d+side.x*.5*(d/3.2),z=p.position.z-fw.z*d+side.z*.5*(d/3.2);const cc=nav?nav.toCell(x,z):null;if(z<S.hd-.35&&Math.abs(x)<S.hw-.3&&(!nav||nav.free(nav.G0,cc[0],cc[1]))){want=new T.Vector3(x,1.55,z);break;}}
         if(!want)want=new T.Vector3(p.position.x,1.55,p.position.z);camera.position.lerp(want,walkSnap?1:Math.min(1,dt*2));walkSnap=false;const tgt=new T.Vector3(p.position.x+fw.x*3.0,1.42,p.position.z+fw.z*3.0);camera.lookAt(tgt);}
+      const _t1=DIAG?performance.now():0;
       if(!LD.done)ldTick();
       const on=sysOn(state.t),open=isOpen(state.t);
       // automatic door: opens when someone comes within ~1.4 m, closes behind them
@@ -2154,7 +2165,7 @@ const space=(function(){
       S.units.forEach(u=>{u.led.visible=on;u.pin.classList.toggle('off',!on);});
       M.led.color.setScalar(.3+.7*clamp((lightK-.45)/.55,0,1));if(S.lights)S.lights.forEach(l=>{l.intensity=.22*lightK;});if(S.coolLight)S.coolLight.intensity=.3*(.4+.6*lightK);
       if(S.sign){const sm=open?M.signOpen:M.signClosed;if(S.sign.material!==sm){S.sign.material=sm;S.sign2.material=sm;}}
-      extras.forEach(e=>{if(!e.userData.restocker)e.visible=open;if(e.visible)poseAny(e,now/1000,dt,0);});if(GL()){window.KL_GLTF.update(dt);gltfHeads(dt);}
+      extras.forEach(e=>{if(!e.userData.restocker)e.visible=open;if(e.visible)poseAny(e,now/1000,dt,0);});const _t2=DIAG?performance.now():0;if(GL()){window.KL_GLTF.update(dt);gltfHeads(dt);}const _t3=DIAG?performance.now():0;
       const tt=now/1000;S.units.forEach(u=>{const cyc=(tt/PUFF_T+u.ph)%1,pk=on&&cyc<PUFF_ON/PUFF_T?Math.sin(Math.PI*cyc*PUFF_T/PUFF_ON):0;u.act=pk>0; // puff … rest … puff
         if(u.jet){const vis=pk>.02,o=u.o,up=u.PL?1:0,dx=u.d[0]*(1-.55*up),dz=u.d[2]*(1-.55*up);u.jet.forEach((js,k)=>{js.visible=vis;if(!vis)return;const ph=(tt*.85+k/6)%1;
           js.position.set(o[0]+dx*(.04+.7*ph),o[1]+.02+(.08+.5*up)*ph+.18*ph*ph,o[2]+dz*(.04+.7*ph));const sc=.06+.46*ph;js.scale.set(sc,sc,1);js.material.opacity=pk*.8*Math.sin(Math.PI*Math.min(1,ph*1.4))*(1-.45*ph);});} // mist streaming out while it sprays
@@ -2162,7 +2173,7 @@ const space=(function(){
         const k=(tt*.32+u.ph)%1,r=.3+k*u.R*1.1;u.wave.scale.set(r,r,r);u.wave.material.opacity=on?(1-k)*.1:0;});
       if(flowLine&&flowLine.visible)M.flow.map.offset.x-=dt*1.1;
       stepP(dt,on,false);stepHeat(dt);
-      if(nav&&!window.__frz)stepPeople(dt,now/1000,open);
+      if(nav&&!window.__frz)stepPeople(dt,now/1000,open);const _t4=DIAG?performance.now():0;
       camera.updateMatrixWorld();_fm.multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse);_fr.setFromProjectionMatrix(_fm);
       people.concat(extras).forEach(p=>{if(!p.visible)return;const d=Math.hypot(p.position.x-camera.position.x,p.position.z-camera.position.z);_sp.center.set(p.position.x,p.position.y+.9,p.position.z);const inV=_fr.intersectsSphere(_sp);p.userData.culled=!inV;if(p.userData.gltfP){if(p.children[0])p.children[0].visible=d>.6&&inV;}else if(p.userData.skin){const m=p.userData.skin.material,o=Math.max(0,Math.min(1,(d-.35)/.5));if(o<1||m.transparent){m.transparent=o<1;m.opacity=o;m.depthWrite=o>=.5;}}});
       const w=w0||stage.clientWidth,h=h0||stage.clientHeight;
@@ -2173,7 +2184,7 @@ const space=(function(){
       tipFrame(w,h);
       overlay.forEach(o=>{if(o.kind==='pin'&&HR&&!o.off&&o.sx>HR[0]-20&&o.sx<HR[2]+20&&o.sy>HR[1]-20&&o.sy<HR[3]+20)o.off=true;});
       overlay.forEach(o=>{if(o.vis!==!o.off){o.vis=!o.off;o.el.style.visibility=o.off?'hidden':'visible';}if(!o.off){const tf='translate('+o.sx.toFixed(1)+'px,'+o.sy.toFixed(1)+'px)'+(o.kind==='lbl'?' translate(-50%,-50%)':' translate(-50%,-100%)');if(o.tf!==tf){o.tf=tf;o.el.style.transform=tf;}}}); // DOM written only when something changed
-      const pT1=performance.now();renderer.render(scene,camera);if(window.__prof){const P=window.__prof;P.js+=pT1-pT0;if(pT1-pT0>(P.max||0))P.max=pT1-pT0;(P.h=P.h||[]).push(+(pT1-pT0).toFixed(1));P.gl+=performance.now()-pT1;P.n++;}if(window.__perf){window.__perf.frames=(window.__perf.frames||0)+1;if(!window.__perf.first)window.__perf.first=performance.now();}
+      const pT1=performance.now();renderer.render(scene,camera);if(DIAG){const e=performance.now();DG.seg=[_t1-pT0,_t2-_t1,_t3-_t2,_t4-_t3,pT1-_t4,e-pT1,e-pT0];}if(window.__prof){const P=window.__prof;P.js+=pT1-pT0;if(pT1-pT0>(P.max||0))P.max=pT1-pT0;(P.h=P.h||[]).push(+(pT1-pT0).toFixed(1));P.gl+=performance.now()-pT1;P.n++;}if(window.__perf){window.__perf.frames=(window.__perf.frames||0)+1;if(!window.__perf.first)window.__perf.first=performance.now();}
       if(!raf)raf=requestAnimationFrame(frame); // exactly one loop: a kick() during this frame (a tour key, a click) has already scheduled the next one
     }
     kick=()=>{if(!raf&&(vis||!LD.done)){last=0;raf=requestAnimationFrame(frame);}};

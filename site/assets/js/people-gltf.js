@@ -5,6 +5,7 @@
    Зарежда прогресивно (2 файла едновременно); spawn() връща null докато няма зареден подходящ модел → схемата ползва процедурна фигура. */
 (function(){
   if(!window.THREE) return;
+  var MV='?v=20260930b'; /* bump when the models change: browsers that cached the old set (a year-long cache before) fetch the new one */
   var BASE=(document.currentScript&&document.currentScript.src)?document.currentScript.src.replace(/assets\/js\/[^/]*$/,''):'';
   var G=window.KL_GLTF={ready:false,models:[],pending:[],anims:null,instances:[],failed:false,loading:0,pool:{},poolN:0};
   var CLIPS=['walk','walkslow','idle','wait','look','phone','bag','talk','talk2','listen','phonetalk'];
@@ -49,7 +50,7 @@
   var L=new THREE.GLTFLoader();if(window.MeshoptDecoder)L.setMeshoptDecoder(window.MeshoptDecoder); /* моделите са свити с gltfpack -cc (EXT_meshopt_compression) */
   function load(url){return new Promise(function(res,rej){L.load(url,res,undefined,rej);});}
   function next(){if(G.loading>=2||!G.pending.length)return;var m=G.pending.shift();G.loading++;
-    load(BASE+'assets/models/'+m.file).then(function(gl){gl.scene.traverse(function(x){if(x.isMesh&&x.material){x.material.side=x.material.transparent||x.material.alphaTest?THREE.DoubleSide:THREE.FrontSide;}});
+    load(BASE+'assets/models/'+m.file+MV).then(function(gl){gl.scene.traverse(function(x){if(x.isMesh&&x.material){x.material.side=x.material.transparent||x.material.alphaTest?THREE.DoubleSide:THREE.FrontSide;}});
       G.models.push({scene:gl.scene,file:m.file,height:m.height||1.72,tags:m.tags||['m'],used:0});G.ready=true;
       if(G.renderer)gl.scene.traverse(function(x){if(x.isMesh&&x.material){['map','normalMap','alphaMap'].forEach(function(k){if(x.material[k])G.renderer.initTexture(x.material[k]);});}}); /* textures go to the GPU now, during the loading bar, not when the person first walks into view */
       document.dispatchEvent(new CustomEvent('kl-gltf-model',{detail:{file:m.file,count:G.models.length}}));
@@ -57,9 +58,9 @@
   var started=false;
   /* зареждането започва едва когато 3D схемата наближи (offer.js вика KL_GLTF.start()); всички модели зад лентата за зареждане */
   G.start=function(){if(started)return G.promise;started=true;
-  G.promise=fetch(BASE+'assets/models/manifest.json',{cache:'default'}).then(function(r){return r.ok?r.json():[];}).then(function(list){
+  G.promise=fetch(BASE+'assets/models/manifest.json'+MV,{cache:'no-cache'}).then(function(r){return r.ok?r.json():[];}).then(function(list){
     if(!Array.isArray(list)||!list.length)return;
-    return load(BASE+'assets/models/rb-anims.glb').then(function(a){G.anims={};a.animations.forEach(function(c){G.anims[c.name]=c;});var p0=a.scene.getObjectByName('Bip01_Pelvis');G.pelvisY=p0?p0.position.length():0;
+    return load(BASE+'assets/models/rb-anims.glb'+MV).then(function(a){G.anims={};a.animations.forEach(function(c){G.anims[c.name]=c;});var p0=a.scene.getObjectByName('Bip01_Pelvis');G.pelvisY=p0?p0.position.length():0;
       /* първо по един от всяка група, после останалите – за да има разнообразие още при първите хора */
       var groups={};list.forEach(function(m){var k=(m.tags||['m']).join(',');(groups[k]=groups[k]||[]).push(m);});
       var order=[],more=true;while(more){more=false;for(var k in groups){if(groups[k].length){order.push(groups[k].shift());more=true;}}}
