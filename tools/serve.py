@@ -114,7 +114,7 @@ def lan_ip():
         return None
 
 
-if __name__ == '__main__':
+def main():
     nums = [a for a in sys.argv[1:] if a.isdigit()]
     port = free_port(int(nums[0]) if nums else 5340)
     httpd = ThreadingHTTPServer(('0.0.0.0', port), Handler)
@@ -131,3 +131,20 @@ if __name__ == '__main__':
         httpd.serve_forever()
     except KeyboardInterrupt:
         pass
+
+
+if __name__ == '__main__':
+    for stream in (sys.stdout, sys.stderr):  # кирилицата в конзолата на Windows без грешки
+        try:
+            stream.reconfigure(encoding='utf-8', errors='replace')
+        except Exception:
+            pass
+    try:
+        main()
+    except SystemExit:
+        raise
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        print('\nГРЕШКА: %s' % e)
+        sys.exit(1)
