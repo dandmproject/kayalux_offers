@@ -905,7 +905,7 @@ const space=(function(){
       while(pool.length){let bi=0,bd=1e9;pool.forEach((b,i)=>{const d=Math.hypot(b.p[0]-cur[0],b.p[1]-cur[1]);if(d<bd){bd=d;bi=i;}});const b=pool.splice(bi,1)[0];out.push(b);cur=b.p;}return out;}
     function pickBrowse(g,n){const pool=nav.browse.filter(b=>!g.userData.stroller||b.ok55);const out=[];for(let k=0;k<n&&pool.length;k++){const j=(Math.random()*pool.length)|0;out.push(pool.splice(j,1)[0]);}return orderTargets(out);}
     function fallbackPath(from){const s=S;return [[from[0],from[1]],[s.door.x,s.hd-.9],[s.mainX,s.hd-.9],[s.mainX,s.zTop-.6],[s.mainX,s.hd-.9],[s.door.x-.25,s.hd+1.3]];}
-    function setPath(g,path,T_){const ud=g.userData;if(!path){path=fallbackPath([g.position.x,g.position.z]);ud.fallback=true;}ud.path=path;ud.pi=0;ud.state='walk';ud.blend=ud.blend||0;flowDirty=true;}
+    function setPath(g,path,T_){const ud=g.userData;if(!path){path=fallbackPath([g.position.x,g.position.z]);ud.fallback=true;}ud.path=path;ud.pi=0;ud.stuckT=0;ud.px=null;ud.pAcc=0;ud.state='walk';ud.blend=ud.blend||0;flowDirty=true;}
     // §2/§3/§9: a visit = ENTER(decompression, basket pickup) → stops (grab | browse) → [QUEUE → PAY → RETURN_BASKET] → EXIT
     function planVisit(g,inside){const ud=g.userData,ts=PARAMS.timeScale,eld=!!ud.elder;ud.items=nItems();ud.buyer=Math.random()<PARAMS.buyP;
       ud.hasBasket=!ud.pushing&&!ud.isChild&&(ud.items>=PARAMS.basketMin||Math.random()<PARAMS.basketP);
@@ -957,8 +957,14 @@ const space=(function(){
           ax+=fz*s*w*.9;az+=-fx*s*w*.9;}
         if(walking&&L2<1.0&&ahead>.8&&(ovx*fx+ovz*fz)>.2){want=Math.min(want,Math.max(.25,ovx*fx+ovz*fz));}   // follow a slower walker instead of walking through
         if(!walking&&L2<.55&&Math.abs((ox*fz-oz*fx)/L2)<.35)block=o;}
-      if(block&&!ud.squeeze){const end=P[P.length-1],toEnd=Math.hypot(end[0]-x,end[1]-z);
-        if(lg&&lg.kind==='queue'&&toEnd<.6){ud.yielding=false;ud.waitAcc=0;ud.vx=ud.vz=0;ud.vNow=0;return true;} // the place in the queue is right here behind whoever stands in front: take it
+      const end=P[P.length-1],toEnd=Math.hypot(end[0]-x,end[1]-z),stopHere=()=>{ud.yielding=false;ud.waitAcc=0;ud.squeeze=false;ud.stuckT=0;ud.vx=ud.vz=0;ud.vNow=0;return true;};
+      if(block&&lg&&(lg.kind==='queue'||lg.kind==='browse')&&toEnd<.6)return stopHere(); // the place (in the queue, at the shelf) is right here behind whoever stands in front: take it
+      // no real progress (eased back as fast as it walks): after 2 s a new route, after 4 s near the goal it stops there, after 6 s it gives up this stop
+      {ud.pAcc=(ud.pAcc||0)+dt;if(ud.pAcc>=1){const moved=ud.px!=null?Math.hypot(x-ud.px,z-ud.pz):1;ud.px=x;ud.pz=z;ud.pAcc=0; // once a second: how far did it really get?
+          if(moved<.1&&!ud.turning)ud.stuckT=(ud.stuckT||0)+1;else{ud.stuckT=0;ud.replanned=false;}}
+        if(ud.stuckT>=6||(ud.stuckT>=4&&toEnd<1.5))return stopHere();
+        if(ud.stuckT>=2&&!ud.replanned){ud.replanned=true;const np=nav.route(gridDyn(g),[x,z],end);if(np&&np.length>2){setPath(g,np);ud.vx=ud.vz=0;return false;}}}
+      if(block&&!ud.squeeze){
         const lx=fz*(ax*fz-az*fx>0?1:-1)*.4,lz=-fx*(ax*fz-az*fx>0?1:-1)*.4,[ci,cj]=nav.toCell(x+lx,z+lz);
         if(!nav.free(gridOf(g),ci,cj)){ud.waitAcc=(ud.waitAcc||0)+dt;
           if(ud.waitAcc>1.2&&!ud.rerouted){ud.rerouted=true;const np=nav.route(gridDyn(g),[x,z],end);if(np&&np.length>2){setPath(g,np);ud.vx=ud.vz=0;return false;}} // a way round the people who stand still
@@ -972,9 +978,8 @@ const space=(function(){
       const G=gridOf(g),ok=(px,pz,g0)=>{const [ci,cj]=nav.toCell(px,pz);return nav.free(g0?nav.G0:G,ci,cj);};
       let nx=x+vx*dt,nz=z+vz*dt;
       if(!ok(nx,nz)){const f=Math.max(0,vx*fx+vz*fz);nx=x+fx*f*dt;nz=z+fz*f*dt;if(ok(nx,nz)||ok(nx,nz,true)){vx=fx*f;vz=fz*f;}else{nx=x;nz=z;vx=vz=0;}} // only onto walkable floor: drop the sideways part; along the route the bare walls are the limit
-      if(Math.hypot(vx,vz)<.05&&!ud.yielding){ud.stuckT=(ud.stuckT||0)+dt;if(ud.stuckT>2){ud.stuckT=0;const np=nav.route(gridDyn(g),[x,z],P[P.length-1]);if(np&&np.length>1){setPath(g,np);ud.vx=ud.vz=0;return false;}}}else ud.stuckT=0; // going nowhere for 2 s: plan again from here
       x=nx;z=nz;ud.vx=vx;ud.vz=vz;ud.vNow=Math.hypot(vx,vz);
-      if(ud.vNow>.15)ud.ang=angTo(ud.ang,Math.atan2(vx,vz),Math.min(1,dt*7));
+      if(ud.vNow>.3)ud.ang=angTo(ud.ang,(vx*fx+vz*fz)>0?Math.atan2(vx,vz):Math.atan2(fx,fz),Math.min(1,dt*6)); // faces where it walks; pushed back for a moment, it keeps facing its way
       g.position.set(x,floorY(x,z),z);g.rotation.y=ud.ang;
       const tr=ud.trail;if(tr){const l=tr[tr.length-1];if(Math.hypot(l[0]-x,l[1]-z)>.2){tr.push([x,z]);if(tr.length>40)tr.shift();}}
       rem=0;for(let k=ud.pi;k<P.length-1;k++){const a=k===ud.pi?[x,z]:P[k];rem+=Math.hypot(P[k+1][0]-a[0],P[k+1][1]-a[1]);}
@@ -1047,7 +1052,7 @@ const space=(function(){
       // queue stays put; a couple or a parent and child may come closer), only onto walkable floor, so no one ever walks through another
       {const n=people.length,wt=u=>u.pay||u.state==='queue'?0:(u.state==='walk'||u.follow!=null?1:.4); // walkers give way; someone browsing shuffles a little; the queue and the till stay
         for(let a=0;a<n;a++){const A=people[a];if(!A.visible)continue;const ua=A.userData;
-          for(let b=a+1;b<n;b++){const B=people[b];if(!B.visible)continue;const ub=B.userData,pair=ua.follow===b||ub.follow===a||ua.partner===b||ub.partner===a,r=pair?.38:.5;
+          for(let b=a+1;b<n;b++){const B=people[b];if(!B.visible)continue;const ub=B.userData,pair=ua.follow===b||ub.follow===a||ua.partner===b||ub.partner===a,r=pair?.42:.5;
             let dx=B.position.x-A.position.x,dz=B.position.z-A.position.z,L=Math.hypot(dx,dz);if(L>=r)continue;if(L<1e-3){dx=Math.cos(a*2.4),dz=Math.sin(a*2.4);L=1;}
             const wa=wt(ua),wb=wt(ub),ws=wa+wb;if(!ws)continue;const mv=Math.min(r-L,.06+dt*.8),ux=dx/L*mv,uz=dz/L*mv;
             const put=(g,px,pz)=>{const [ci,cj]=nav.toCell(px,pz);if(nav.free(gridOf(g),ci,cj))g.position.set(px,floorY(px,pz),pz);};
