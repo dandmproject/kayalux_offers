@@ -1426,8 +1426,18 @@ const space=(function(){
     // move along the path; turns in place first when the next leg points >50° away; a stroller parent stops 0.7 m early
     function advance(g,d,dt){const ud=g.userData,P=ud.path;let x=g.position.x,z=g.position.z;const lg=ud.visit&&ud.visit[ud.legI],stopAt=ud.stroller&&!(lg&&lg.kind==='queue')?.7:0;let dirA=null;
       {let k=ud.pi;while(k<P.length-1&&Math.hypot(P[k+1][0]-x,P[k+1][1]-z)<1e-3)k++;if(k<P.length-1){const a0=Math.atan2(P[k+1][0]-x,P[k+1][1]-z);let dd=a0-ud.ang;dd=((dd+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;if(Math.abs(dd)>.9)ud.turning=true;if(ud.turning){ud.ang=angTo(ud.ang,a0,Math.min(1,dt*5));g.rotation.y=ud.ang;if(Math.abs(dd)<.25)ud.turning=false;else return false;}}}
-      {const fx=Math.sin(ud.ang),fz=Math.cos(ud.ang);const blockedBy=people.find(o=>o!==g&&o.visible&&o.userData.follow!==people.indexOf(g)&&(()=>{const ox=o.position.x-x,oz=o.position.z-z,L=Math.hypot(ox,oz);return L<.7&&L>.05&&(ox*fx+oz*fz)/L>.6&&(o.userData.state!=='walk'||o.userData.turning);})());
-        if(blockedBy&&(ud.waitAcc=(ud.waitAcc||0)+dt)<4){ud.yielding=true;return false;}ud.yielding=false;if(!blockedBy)ud.waitAcc=0;}
+      // people ahead: sidestep round them (away from the side they are on; head-on walkers both keep right), like anyone in a shop aisle;
+      // only when someone stands right in the way and there is no room to pass do we wait, and never for more than a few seconds
+      let lat=0;{const fx=Math.sin(ud.ang),fz=Math.cos(ud.ang),me=people.indexOf(g);let block=null;
+        for(const o of people){if(o===g||!o.visible||o.userData.follow===me||ud.follow===people.indexOf(o))continue;const ox=o.position.x-x,oz=o.position.z-z,L=Math.hypot(ox,oz);if(L>1.3||L<.02)continue;
+          const ahead=(ox*fx+oz*fz)/L;if(ahead<.55)continue;const side=(ox*fz-oz*fx)/L,ou=o.userData,walking=ou.state==='walk'&&!ou.turning&&!ou.yielding,w=(1.3-L)/1.3;
+          const headOn=walking&&Math.sin(ou.ang)*fx+Math.cos(ou.ang)*fz<-.3;
+          lat+=headOn&&Math.abs(side)<.2?-w:(side>0?-w:w);
+          if(!walking&&L<.55&&Math.abs(side)<.3)block=o;}
+        ud.lat=clamp(lat,-1,1);
+        if(block){const rx=fz*ud.lat,rz=-fx*ud.lat,tx=x+rx*.35,tz=z+rz*.35,[ci,cj]=nav.toCell(tx,tz);
+          if(!nav.free(gridOf(g),ci,cj)&&(ud.waitAcc=(ud.waitAcc||0)+dt)<4){ud.yielding=true;return false;}}
+        ud.yielding=false;if(!block)ud.waitAcc=0;}
       while(d>0&&ud.pi<P.length-1){const n=P[ud.pi+1],dx=n[0]-x,dz=n[1]-z,L=Math.hypot(dx,dz);
         if(L<1e-4){ud.pi++;continue;}
         let rem=L;for(let k=ud.pi+1;k<P.length-1;k++)rem+=Math.hypot(P[k+1][0]-P[k][0],P[k+1][1]-P[k][1]);
@@ -1435,6 +1445,7 @@ const space=(function(){
         if(dirA==null)dirA=Math.atan2(dx,dz);const step=Math.min(d,L,rem-stopAt);x+=dx/L*step;z+=dz/L*step;d-=step;if(step>=L-1e-4)ud.pi++;
         if(step<L-1e-4)break;}
       if(dirA!=null)ud.ang=angTo(ud.ang,dirA,Math.min(1,dt*7));
+      if(ud.lat){const fx=Math.sin(ud.ang),fz=Math.cos(ud.ang),s=ud.lat*ud.sp*dt*.9,nx=x+fz*s,nz=z-fx*s,[ci,cj]=nav.toCell(nx,nz);if(nav.free(gridOf(g),ci,cj)){x=nx;z=nz;}} // the sidestep, only onto walkable floor
       g.position.set(x,floorY(x,z),z);g.rotation.y=ud.ang;
       const tr=ud.trail;if(tr){const l=tr[tr.length-1];if(Math.hypot(l[0]-x,l[1]-z)>.2){tr.push([x,z]);if(tr.length>40)tr.shift();}}
       let rem=0;for(let k=ud.pi;k<P.length-1;k++){const a=k===ud.pi?[x,z]:P[k];rem+=Math.hypot(P[k+1][0]-a[0],P[k+1][1]-a[1]);}
@@ -1495,6 +1506,15 @@ const space=(function(){
         if(ud.stroller&&ud.stroller.userData.bag){ud.stroller.userData.bag.visible=ud.bag.visible;ud.bag.visible=false;}
         if(ud.phoneM)ud.phoneM.visible=!!ud.phone&&ud.state==='queue'&&!ud.pay&&!ud.pushing;
         ud.lookDir=0;poseAny(g,T_,dt,ud.state==='walk'&&!ud.turning&&!ud.yielding?ud.sp*ud.blend:0);});
+      // nobody overlaps anybody: two bodies closer than half a metre are eased apart (a walker moves, someone standing at a shelf or in the
+      // queue stays put; a couple or a parent and child may come closer), only onto walkable floor, so no one ever walks through another
+      {const n=people.length,wt=u=>u.pay||u.state==='queue'?0:(u.state==='walk'||u.follow!=null?1:.4); // walkers give way; someone browsing shuffles a little; the queue and the till stay
+        for(let a=0;a<n;a++){const A=people[a];if(!A.visible)continue;const ua=A.userData;
+          for(let b=a+1;b<n;b++){const B=people[b];if(!B.visible)continue;const ub=B.userData,pair=ua.follow===b||ub.follow===a||ua.partner===b||ub.partner===a,r=pair?.38:.5;
+            let dx=B.position.x-A.position.x,dz=B.position.z-A.position.z,L=Math.hypot(dx,dz);if(L>=r)continue;if(L<1e-3){dx=Math.cos(a*2.4),dz=Math.sin(a*2.4);L=1;}
+            const wa=wt(ua),wb=wt(ub),ws=wa+wb;if(!ws)continue;const mv=Math.min(r-L,.06+dt*.8),ux=dx/L*mv,uz=dz/L*mv;
+            const put=(g,px,pz)=>{const [ci,cj]=nav.toCell(px,pz);if(nav.free(gridOf(g),ci,cj))g.position.set(px,floorY(px,pz),pz);};
+            if(wa)put(A,A.position.x-ux*wa/ws,A.position.z-uz*wa/ws);if(wb)put(B,B.position.x+ux*wb/ws,B.position.z+uz*wb/ws);}}}
       // §8 restocking staff: on the shelf 10–20 min every 1–2 h (scene-time scaled)
       const rs=extras.find(x=>x.userData.state==='restock'||x.userData.restocker);if(rs){const u=rs.userData;u.restocker=true;if(u.rsUntil==null){u.rsOn=true;u.rsUntil=T_+rr(PARAMS.restockOn)*PARAMS.timeScale*.15;}if(T_>u.rsUntil){u.rsOn=!u.rsOn;u.rsUntil=T_+(u.rsOn?rr(PARAMS.restockOn):rr(PARAMS.restockEvery)*.25)*PARAMS.timeScale*.15;}rs.visible=open&&u.rsOn;}
       // the flow layer: planned polylines of the shoppers currently inside
