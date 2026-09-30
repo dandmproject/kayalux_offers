@@ -1002,7 +1002,11 @@ const space=(function(){
         people.forEach(g=>{const ud=g.userData,P=ud.path;if(!P||ud.state!=='walk'||ud.follow!=null||!g.visible)return;let a=[g.position.x,g.position.z],u=0;
           for(let k=ud.pi+1;k<P.length;k++){const b=P[k],dx=b[0]-a[0],dz=b[1]-a[1],L=Math.hypot(dx,dz);if(L<.02){a=b;continue;}const nx=-dz/L*w,nz=dx/L*w,ya=.025+floorY(a[0],a[1]),yb=.025+floorY(b[0],b[1]),u1=u+L/.45;
             pos.push(a[0]+nx,ya,a[1]+nz, a[0]-nx,ya,a[1]-nz, b[0]+nx,yb,b[1]+nz, b[0]+nx,yb,b[1]+nz, a[0]-nx,ya,a[1]-nz, b[0]-nx,yb,b[1]-nz);uv.push(u,1,u,0,u1,1,u1,1,u,0,u1,0);u=u1;a=b;}});
-        flowLine.geometry.dispose();const fg=new T.BufferGeometry();fg.setAttribute('position',new T.Float32BufferAttribute(pos,3));fg.setAttribute('uv',new T.Float32BufferAttribute(uv,2));flowLine.geometry=fg;}
+        // one GPU buffer for the whole visit, rewritten in place (no new buffers every 0.4 s); it grows only if a path ever needs more room
+        let fg=flowLine.geometry,cap=fg.userData.cap||0;const nv=pos.length/3;
+        if(nv>cap){cap=Math.max(1024,1<<Math.ceil(Math.log2(nv)));fg.dispose();fg=new T.BufferGeometry();fg.userData.cap=cap;
+          const pa=new T.BufferAttribute(new Float32Array(cap*3),3),ua=new T.BufferAttribute(new Float32Array(cap*2),2);pa.setUsage(T.DynamicDrawUsage);ua.setUsage(T.DynamicDrawUsage);fg.setAttribute('position',pa);fg.setAttribute('uv',ua);flowLine.geometry=fg;}
+        const pa=fg.attributes.position,ua=fg.attributes.uv;pa.array.set(pos);ua.array.set(uv);pa.updateRange.offset=0;pa.updateRange.count=pos.length;ua.updateRange.offset=0;ua.updateRange.count=uv.length;pa.needsUpdate=true;ua.needsUpdate=true;fg.setDrawRange(0,nv);}
     }
     // §2: a new-looking person for a returning slot: age class, sex, height, build, skin, hair, outfit, glasses, phone
     function randomSpec(){const fem=Math.random()<.5,age=Math.random(),elder=age<PARAMS.age.elder,teen=age>1-PARAMS.age.teen,skin=pick_(SKIN),hair=elder?pick_([0xb8b0a6,0xd8d3cc,0x9a9a9a]):pick_(HAIR);
@@ -1262,7 +1266,7 @@ const space=(function(){
       {LAYER=vaccC;const sl=len+1.6;aisles.forEach(ax=>box(.09,.025,sl,M.ledC,ax,Hh-.02,zc+.3,false));box(W*.7,.025,.09,M.ledC,0,Hh-.02,hd-1.3,false);box(W*.6,.025,.09,M.ledC,0,Hh-.02,zTop-.9,false);
         const gz=[zTop+1.2,zBot-1.2];if(D>10)gz.push(zc);gz.forEach(z=>box(.6,.03,.6,M.grille,W*.1,Hh-.02,z,false));
         LAYER=null; // no black track rails on the ceiling: from below they read as cables running to the diffusers
-        const NL=TIER===2?2:TIER===1?1:0,nx=Math.max(1,Math.round(Math.sqrt(NL*W/D))),ny=Math.max(1,Math.ceil(NL/nx));S.lights=[];
+        const NL=TIER===2?2:0,nx=Math.max(1,Math.round(Math.sqrt(NL*W/D))),ny=Math.max(1,Math.ceil(NL/nx));S.lights=[];
         for(let i=0;i<nx;i++)for(let j=0;j<ny;j++){if(S.lights.length>=NL)break;const l=new T.PointLight(0xfff4e2,.22,Math.max(W,D)*.7,2);l.position.set(-hw+W*(i+.5)/nx,Hh-.15,-hd+D*(j+.5)/ny);room.add(l);S.lights.push(l);}
         if(TIER===2){const lt=new T.PointLight(0xd8ecff,.3,Math.max(4,len*.8),1.8);lt.position.set(-hw+1,1.5,zTop+1.8);room.add(lt);S.coolLight=lt;}else S.coolLight=null;S.ambAdd=.06*(2-NL);}
       // diffusers
