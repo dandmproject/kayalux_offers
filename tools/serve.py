@@ -72,6 +72,7 @@ class Handler(SimpleHTTPRequestHandler):
                 raw = f.read()
             if fs.endswith('.php'):  # офертата е статична; PHP частта в началото праща само заглавки
                 raw = re.sub(rb'^<\?php.*?\?>', b'', raw, count=1, flags=re.S)
+                raw = raw.replace(b'</head>', b'<meta name="kl-local" content="1"></head>', 1)  # the page polls /__version only when served from here
             if ctype.startswith(TEXT) or fs.endswith('.php'):
                 buf = io.BytesIO()
                 with gzip.GzipFile(fileobj=buf, mode='wb', compresslevel=6, mtime=0) as g:

@@ -224,7 +224,7 @@ header('Cache-Control: private, no-store, max-age=0');
         </div>
         <div class="stage-notes">
           <p class="honest"><b>Как е построена схемата</b>Моделът, броят и цветът на системите са реалните за избрания обект. Помещението е построено по реалната му квадратура, но планът и обзавеждането са типични за веригата (алкохол, цигари, солети, бонбони, чипс, млечни продукти), не заснети от обекта. Точните места ще бъдат описани в Приложение №&nbsp;1.</p>
-          <div class="legend3"><span><i class="b"></i>Plug’n Go, черен корпус</span><span><i class="w"></i>Plug’n Go, бял корпус</span><span>цветът на Plug’n Go е избран според интериора на обекта · около 80% черни, 20% бели · Prime Lux: черно стъкло и рамка в цвят шампанско</span></div>
+          <div class="legend3"><span><i class="b"></i>дифузер, черен корпус</span><span><i class="w"></i>дифузер, бял корпус</span><span>цветът на дифузера е избран според интериора на обекта · около 80% черни, 20% бели · Prime Lux: черно стъкло и рамка в цвят шампанско</span></div>
         </div>
       </div>
       <div class="panel">
@@ -310,7 +310,7 @@ header('Cache-Control: private, no-store, max-age=0');
         <span class="k">Стандартен режим</span>
         <h3>До 12 часа на ден</h3>
         <p>Например 8:00–20:00 ч. Абонаментните цени остават както в първоначалната оферта.</p>
-        <span class="sum"><b class="num">1&nbsp;411,00&nbsp;€</b><span>на месец за 48 обекта, без ДДС</span></span>
+        <span class="sum"><b class="num">1&nbsp;410,00&nbsp;€</b><span>на месец за 48 обекта, без ДДС</span></span>
       </div>
       <div class="mode" role="radio" data-mode="full" aria-checked="true">
         <span class="rec">Препоръчваме</span>
@@ -328,13 +328,13 @@ header('Cache-Control: private, no-store, max-age=0');
       <caption>Обобщение (месечно, без ДДС)</caption>
       <thead><tr><th scope="col"><span class="sr">Позиция</span></th><th scope="col" class="cs">Стандартен режим</th><th scope="col" class="cf">Пълно работно време</th></tr></thead>
       <tbody>
-        <tr><td>Абонамент за 48 обекта</td><td class="cs">1&nbsp;411,00&nbsp;€</td><td class="cf">1&nbsp;665,00&nbsp;€</td></tr>
+        <tr><td>Абонамент за 48 обекта</td><td class="cs">1&nbsp;410,00&nbsp;€</td><td class="cf">1&nbsp;665,00&nbsp;€</td></tr>
         <tr><td>Транспорт, монтаж, сервиз, ароматно масло</td><td class="cs">включени</td><td class="cf">включени</td></tr>
       </tbody>
-      <tfoot><tr><td>Общо на месец</td><td class="cs">1&nbsp;411,00&nbsp;€</td><td class="cf">1&nbsp;665,00&nbsp;€</td></tr></tfoot>
+      <tfoot><tr><td>Общо на месец</td><td class="cs">1&nbsp;410,00&nbsp;€</td><td class="cf">1&nbsp;665,00&nbsp;€</td></tr></tfoot>
     </table>
     </div>
-    <p class="diffline">Разликата между двата режима е 254,00&nbsp;€ месечно за цялата верига, или около 0,18&nbsp;€ на ден за обект.</p>
+    <p class="diffline">Разликата между двата режима е 255,00&nbsp;€ месечно за цялата верига, или около 0,18&nbsp;€ на ден за обект.</p>
 
     <div class="controls" role="group" aria-label="Филтър на обектите">
       <h3>Месечни цени по обекти <span class="muted" style="font-family:var(--body);font-size:.95rem;font-weight:400">(в евро, без ДДС)</span></h3>
@@ -357,7 +357,7 @@ header('Cache-Control: private, no-store, max-age=0');
           <th scope="col" class="r cf" data-k="full"><button type="button">Пълно работно време, €</button></th>
         </tr></thead>
         <tbody id="rows"></tbody>
-        <tfoot><tr class="tot3"><td colspan="4" id="tLabel">Общо на месец, 48 обекта, без ДДС</td><td class="r cs" id="tStd">1&nbsp;411,00&nbsp;€</td><td class="r cf" id="tFull">1&nbsp;665,00&nbsp;€</td></tr></tfoot>
+        <tfoot><tr class="tot3"><td colspan="4" id="tLabel">Общо на месец, 48 обекта, без ДДС</td><td class="r cs" id="tStd">1&nbsp;410,00&nbsp;€</td><td class="r cf" id="tFull">1&nbsp;665,00&nbsp;€</td></tr></tfoot>
       </table>
     </div>
     <div class="fine">
@@ -433,7 +433,7 @@ header('Cache-Control: private, no-store, max-age=0');
             <span class="k">Стандартен режим (до 12 часа на ден)</span>
             <h3>Пренастройка при следваща обиколка</h3>
             <p>Системите се управляват по Bluetooth, затова пренастройката на графиците се извършва на място в обектите, при следваща наша обиколка. Пренастройката е изцяло наш ангажимент и не се заплаща допълнително.</p>
-            <span class="sum"><b class="num">1&nbsp;411,00&nbsp;€</b><span>на месец, без ДДС</span></span>
+            <span class="sum"><b class="num">1&nbsp;410,00&nbsp;€</b><span>на месец, без ДДС</span></span>
           </div>
         </div>
       </div>
@@ -487,8 +487,8 @@ header('Cache-Control: private, no-store, max-age=0');
 </footer>
 
 <script defer src="assets/js/three.min.js"></script>
-<script defer src="assets/js/app.min.js?v=24440bb8"></script>
+<script defer src="assets/js/app.min.js?v=36f830e7"></script>
 <script>/* моделите (~5 MB, кеширани) тръгват на заден план след зареждането на страницата или когато 3D схемата наближи */addEventListener('DOMContentLoaded',function(){var st=document.getElementById('stage');if(!st||!window.KL_GLTF)return;var go=function(){KL_GLTF.start();};addEventListener('load',function(){setTimeout(function(){(window.requestIdleCallback||function(f){f();})(go);},1500);});if('IntersectionObserver' in window){var io=new IntersectionObserver(function(en){if(en[0].isIntersecting){go();io.disconnect();}},{rootMargin:'1400px'});io.observe(st);}else go();});</script>
-<script>/* локален сървър (tools/serve.py): след обновяване предлага презареждане; на хостинга /__version го няма и нищо не се показва */(function(){var v=null;function chk(){fetch('/__version',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){if(!j||!j.sha)return;if(v===null){v=j.sha;return;}if(j.sha!==v&&!document.getElementById('klUpd')){var b=document.createElement('button');b.id='klUpd';b.type='button';b.textContent='Има нова версия на офертата · Обнови';b.onclick=function(){location.reload();};document.body.appendChild(b);}}).catch(function(){});}chk();setInterval(chk,60000);})();</script>
+<script>/* локален сървър (tools/serve.py): след обновяване предлага презареждане; на хостинга /__version го няма и нищо не се показва */(function(){if(!document.querySelector('meta[name="kl-local"]'))return;var v=null;function chk(){fetch('/__version',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){if(!j||!j.sha)return;if(v===null){v=j.sha;return;}if(j.sha!==v&&!document.getElementById('klUpd')){var b=document.createElement('button');b.id='klUpd';b.type='button';b.textContent='Има нова версия на офертата · Обнови';b.onclick=function(){location.reload();};document.body.appendChild(b);}}).catch(function(){});}chk();setInterval(chk,60000);})();</script>
 </body>
 </html>
