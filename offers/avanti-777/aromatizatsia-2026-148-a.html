@@ -702,11 +702,11 @@ themeSubs.push(paintLogos);
   const els=$$(sel).filter(e=>!e.closest('.hero'));
   const vh=innerHeight;
   const io=new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting)return;const el=e.target;const sib=[...el.parentNode.children].filter(x=>x.classList.contains('rv'));const i=Math.max(0,sib.indexOf(el));el.style.transitionDelay=(Math.min(i,4)*.05)+'s';el.classList.remove('pre');io.unobserve(el);}),{rootMargin:'0px 0px 12% 0px'}); // revealed just before they scroll in, never an empty band
-  els.forEach(el=>{el.classList.add('rv');if(el.getBoundingClientRect().top>vh*.95){el.classList.add('pre');io.observe(el);}});
+  els.forEach(el=>{el.classList.add('rv');}); /* no fade-in while scrolling: every block is already there when it scrolls in (the site must feel finished, not loading) */
   // counters in the letter figures
   const figs=$$('.fig b');
   const cio=new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting)return;cio.unobserve(e.target);const el=e.target,m=el.textContent.match(/^(\D*)(\d+)(.*)$/s);if(!m)return;const end=+m[2],t0=performance.now();
-    (function tick(t){const k=Math.min(1,(t-t0)/1500),v=Math.round(end*(1-Math.pow(1-k,3)));el.textContent=m[1]+v+m[3];if(k<1)requestAnimationFrame(tick);})(t0);}),{threshold:.6});
+    (function tick(t){const k=Math.min(1,(t-t0)/900),v=Math.round(end*(1-Math.pow(1-k,3)));el.textContent=m[1]+v+m[3];if(k<1)requestAnimationFrame(tick);})(t0);}),{threshold:0,rootMargin:'0px 0px 10% 0px'});
   figs.forEach(f=>{if(/^\d/.test(f.textContent)&&f.getBoundingClientRect().top>vh)cio.observe(f);});
 })();
 
