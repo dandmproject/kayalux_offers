@@ -484,17 +484,25 @@ const space=(function(){
     const tex2=(w,h,fn,rep)=>{const c=document.createElement('canvas');c.width=w;c.height=h;fn(c.getContext('2d'),w,h);const t=new T.CanvasTexture(c);t.encoding=T.sRGBEncoding;if(rep){t.wrapS=t.wrapT=T.RepeatWrapping;}t.anisotropy=4;return t;};
     const speck=(g,w,h,n,a,col,sz)=>{for(let i=0;i<n;i++){g.fillStyle='rgba('+(col||'0,0,0')+','+(Math.random()*a).toFixed(3)+')';g.fillRect(Math.random()*w,Math.random()*h,sz||1.5,sz||1.5);}};
     // floor: polished black stone, 60 cm tiles with hair-thin warm joints and faint veining; low roughness so the store lights and the scent glow reflect
-    M.floor=new T.MeshStandardMaterial({roughness:1,metalness:.18,envMapIntensity:1.15});
-    M.floor.map=tex2(512,512,(g,w,h)=>{g.fillStyle='#3a3228';g.fillRect(0,0,w,h);for(let i=0;i<2;i++)for(let j=0;j<2;j++){const v=10+Math.random()*5;g.fillStyle='rgb('+v+','+v+','+(v+1)+')';g.fillRect(i*256+1.5,j*256+1.5,253,253);
-        g.strokeStyle='rgba(210,190,150,.05)';for(let n=0;n<4;n++){g.lineWidth=.8+Math.random()*1.4;g.beginPath();const x0=i*256+Math.random()*256,y0=j*256+Math.random()*256;g.moveTo(x0,y0);g.bezierCurveTo(x0+Math.random()*140-70,y0+Math.random()*140-70,x0+Math.random()*180-90,y0+Math.random()*180-90,x0+Math.random()*240-120,y0+Math.random()*240-120);g.stroke();}}
-      speck(g,w,h,1400,.05,'255,255,255',1.2);},true);
-    M.floor.roughnessMap=tex2(512,512,(g,w,h)=>{g.fillStyle='#b0b0b0';g.fillRect(0,0,w,h);g.fillStyle='#3c3c3c';for(let i=0;i<2;i++)for(let j=0;j<2;j++)g.fillRect(i*256+1.5,j*256+1.5,253,253);speck(g,w,h,900,.25,'255,255,255',2);},true);
+    // floor: polished dark porcelain, 60 cm tiles (2x2 per 1.2 m repeat) with light veining, a fine bevel at every edge (normal map) and grey grout;
+    // the tiles are glossy (roughness map), the grout matt, so the ceiling strips and the fridges reflect in the floor as in a real shop
+    M.floor=new T.MeshStandardMaterial({roughness:1,metalness:.02,envMapIntensity:1.0});
+    M.floor.map=tex2(512,512,(g,w,h)=>{g.fillStyle='#2c2b2c';g.fillRect(0,0,w,h);for(let i=0;i<2;i++)for(let j=0;j<2;j++){const v=14+Math.random()*6;g.fillStyle='rgb('+v+','+v+','+(v+2)+')';g.fillRect(i*256+2,j*256+2,252,252);
+        for(let n=0;n<7;n++){g.strokeStyle='rgba(215,205,185,'+(.03+Math.random()*.06).toFixed(3)+')';g.lineWidth=.6+Math.random()*1.6;g.beginPath();const x0=i*256+Math.random()*256,y0=j*256+Math.random()*256;g.moveTo(x0,y0);g.bezierCurveTo(x0+Math.random()*160-80,y0+Math.random()*160-80,x0+Math.random()*200-100,y0+Math.random()*200-100,x0+Math.random()*260-130,y0+Math.random()*260-130);g.stroke();}
+        const sh=g.createLinearGradient(i*256,j*256,i*256+256,j*256+256);sh.addColorStop(0,'rgba(255,255,255,.035)');sh.addColorStop(1,'rgba(0,0,0,.05)');g.fillStyle=sh;g.fillRect(i*256+2,j*256+2,252,252);}
+      speck(g,w,h,1600,.045,'255,255,255',1.2);},true);
+    M.floor.roughnessMap=tex2(512,512,(g,w,h)=>{g.fillStyle='#c0c0c0';g.fillRect(0,0,w,h);g.fillStyle='#5a5a5a';for(let i=0;i<2;i++)for(let j=0;j<2;j++)g.fillRect(i*256+2,j*256+2,252,252);speck(g,w,h,700,.2,'255,255,255',2);},true);
     M.floor.roughnessMap.encoding=T.LinearEncoding;
+    M.floor.normalMap=tex2(512,512,(g,w,h)=>{g.fillStyle='rgb(128,128,255)';g.fillRect(0,0,w,h);for(let i=0;i<2;i++)for(let j=0;j<2;j++){const x=i*256,y=j*256;g.fillStyle='rgb(96,128,255)';g.fillRect(x,y,4,256);g.fillStyle='rgb(160,128,255)';g.fillRect(x+252,y,4,256);g.fillStyle='rgb(128,160,255)';g.fillRect(x,y,256,4);g.fillStyle='rgb(128,96,255)';g.fillRect(x,y+252,256,4);}},true);
+    M.floor.normalMap.encoding=T.LinearEncoding;M.floor.normalScale=new T.Vector2(.6,.6);
     // walls: burgundy with a fine plaster speckle
-    M.wall=new T.MeshStandardMaterial({roughness:.92,envMapIntensity:.15,map:tex2(256,256,(g,w,h)=>{g.fillStyle='#7a1f2b';g.fillRect(0,0,w,h);speck(g,w,h,6000,.07,'0,0,0',2);speck(g,w,h,2000,.06,'255,255,255',2);},true)});
+    M.wall=new T.MeshStandardMaterial({roughness:.9,envMapIntensity:.18,map:tex2(256,256,(g,w,h)=>{g.fillStyle='#7a1f2b';g.fillRect(0,0,w,h);for(let n=0;n<26;n++){g.fillStyle='rgba('+(Math.random()<.5?'0,0,0':'255,220,220')+','+(Math.random()*.035).toFixed(3)+')';g.beginPath();g.ellipse(Math.random()*w,Math.random()*h,20+Math.random()*60,6+Math.random()*18,Math.random()*3,0,6.283);g.fill();}speck(g,w,h,6000,.07,'0,0,0',2);speck(g,w,h,2000,.06,'255,255,255',2);},true)}); // painted plaster: roller marks under the speckle
     M.wallB=M.wall.clone();M.wallL=M.wall.clone();M.wallF=M.wall.clone();
     // light oak / beech shelving with a faint grain
-    M.oak=new T.MeshStandardMaterial({roughness:.68,envMapIntensity:.35,map:tex2(256,256,(g,w,h)=>{g.fillStyle='#d9b98a';g.fillRect(0,0,w,h);for(let i=0;i<70;i++){g.fillStyle='rgba(120,80,40,'+(Math.random()*.09).toFixed(3)+')';const x=Math.random()*w;g.fillRect(x,0,1+Math.random()*3,h);}speck(g,w,h,1500,.05,'255,255,255',2);},true)});
+    M.oak=new T.MeshStandardMaterial({roughness:.55,envMapIntensity:.5,map:tex2(256,256,(g,w,h)=>{g.fillStyle='#d9b98a';g.fillRect(0,0,w,h);for(let b_=0;b_<6;b_++){g.fillStyle='rgba(255,236,200,'+(Math.random()*.12).toFixed(3)+')';const x=Math.random()*w;g.fillRect(x,0,10+Math.random()*30,h);}
+      for(let i=0;i<48;i++){g.strokeStyle='rgba(118,78,38,'+(.05+Math.random()*.13).toFixed(3)+')';g.lineWidth=.6+Math.random()*2;const x=Math.random()*w;g.beginPath();g.moveTo(x,0);g.bezierCurveTo(x+Math.random()*10-5,h*.33,x+Math.random()*12-6,h*.66,x+Math.random()*8-4,h);g.stroke();}
+      for(let k=0;k<2;k++){const x=Math.random()*w,y=Math.random()*h;for(let r=9;r>1;r-=2){g.strokeStyle='rgba(110,70,32,'+(.1+r*.01).toFixed(2)+')';g.lineWidth=1;g.beginPath();g.ellipse(x,y,r*1.4,r*.7,.3,0,6.283);g.stroke();}}
+      speck(g,w,h,1500,.05,'255,255,255',2);},true)}); // oak with real grain: wavy fibres, lighter bands, a knot or two, a satin finish
     // ceiling: white suspended tiles, 60 cm grid (2x2 per 1.2 m repeat)
     M.ceil=new T.MeshBasicMaterial({map:tex2(256,256,(g,w,h)=>{g.fillStyle='#e4e1da';g.fillRect(0,0,w,h);speck(g,w,h,2500,.06,'0,0,0',2);g.fillStyle='#bdb8ae';g.fillRect(0,0,w,2);g.fillRect(0,128,w,2);g.fillRect(0,0,2,h);g.fillRect(128,0,2,h);},true)});
     M.led=new T.MeshBasicMaterial({color:0xdcd9d2});
