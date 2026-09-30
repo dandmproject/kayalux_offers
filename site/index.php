@@ -12,12 +12,11 @@ header('Cache-Control: private, no-store, max-age=0');
 <title>Търговска оферта за АВАНТИ</title>
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
 <meta name="referrer" content="no-referrer">
-<link rel="preload" as="image" href="assets/img/logo.jpg">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/cormorant-garamond-cyrillic-500-normal.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/cormorant-garamond-cyrillic-400-italic.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-cyrillic-400-normal.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-cyrillic-500-normal.woff2">
-<link rel="stylesheet" href="assets/css/offer.min.css?v=bab6c95e">
+<link rel="stylesheet" href="assets/css/offer.min.css?v=44a005c4">
 </head>
 <body>
 <div class="grain" aria-hidden="true"></div>
@@ -50,9 +49,8 @@ header('Cache-Control: private, no-store, max-age=0');
 <div class="vignette" aria-hidden="true"></div>
 <header class="hero" id="top">
   <div class="wrap hero-in">
-    <div class="logo-stage" id="logoStage"><img class="brand-logo" id="heroLogo" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="KAYA LUX · Лукс, който се усеща" width="775" height="562"><i class="sheen" aria-hidden="true"></i></div>
     <div class="mark rise d1">Търговска оферта за АВАНТИ <b>№&nbsp;2026-148-А</b> · актуализирана · <span style="white-space:nowrap">28.09.2026&nbsp;г.</span></div>
-    <div class="offer-word rise d1" role="heading" aria-level="1">ОФЕРТА<em>за професионална ароматизация на 48-те търговски обекта на&nbsp;веригата&nbsp;„АВАНТИ“</em></div>
+    <div class="offer-word rise d1" role="heading" aria-level="1"><span class="shine">ОФЕРТА</span><em>за професионална ароматизация на 48-те търговски обекта на&nbsp;веригата&nbsp;„АВАНТИ“</em></div>
     <h1 class="rise d2" aria-level="2" role="heading">Един аромат. <em>Четиридесет и осем</em> обекта.</h1>
     <p class="lead rise d3">Окончателни и обосновани цени, изготвени по реалните данни от тестовия период и от монтажа.</p>
     <div class="tech rise d3"><span>Премиум нано-дифузия от последно поколение</span><span>Bluetooth управление</span><span>100% чисти парфюмни масла, без разреждане с вода и без нагряване</span><span>Сега: Tobacco Vanille · за декември: Toffee</span></div>
@@ -487,7 +485,7 @@ header('Cache-Control: private, no-store, max-age=0');
 </footer>
 
 <script defer src="assets/js/three.min.js"></script>
-<script defer src="assets/js/app.min.js?v=36f830e7"></script>
+<script defer src="assets/js/app.min.js?v=f6f9b4f8"></script>
 <script>/* моделите (~5 MB, кеширани) тръгват на заден план след зареждането на страницата или когато 3D схемата наближи */addEventListener('DOMContentLoaded',function(){var st=document.getElementById('stage');if(!st||!window.KL_GLTF)return;var go=function(){KL_GLTF.start();};addEventListener('load',function(){setTimeout(function(){(window.requestIdleCallback||function(f){f();})(go);},1500);});if('IntersectionObserver' in window){var io=new IntersectionObserver(function(en){if(en[0].isIntersecting){go();io.disconnect();}},{rootMargin:'1400px'});io.observe(st);}else go();});</script>
 <script>/* локален сървър (tools/serve.py): след обновяване предлага презареждане; на хостинга /__version го няма и нищо не се показва */(function(){if(!document.querySelector('meta[name="kl-local"]'))return;var v=null;function chk(){fetch('/__version',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){if(!j||!j.sha)return;if(v===null){v=j.sha;return;}if(j.sha!==v&&!document.getElementById('klUpd')){var b=document.createElement('button');b.id='klUpd';b.type='button';b.textContent='Има нова версия на офертата · Обнови';b.onclick=function(){location.reload();};document.body.appendChild(b);}}).catch(function(){});}chk();setInterval(chk,60000);})();</script>
 </body>

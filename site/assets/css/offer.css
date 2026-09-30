@@ -1030,3 +1030,10 @@ input[type=range]{height:28px;padding:6px 0;box-sizing:border-box}
 .brand .bw{width:auto;height:17px}
 @media (max-width:600px){.brand .bm{height:36px}}
 #klUpd{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:96;background:var(--gold);color:var(--on-gold);border:0;border-radius:999px;padding:12px 20px;font:600 14px var(--body);box-shadow:0 10px 30px -10px rgba(0,0,0,.6);cursor:pointer}
+/* hero without the big logo: ОФЕРТА carries a slow light sweep */
+.hero .logo-stage{display:none}
+.offer-word .shine{display:inline-block;color:var(--gold);background:linear-gradient(100deg,var(--gold) 0%,var(--gold) 38%,#fff6dc 48%,#ffffff 50%,#fff6dc 52%,var(--gold) 62%,var(--gold) 100%);background-size:250% 100%;background-position:100% 0;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+:root[data-theme="olive"] .offer-word .shine{--gold:var(--gold-soft)}
+@media (prefers-reduced-motion:no-preference){.offer-word .shine{animation:klShine 4.8s cubic-bezier(.45,.05,.3,1) .9s infinite}}
+@keyframes klShine{0%{background-position:100% 0}38%,100%{background-position:0 0}}
+@media (prefers-reduced-motion:reduce){.offer-word .shine{animation:klShine 7s ease-in-out 1.2s infinite!important}}
