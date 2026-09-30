@@ -1498,14 +1498,14 @@ const space=(function(){
       for(const sg of [1,-1])for(const sp of [.7,.45]){const a=Math.atan2(d[0],d[2])+sg*sp;let r=4.6,x=0,z=0;for(;r>2;r-=.2){x=o[0]+Math.sin(a)*r;z=o[2]+Math.cos(a)*r;if(inRoom(x,z,.45))break;}
         const sc=r-(sp<.6?.3:0);if(!best||sc>best.sc)best={sc,cam:V3(x,Math.min(S.H-.45,1.95),z)};}
       const inf=u.info||{},words=((inf.title||'')+' '+(inf.zone||'')+' '+(inf.why||'')).split(/\s+/).length;
-      return {cam:best.cam,tgt,u:i,dur:clamp(1.8+words/3.2,S.units.length>2?4.2:5.5,11),tw:2.4,drift:.02};} // long enough to read the note under the diffuser
+      return {cam:best.cam,tgt,u:i,dur:clamp(1.8+words/3.2,S.units.length>2?4.2:5.5,8),tw:2.4,drift:.02};} // long enough to read the note under the diffuser
     function tourKeys(){const dx=S.door.x,hd=S.hd,H=S.H,dist=Math.max(7,Math.min(11,S.W*.55)),K=[];
       {const vf=camera.fov*Math.PI/180,hf=2*Math.atan(Math.tan(vf/2)*camera.aspect),half=S.W/2+.8,far=clamp(half/Math.tan(hf/2),Math.max(8,dist),34); // the whole front fits, sign included, on any screen
         K.push({cam:V3(0,2.1+far*.05,hd+far),tgt:V3(0,1.6,hd),dur:3,tw:2.4,street:1});}                 // on the street: the АВАНТИ front, a little way back
       K.push({cam:V3(dx,1.7,hd+2.5),tgt:V3(dx,1.45,hd-2.5),dur:1.6,tw:2.6});                            // at the entrance, a moment to see where we are
       K.push({cam:V3(dx,1.72,hd-1.4),tgt:V3(dx*.4,1.45,hd-6),dur:1.2,tw:2.2});                         // through the door, inside
       S.units.forEach((u,i)=>K.push(unitKey(i)));                                                        // the diffusers
-      const p=presets('persp');K.push({view:{...p,theta:.35},dur:6,tw:3,drift:.12});                     // the whole store from above
+      const p=presets('persp');K.push({view:{...p,theta:.35,phi:.46,r:p.r*1.62,tz:p.tz+S.hd*.3},dur:7,tw:3,drift:.1});    // the whole store from above (a real top view: coverage and labels switch on here)
       return K;}
     const _tc=new T.Vector3(),_tt=new T.Vector3();
     function viewFrom(cam,tgt){const dx=cam.x-tgt.x,dy=cam.y-tgt.y,dz=cam.z-tgt.z,r=Math.max(.01,Math.hypot(dx,dy,dz));return {theta:Math.atan2(dx,dz),phi:Math.acos(clamp(dy/r,-1,1)),r,tx:tgt.x,ty:tgt.y,tz:tgt.z};}
@@ -1696,7 +1696,8 @@ const space=(function(){
       const kept=[],LBL=stage.classList.contains('show-labels');overlay.forEach(o=>{if(o.kind==='lbl'&&!LBL){o.off=true;return;}v3.copy(o.v).project(camera);o.sx=(v3.x+1)/2*w;o.sy=(1-v3.y)/2*h;o.sz=v3.z;o.off=v3.z>1||v3.x<-1.1||v3.x>1.1||v3.y<-1.1||v3.y>1.1;});
       let HR=null;if(hud&&hudIn&&hud.offsetParent){const a=hud.getBoundingClientRect(),b=stage.getBoundingClientRect();HR=[a.left-b.left,a.top-b.top,a.right-b.left,a.bottom-b.top];}
       overlay.filter(o=>o.kind==='lbl'&&!o.off).sort((a,b)=>a.sz-b.sz).forEach(o=>{if(!o.w){o.w=o.el.offsetWidth||80;o.h=o.el.offsetHeight||18;}if(HR&&o.sx+o.w/2>HR[0]&&o.sx-o.w/2<HR[2]&&o.sy+o.h/2>HR[1]&&o.sy-o.h/2<HR[3]){o.off=true;return;}if(kept.some(k=>Math.abs(k.sx-o.sx)<(k.w+o.w)/2+4&&Math.abs(k.sy-o.sy)<(k.h+o.h)/2+2))o.off=true;else kept.push(o);});
-      {const cp=camera.position,inside=cp.z<S.hd&&Math.abs(cp.x)<S.hw&&cp.y<S.H;if(view.name==='tour'&&!inside)overlay.forEach(o=>{if(o.kind==='pin')o.off=true;});} // numbers only once we are inside
+      {const cp=camera.position,inside=cp.z<S.hd&&Math.abs(cp.x)<S.hw;if(view.name==='tour'&&tour.k<3&&!inside)overlay.forEach(o=>{if(o.kind==='pin')o.off=true;});} // numbers only once we are inside (still shown from above)
+      {const top=view.name==='plan'||(view.name==='tour'&&tour.k>=3+S.units.length);if(!top)autoLayers(false);} // leaving the top view by any path (a diffuser number, a store switch…) switches them off
       helpFrame();tipFrame(w,h);
       overlay.forEach(o=>{if(o.kind==='pin'&&HR&&!o.off&&o.sx>HR[0]-20&&o.sx<HR[2]+20&&o.sy>HR[1]-20&&o.sy<HR[3]+20)o.off=true;});
       overlay.forEach(o=>{if(o.vis!==!o.off){o.vis=!o.off;o.el.style.visibility=o.off?'hidden':'visible';}if(!o.off){const tf='translate('+o.sx.toFixed(1)+'px,'+o.sy.toFixed(1)+'px)'+(o.kind==='lbl'?' translate(-50%,-50%)':' translate(-50%,-100%)');if(o.tf!==tf){o.tf=tf;o.el.style.transform=tf;}}}); // DOM written only when something changed
