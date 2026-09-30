@@ -33,15 +33,16 @@ const MODES={std:{name:'Дезинсекция и дератизация'},full:
 
 /* ---------- theme ---------- */
 const themeSubs=[];
-function effTheme(){const t=root.getAttribute('data-theme');if(t==='olive'||t==='paper'||t==='light'||t==='dark')return t;return 'olive';}
-const isDark=()=>effTheme()==='dark'; // pest is always a light offer
+function effTheme(){const t=root.getAttribute('data-theme');if(t==='olive'||t==='paper'||t==='dark')return t;return 'dark';}
+const isDark=()=>effTheme()==='dark'; // „Нощ“ (тъмносиньо) is the main look; Маслина and Ден are light
 const SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg>';
 const MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>';
 const themeBtn=$('#themeBtn');
 const PAL_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18c1.4 0 2-.9 2-1.8 0-.9-.6-1.2-.6-2 0-1 .8-1.7 1.9-1.7H17a4 4 0 0 0 4-4c0-4.7-4-8.5-9-8.5z"/><circle cx="7.5" cy="11" r="1.1" fill="currentColor"/><circle cx="10.5" cy="7" r="1.1" fill="currentColor"/><circle cx="15" cy="7.5" r="1.1" fill="currentColor"/></svg>';
-function paintThemeBtn(){const t=effTheme();themeBtn.innerHTML=PAL_ICON;themeBtn.title='Тема: '+(t==='paper'?'Хартия':'Маслина');$$('#themePop [data-t]').forEach(b=>b.setAttribute('aria-checked',String(b.dataset.t===t)));}
-function applyTheme(t){root.setAttribute('data-theme',t);store.set('kl-offer-theme',t);paintThemeBtn();themeSubs.forEach(f=>f());}
-const saved=store.get('kl-offer-theme');if(saved==='olive'||saved==='paper')root.setAttribute('data-theme',saved);
+function paintThemeBtn(){const t=effTheme();themeBtn.innerHTML=PAL_ICON;themeBtn.title='Тема: '+(t==='paper'?'Ден':t==='olive'?'Маслина':'Нощ');$$('#themePop [data-t]').forEach(b=>b.setAttribute('aria-checked',String(b.dataset.t===t)));}
+const THEME_KEY='unishtojiteli-offer-theme'; // its own key: the scent offer on the same server keeps its own theme
+function applyTheme(t){root.setAttribute('data-theme',t);store.set(THEME_KEY,t);paintThemeBtn();themeSubs.forEach(f=>f());}
+const saved=store.get(THEME_KEY);if(saved==='dark'||saved==='olive'||saved==='paper')root.setAttribute('data-theme',saved);
 const themePop=$('#themePop');themeBtn.addEventListener('click',()=>{themePop.hidden=!themePop.hidden;themeBtn.setAttribute('aria-expanded',String(!themePop.hidden));});
 $$('#themePop [data-t]').forEach(b=>b.addEventListener('click',()=>{applyTheme(b.dataset.t);themePop.hidden=true;themeBtn.setAttribute('aria-expanded','false');}));
 document.addEventListener('click',e=>{if(!e.target.closest('.theme-menu')){themePop.hidden=true;themeBtn.setAttribute('aria-expanded','false');}});
@@ -93,26 +94,8 @@ function copyText(text,btn,selEl){
 {const up=$('#toTop');if(up)up.addEventListener('click',e=>{e.preventDefault();scrollTo({top:0,behavior:reduce?'auto':'smooth'});});}
 $$('[data-copy]').forEach(b=>b.addEventListener('click',()=>{const el=document.getElementById(b.dataset.copy);copyText(el.textContent.trim(),b,el);}));
 
-/* ---------- brand logo: the real artwork, recoloured per theme ---------- */
-const LOGO_SRC='assets/img/logo.jpg';
+/* ---------- brand logo: the real УНИЩОЖИТЕЛИ artwork is used as it is (assets/img/logo.png, emblem.png) ---------- */
 const logoImg=new Image();let logoMono=null;
-function tint(hex,crop){
-  const [sx,sy,sw,sh]=crop||[0,0,logoImg.naturalWidth,logoImg.naturalHeight];
-  const c=document.createElement('canvas');c.width=sw;c.height=sh;const g=c.getContext('2d');g.drawImage(logoImg,sx,sy,sw,sh,0,0,sw,sh);
-  const d=g.getImageData(0,0,sw,sh),a=d.data,n=parseInt((hex||'#D4AF63').replace('#','').slice(0,6),16),R=(n>>16)&255,G=(n>>8)&255,B=n&255;
-  for(let i=0;i<a.length;i+=4){const l=(a[i]+a[i+1]+a[i+2])/3;a[i]=R;a[i+1]=G;a[i+2]=B;a[i+3]=Math.round(clamp((238-l)/190,0,1)*255);}
-  g.putImageData(d,0,0);return c;
-}
-function paintLogos(){
-  if(!logoImg.naturalWidth)return;
-  const dark=isDark(),col=dark?(cssVar('--gold')||'#D4AF63'):(cssVar('--ink')||'#1A1713');
-  const full=tint(col).toDataURL('image/png');
-  const hl=$('#heroLogo');if(hl){hl.src=full;const sh=$('#logoStage .sheen');sh.style.webkitMaskImage=sh.style.maskImage='url('+full+')';$('#logoStage').classList.add('ready');}
-  const pl=$('#paperLogo');if(pl)pl.src=tint('#1A1713').toDataURL('image/png');
-  logoMono=tint(dark?'#E8C77E':'#D9BC7C',[300,62,186,248]);
-}
-logoImg.onload=paintLogos;logoImg.src=LOGO_SRC;
-themeSubs.push(paintLogos);
 
 /* ---------- background: a KAYA LUX diffuser and its scent, behind the whole page ---------- */
 (function(){
@@ -1577,7 +1560,7 @@ const space=(function(){
 
     let gold=[212,175,99];
     function recolor(){
-      const dark=PEST?false:isDark(),c=n=>cssVar(n); // pest: always a lit daytime store
+      const dark=isDark(),c=n=>cssVar(n); // Нощ: the lit store in the evening, like a film set; Маслина/Ден: daytime
       edgeMat.color=lin(c('--gold-soft'));edgeMat.opacity=dark?.4:.7;gridMat.color=lin('#8a7348');gridMat.opacity=.2;flowMat.color=lin('#E6C27A'); /* the floor is black in every theme */
       const gh=(c('--gold')||'#D4AF63').replace('#','');gold=[parseInt(gh.slice(0,2),16),parseInt(gh.slice(2,4),16),parseInt(gh.slice(4,6),16)];
       pm.uniforms.uColor.value=new T.Color(dark?'#efe7d6':'#8c806a');pm.blending=T.NormalBlending;pm.uniforms.uOp.value=(dark?.17:.14)*(small()?1.5:1);pm.uniforms.uSize.value=small()?.44:.3; /* small screens: a little larger and stronger so the dust still reads */pm.needsUpdate=true;

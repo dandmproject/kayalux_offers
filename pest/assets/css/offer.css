@@ -21,38 +21,19 @@
 /* Layout: a private screening. A dark auditorium, the offer told in eight reels,
    and one lit set at its centre: the store in 3D, where the scent is placed and when it runs.
    Palette and faces are KAYA LUX's own (landing project tokens). Dark first, light as "Ден". */
-/* Пест контрол · светла маслинена схема (без черно) */
+/* Пест контрол · основна схема „Нощ“: тъмносиньо, злато и маслинен акцент (по образеца на клиента); Маслина и Ден — светли */
 :root{
-  --ground:#F3F4EA; --surface:#FBFBF5; --surface-2:#EDEEE2; --line:#D8DAC8;
-  --ink:#23271A; --ink-soft:#4C5140; --ink-faint:#83886F;
-  --gold:#856910; --gold-soft:#B99733; --on-gold:#FFFFFF;
-  --ok:#2F7A34; --warn:#B8472A;
-  --glow:rgba(133,105,16,.20); --glow-2:rgba(133,105,16,.07);
-  --stage-a:#EEF0E2; --stage-b:#E3E6D5; --paper:#FBFBF5; --paper-ink:#23271A; --paper-soft:#4C5140; --paper-line:#D8DAC8;
+  --ground:#0E1114; --surface:#14181C; --surface-2:#1B2026; --line:#2A3038;
+  --ink:#ECE7DB; --ink-soft:#B9B3A4; --ink-faint:#8F8A7E;
+  --gold:#C9A24A; --gold-soft:#A98A4C; --on-gold:#0E1114;
+  --ok:#C9D46A; --warn:#E0785A;
+  --glow:rgba(201,162,74,.20); --glow-2:rgba(201,162,74,.07);
+  --stage-a:#161B21; --stage-b:#0A0D10; --vig:rgba(0,0,0,.6);
+  --paper:#FBF9F5; --paper-ink:#1A1713; --paper-soft:#57503F; --paper-line:#D6CDB9;
   --display:"Cormorant Garamond","Cormorant",Georgia,"Times New Roman",serif;
   --body:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
   --nav-h:64px;
-  color-scheme:light;
-}
-@media (prefers-color-scheme: light){
-  :root:not([data-theme="dark"]){
-    --ground:#F2EEE6; --surface:#FBF9F5; --surface-2:#E9E3D7; --line:#D6CDB9;
-    --ink:#1A1713; --ink-soft:#57503F; --ink-faint:#6B6353;
-    --gold:#7D5F1D; --gold-soft:#9E7E42; --on-gold:#FBF9F5;
-    --ok:#3E5F35; --warn:#8C3A1E;
-    --glow:rgba(185,151,91,.30); --glow-2:rgba(185,151,91,.09);
-    --stage-a:#F4EFE5; --stage-b:#E2D9C7;
-    color-scheme:light;
-  }
-}
-:root[data-theme="light"]{
-  --ground:#F2EEE6; --surface:#FBF9F5; --surface-2:#E9E3D7; --line:#D6CDB9;
-  --ink:#1A1713; --ink-soft:#57503F; --ink-faint:#6B6353;
-  --gold:#7D5F1D; --gold-soft:#9E7E42; --on-gold:#FBF9F5;
-  --ok:#3E5F35; --warn:#8C3A1E;
-  --glow:rgba(185,151,91,.30); --glow-2:rgba(185,151,91,.09);
-  --stage-a:#F4EFE5; --stage-b:#E2D9C7;
-  color-scheme:light;
+  color-scheme:dark;
 }
 
 *,*::before,*::after{box-sizing:border-box}
@@ -492,9 +473,7 @@ footer.foot .wrap{display:flex;justify-content:space-between;gap:10px 24px;flex-
 @media print{ .nav,.grain,.stage-hud,.stage-foot,.clock,.controls,.more,.copy,.theme-btn{display:none!important} .reel,.close{padding-block:36px;break-inside:avoid-page} .hero{padding-block:40px} }
 
 /* ===== cinematic layer (round 2) ===== */
-:root{--vig:rgba(38,42,26,.06)}
-@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--vig:rgba(90,70,30,.14)}}
-:root[data-theme="light"]{--vig:rgba(90,70,30,.14)}
+:root{--vig:rgba(0,0,0,.6)}
 .bgsmoke{position:absolute;top:0;left:0;width:100%;height:min(100svh,980px);z-index:-1;pointer-events:none}
 .vignette{position:fixed;inset:0;pointer-events:none;z-index:58;background:radial-gradient(ellipse 75% 70% at 50% 50%,transparent 50%,var(--vig) 100%)}
 .bars{pointer-events:none}
@@ -1129,3 +1108,78 @@ input[type=range]{height:28px;padding:6px 0;box-sizing:border-box}
 .legend3 i.w{background:var(--ok)}
 /* UV Обход — прохладен воал по време на инспекцията в 3D сцената */
 .uv-wash{position:absolute;inset:0;pointer-events:none;z-index:3;opacity:0;background:radial-gradient(120% 95% at 50% 42%,rgba(126,208,196,.55),rgba(90,150,170,.28) 60%,rgba(70,120,150,.14));mix-blend-mode:multiply}
+
+/* ===== „Нощ“ — тъмносиньо (основна тема) ===== */
+:root[data-theme="dark"]{
+  --ground:#0E1114; --surface:#14181C; --surface-2:#1B2026; --line:#2A3038;
+  --ink:#ECE7DB; --ink-soft:#B9B3A4; --ink-faint:#8F8A7E;
+  --gold:#C9A24A; --gold-soft:#A98A4C; --on-gold:#0E1114;
+  --ok:#C9D46A; --warn:#E0785A;
+  --glow:rgba(201,162,74,.20); --glow-2:rgba(201,162,74,.07);
+  --stage-a:#161B21; --stage-b:#0A0D10; --vig:rgba(0,0,0,.6);
+  --paper:#FBF9F5; --paper-ink:#1A1713; --paper-soft:#57503F; --paper-line:#D6CDB9;
+  color-scheme:dark;
+}
+/* a faint film scanline over the night theme, as in the client's own page */
+:root[data-theme="dark"] body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:57;background:repeating-linear-gradient(to bottom,rgba(255,255,255,.014) 0 1px,transparent 1px 3px)}
+:root[data-theme="dark"] .uv-wash{mix-blend-mode:screen;background:radial-gradient(120% 95% at 50% 42%,rgba(110,210,196,.34),rgba(80,150,190,.16) 60%,rgba(60,110,160,.06))}
+
+/* ===== логото на УНИЩОЖИТЕЛИ (оригиналното злато) ===== */
+.brand{gap:0}
+.brand .logo{height:34px;width:auto;display:block;filter:drop-shadow(0 1px 6px rgba(0,0,0,.35))}
+@media (max-width:900px){.brand .logo{height:28px}}
+@media (max-width:420px){.brand .logo{height:24px}}
+:root[data-theme="olive"] .brand .logo,:root[data-theme="paper"] .brand .logo{filter:drop-shadow(0 1px 1px rgba(60,45,10,.35))}
+.paperlogo img{width:min(300px,70%);height:auto;filter:drop-shadow(0 1px 1px rgba(60,45,10,.3))}
+footer.foot .wrap{align-items:center}
+.foot-logo{height:26px;width:auto;opacity:.9}
+
+/* ===== откриващият кадър: емблемата, осветена като обект на снимачна площадка ===== */
+.emblem{position:absolute;z-index:0;left:calc(50% + 390px);top:calc(50% - 40px);width:clamp(210px,17vw,280px);aspect-ratio:1;transform:translateY(-50%);pointer-events:none;color:var(--gold)}
+.emblem::before{content:"";position:absolute;inset:-55%;border-radius:50%;background:radial-gradient(closest-side,rgba(201,162,74,.30),rgba(201,162,74,.10) 45%,rgba(201,162,74,.03) 65%,transparent 75%);animation:emHalo 6s ease-in-out infinite}
+.emblem::after{content:"";position:absolute;left:50%;top:-150%;width:220%;height:210%;transform:translateX(-50%);background:radial-gradient(ellipse 30% 100% at 50% 0%,rgba(255,236,196,.085),rgba(255,236,196,.03) 55%,transparent 80%);pointer-events:none;z-index:-1} /* a soft key light from above, no hard edges */
+.emblem .disc{position:absolute;inset:14%;border-radius:50%;animation:emFloat 9s ease-in-out infinite;box-shadow:0 40px 70px -20px rgba(0,0,0,.7),0 0 0 1px rgba(201,162,74,.25),0 0 60px rgba(201,162,74,.18)}
+.emblem .disc img{width:100%;height:100%;border-radius:50%;display:block}
+.emblem .scan{position:absolute;inset:0;border-radius:50%;overflow:hidden}
+.emblem .scan::after{content:"";position:absolute;left:0;right:0;height:26%;top:-30%;background:linear-gradient(to bottom,transparent,rgba(126,224,206,.10) 35%,rgba(170,245,230,.55) 50%,rgba(126,224,206,.10) 65%,transparent);mix-blend-mode:screen;animation:emScan 7s cubic-bezier(.55,0,.45,1) 2.6s infinite}
+.emblem .reticle{position:absolute;inset:0;width:100%;height:100%;animation:emSpin 80s linear infinite;font-family:var(--body);font-weight:600}
+.emblem .brackets{position:absolute;inset:-6%;width:112%;height:112%;opacity:.55;animation:emLock 7s cubic-bezier(.55,0,.45,1) 2.6s infinite}
+@keyframes emHalo{0%,100%{opacity:.75;transform:scale(1)}50%{opacity:1;transform:scale(1.06)}}
+@keyframes emFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes emSpin{to{transform:rotate(360deg)}}
+@keyframes emScan{0%{top:-30%}55%,100%{top:110%}}
+@keyframes emLock{0%,40%{transform:scale(1.08);opacity:.25}55%{transform:scale(1);opacity:.9}75%,100%{transform:scale(1);opacity:.45}}
+.emblem{animation:emIn 2s .7s cubic-bezier(.2,.7,.2,1) both}
+@keyframes emIn{from{opacity:0;transform:translateY(-46%) scale(.94)}to{opacity:1;transform:translateY(-50%) scale(1)}}
+:root[data-theme="olive"] .emblem::after,:root[data-theme="paper"] .emblem::after{display:none}
+:root[data-theme="olive"] .emblem .disc,:root[data-theme="paper"] .emblem .disc{box-shadow:0 30px 60px -24px rgba(60,45,10,.45),0 0 0 1px rgba(134,103,16,.25)}
+/* narrower screens: the emblem stands above the title, centred, smaller */
+@media (max-width:1279px){
+  .emblem{position:relative;left:auto;top:auto;transform:none;align-self:center;width:clamp(150px,26vw,210px);margin:0 auto clamp(18px,3vw,30px);animation:emInS 1.6s .6s cubic-bezier(.2,.7,.2,1) both}
+  .emblem::after{display:none}
+  @keyframes emInS{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+}
+@media (max-width:1279px){.hero{padding-top:calc(var(--nav-h) + clamp(28px,5vw,64px) + env(safe-area-inset-top,0px))}}
+
+/* ===== текстът остава в полетата си ===== */
+.fig{min-width:0}
+.fig b{white-space:nowrap}
+.fig b.long{font-size:clamp(1.7rem,2.9vw,2.45rem)}
+.hero dl.credits dd{overflow-wrap:anywhere}
+.hero dl.credits .total{font-size:clamp(1.55rem,2.2vw,2rem);white-space:nowrap}
+.letter-grid > *{min-width:0}
+
+/* ===== телефон: картите на обектите — дезинсекция и точки с етикети, общото едро ===== */
+@media (max-width:600px){
+  .obj tr.row{grid-template-areas:"n name sel" "n addr alt" "n addr pts"}
+  .obj.m-full tr.row td.cs::before,.obj.m-std tr.row td.cs::before{content:"дезинсекция "}
+  .obj tr.row td:nth-child(6){grid-area:pts;font-size:12px;color:var(--ink-faint);text-align:right;white-space:nowrap;font-weight:400}
+  .obj tr.row td:nth-child(6)::before{content:"точки "}
+  .obj tfoot tr.tot3 td#tPts{text-align:right;font-size:1.05rem;white-space:nowrap}
+  .obj tfoot tr.tot3 td#tPts::before{content:"точки: ";font-family:var(--body);font-size:12px;color:var(--ink-faint)}
+  .obj.m-full tfoot td.cs::before,.obj.m-std tfoot td.cs::before{content:"дезинсекция: "}
+  .obj tfoot tr.tot3 td.cf{grid-column:1/-1;text-align:right;font-size:1.6rem}
+  .obj tfoot tr.tot3 td.cf::before{content:"общо: ";font-family:var(--body);font-size:12px;color:var(--ink-faint)}
+}
+.obj tfoot tr.tot3 td#tPts{font-family:var(--display);font-weight:500;font-size:1.5rem;white-space:nowrap;color:var(--ink)}
+@media (max-width:600px){.obj tfoot tr.tot3 td#tPts{font-size:1.25rem}}
