@@ -1241,7 +1241,7 @@ const space=(function(){
     function build(){
       clearRoom();const t0=performance.now();OBS.length=0;FACES.length=0;if(window.__perf)window.__perf.done=0;
       const r=row(),A=r.area,Hh=H();const shape=(r.n%5===0&&A>120)?'L':(r.n%3===0?'sq':'rect');let W=Math.sqrt(A*(shape==='sq'?1.05:1.45)),D=A/W;if(D<3.8){D=3.8;W=A/D;}
-      const hw=W/2,hd=D/2,t=.12,yM=Math.min(2.55,Hh-.35),phone=small(),dens=phone?3.8:1;
+      const hw=W/2,hd=D/2,t=.12,yM=Math.min(2.55,Hh-.35),phone=small(),dens=phone?2.6:1;
       const store_=A>=120,sw=store_?Math.min(4,W*.26):0,sd=store_?Math.min(3.4,D*.38):0;
       const wine=A>150,yF=wine?-.12:0;
       const zTop=-hd+Math.max(wine?4.9:2.3,store_?sd+.9:0),zBot=hd-4.0,len=zBot-zTop,zW=wine?zTop-2.4:-hd;
@@ -1330,7 +1330,7 @@ const space=(function(){
       {const x0=(shape==='L'?-hw+lw+t:-hw)+.15,x1=(store_?hw-sw:hw)-.15-(wine?1.2:0),wl=x1-x0;if(wl>1){const xm=(x0+x1)/2,nb=Math.max(1,Math.round(wl/1.0)),LV=[.4,.95,1.5];
         blk(xm,-hd+.22,wl+.1,.44);for(let x=x0+.5;x<x1-.4;x+=1)face(x,-hd+.44,0,1,'wine');
         box(wl,.12,.42,M.oak,xm,yF+.06,-hd+.21);box(wl,.05,.44,M.oak,xm,yF+2.15,-hd+.22,false);for(let i=0;i<=nb;i++)box(.04,2.1,.42,M.oak,x0+i*wl/nb,yF+1.05,-hd+.21,false);
-        LV.forEach(y=>{box(wl,.03,.4,M.oak,xm,yF+y,-hd+.2,false);rail(xm,yF+y+.01,-hd+.405,wl,0);for(let x=x0+.1;x<x1-.08;x+=.18*dens){if(Math.random()<.05)continue;put('bottle',x,yF+y+.015,-hd+.2,.085,.3,.085,pick_(WINE));}});
+        LV.forEach(y=>{box(wl,.03,.4,M.oak,xm,yF+y,-hd+.2,false);rail(xm,yF+y+.01,-hd+.405,wl,0);for(const dz of [-hd+.13,-hd+.3])for(let x=x0+.08;x<x1-.06;x+=.1*dens){if(Math.random()<.03)continue;put('bottle',x,yF+y+.015,dz,.085,.3,.085,pick_(WINE));}});
         label('Вина',xm,yF+2.4,-hd+.3);
         if(wine&&zW+hd>2.3){const cx=x1+.65,cz=-hd+.32;blk(cx,cz,.9,.6);cbox(.85,1.8,.45,B,cx,yF+.9,cz);[.45,.95,1.45].forEach(y=>{cbox(.85,.03,.42,BD,cx,yF+y,cz);for(let i=0;i<3;i++)put('carton',cx-.26+i*.26,yF+y+.02,cz+.02,.16,.24,.14,pick_(['#c8382e','#1b1917','#e0b23a','#5a1a22']));});}
         cbox(.34,.26,.24,'#efe9dc',xm+.9,yF+1.5+.14,-hd+.21);cbox(.34,.05,.24,'#3c7a3e',xm+.9,yF+1.5+.28,-hd+.21);}}
@@ -1343,7 +1343,7 @@ const space=(function(){
         for(let i=0;i<n;i++){const zz=z0+.37+i*.74;const gl=new T.PlaneGeometry(.64,1.72);gl.rotateY(side<0?Math.PI/2:-Math.PI/2);gl.translate(xf,1.0,zz);glassAcc.push(gl);
           cbox(.03,1.76,.03,BLK,xf,1.0,zz-.33);cbox(.03,1.76,.03,BLK,xf,1.0,zz+.33);cbox(.02,.42,.02,STEEL,xf-side*.02,1.05,zz+.27,true);box(.012,1.6,.012,M.led,xf-side*.03,1.0,zz-.3,false);box(.012,1.6,.012,M.led,xf-side*.03,1.0,zz+.3,false);
           const hp=new T.PlaneGeometry(.66,.22);hp.rotateY(side<0?Math.PI/2:-Math.PI/2);hp.translate(xf+.001*side,2.13,zz);headAcc[hs[i%hs.length]].push(hp);
-          [.28,.66,1.04,1.42,1.78].forEach((y,li)=>{for(let d=0;d<1;d++){const px=xf+side*.16;for(let z=zz-.27;z<zz+.27;z+=(li<2?.16:.15)*dens){if(li<2)put('bottle',px,y+.01,z,.075,.27,.075,pick_(DRINK));else if(li<4)put('can',px,y+.01,z,.064,.12,.064,pick_(CANS));else put('carton',px,y+.01,z,.08,.18,.08,pick_(['#f4f2ec','#2f6fb5','#3c7a3e','#c8382e']));}}});}
+          [.28,.66,1.04,1.42,1.78].forEach((y,li)=>{for(let d=0;d<3;d++){const px=xf+side*(.13+d*.17);for(let z=zz-.28;z<zz+.28;z+=(li<2?.1:li<4?.075:.1)*dens){if(Math.random()<.03)continue;if(li<2)put('bottle',px,y+.01,z,.075,.27,.075,pick_(DRINK));else if(li<4)put('can',px,y+.01,z,.064,.12,.064,pick_(CANS));else put('carton',px,y+.01,z,.08,.18,.08,pick_(['#f4f2ec','#2f6fb5','#3c7a3e','#c8382e']));}}});} // three rows deep on every level: a full fridge, as in the shops
         return n;};
       // gondolas: oak, white price rails, products by zone (spirits / sweets / coffee-tea-snacks); burgundy end panels, promo end-caps by the till
       const xs=[];if(len>1.3){for(let x=-hw+2.7;x<=hw-2.6;x+=2.6){if(shape==='L'&&x<-hw+lw+1.4)continue;xs.push(x);}}
@@ -1357,18 +1357,18 @@ const space=(function(){
         box(.08,1.7,len,M.oak,x,.85,zc);box(.96,.12,len,M.oak,x,.06,zc);box(.96,.05,len+.04,M.oak,x,1.72,zc,false);const nu=Math.max(1,Math.round(len/1.2));for(let i=0;i<=nu;i++)box(.96,1.7,.03,M.oak,x,.85,zTop+i*len/nu,false);
         cbox(.98,1.74,.04,B,x,.87,zBot+.02);cbox(.98,1.74,.04,B,x,.87,zTop-.02);
         LV.forEach((y,li)=>{box(.92,.03,len,M.oak,x,y,zc,false);
-          for(const sd_ of [-1,1]){rail(x+sd_*.47,y+.01,zc,len,sd_>0?Math.PI/2:-Math.PI/2);const px=x+sd_*.3;
-            if(zone==='spirits'){if(li===1||li===2){for(let z=zTop+.14;z<zBot-.12;z+=.2*dens)if(Math.random()>.06)put('carton',px,y+.015,z,.12,.22,.1,pick_(['#c8382e','#1b1917','#3a2410','#e0b23a','#5a1a22']));}else{for(let z=zTop+.12;z<zBot-.1;z+=.17*dens)if(Math.random()>.06)put('bottle',px,y+.015,z,.085,.3,.085,pick_(SPIRIT));}}
-            else if(zone==='sweets'){if(li<2){for(let z=zTop+.12;z<zBot-.1;z+=.2*dens)if(Math.random()>.06)put('pack',px,y+.015,z,.1,.15,.06,pick_(SWEET));}else{for(let z=zTop+.14;z<zBot-.12;z+=.2*dens)if(Math.random()>.06)put('carton',px,y+.015,z,.12,.18,.09,pick_(BISC));}}
-            else{if(li<2){for(let z=zTop+.12;z<zBot-.1;z+=.17*dens)if(Math.random()>.06)put('carton',px,y+.015,z,.09,.2,.07,pick_(COFFEE));}else if(li===2){for(let z=zTop+.14;z<zBot-.12;z+=.16*dens)if(Math.random()>.06)put('bag',px+sd_*.05,y+.015,z,.05,.24,.14,pick_(CHIPS));}else{for(let z=zTop+.12;z<zBot-.1;z+=.18*dens)if(Math.random()>.06)put('pack',px,y+.015,z,.1,.08,.06,pick_(TEA));}}}});
+          for(const sd_ of [-1,1]){rail(x+sd_*.47,y+.01,zc,len,sd_>0?Math.PI/2:-Math.PI/2);for(const px of [x+sd_*.36,x+sd_*.19]){ // two rows deep, the front one at the rail: a stocked shelf, as in the shops
+            if(zone==='spirits'){if(li===1||li===2){for(let z=zTop+.14;z<zBot-.12;z+=.14*dens)if(Math.random()>.03)put('carton',px,y+.015,z,.12,.22,.1,pick_(['#c8382e','#1b1917','#3a2410','#e0b23a','#5a1a22']));}else{for(let z=zTop+.12;z<zBot-.1;z+=.1*dens)if(Math.random()>.03)put('bottle',px,y+.015,z,.085,.3,.085,pick_(SPIRIT));}}
+            else if(zone==='sweets'){if(li<2){for(let z=zTop+.12;z<zBot-.1;z+=.12*dens)if(Math.random()>.03){put('pack',px,y+.015,z,.1,.15,.06,pick_(SWEET));if(Math.random()<.6)put('pack',px,y+.165,z,.1,.15,.06,pick_(SWEET));}}else{for(let z=zTop+.14;z<zBot-.12;z+=.14*dens)if(Math.random()>.03)put('carton',px,y+.015,z,.12,.18,.09,pick_(BISC));}}
+            else{if(li<2){for(let z=zTop+.12;z<zBot-.1;z+=.11*dens)if(Math.random()>.03)put('carton',px,y+.015,z,.09,.2,.07,pick_(COFFEE));}else if(li===2){for(let z=zTop+.14;z<zBot-.12;z+=.1*dens)if(Math.random()>.03)put('bag',px+sd_*.05,y+.015,z,.05,.24,.14,pick_(CHIPS));}else{for(let z=zTop+.12;z<zBot-.1;z+=.12*dens)if(Math.random()>.03){put('pack',px,y+.015,z,.1,.08,.06,pick_(TEA));if(Math.random()<.7)put('pack',px,y+.095,z,.1,.08,.06,pick_(TEA));}}}}}});
         if(!done[zone]){done[zone]=1;label(ZL[zone],x,1.95,zc+((gi%3)-1)*Math.min(2,len*.3));}});
       // promo end-caps (Coca-Cola, Milka) on the two gondolas nearest the till
       {const order=xs.map((x,i)=>[Math.abs(x-doorX),i]).filter(([,i])=>xs[i]>ckX+ckW/2+1.7).sort((a,b)=>a[0]-b[0]).slice(0,2);order.forEach(([,i],k)=>{const x=xs[i],pz=zBot+.35,red=k===0;blk(x,pz,.92,.52);cbox(.9,1.45,.5,red?'#d3232a':'#5b2d8e',x,.725+.02,pz);
           const hb=new T.Mesh(new T.PlaneGeometry(.9,.28),red?M.headCoke:M.milka);hb.position.set(x,1.62,pz+.26);room.add(hb);cbox(.02,.4,.02,BLK,x,1.5,pz+.24);
-          for(let i=0;i<12;i++){const cx=x-.33+(i%4)*.22,cz=pz-.15+((i/4)|0)*.15;if(red)put('bottle',cx,1.47,cz,.085,.3,.085,pick_(['#2a1a10','#dfe9ee','#f28c28']));else put('pack',cx,1.47,cz,.1,.15,.06,pick_(['#5b2d8e','#6b3fa0','#e8e2d6']));}});}
+          for(let i=0;i<20;i++){const cx=x-.36+(i%5)*.18,cz=pz-.18+((i/5)|0)*.12;if(red)put('bottle',cx,1.47,cz,.085,.3,.085,pick_(['#2a1a10','#dfe9ee','#f28c28']));else{put('pack',cx,1.47,cz,.1,.15,.06,pick_(['#5b2d8e','#6b3fa0','#e8e2d6']));if(i%2)put('pack',cx,1.62,cz,.1,.15,.06,pick_(['#5b2d8e','#6b3fa0']));}}});}
       {const rz0=Math.max(zTop+.15,store_?-hd+sd+.35:-hd+.3),rz1=Math.min(zBot-.3,rz0+4.5);coolers(1,rz0,rz1,null,[1,2]);
         // snack wall (chips) on the left wall between the coolers and the till
-        const sz0=lz0+(nl?nl*.74+.3:0),sz1=ckZ-1.3,sl=sz1-sz0;if(sl>1.2&&A>=60){blk(-hw+.24,(sz0+sz1)/2,.5,sl);for(let z=sz0+.5;z<sz1-.4;z+=1)face(-hw+.48,z,1,0,'snack');box(.42,1.8,sl,M.oak,-hw+.22,.9,(sz0+sz1)/2);for(let lv=0;lv<5;lv++){box(.4,.02,sl,M.oak,-hw+.24,.05+lv*.34,(sz0+sz1)/2,false);rail(-hw+.44,.07+lv*.34,(sz0+sz1)/2,sl,Math.PI/2);for(let z=sz0+.1;z<sz1-.1;z+=.19*dens)put('bag',-hw+.46,.07+lv*.34,z,.05,.24,.14,pick_(CHIPS));}
+        const sz0=lz0+(nl?nl*.74+.3:0),sz1=ckZ-1.3,sl=sz1-sz0;if(sl>1.2&&A>=60){blk(-hw+.24,(sz0+sz1)/2,.5,sl);for(let z=sz0+.5;z<sz1-.4;z+=1)face(-hw+.48,z,1,0,'snack');box(.42,1.8,sl,M.oak,-hw+.22,.9,(sz0+sz1)/2);for(let lv=0;lv<5;lv++){box(.4,.02,sl,M.oak,-hw+.24,.05+lv*.34,(sz0+sz1)/2,false);rail(-hw+.44,.07+lv*.34,(sz0+sz1)/2,sl,Math.PI/2);for(let z=sz0+.08;z<sz1-.08;z+=.11*dens){put('bag',-hw+.46,.07+lv*.34,z,.05,.24,.14,pick_(CHIPS));put('bag',-hw+.32,.07+lv*.34,z+.05,.05,.24,.14,pick_(CHIPS));}}
           if(!done.sweets)label('Сладки · снаксове',-hw+.5,2.05,(sz0+sz1)/2);const po=new T.Mesh(new T.PlaneGeometry(.7,1.0),M.poster);po.rotation.y=Math.PI/2;po.position.set(-hw+.02,2.4,(sz0+sz1)/2);room.add(po);}}
       // step down to the wine corner: ramp with a white edge stripe and stainless handrails at each aisle crossing
       const aisles=[];if(xs.length){for(let i=0;i<xs.length-1;i++)aisles.push((xs[i]+xs[i+1])/2);if(xs[0]-1.1>-hw+.3)aisles.unshift(xs[0]-1.15);if(xs[xs.length-1]+1.1<hw-.3)aisles.push(xs[xs.length-1]+1.15);}
@@ -1590,7 +1590,7 @@ const space=(function(){
         tour.top=!!key.view;autoLayers(tour.top);
         if(tour.first||tour.k===0&&tour.cold){tour.first=false;tour.cold=false;Object.assign(view,viewFrom(key.cam,key.tgt));apply();}else flyTo(key,key.tw||2.2);
         if(key.u!=null)pick(key.u);return;}
-      tour.t+=dt;const key=K[tour.k];if(key.drift){view.theta+=dt*key.drift;apply();}}
+      if(!(HELP.on&&tour.k===2))tour.t+=dt;const key=K[tour.k];if(key.drift){view.theta+=dt*key.drift;apply();}} // the tour waits inside the door while the help is up, so the help and a diffuser note are never on screen together
     window.__tourK=()=>view.name==='tour'?tour.k:-1;
     focusUnit=i=>{if(!S.units||!S.units[i])return;view.name='focus';TIP.fu=i;idle=0;$$('.views [data-view]').forEach(b=>b.setAttribute('aria-pressed','false'));flyTo(unitKey(i),1.8);};
     function apply(){const s=Math.sin(view.phi);camera.position.set(view.tx+view.r*s*Math.sin(view.theta),view.ty+view.r*Math.cos(view.phi),view.tz+view.r*s*Math.cos(view.theta));camera.lookAt(view.tx,view.ty,view.tz);}
@@ -1694,6 +1694,7 @@ const space=(function(){
     {const e=document.createElement('div');e.className='unit-tip';e.setAttribute('aria-live','polite');e.innerHTML='<b></b><span></span><p></p>';ovl.appendChild(e);TIP.el=e;}
     function tipFrame(w,h){let u=-1;
       if(!tween&&!drag&&!TCH.n&&S.units&&S.units.length){if(view.name==='tour'&&tour.k>=3&&tour.k-3<S.units.length&&tour.t>.15)u=tour.k-3;else if(view.name==='focus'&&TIP.fu!=null)u=TIP.fu;}
+      if(HELP.on)u=-1; // never both: one thing to read at a time
       const un=u>=0?S.units[u]:null;
       if(un){if(TIP.u!==u||TIP.tok!==buildTok){TIP.tok=buildTok;const i=un.info||{};TIP.el.children[0].textContent=(u+1)+' · '+(i.title||'Дифузер');TIP.el.children[1].textContent=i.zone||'';TIP.el.children[2].textContent=i.why||'';TIP.u=u;TIP.w=0;}
         v3.set(un.p[0]+un.d[0]*.14,un.p[1]-(un.PL?.24:.17),un.p[2]+un.d[2]*.14).project(camera);
