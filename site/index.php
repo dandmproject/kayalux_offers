@@ -16,7 +16,7 @@ header('Cache-Control: private, no-store, max-age=0');
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/cormorant-garamond-cyrillic-400-italic.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-cyrillic-400-normal.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-cyrillic-500-normal.woff2">
-<link rel="stylesheet" href="assets/css/offer.min.css?v=44a005c4">
+<link rel="stylesheet" href="assets/css/offer.min.css?v=19f3d2cd">
 </head>
 <body>
 <div class="grain" aria-hidden="true"></div>
@@ -218,7 +218,7 @@ header('Cache-Control: private, no-store, max-age=0');
         </div>
         <div class="stage-under">
           <div class="hud-card" id="hud"><b>Обект</b><span>…</span></div>
-          <span class="hint">Плъзнете, за да завъртите · колелце или два пръста за мащаб · мрежата на пода е 1 × 1 м</span>
+          <span class="hint"><span class="h-mouse">Плъзнете с мишката, за да завъртите · колелцето приближава</span><span class="h-touch">Плъзнете встрани, за да завъртите · два пръста: приближаване и наклон · двойно докосване: презентацията</span> · мрежата на пода е 1 × 1 м</span>
         </div>
         <div class="stage-notes">
           <p class="honest"><b>Как е построена схемата</b>Моделът, броят и цветът на системите са реалните за избрания обект. Помещението е построено по реалната му квадратура, но планът и обзавеждането са типични за веригата (алкохол, цигари, солети, бонбони, чипс, млечни продукти), не заснети от обекта. Точните места ще бъдат описани в Приложение №&nbsp;1.</p>
@@ -485,7 +485,7 @@ header('Cache-Control: private, no-store, max-age=0');
 </footer>
 
 <script defer src="assets/js/three.min.js"></script>
-<script defer src="assets/js/app.min.js?v=daf52823"></script>
+<script defer src="assets/js/app.min.js?v=e601c35d"></script>
 <script>/* моделите (~5 MB, кеширани) тръгват на заден план след зареждането на страницата или когато 3D схемата наближи */addEventListener('DOMContentLoaded',function(){var st=document.getElementById('stage');if(!st||!window.KL_GLTF)return;var go=function(){KL_GLTF.start();};addEventListener('load',function(){setTimeout(function(){(window.requestIdleCallback||function(f){f();})(go);},1500);});if('IntersectionObserver' in window){var io=new IntersectionObserver(function(en){if(en[0].isIntersecting){go();io.disconnect();}},{rootMargin:'1400px'});io.observe(st);}else go();});</script>
 <script>/* локален сървър (tools/serve.py): след обновяване предлага презареждане; на хостинга /__version го няма и нищо не се показва */(function(){if(!document.querySelector('meta[name="kl-local"]'))return;var v=null;function chk(){fetch('/__version',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){if(!j||!j.sha)return;if(v===null){v=j.sha;return;}if(j.sha!==v&&!document.getElementById('klUpd')){var b=document.createElement('button');b.id='klUpd';b.type='button';b.textContent='Има нова версия на офертата · Обнови';b.onclick=function(){location.reload();};document.body.appendChild(b);}}).catch(function(){});}chk();setInterval(chk,60000);})();</script>
 </body>

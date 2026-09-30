@@ -1037,3 +1037,10 @@ input[type=range]{height:28px;padding:6px 0;box-sizing:border-box}
 @media (prefers-reduced-motion:no-preference){.offer-word .shine{animation:klShine 4.8s cubic-bezier(.45,.05,.3,1) .9s infinite}}
 @keyframes klShine{0%{background-position:100% 0}38%,100%{background-position:0 0}}
 @media (prefers-reduced-motion:reduce){.offer-word .shine{animation:klShine 7s ease-in-out 1.2s infinite!important}}
+.hero h1::before{display:none!important}
+/* finger-friendly set: the right hint per device, 44 px touch targets for the view/zoom buttons and the layer switches */
+.hint .h-touch{display:none}
+@media (hover:none) and (pointer:coarse){.hint .h-mouse{display:none}.hint .h-touch{display:inline}
+  .views button{min-height:44px;min-width:44px}.stage-bar label,.layers label{min-height:44px;display:inline-flex;align-items:center}
+  .stage-pick select{min-height:44px;font-size:16px}.pin b{width:30px;height:30px;line-height:30px}
+  .stage-under .hint{display:block!important;font-size:12px;line-height:1.45}}
