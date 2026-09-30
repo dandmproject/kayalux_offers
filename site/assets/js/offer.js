@@ -1112,7 +1112,7 @@ const space=(function(){
     const pf={t:0,n:0,half:TIER===0}; // frame-time meter for the adaptive quality
     function ldSet(p){if(LD.done)return;LD.p=Math.max(LD.p,Math.min(100,p));const e=LD.el;if(e){e.querySelector('.sl-bar i').style.transform='scaleX('+(LD.p/100).toFixed(3)+')';e.querySelector('.sl-pct').textContent=Math.round(LD.p)+'%';e.setAttribute('aria-valuenow',Math.round(LD.p));}if(LD.p>=100)ldDone();}
     function ldDone(){if(LD.done)return;LD.done=true;if(LD.el){LD.el.classList.add('out');setTimeout(()=>{LD.el.hidden=true;},600);}if(view.name==='tour'){tour.k=-1;tour.t=0;tour.first=true;}kick();}
-    function ldTick(){if(LD.done)return;const G=window.KL_GLTF,need=12,now_=performance.now();let mp=1;if(G&&!G.failed)mp=Math.min(1,G.models.length/need);
+    function ldTick(){if(LD.done)return;const G=window.KL_GLTF,need=(G&&G.total)||19,now_=performance.now();let mp=1;if(G&&!G.failed)mp=Math.min(1,(G.doneN||0)/need);
       // last stretch behind the bar: everything to the GPU, then a few seconds of measured frames so a slow phone settles its quality here, not during the presentation
       if(LD.base>=45&&(mp>=1||now_-LD.t0>16000)){if(!LD.settle){LD.settle=now_;warm();pf.t=0;pf.n=0;pf.w=0;pf.ok=0;}
         const st=now_-LD.settle;ldSet(92+Math.min(7,st/600));if(st>1000&&(pf.ok||st>6500))ldSet(100);return;}

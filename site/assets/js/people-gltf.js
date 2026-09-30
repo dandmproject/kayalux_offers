@@ -48,9 +48,9 @@
       G.models.push({scene:gl.scene,file:m.file,height:m.height||1.72,tags:m.tags||['m'],used:0});G.ready=true;
       if(G.renderer)gl.scene.traverse(function(x){if(x.isMesh&&x.material){['map','normalMap','alphaMap'].forEach(function(k){if(x.material[k])G.renderer.initTexture(x.material[k]);});}}); /* textures go to the GPU now, during the loading bar, not when the person first walks into view */
       document.dispatchEvent(new CustomEvent('kl-gltf-model',{detail:{file:m.file,count:G.models.length}}));
-    }).catch(function(e){console.warn('KL_GLTF',m.file,e);}).then(function(){G.loading--;if(!G.pending.length&&!G.loading)document.dispatchEvent(new CustomEvent('kl-gltf-ready',{detail:G}));next();});}
+    }).catch(function(e){console.warn('KL_GLTF',m.file,e);}).then(function(){G.doneN=(G.doneN||0)+1;G.loading--;if(!G.pending.length&&!G.loading)document.dispatchEvent(new CustomEvent('kl-gltf-ready',{detail:G}));next();});}
   var started=false;
-  /* зареждането започва едва когато 3D схемата наближи (offer.js вика KL_GLTF.start()); първите 12 модела веднага, останалите в свободно време */
+  /* зареждането започва едва когато 3D схемата наближи (offer.js вика KL_GLTF.start()); всички модели зад лентата за зареждане */
   G.start=function(){if(started)return G.promise;started=true;
   G.promise=fetch(BASE+'assets/models/manifest.json',{cache:'default'}).then(function(r){return r.ok?r.json():[];}).then(function(list){
     if(!Array.isArray(list)||!list.length)return;
@@ -58,8 +58,7 @@
       /* първо по един от всяка група, после останалите – за да има разнообразие още при първите хора */
       var groups={};list.forEach(function(m){var k=(m.tags||['m']).join(',');(groups[k]=groups[k]||[]).push(m);});
       var order=[],more=true;while(more){more=false;for(var k in groups){if(groups[k].length){order.push(groups[k].shift());more=true;}}}
-      var first=order.slice(0,12),rest=order.slice(12);G.pending=first;next();next();
-      var more=function(){G.pending=G.pending.concat(rest);next();next();};if(window.requestIdleCallback)requestIdleCallback(more,{timeout:2500});else setTimeout(more,1500);});
+      G.total=order.length;G.pending=order;next();next(); /* all of them behind the loading bar: nothing is parsed or uploaded while the presentation runs */});
   }).catch(function(e){G.failed=true;console.warn('KL_GLTF',e);});return G.promise;};
   /* ако никой не извика start() до 8 s след зареждане, започваме сами (за всеки случай) */
   setTimeout(function(){if(!started&&document.getElementById('stage'))G.start();},8000);
