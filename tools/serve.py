@@ -39,8 +39,13 @@ class Handler(SimpleHTTPRequestHandler):
 
     def do_GET(self):
         path = self.path.split('?', 1)[0].split('#', 1)[0]
-        if path == '/':
+        # two offers on one server: / → scent (site/), /pest/ → pest control (pest/)
+        root = os.path.join(BASE, 'pest') if (path == '/pest' or path.startswith('/pest/')) else ROOT
+        if path in ('/pest', '/pest/'):
+            path = '/pest/index.php'
+        elif path == '/':
             path = '/index.php'
+        rel = path[len('/pest'):] if root != ROOT else path  # path inside the chosen root
         if path == '/__version':  # the page asks this to offer a reload after an update
             data = json.dumps({'sha': current_version()}).encode()
             self.send_response(200)
@@ -57,11 +62,11 @@ class Handler(SimpleHTTPRequestHandler):
             print('Спрян: на този компютър е стартирано друго копие на офертата и то поема порта.', flush=True)
             threading.Thread(target=self.server.shutdown, daemon=True).start()
             return
-        if path.startswith('/api/') or '/.' in path:
+        if rel.startswith('/api/') or '/.' in rel:
             self.send_error(404)
             return
-        fs = os.path.realpath(os.path.join(ROOT, path.lstrip('/')))
-        if not fs.startswith(os.path.realpath(ROOT)) or not os.path.isfile(fs):
+        fs = os.path.realpath(os.path.join(root, rel.lstrip('/')))
+        if not fs.startswith(os.path.realpath(root)) or not os.path.isfile(fs):
             self.send_error(404)
             return
         st = os.stat(fs)
@@ -101,7 +106,7 @@ class Handler(SimpleHTTPRequestHandler):
         self.send_header('Vary', 'Accept-Encoding')
         if use_gz:
             self.send_header('Content-Encoding', 'gzip')
-        if any(path.startswith(p) for p in LONG):
+        if any(p in path for p in LONG):
             self.send_header('Cache-Control', 'public, max-age=31536000, immutable')
         else:
             self.send_header('Cache-Control', 'no-cache')
@@ -116,7 +121,7 @@ class Handler(SimpleHTTPRequestHandler):
 # ---------- обновяване от GitHub ----------
 REPO = 'dandmproject/kayalux_offers'
 VERSION_FILE = os.path.join(BASE, '.version')
-SYNC_DIRS = ('site', 'tools', 'hosting', 'offers')
+SYNC_DIRS = ('site', 'pest', 'tools', 'hosting', 'offers')
 _upd_lock = threading.Lock()
 
 

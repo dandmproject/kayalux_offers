@@ -1,5 +1,5 @@
 // Свива скриптовете и стиловете в два файла: assets/js/app.min.js и assets/css/offer.min.css.
-// Прави го за двете оферти: site/ (ароматизация) и site/pest/ (пест контрол).
+// Прави го за двете оферти: site/ (ароматизация) и pest/ (пест контрол).
 // Изходните файлове остават четими; след всяка промяна в тях: cd tools && npm i && node minify.mjs
 import {readFileSync, writeFileSync, existsSync} from 'node:fs';
 import {createHash} from 'node:crypto';
@@ -35,4 +35,4 @@ async function build(name) {
   console.log(name + ':', 'app.min.js', kb(out), '(от', kb(Object.values(parts).join('')) + ')', '· offer.min.css', kb(css));
 }
 
-for (const name of ['site', 'site/pest']) await build(name);
+for (const name of ['site', 'pest']) await build(name);
