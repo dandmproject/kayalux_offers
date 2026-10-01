@@ -55,7 +55,7 @@ header('Cache-Control: private, no-store, max-age=0');
     <div class="mark rise d1">Търговско предложение за веригата „АВАНТИ“ <b>№&nbsp;0926-A</b> · <span style="white-space:nowrap">01.10.2026&nbsp;г.</span></div>
     <div class="offer-word rise d1" role="heading" aria-level="1"><span class="shine">ОФЕРТА</span><em>Професионален пест контрол за 48-те търговски обекта и 2 складови бази на&nbsp;веригата&nbsp;„АВАНТИ“</em></div>
     <h1 class="rise d2" aria-level="2" role="heading">Хигиена, съответствие, <em>единен стандарт</em>.</h1>
-    <p class="lead rise d3">Ежемесечна дезинсекция и постоянни неотровни дератизационни точки във всеки обект — с картосхема и протокол по нормативния образец.</p>
+    <p class="lead rise d3">Ежемесечна дезинсекция и постоянни неотровни дератизационни точки във всеки обект, с картосхема и протокол по нормативния образец.</p>
     <div class="tech rise d3"><span>Наредба № 1 от 05.01.2018 г. и Наредба № 14 от 09.12.2021 г.</span><span>Неотровни точки в обектите за храни</span><span>Сертифицирани биоциди</span><span>Реакция до 24–48 часа без доплащане</span></div>
   </div>
   <div class="wrap">
@@ -173,9 +173,9 @@ header('Cache-Control: private, no-store, max-age=0');
         <div class="sys-card" id="sysCard" aria-live="polite">
           <div class="top"><div class="badge" id="scBadge">1</div><div><h4 id="scTitle">Точка при входа</h4><div class="zone" id="scZone">До входната врата</div></div></div>
           <dl>
-            <dt>Защо тук</dt><dd id="scWhy">—</dd>
-            <dt>Къде точно</dt><dd id="scWhere">—</dd>
-            <dt>Какво проверяваме всеки месец</dt><dd id="scCheck">—</dd>
+            <dt>Защо тук</dt><dd id="scWhy"></dd>
+            <dt>Къде точно</dt><dd id="scWhere"></dd>
+            <dt>Какво проверяваме всеки месец</dt><dd id="scCheck"></dd>
           </dl>
         </div>
         <label class="lab sr" for="ceilRange">Височина на тавана</label>
@@ -187,11 +187,11 @@ header('Cache-Control: private, no-store, max-age=0');
 
     <div class="cols2">
       <div class="prose">
-        <p>Във всеки обект се поставят <strong>2 до 3 точки</strong>. Третата точка се поставя там, където рискът е най-висок — до задния вход, а ако обектът няма такъв, зад хладилните витрини.</p>
-        <p>Всички точки се поставят при първата обиколка на обектите — до 30 дни от потвърждаване на офертата — и се отразяват в картосхемата на обекта.</p>
+        <p>Във всеки обект се поставят <strong>2 до 3 точки</strong>. Третата точка се поставя там, където рискът е най-висок: до задния вход, а ако обектът няма такъв, зад хладилните витрини.</p>
+        <p>Всички точки се поставят при първата обиколка на обектите, до 30 дни от потвърждаване на офертата, и се отразяват в картосхемата на обекта.</p>
       </div>
       <div>
-        <blockquote class="quote">„Протокол за ДДД обработка — подписва се двустранно за обекта. Вписват се броят и видът на точките, резултатът от проверката и се прилага картосхемата.“<cite>Нормативен образец по Наредба № 1 от 05.01.2018 г.</cite></blockquote>
+        <blockquote class="quote">„Протокол за ДДД обработка: подписва се двустранно за обекта. Вписват се броят и видът на точките, резултатът от проверката и се прилага картосхемата.“<cite>Нормативен образец по Наредба № 1 от 05.01.2018 г.</cite></blockquote>
       </div>
     </div>
   </div>
@@ -202,7 +202,7 @@ header('Cache-Control: private, no-store, max-age=0');
   <div class="wrap">
     <div class="head">
       <div class="no"><b>IV</b><span>Пакет</span></div>
-      <div><h2>Основен пакет — интегриран пест контрол</h2><p class="lead">Раздел I. Всичко необходимо за нормативно съответствие и единен стандарт в цялата верига.</p></div>
+      <div><h2>Основен пакет: интегриран пест контрол</h2><p class="lead">Раздел I. Всичко необходимо за нормативно съответствие и единен стандарт в цялата верига.</p></div>
     </div>
     <div class="incl">
       <div>
@@ -214,17 +214,17 @@ header('Cache-Control: private, no-store, max-age=0');
           <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Дезинсекцията за септември 2026&nbsp;г. вече е извършена във всички 48 обекта и в централния склад в гр.&nbsp;София.</span></li>
         </ul></section>
         <section><h4>Постоянни неотровни точки</h4><ul>
-          <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>2 до 3 вътрешни точки във всеки обект — лепливи плоскости в затворени кутии с капак (еко трап), неподвижно закрепени.</span></li>
+          <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>2 до 3 вътрешни точки във всеки обект: лепливи плоскости в затворени кутии с капак (еко трап), неподвижно закрепени.</span></li>
           <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>При всяко посещение точките се проверяват, плоскостите се сменят при необходимост, а резултатът се отразява в протокола.</span></li>
         </ul></section>
       </div>
       <div>
         <section><h4>Складови бази</h4><ul>
-          <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Дезинсекция и дератизационен периметър в централния склад в София и склада в Бургас — външни отровни станции в заключващи се кутии и вътрешни неотровни точки. Обхватът и цената се определят след оглед.</span></li>
+          <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Дезинсекция и дератизационен периметър в централния склад в София и склада в Бургас: външни отровни станции в заключващи се кутии и вътрешни неотровни точки. Обхватът и цената се определят след уточнение на броя вътрешни неотровни дератизационни точки + външни отровни станции в заключващи се кутии и общи площи на складовата база след оглед.</span></li>
         </ul></section>
         <section><h4>Стандарти и гаранция</h4><ul>
-          <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Всички обработки — по Наредба&nbsp;№&nbsp;1 от 05.01.2018&nbsp;г., с двустранни протоколи по нормативния образец за РЗИ и БАБХ.</span></li>
-          <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Сертифицирани биоциди от водещи производители (PelGar International, Bayer, Syngenta, Mylva) — безопасни за хората и безвредни за стоката и интериора.</span></li>
+          <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Всички обработки се извършват по Наредба&nbsp;№&nbsp;1 от 05.01.2018&nbsp;г., с двустранни протоколи по нормативния образец за РЗИ и БАБХ.</span></li>
+          <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Сертифицирани биоциди от водещи производители (PelGar International, Bayer, Syngenta, Mylva), безопасни за хората и безвредни за стоката и интериора.</span></li>
           <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Реакция до 24–48 часа при сигнал или уловен гризач, без доплащане. (Извън София транспортът при извънредно посещение се уточнява.)</span></li>
           <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Всички дейности се планират според работното време на обектите и се удостоверяват с двустранно подписан протокол.</span></li>
         </ul></section>
@@ -311,15 +311,15 @@ header('Cache-Control: private, no-store, max-age=0');
     <div class="incl">
       <div>
         <section><h4>Оборудване и условия</h4><ul>
-          <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>96 до 144 неотровни кутии с лепливи плоскости — безплатно за сметка на „УНИЩОЖИТЕЛИ“ ЕООД за срока на договора.</span></li>
-          <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Смяна на плоскостите и стикерите — включена в месечната цена от 5,00&nbsp;€ на обект.</span></li>
-          <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Без транспортни разходи извън София — 8-те обекта в страната се обслужват при редовните посещения.</span></li>
+          <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>96 до 144 неотровни кутии с лепливи плоскости, безплатно, за сметка на „УНИЩОЖИТЕЛИ“ ЕООД за срока на договора.</span></li>
+          <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Смяна на плоскостите и стикерите, включена в месечната цена от 5,00&nbsp;€ на обект.</span></li>
+          <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Без транспортни разходи извън София: 8-те обекта в страната се обслужват при редовните посещения.</span></li>
         </ul></section>
       </div>
       <div>
         <section><h4>Плащане и фактуриране</h4><ul>
           <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>По банков път до 15 работни дни след извършване на услугите и подписване на протоколите.</span></li>
-          <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Една месечна фактура — с разбивка по обекти или с обща стойност. Цените се прилагат от фактурата за септември 2026&nbsp;г.; точките — от месеца на поставянето им.</span></li>
+          <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Една месечна фактура с разбивка по обекти или с обща стойност. Цените се прилагат от фактурата за септември 2026&nbsp;г., а за точките от месеца на поставянето им.</span></li>
         </ul></section>
         <div class="bankbox">
           <div><small>Банка</small><b>ДСК Банк</b></div>
@@ -339,7 +339,7 @@ header('Cache-Control: private, no-store, max-age=0');
       <div><h2>Допълнителни услуги при необходимост</h2><p class="lead">Раздел III. Заявяват се при сезонна или специфична необходимост и се остойностяват отделно след предварителен оглед.</p></div>
     </div>
     <div class="svc-grid">
-      <div class="svc"><h4>Змии и гущери</h4><p>Безопасно отстраняване при проникване и превантивни мерки — уплътняване на отвори и репелентни бариери.</p></div>
+      <div class="svc"><h4>Змии и гущери</h4><p>Безопасно отстраняване при проникване и превантивни мерки: уплътняване на отвори и репелентни бариери.</p></div>
       <div class="svc"><h4>Скорпиони</h4><p>Целева дезинсекция при сигнал и превантивна обработка в обекти с установено присъствие, особено през топлия сезон.</p></div>
       <div class="svc"><h4>Оси и стършели</h4><p>Третиране и премахване на гнезда около входовете, витрините, рекламните табели и складовете.</p></div>
       <div class="svc"><h4>Птици</h4><p>Неръждаеми шипове против гълъби и лястовици по фасади, козирки, первази и рекламни табели.</p></div>
@@ -350,7 +350,7 @@ header('Cache-Control: private, no-store, max-age=0');
     </div>
     <h3 class="h3-gap">Специализирани корпоративни решения</h3>
     <div class="why3">
-      <div><h4>Фумигация на складове</h4><p>Обеззаразяване на складови площи и стоки при внос/износ, със сертификат — при необходимост за складовите бази на веригата.</p></div>
+      <div><h4>Фумигация на складове</h4><p>Обеззаразяване на складови площи и стоки при внос/износ, със сертификат, при необходимост за складовите бази на веригата.</p></div>
       <div><h4>HACCP консултиране и одити</h4><p>Внедряване и мониторинг на системи за безопасност на храните в обектите и складовете.</p></div>
       <div><h4>Служба по трудова медицина</h4><p>Пълно законово обслужване, оценка на работната среда и професионалния риск.</p></div>
     </div>
@@ -414,7 +414,7 @@ header('Cache-Control: private, no-store, max-age=0');
 </footer>
 
 <script defer src="assets/js/three.min.js"></script>
-<script defer src="assets/js/app.min.js?v=5888c9a5"></script>
+<script defer src="assets/js/app.min.js?v=c5b16acc"></script>
 <script>/* моделите тръгват на заден план след зареждането или когато 3D схемата наближи */addEventListener('DOMContentLoaded',function(){var st=document.getElementById('stage');if(!st||!window.KL_GLTF)return;var go=function(){KL_GLTF.start();};addEventListener('load',function(){setTimeout(function(){(window.requestIdleCallback||function(f){f();})(go);},1500);});if('IntersectionObserver' in window){var io=new IntersectionObserver(function(en){if(en[0].isIntersecting){go();io.disconnect();}},{rootMargin:'1400px'});io.observe(st);}else go();});</script>
 <script>/* телефон: докато 3D схемата е на екрана, бутоните за контакт се отдръпват */(function(){var d=document.querySelector('.dock'),c=document.querySelector('.stage-col');if(!d||!c||!('IntersectionObserver' in window))return;new IntersectionObserver(function(e){d.classList.toggle('dim',e[0].isIntersecting);},{threshold:.25}).observe(c);})();</script>
 <script>/* локален сървър: след обновяване предлага презареждане */(function(){if(!document.querySelector('meta[name="kl-local"]'))return;var v=null;function chk(){fetch('/__version',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){if(!j||!j.sha)return;if(v===null){v=j.sha;return;}if(j.sha!==v&&!document.getElementById('klUpd')){var b=document.createElement('button');b.id='klUpd';b.type='button';b.textContent='Има нова версия на офертата · Обнови';b.onclick=function(){location.reload();};document.body.appendChild(b);}}).catch(function(){});}chk();setInterval(chk,60000);})();</script>

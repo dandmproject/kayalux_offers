@@ -421,13 +421,13 @@ const space=(function(){
   // 2 to 3 points per store: 2 up to ~100 m², 3 above. Point 1 at the entrance, then the interior/coolers, and for large stores the
   // back entrance / storage corner, where the risk is highest. Text: why here · where exactly · what we check every month.
   function unitsFor(A){
-    const model='Неотровна дератизационна точка — леплива плоскост в затворена еко кутия с капак, неподвижно закрепена на пода.';
+    const model='Неотровна дератизационна точка: леплива плоскост в затворена еко кутия с капак, неподвижно закрепена на пода.';
     const base={model},pts=A>100?3:2;
     const check='Състоянието на лепливата плоскост, следи от гризачи, целостта на кутията и номерирания стикер. Резултатът се вписва в протокола.';
     const P1={...base,title:'Точка при входа',zone:'До входната врата',why:'Входната врата е основният път за проникване на гризачи от улицата, а входът и касата са с най-голям поток. Точка №1 пази първата линия.',where:'На пода до рамката на входната врата, встрани от пътя на клиентите.',check,at:'FD',f:0};
-    const P2={...base,title:'Точка във вътрешната част',zone:'Зад хладилните витрини',why:'Топлината и кабелните канали зад хладилните витрини привличат гризачи и са скрити от погледа — типична рискова зона в магазин за храни.',where:'На пода зад хладилните витрини, до стената.',check,at:'FL',f:.05};
+    const P2={...base,title:'Точка във вътрешната част',zone:'Зад хладилните витрини',why:'Топлината и кабелните канали зад хладилните витрини привличат гризачи и са скрити от погледа: типична рискова зона в магазин за храни.',where:'На пода зад хладилните витрини, до стената.',check,at:'FL',f:.05};
     const P3={...base,title:'Точка в задната част',zone:'Заден вход / към склада',why:'Задният вход и зоната за доставки са с най-висок риск. Ако обектът няма заден вход, третата точка се поставя зад хладилните витрини.',where:'До задния вход или в ъгъла към склада, на пода до стената.',check,at:'FB',f:-.1};
-    return pts===2?[P1,{...P3,title:'Точка в задната част',zone:'Задна част на залата',why:'Покрива далечната половина на залата и зоната към склада — там, докъдето рискът от входа не стига.'}]:[P1,P2,P3];
+    return pts===2?[P1,{...P3,title:'Точка в задната част',zone:'Задна част на залата',why:'Покрива далечната половина на залата и зоната към склада, докъдето рискът от входа не стига.'}]:[P1,P2,P3];
   }
   function schedText(){
     const h=HRS,wk=((h.wd.full[1]-h.wd.full[0])*6+(h.sun.full[1]-h.sun.full[0]))/60;
@@ -1472,6 +1472,10 @@ const space=(function(){
     function clearRoom(){buildTok++;pending.forEach(cancelAnimationFrame);pending=[];camSub=null;
       people.concat(extras).forEach(p=>{if(p.userData.gltfP){room.remove(p);if(window.KL_GLTF)window.KL_GLTF.release(p);}});
       room.traverse(o=>{if(o.geometry&&!GEOSET.has(o.geometry))o.geometry.dispose();if(o.isSkinnedMesh){o.skeleton.dispose();if(o.material.map)o.material.map.dispose();o.material.dispose();}if(o.isSprite||(o.material&&o.material.userData&&o.material.userData.own))o.material.dispose();});
+      // textures and materials made for this store (labels, stickers, signs drawn on canvases...) are freed too; a shared one that is used
+      // again is simply uploaded again. Without this every store switch left its textures on the GPU: the scene grew slower over time
+      {const MK=['map','emissiveMap','normalMap','roughnessMap','metalnessMap','alphaMap','aoMap','bumpMap'],keepM=new Set(),keepT=new Set();Object.values(M).forEach(m=>{if(m&&m.isMaterial){keepM.add(m);MK.forEach(k=>m[k]&&keepT.add(m[k]));}});
+        const seenT=new Set();room.traverse(o=>{if(!o.material)return;(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{MK.forEach(k=>{const t=m[k];if(t&&!keepT.has(t)&&!seenT.has(t)){seenT.add(t);t.dispose();}});if(!keepM.has(m))m.dispose();});});}
       room.clear();overlay.forEach(o=>o.el.remove());overlay.length=0;people.length=0;extras.length=0;heat=null;flowLine=null;flowCurve=null;acc={};vacc=[];vaccM=[];vaccF=[];vaccC=[];LAYER=null;}
     let acc={},vacc=[],vaccM=[],vaccF=[],vaccC=[],LAYER=null,buildTok=0,pending=[]; // LAYER: the shop front (fades when seen from above) or the ceiling fixtures (hidden from above)
     // everything goes to the GPU up front (shader programs + textures), not on the first frame an object comes into view: no hitch when the camera enters the store
@@ -1797,7 +1801,7 @@ const space=(function(){
       if($('#lyCover').checked)makeHeat();
       // light rig
       key.position.set(-W*.25,Hh*4.2,D*.4);key.target.position.set(0,0,0);const sc=key.shadow.camera,R=Math.max(W,D)*.85;sc.left=-R;sc.right=R;sc.top=R;sc.bottom=-R;sc.near=.5;sc.far=Hh*10+Math.max(W,D)*4;sc.updateProjectionMatrix();
-      recolor();labelsVis();M.badge.map=badgeTex();M.badge.needsUpdate=true;
+      recolor();labelsVis();if(!M.badge.map){M.badge.map=badgeTex();M.badge.needsUpdate=true;} /* drawn once, not a new texture for every store */
       pown.fill(-1);pAl.fill(0);emitAcc=0;
       go(view.name==='free'?'persp':view.name,true);renderer.shadowMap.needsUpdate=true;warm();
       if(window.__perf)window.__perf.build0=performance.now()-t0;

@@ -101,7 +101,7 @@ header('Cache-Control: private, no-store, max-age=0');
     </div>
     <ol class="timeline" aria-label="Хронология">
       <li><div class="when">06.07.2026</div><div class="what">Първоначална оферта</div><div class="why">Изготвена предварително, преди да имаме реални данни.</div></li>
-      <li><div class="when">юли – август</div><div class="what">Тест в 13 обекта</div><div class="why">5 в София и 8 във Варна, Бургас и Велико Търново.</div></li>
+      <li><div class="when">юли–август</div><div class="what">Тест в 13 обекта</div><div class="why">5 в София и 8 във Варна, Бургас и Велико Търново.</div></li>
       <li><div class="when">септември</div><div class="what">Монтаж в останалите обекти</div><div class="why">Ароматизацията работи във всички 48 обекта.</div></li>
       <li class="now"><div class="when">01.10.2026</div><div class="what">Тази актуализация</div><div class="why">Окончателни цени от фактурата за септември 2026&nbsp;г.</div></li>
     </ol>
@@ -401,7 +401,7 @@ header('Cache-Control: private, no-store, max-age=0');
           <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Реакция до 48 часа при технически проблем; безплатна подмяна на системата при повреда и нормална експлоатация.</span></li>
         </ul></section>
         <section><h4>Фактуриране</h4><ul>
-          <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Една месечна фактура с разбивка по обекти или една месечна фактура с обща стойност по офертата – по ваш избор.</span></li>
+          <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Една месечна фактура с разбивка по обекти или една месечна фактура с обща стойност по офертата, по ваш избор.</span></li>
         </ul></section>
       </div>
     </div>
@@ -493,7 +493,7 @@ header('Cache-Control: private, no-store, max-age=0');
 </footer>
 
 <script defer src="assets/js/three.min.js"></script>
-<script defer src="assets/js/app.min.js?v=9de6743c"></script>
+<script defer src="assets/js/app.min.js?v=6f046ca0"></script>
 <script>/* моделите (~5 MB, кеширани) тръгват на заден план след зареждането на страницата или когато 3D схемата наближи */addEventListener('DOMContentLoaded',function(){var st=document.getElementById('stage');if(!st||!window.KL_GLTF)return;var go=function(){KL_GLTF.start();};addEventListener('load',function(){setTimeout(function(){(window.requestIdleCallback||function(f){f();})(go);},1500);});if('IntersectionObserver' in window){var io=new IntersectionObserver(function(en){if(en[0].isIntersecting){go();io.disconnect();}},{rootMargin:'1400px'});io.observe(st);}else go();});</script>
 <script>/* телефон: докато 3D схемата е на екрана, бутоните за контакт се отдръпват */(function(){var d=document.querySelector('.dock'),c=document.querySelector('.stage-col');if(!d||!c||!('IntersectionObserver' in window))return;new IntersectionObserver(function(e){d.classList.toggle('dim',e[0].isIntersecting);},{threshold:.25}).observe(c);})();</script>
 <script>/* локален сървър (tools/serve.py): след обновяване предлага презареждане; на хостинга /__version го няма и нищо не се показва */(function(){if(!document.querySelector('meta[name="kl-local"]'))return;var v=null;function chk(){fetch('/__version',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){if(!j||!j.sha)return;if(v===null){v=j.sha;return;}if(j.sha!==v&&!document.getElementById('klUpd')){var b=document.createElement('button');b.id='klUpd';b.type='button';b.textContent='Има нова версия на офертата · Обнови';b.onclick=function(){location.reload();};document.body.appendChild(b);}}).catch(function(){});}chk();setInterval(chk,60000);})();</script>
