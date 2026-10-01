@@ -1298,3 +1298,7 @@ footer.foot .kl-marka-prava{align-items:center}
 @media (max-width:360px){.brand .logo{height:16px}.nav .doc .av-logo{height:16px}.nav .doc{margin-left:6px;padding-left:6px}.nav .wrap{gap:6px}} /* 320-360 px phones: everything in the bar still fits */
 footer.foot{overflow:hidden} /* the glint moving over the letters never widens the page on a phone */
 @media (max-width:380px){.head h2{font-size:clamp(1.45rem,7.2vw,1.9rem);overflow-wrap:break-word;hyphens:auto}} /* long Bulgarian words fit a 320 px screen */
+.svc{--svc-bg:color-mix(in srgb,var(--gold) 9%,var(--surface))}
+.svc-ic{display:grid;place-items:center;width:66px;height:66px;border-radius:50%;margin-bottom:12px;color:var(--gold);background:var(--svc-bg);border:1px solid color-mix(in srgb,var(--gold) 38%,transparent)}
+.svc-ic svg{width:60px;height:60px;display:block;stroke-width:2.1}
+@media print{.svc-ic{border-color:#c9b98a;background:#fff;color:#8a6a22}}
