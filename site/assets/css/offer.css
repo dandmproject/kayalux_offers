@@ -1143,3 +1143,5 @@ input[type=range]{height:28px;padding:6px 0;box-sizing:border-box}
 .fig b .fig-pre{font-family:var(--body);font-size:.36em;font-weight:500;letter-spacing:.12em;text-transform:uppercase;vertical-align:.55em;margin-right:.35em;color:var(--gold-soft)} /* "под" before a figure: a small upright word, the number stays the figure */
 footer.foot{overflow:hidden} /* the glint moving over the letters never widens the page on a phone */
 @media (max-width:380px){.head h2{font-size:clamp(1.45rem,7.2vw,1.9rem);overflow-wrap:break-word;hyphens:auto}} /* long Bulgarian words fit a 320 px screen */
+.nav .doc{flex:none}
+@media (min-width:1301px) and (max-width:1520px){.nav .doc .dl{display:none}} /* with the chapter bar shown: a shorter label, so the bar never pushes the theme button off screen */

@@ -16,7 +16,7 @@ header('Cache-Control: private, no-store, max-age=0');
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/cormorant-garamond-cyrillic-400-italic.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-cyrillic-400-normal.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-cyrillic-500-normal.woff2">
-<link rel="stylesheet" href="assets/css/offer.min.css?v=d9b8b92d">
+<link rel="stylesheet" href="assets/css/offer.min.css?v=4fb95ffd">
 </head>
 <body>
 <div class="grain" aria-hidden="true"></div>

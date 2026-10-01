@@ -1302,3 +1302,5 @@ footer.foot{overflow:hidden} /* the glint moving over the letters never widens t
 .svc-ic{display:grid;place-items:center;width:66px;height:66px;border-radius:50%;margin-bottom:12px;color:var(--gold);background:var(--svc-bg);border:1px solid color-mix(in srgb,var(--gold) 38%,transparent)}
 .svc-ic svg{width:60px;height:60px;display:block;stroke-width:2.1}
 @media print{.svc-ic{border-color:#c9b98a;background:#fff;color:#8a6a22}}
+.nav .doc{flex:none} /* never squeezed: the logo stays inside its block */
+@media (min-width:1301px) and (max-width:1520px){.nav .doc .dl{display:none}.nav .doc .av-logo{margin-left:0}} /* with the chapter bar shown: the logo alone, so nothing touches the chapters */
