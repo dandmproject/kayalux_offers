@@ -1330,3 +1330,9 @@ footer.foot{overflow:hidden} /* the glint moving over the letters never widens t
 @media (max-width:420px){.svc2-grid{grid-template-columns:1fr}.svc2{padding:18px 16px 0}.svc-bar .seg{width:100%}.svc-bar .seg button{flex:1 1 auto;padding:8px 9px}}
 @media print{.svc-bar .seg{display:none}.svc2{break-inside:avoid}.svc2[hidden]{display:flex}}
 @media (max-width:520px){.svc-bar .seg{display:grid;grid-template-columns:1fr 1fr;width:100%}.svc-bar .seg button{padding:9px 8px}} /* the filter as a neat 2 x 2 on phones */
+/* „Текущо състояние“ is a non-compliance (no bait points in the stores yet): a bright red signal, not the green „ok“ */
+.live{--live:#ff2a2a;border-color:rgba(255,42,42,.45)}
+.live i{background:var(--live);box-shadow:0 0 10px 1px rgba(255,42,42,.65)}
+.live i::before{border-color:var(--live)}
+.live b{color:var(--live)}
+:root[data-theme="light"] .live{--live:#e00000}
