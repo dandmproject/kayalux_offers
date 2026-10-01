@@ -1221,19 +1221,41 @@ const space=(function(){
     let acc={},vacc=[],vaccM=[],vaccF=[],vaccC=[],LAYER=null,buildTok=0,pending=[]; // LAYER: the shop front (fades when seen from above) or the ceiling fixtures (hidden from above)
     // everything goes to the GPU up front (shader programs + textures), not on the first frame an object comes into view: no hitch when the camera enters the store
     const TEXK=['map','roughnessMap','metalnessMap','normalMap','alphaMap','emissiveMap','bumpMap','aoMap','envMap'];
-    function warm(){try{scene.traverse(o=>{const ms=o.material?(Array.isArray(o.material)?o.material:[o.material]):null;if(ms)ms.forEach(m=>TEXK.forEach(k=>{const t=m[k];if(t&&t.isTexture&&t.userData.up!==t.version){renderer.initTexture(t);t.userData.up=t.version;}}));});renderer.compile(scene,camera);}catch(e){}}
+    // decals (signs, labels, posters, shade and glass sheets, stickers) lie on a surface: a small depth bias keeps them in front of it at every distance and angle,
+    // instead of trading pixels with it (flicker). Only materials used solely on flat sheets get it; a material shared with solid boxes is left alone.
+    const DECALS=()=>[M.ao,M.aoV,M.glassC,M.headCoke,M.headBeer,M.headBurg].filter(Boolean);
+    function decalize(){const solid=new Set(),flat=new Set();room.traverse(o=>{if(!o.isMesh)return;const ms=Array.isArray(o.material)?o.material:[o.material];const pl=o.geometry&&o.geometry.type==='PlaneGeometry';ms.forEach(m=>(pl?flat:solid).add(m));});
+      DECALS().forEach(m=>flat.add(m));flat.forEach(m=>{if(solid.has(m)&&!DECALS().includes(m))return;if(!m.polygonOffset){m.polygonOffset=true;m.polygonOffsetFactor=-1;m.polygonOffsetUnits=-2;m.needsUpdate=true;}});}
+    function warm(){try{decalize();scene.traverse(o=>{const ms=o.material?(Array.isArray(o.material)?o.material:[o.material]):null;if(ms)ms.forEach(m=>TEXK.forEach(k=>{const t=m[k];if(t&&t.isTexture&&t.userData.up!==t.version){renderer.initTexture(t);t.userData.up=t.version;}}));});renderer.compile(scene,camera);}catch(e){}}
     // every person model's materials compiled up front (their originals are briefly part of the scene for the compile): a model walking in for
     // the first time a minute into the presentation must not stall the frame – on Windows/ANGLE (Firefox, Chrome) one shader compile costs 100+ ms
     function warmModels(){const G=GL();if(!G)return;const hold=new T.Group();hold.visible=false;G.models.forEach(m=>{if(!m.warm){m.warm=1;hold.add(m.scene);}});if(!hold.children.length)return;scene.add(hold);warm();scene.remove(hold);[...hold.children].forEach(c=>hold.remove(c));}
     function later(fn){const tok=buildTok;pending.push(requestAnimationFrame(()=>{if(tok!==buildTok)return;fn();warm();renderer.shadowMap.needsUpdate=true;kick();}));}
+    // ?zf=1 (debug only): every axis-aligned box is recorded, so __zf() can list coplanar overlapping faces of different materials — the cause of flicker (z-fighting)
+    const ZF=/[?&]zf=1/.test(location.search),ZB=[];
+    const REC=[]; // every axis-aligned box of the build being made: {id (material or colour), g (its geometry), mn, mx, s (source, ?zf=1 only)}
+    function zfR(id,g){g.computeBoundingBox();const b=g.boundingBox;let s='';if(ZF){try{s=(((new Error()).stack||'').split('\n')[3]||'').trim();}catch(e){}}REC.push({id,g,mn:b.min.toArray(),mx:b.max.toArray(),s});}
+    // two different surfaces in one plane flicker as the camera moves (z-fighting). The thinner of the two boxes — a trim, a strip, a plinth,
+    // a pole, a sign board — is the detail that belongs in front, so its face moves out by 2 mm: invisible as a size change, and the flicker is gone
+    function unfight(){for(let pass=0;pass<2;pass++){const F=[];REC.forEach((b,bi)=>{for(let a=0;a<3;a++){const o=a===0?[1,2]:a===1?[0,2]:[0,1],r=[b.mn[o[0]],b.mx[o[0]],b.mn[o[1]],b.mx[o[1]]];F.push({bi,a,s:-1,r});F.push({bi,a,s:1,r});}});
+        const cur=f=>f.s>0?REC[f.bi].mx[f.a]:REC[f.bi].mn[f.a];
+        const Bk=new Map();F.forEach((f,i)=>{const k=(f.a*3+f.s+1)+'|'+Math.round(cur(f)*500);let L=Bk.get(k);if(!L)Bk.set(k,L=[]);L.push(i);});
+        const test=(i,j)=>{const f=F[i],g=F[j],A=REC[f.bi],B=REC[g.bi];if(A.id===B.id)return;const pf=cur(f),pg=cur(g);if(Math.abs(pf-pg)>.0012)return;if(f.a===1&&f.s<0&&pf<.01)return;
+          const ox=Math.min(f.r[1],g.r[1])-Math.max(f.r[0],g.r[0]),oy=Math.min(f.r[3],g.r[3])-Math.max(f.r[2],g.r[2]);if(ox<=.004||oy<=.004)return;
+          const ta=A.mx[f.a]-A.mn[f.a],tb=B.mx[g.a]-B.mn[g.a],aa=(f.r[1]-f.r[0])*(f.r[3]-f.r[2]),ab=(g.r[1]-g.r[0])*(g.r[3]-g.r[2]);
+          const pk=(ta<tb-1e-4||(Math.abs(ta-tb)<=1e-4&&aa<=ab))?f:g,other=pk===f?g:f,from=cur(pk),to=cur(other)+pk.s*.002,dv=to-from; // always 2 mm in front of the other face's current position
+          if(pk.s*dv<=0)return;const R=REC[pk.bi],P=R.g.attributes.position,arr=P.array;for(let v=0;v<P.count;v++){const q=v*3+pk.a;if(Math.abs(arr[q]-from)<1e-4)arr[q]+=dv;}P.needsUpdate=true;
+          if(pk.s>0)R.mx[pk.a]=to;else R.mn[pk.a]=to;};
+        Bk.forEach((L,k)=>{const [h,q]=k.split('|'),L2=Bk.get(h+'|'+(+q+1));for(let x=0;x<L.length;x++){for(let y=x+1;y<L.length;y++)test(L[x],L[y]);if(L2)for(const j of L2)test(L[x],j);}});}
+      if(ZF){ZB.length=0;REC.forEach(r=>ZB.push({id:r.id,mn:r.mn,mx:r.mx,s:r.s}));}REC.length=0;}
     function boxG(w,h,d,s){const g=new T.BoxGeometry(w,h,d);if(s){const uv=g.attributes.uv,dims=[[d,h],[d,h],[w,d],[w,d],[w,h],[w,h]];for(let i=0;i<uv.count;i++){const f=(i/4)|0;uv.setXY(i,uv.getX(i)*dims[f][0]/s,uv.getY(i)*dims[f][1]/s);}}return g;}
     // boxes are collected per material and merged into one mesh each at the end of build()
-    function box(w,h,d,m,x,y,z,sh){const g=boxG(w,h,d,m.map?1.5:0);g.translate(x,y,z);const key=m.uuid+(sh!==false?'s':'n');if(!acc[key])acc[key]={m,sh:sh!==false,geos:[]};acc[key].geos.push(g);}
+    function box(w,h,d,m,x,y,z,sh){const g=boxG(w,h,d,m.map?1.5:0);g.translate(x,y,z);zfR(m.uuid,g);const key=m.uuid+(sh!==false?'s':'n');if(!acc[key])acc[key]={m,sh:sh!==false,geos:[]};acc[key].geos.push(g);}
     function geo(g,m,sh){const key=m.uuid+(sh!==false?'s':'n');if(!acc[key])acc[key]={m,sh:sh!==false,geos:[]};acc[key].geos.push(g);}
     // vertex-coloured props: all merged into one M.vc mesh (and one M.vcm mesh for metal)
-    function cbox(w,h,d,col,x,y,z,metal,ry){const g=new T.BoxGeometry(w,h,d);if(ry)g.rotateY(ry);g.translate(x,y,z);(LAYER||(metal?vaccM:vacc)).push([g,col]);}
+    function cbox(w,h,d,col,x,y,z,metal,ry){const g=new T.BoxGeometry(w,h,d);if(ry)g.rotateY(ry);g.translate(x,y,z);if(!ry||Math.abs(Math.sin(2*ry))<1e-6)zfR((metal?'vm':'v')+col,g);(LAYER||(metal?vaccM:vacc)).push([g,col]);}
     function cgeo(g,col,x,y,z,metal){g.translate(x,y,z);(LAYER||(metal?vaccM:vacc)).push([g,col]);}
-    function flush(){Object.values(acc).forEach(a=>{const o=new T.Mesh(mergeGeos(a.geos),a.m);o.castShadow=a.sh;o.receiveShadow=true;room.add(o);});acc={};
+    function flush(){unfight();Object.values(acc).forEach(a=>{const o=new T.Mesh(mergeGeos(a.geos),a.m);o.castShadow=a.sh;o.receiveShadow=true;room.add(o);});acc={};
       if(vaccF.length){const o=new T.Mesh(mergeColored(vaccF),M.vcF);o.receiveShadow=true;room.add(o);}if(vaccC.length){const o=new T.Mesh(mergeColored(vaccC),M.vcC);room.add(o);}vaccF=[];vaccC=[];
       if(vacc.length){const o=new T.Mesh(mergeColored(vacc),M.vc);o.castShadow=true;o.receiveShadow=true;room.add(o);}if(vaccM.length){const o=new T.Mesh(mergeColored(vaccM),M.vcm);o.receiveShadow=true;room.add(o);}vacc=[];vaccM=[];}
     const SHORT={'Сладки · снаксове':'Снаксове','Хладилни витрини · напитки':'Витрини','Алкохолни напитки':'Алкохол','Кафе · чай':'Кафе','Склад / офис':'Склад'};
@@ -1304,7 +1326,7 @@ const space=(function(){
       // exterior: black fascia with red АВАНТИ + subtitle, poster, canopy with round downlights, pavement, steps, ramp with railing, street backdrop
       {const fz=hd+t+.05;LAYER=vaccF;cbox(W+2*t+.3,Hh-gH+.35,.1,'#151515',0,(Hh+gH)/2+.1,fz);LAYER=null;const fp=new T.Mesh(new T.PlaneGeometry(Math.min(W,9),Hh-gH+.2),M.facade);fp.position.set(doorX,(Hh+gH)/2+.08,fz+.06);room.add(fp);
         // only the real АВАНТИ sign on the fascia (no floating copy above the store)
-        const ps=new T.Mesh(new T.PlaneGeometry(1.4,2.1),M.adPoster);ps.position.set(Math.min(hw-.9,doorX+doorW/2+1.3),1.35,hd+t/2+.03);room.add(ps);
+        const ps=new T.Mesh(new T.PlaneGeometry(1.4,2.1),M.adPoster);ps.position.set(Math.min(hw-.9,doorX+doorW/2+1.3),1.35,hd+t/2+.026); // 4 mm behind the open/closed sign, which can overlap it in a narrow frontroom.add(ps);
         LAYER=vaccF;cbox(doorW+3.2,.14,1.7,'#1c1c1c',doorX+.4,gH+.02,hd+.95);for(let i=-1;i<=1;i+=2){const dl=new T.CylinderGeometry(.13,.13,.02,12);cgeo(dl,'#ffffff',doorX+.4+i*.9,gH-.06,hd+1.0);}LAYER=null;
         const av=new T.Mesh(new T.PlaneGeometry(.3,.4),M.avantiRed);av.position.set((hw-(doorX+doorW/2)>.75)?doorX+doorW/2+.36:doorX-doorW/2-.36,.85,hd+t/2+.02);room.add(av);
         cbox(doorW+3.6,.45,1.75,'#9a9a98',doorX+.4,-.225,hd+.875);cbox(W+2*t,.45,.6,'#8f8f8d',0,-.225,hd+.3);
@@ -1321,7 +1343,7 @@ const space=(function(){
         const rx=doorX+doorW/2;if(hw-rx>1.9){const fx=rx+.95,fz=hd-.72;blk(fx,fz,1.35,.72);cbox(1.35,.82,.72,'#1fb5b0',fx,.41,fz);cbox(1.35,.05,.72,'#eef2f2',fx,.85,fz);cbox(1.2,.02,.5,'#bfe6f0',fx,.88,fz);cbox(1.35,.06,.72,'#0e7d79',fx,.03,fz);
           const mx=Math.min(hw-.42,rx+2.0),mz=hd-.6;blk(mx,mz,.72,.7);face(mx-.36,mz,-1,0,'milka');cbox(.72,1.95,.7,'#5b2d8e',mx,.975,mz);const mg=new T.PlaneGeometry(.6,1.5);mg.rotateY(Math.PI);mg.translate(mx,1.05,mz-.352);glassAcc.push(mg);box(.6,1.5,.02,M.cool,mx,1.05,mz-.3,false);
           [.45,.85,1.25,1.65].forEach(y=>{cbox(.6,.02,.5,'#e6e8ea',mx,y,mz);for(let x=mx-.24;x<mx+.24;x+=.09*dens)put('pack',x,y+.01,mz-.2,.07,.12,.16,pick_(['#5b2d8e','#e8e2d6','#3a2410','#2f6fb5']));});
-          const ml=new T.Mesh(new T.PlaneGeometry(.66,1.6),M.milka);ml.rotation.y=-Math.PI/2;ml.position.set(mx-.361,1.05,mz);room.add(ml);
+          const ml=new T.Mesh(new T.PlaneGeometry(.66,1.6),M.milka);ml.rotation.y=-Math.PI/2;ml.position.set(mx-.364,1.05,mz);room.add(ml);
           const hx=rx+1.7,hz=hd-1.55;blk(hx,hz,.5,.42);face(hx,hz+.2,0,1,'haribo');cbox(.44,1.35,.36,'#f5c400',hx,.675,hz);cbox(.5,.05,.42,'#f5c400',hx,.03,hz);const hb=new T.Mesh(new T.PlaneGeometry(.44,.17),M.haribo);hb.position.set(hx,1.45,hz+.18);room.add(hb);
           for(let lv=0;lv<4;lv++)for(let i=0;i<3;i++)put('bag',hx-.14+i*.14,.2+lv*.3,hz+.2,.11,.2,.05,pick_(['#f5c400','#c8382e','#3c7a3e','#f28c28','#2f6fb5']));}}
       // checkout: oak counter, black POS, terminal, printer, green-vest cashier; cigarette wall behind
@@ -1410,22 +1432,54 @@ const space=(function(){
       M.baitBox=M.baitBox||new T.MeshStandardMaterial({color:0x30352a,roughness:.62,metalness:.05,envMapIntensity:.3});
       M.baitLid=M.baitLid||new T.MeshStandardMaterial({color:0x3c4232,roughness:.55,metalness:.05,envMapIntensity:.4});
       M.baitHole=M.baitHole||new T.MeshStandardMaterial({color:0x14160f,roughness:.9});
-      const stickerTex=n=>tex2(128,128,(g,w,h)=>{g.fillStyle='#20241a';g.fillRect(0,0,w,h);g.strokeStyle='#c9a24a';g.lineWidth=3;g.strokeRect(5,5,w-10,h-10);
-        g.fillStyle='#e8d3a2';g.font='bold 15px Inter, Arial';g.textAlign='center';g.textBaseline='middle';g.fillText('УНИЩОЖИТЕЛИ',w/2,20);
-        g.fillStyle='#f2ede0';g.font='bold 44px Inter, Arial';g.fillText('№ '+n,w/2,h/2+2);
-        g.fillStyle='#d9e27c';g.font='bold 13px Inter, Arial';g.fillText('НЕ МЕСТЕТЕ',w/2,h-30);
-        g.fillStyle='#c9a24a';g.font='11px Inter, Arial';g.fillText('0897 55 57 51',w/2,h-13);});
+      // the real УНИЩОЖИТЕЛИ sticker (from the client's photo): black gloss, the gold logo, red „⊠ ОТРОВНА ⊠ / КОНТРОЛНА ТОЧКА“,
+      // a cream circle where the point's number is written in marker, the gold phone line
+      const SL=S.stickerLogo||(S.stickerLogo=Object.assign(new Image(),{src:'assets/img/logo.png'}));
+      const drawSticker=(g,w,h,n)=>{
+        g.clearRect(0,0,w,h);
+        g.fillStyle='#e9e6dc';g.fillRect(0,0,w,h);                                   // the thin pale paper edge around the print
+        const m=w*.018,bg=g.createLinearGradient(0,0,w,h);bg.addColorStop(0,'#1c1c1e');bg.addColorStop(.45,'#0d0d0f');bg.addColorStop(1,'#141416');
+        g.fillStyle=bg;g.fillRect(m,m,w-2*m,h-2*m);
+        const sh=g.createLinearGradient(0,0,w*.7,h*.7);sh.addColorStop(0,'rgba(255,255,255,.10)');sh.addColorStop(.35,'rgba(255,255,255,.02)');sh.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=sh;g.fillRect(m,m,w-2*m,h-2*m); // gloss
+        if(SL.complete&&SL.naturalWidth){const lw=w*.74,lh=lw*SL.naturalHeight/SL.naturalWidth;g.drawImage(SL,(w-lw)/2,h*.1,lw,lh);}
+        const red='#e3262c';g.fillStyle=red;g.textAlign='center';g.textBaseline='middle';
+        g.font='800 '+Math.round(w*.092)+'px Inter, Arial, sans-serif';const y1=h*.415,t1='ОТРОВНА';g.fillText(t1,w/2,y1);
+        const tw=g.measureText(t1).width,bx=w*.062;                                  // the two little boxed crosses either side
+        for(const x of [w/2-tw/2-bx*1.6,w/2+tw/2+bx*.6]){g.fillStyle=red;g.fillRect(x,y1-bx/2,bx,bx);g.strokeStyle='#1a0a0a';g.lineWidth=w*.008;g.beginPath();g.moveTo(x+bx*.28,y1-bx*.22);g.lineTo(x+bx*.72,y1+bx*.22);g.moveTo(x+bx*.72,y1-bx*.22);g.lineTo(x+bx*.28,y1+bx*.22);g.stroke();}
+        g.fillStyle=red;g.font='800 '+Math.round(w*.083)+'px Inter, Arial, sans-serif';g.fillText('КОНТРОЛНА ТОЧКА',w/2,h*.515);
+        const cy=h*.69,r=w*.13,cg=g.createRadialGradient(w/2-r*.3,cy-r*.3,r*.1,w/2,cy,r);cg.addColorStop(0,'#f6f2df');cg.addColorStop(1,'#e6dfc2');
+        g.fillStyle=cg;g.beginPath();g.arc(w/2,cy,r,0,6.283);g.fill();
+        g.save();g.translate(w/2,cy+r*.04);g.rotate(-.08);g.fillStyle='#16233f';g.font='italic 700 '+Math.round(r*1.25)+'px "Cormorant Garamond", Georgia, serif';g.fillText(String(n),0,0);g.restore(); // the number, written in marker
+        const gold=g.createLinearGradient(0,h*.84,0,h*.93);gold.addColorStop(0,'#f3d27a');gold.addColorStop(.5,'#c9962f');gold.addColorStop(1,'#f0cc6e');
+        const py=h*.885,ic=w*.042;g.strokeStyle=gold;g.lineWidth=w*.007;g.beginPath();g.arc(w*.3,py,ic,0,6.283);g.stroke();
+        g.fillStyle=gold;g.font='600 '+Math.round(ic*1.15)+'px Inter, Arial, sans-serif';g.fillText('✆',w*.3,py+ic*.06);
+        g.font='italic 600 '+Math.round(w*.062)+'px Inter, Arial, sans-serif';g.textAlign='left';g.fillText('0897 555 751',w*.36,py+1);
+      };
+      const stickerTex=n=>{const c=document.createElement('canvas');c.width=c.height=TIER===0?256:512;const g=c.getContext('2d');drawSticker(g,c.width,c.height,n);
+        const t=new T.CanvasTexture(c);t.encoding=T.sRGBEncoding;t.anisotropy=8;
+        if(!(SL.complete&&SL.naturalWidth))SL.addEventListener('load',()=>{drawSticker(g,c.width,c.height,n);t.needsUpdate=true;},{once:true});
+        if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{drawSticker(g,c.width,c.height,n);t.needsUpdate=true;});
+        return t;};
+      // a bait box needs its own free floor: clear of every registered fixture (+3 cm), of the door opening and of the other boxes;
+      // it slides along its wall to the nearest free spot (both ways), and only steps away from the wall if the whole wall is taken
+      const placed=[];
+      const fpFree=(x,z,hx,hz)=>x-hx>-hw+.04&&x+hx<hw-.04&&z-hz>-hd+.04&&z+hz<hd-.04&&!(Math.abs(x-doorX)<doorW/2+hx+.25&&z>hd-1.3)
+        &&!OBS.some(r=>x+hx>r[0]-.03&&x-hx<r[1]+.03&&z+hz>r[2]-.03&&z-hz<r[3]+.03)&&!placed.some(q=>Math.abs(q[0]-x)<.6&&Math.abs(q[2]-z)<.6);
+      const settle=(p,d)=>{const side=d[0]!==0,hx=side?.1:.13,hz=side?.13:.1;let best=null,bd2=1e9;
+        for(let j=0;j<=5&&!best;j++)for(let k=-60;k<=60;k++){const x=p[0]+(side?0:k*.05)+d[0]*j*.15,z=p[2]+(side?k*.05:0)+d[2]*j*.15;if(!fpFree(x,z,hx,hz))continue;const q=k*k;if(q<bd2){bd2=q;best=[x,0,z];}}
+        const r=best||p;placed.push(r);blk(r[0],r[2],hx*2+.04,hz*2+.04);return r;}; // registered, so shoppers walk around the box, not through it
       U.forEach((u,i)=>{
         let p,d;
         if(u.at==='FD'){p=[Math.min(hw-.4,doorX+doorW/2+.5),0,hd-.34];d=[0,0,-1];}          // on the floor beside the entrance door
         else if(u.at==='FL'){p=[-hw+.92,0,D*u.f];d=[1,0,0];}                                  // on the floor at the base of the coolers, protruding just into the aisle so it stays in view
         else{p=[Math.max(-hw+.4,W*u.f),0,-hd+.22];d=[0,0,1];}                                 // on the floor at the back / storage corner
+        p=settle(p,d);                                                                           // never inside a freezer, a stand or a shelf: the nearest free spot along the same wall
         const bw=.26,bh=.12,bd=.2;
         const g=new T.Group();g.position.set(p[0],p[1],p[2]);g.rotation.y=Math.atan2(d[0],d[2]);
         const body=new T.Mesh(roundedBox(bw,bh,bd,.02).translate(0,bh/2,0),M.baitBox);body.castShadow=true;body.receiveShadow=true;
         const lid=new T.Mesh(roundedBox(bw*.96,.02,bd*.96,.015).translate(0,bh+.008,0),M.baitLid);
         const hole=new T.Mesh(new T.PlaneGeometry(.09,.05),M.baitHole);hole.position.set(0,.035,bd/2+.001);   // rodent entrance on the room-facing side
-        const sticker=new T.Mesh(new T.PlaneGeometry(bw*.62,bw*.62),new T.MeshBasicMaterial({map:stickerTex(i+1)}));sticker.rotation.x=-Math.PI/2;sticker.position.set(0,bh+.02,0);
+        const stTex=stickerTex(i+1),sticker=new T.Mesh(new T.PlaneGeometry(.17,.17),new T.MeshStandardMaterial({map:stTex,roughness:.28,metalness:0,envMapIntensity:.7,emissive:0xffffff,emissiveMap:stTex,emissiveIntensity:.32}));sticker.rotation.x=-Math.PI/2;sticker.position.set(0,bh+.008+.01+.015*.6+.0015,0); // flat on the lid's real top (the extrude bevel adds .6r above the nominal lid), reading from the room side
         g.add(body,lid,hole,sticker);room.add(g);
         const led=new T.Group();led.visible=false;room.add(led); // (kept for the shared per-frame loop; a bait box has no light)
         // o: the pin/aim anchor just above the box top
@@ -1585,16 +1639,19 @@ const space=(function(){
     const V3=(x,y,z)=>new T.Vector3(x,y,z);
     function inRoom(x,z,m){return Math.abs(x)<S.hw-m&&Math.abs(z)<S.hd-m;}
     // the static things a shelf view can hide the diffuser behind (walls, gondolas, coolers) — built once per store, reused for every line-of-sight test
-    function losMeshes(){if(S._losTok===buildTok)return S._los;const L=[];room.traverse(o=>{if(o.isMesh&&!o.isSkinnedMesh&&!o.isInstancedMesh&&o.geometry&&o.visible&&!(o.material&&o.material.depthWrite===false)&&!(o.parent&&o.parent.userData&&o.parent.userData.gltf))L.push(o);});S._los=L;S._losTok=buildTok;return L;}
+    function losMeshes(){if(S._losTok===buildTok)return S._los;const L=[];room.traverse(o=>{if(o.isMesh&&!o.isSkinnedMesh&&(PEST||!o.isInstancedMesh)&&o.geometry&&o.visible&&!(o.material&&o.material.depthWrite===false)&&!(o.parent&&o.parent.userData&&o.parent.userData.gltf))L.push(o);});S._los=L; /* pest: the goods on the shelves count too — they hide a box on the floor */S._losTok=buildTok;return L;}
     const _rcU=new T.Raycaster(),_cv=new T.Vector3(),_dv=new T.Vector3();
     function clearLOS(cx,cy,cz,o){_cv.set(cx,cy,cz);_dv.set(o[0]-cx,o[1]-cy,o[2]-cz);const dist=_dv.length();_dv.normalize();_rcU.set(_cv,_dv);_rcU.near=.05;_rcU.far=dist-.35;const h=_rcU.intersectObjects(losMeshes(),false);return h.length===0;} // nothing stands between the camera and the diffuser
     function unitKey(i){const u=S.units[i],d=u.d,o=u.o;
       if(u._camTok!==buildTok){ // find (once per store) a spot in front of the diffuser with a clear view of it; cached so the per-frame tour stays cheap
-        let best=null;const cy=PEST?1.35:Math.min(S.H-.45,1.95),base=Math.atan2(d[0],d[2]),r0=PEST?3.0:4.8,r1=PEST?1.7:2;
-        for(const sp of [0,.3,.55,.85,1.15])for(const sg of [1,-1]){if(sp===0&&sg<0)continue;const a=base+sg*sp;
-          for(let r=r0;r>=r1;r-=.3){const x=o[0]+Math.sin(a)*r,z=o[2]+Math.cos(a)*r;if(!inRoom(x,z,.45))continue;
-            const clear=clearLOS(x,cy,z,o),sc=(clear?100:0)+r-sp*1.5;if(!best||sc>best.sc)best={sc,x,z,clear};if(clear)break;}}
-        u._cam=V3(best.x,cy,best.z);u._camTok=buildTok;u._clear=best.clear;}
+        let best=null;const base=Math.atan2(d[0],d[2]),r0=PEST?3.0:4.8,r1=PEST?1.1:2;
+        // a box on the floor can sit behind a gondola: the camera first tries eye level, then looks over the shelves from higher up, like an inspector leaning in
+        const CYS=PEST?[1.35,1.9,2.4]:[Math.min(S.H-.45,1.95)];
+        for(const cy of CYS){if(best&&best.clear)break;
+          for(const sp of [0,.3,.55,.85,1.15,1.4])for(const sg of [1,-1]){if(sp===0&&sg<0)continue;const a=base+sg*sp;
+            for(let r=r0;r>=r1;r-=.3){const x=o[0]+Math.sin(a)*r,z=o[2]+Math.cos(a)*r;if(!inRoom(x,z,.45))continue;
+              const clear=clearLOS(x,cy,z,o),sc=(clear?100:0)+r-sp*1.5-(cy-CYS[0])*2;if(!best||sc>best.sc)best={sc,x,z,cy,clear};if(clear)break;}}}
+        u._cam=V3(best.x,best.cy,best.z);u._camTok=buildTok;u._clear=best.clear;}
       const tgt=PEST?V3(o[0],.16,o[2]):V3(o[0],Math.max(1.1,o[1]-.12),o[2]); // pest: look down at the box on the floor; scent: at the diffuser on the wall
       const inf=u.info||{},words=((inf.title||'')+' '+(inf.zone||'')+' '+(inf.why||'')).split(/\s+/).length;
       return {cam:u._cam,tgt,u:i,dur:clamp(1.8+words/3.2,S.units.length>2?4.2:5.5,8),tw:2.4,drift:.02};} // long enough to read the note under the diffuser
@@ -1842,6 +1899,24 @@ const space=(function(){
     window.__navStress=(steps,dt)=>{dt=dt||.05;let viol=0,samples=0;const ex=[];if(window.__simT==null)window.__simT=performance.now()/1000;for(let s=0;s<steps;s++){window.__simT+=dt;stepPeople(dt,window.__simT,true);extras.forEach(e=>{if(e.visible)poseAny(e,window.__simT,dt,0);});if(GL())window.KL_GLTF.update(dt);const v=navViol();samples+=people.length;if(v.length){viol+=v.length;if(ex.length<5)ex.push(v[0]);}}return {steps,samples,viol,ex,failed:nav.failed(),people:people.length};};
     window.__navCheck=sec=>new Promise(res=>{let viol=0,samples=0,frames=0;const ex=[];const t0=performance.now();const tick=()=>{frames++;const v=navViol();samples+=people.length;if(v.length){viol+=v.length;if(ex.length<5)ex.push(v[0]);}if(performance.now()-t0<sec*1000)requestAnimationFrame(tick);else res({frames,samples,viol,ex});};requestAnimationFrame(tick);});
     window.__freeze=b=>{window.__frz=!!b;};
+    window.__zf=()=>{const F=[],add=(id,a,s,p,r,src)=>F.push({id,a,s,p,r,src});
+      ZB.forEach(b=>{for(let a=0;a<3;a++){const o=[0,1,2].filter(k=>k!==a),r=[b.mn[o[0]],b.mx[o[0]],b.mn[o[1]],b.mx[o[1]]];add(b.id,a,-1,b.mn[a],r,b.s);add(b.id,a,1,b.mx[a],r,b.s);}});
+      room.updateMatrixWorld(true);const inv=new T.Matrix4().copy(room.matrixWorld).invert();
+      room.traverse(o=>{if(!o.isMesh||o.isInstancedMesh||o.isSkinnedMesh||!o.visible)return;const g=o.geometry,t=g.type;if((t!=='BoxGeometry'&&t!=='PlaneGeometry')||!g.parameters)return;
+        const m=new T.Matrix4().multiplyMatrices(inv,o.matrixWorld),bb=new T.Box3().setFromBufferAttribute(g.attributes.position).applyMatrix4(m),mn=bb.min.toArray(),mx=bb.max.toArray();
+        const ok=[new T.Vector3(1,0,0),new T.Vector3(0,1,0),new T.Vector3(0,0,1)].every(v=>{v.transformDirection(m);return Math.max(Math.abs(v.x),Math.abs(v.y),Math.abs(v.z))>.9999;});if(!ok)return;
+        const tag='mesh '+t+' '+(o.material.type||'')+' '+(o.material.name||'')+' @'+mn.map(v=>v.toFixed(2)).join(',');
+        if(t==='PlaneGeometry'){const n=new T.Vector3(0,0,1).transformDirection(m),aa=[Math.abs(n.x),Math.abs(n.y),Math.abs(n.z)],ax=aa.indexOf(Math.max(...aa)),o2=[0,1,2].filter(k=>k!==ax);
+          add('P'+o.material.uuid,ax,Math.sign(n.getComponent(ax)),(mn[ax]+mx[ax])/2,[mn[o2[0]],mx[o2[0]],mn[o2[1]],mx[o2[1]]],tag);if(o.material.side===T.DoubleSide)add('P'+o.material.uuid,ax,-Math.sign(n.getComponent(ax)),(mn[ax]+mx[ax])/2,[mn[o2[0]],mx[o2[0]],mn[o2[1]],mx[o2[1]]],tag);}
+        else for(let a=0;a<3;a++){const o2=[0,1,2].filter(k=>k!==a),r=[mn[o2[0]],mx[o2[0]],mn[o2[1]],mx[o2[1]]];add('B'+o.material.uuid,a,-1,mn[a],r,tag);add('B'+o.material.uuid,a,1,mx[a],r,tag);}});
+      const Bk={};F.forEach((f,i)=>{const k=f.a+'|'+f.s+'|'+Math.round(f.p*500);(Bk[k]=Bk[k]||[]).push(i);});
+      const out=[],seen=new Set();
+      Object.keys(Bk).forEach(k=>{const [a,s,q]=k.split('|');for(const dq of [0,1]){const L2=Bk[a+'|'+s+'|'+(+q+dq)];if(!L2)continue;for(const i of Bk[k])for(const j of L2){if(dq===0&&j<=i)continue;const f=F[i],g=F[j];
+        if(f.id===g.id||Math.abs(f.p-g.p)>.0012)continue;if(+a===1&&+s===-1&&f.p<.01)continue;
+        const ox=Math.min(f.r[1],g.r[1])-Math.max(f.r[0],g.r[0]),oy=Math.min(f.r[3],g.r[3])-Math.max(f.r[2],g.r[2]);if(ox<=.004||oy<=.004)continue;
+        const key=[f.src,g.src].sort().join(' || ')+a+s;if(seen.has(key))continue;seen.add(key);out.push({area:+(ox*oy).toFixed(4),ax:'xyz'[a]+(+s>0?'+':'-'),p:+f.p.toFixed(3),A:f.id.slice(0,14),B:g.id.slice(0,14),sa:f.src,sb:g.src});}}});
+      return out.sort((x,y)=>y.area-x.area);};
+
     window.__scan=()=>{const o=[];room.traverse(m=>{if(m.isMesh){const g=m.geometry;o.push([m.isInstancedMesh?'I'+m.count:(m.isSkinnedMesh?'S':'M'),Math.round((g.index?g.index.count:g.attributes.position.count)/3*(m.isInstancedMesh?m.count:1)),m.material.type+(m.material.map?'+map':'')+(m.material.vertexColors?'+vc':'')]);}});return o.sort((a,b)=>b[1]-a[1]).slice(0,22);};
     window.__triList=i=>{const out=[];(people.concat(extras))[i||0].traverse(o=>{if(o.isMesh){const g=o.geometry;out.push([g.type,Math.round((g.index?g.index.count:g.attributes.position.count)/3*(o.isInstancedMesh?o.count:1)),o.parent.type]);}});return out.sort((a,b)=>b[1]-a[1]);};
     window.__triPeople=()=>{let n=0;people.concat(extras).forEach(p=>p.traverse(o=>{if(o.isMesh){const g=o.geometry;n+=(g.index?g.index.count:g.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}}));return n;};

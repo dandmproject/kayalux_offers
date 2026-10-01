@@ -161,7 +161,7 @@ header('Cache-Control: private, no-store, max-age=0');
         </div>
         <div class="stage-notes">
           <p class="honest"><b>Как е построена схемата</b>Помещението е построено по реалната квадратура на избрания обект, но планът и обзавеждането са типични за веригата, не заснети от обекта. Броят на точките следва големината (2 точки до ~100 м², 3 над). Точният брой и местата се определят при първото посещение и се вписват в картосхемата.</p>
-          <div class="legend3"><span><i class="b"></i>неотровна точка (леплива плоскост, еко кутия)</span><span><i class="w"></i>зона на контрол</span><span>всяка точка е номерирана, закрепена и обозначена на картосхемата · стикер „НЕ МЕСТЕТЕ“</span></div>
+          <div class="legend3"><span><i class="b"></i>неотровна точка (леплива плоскост, еко кутия)</span><span><i class="w"></i>зона на контрол</span><span>всяка точка е номерирана, закрепена и обозначена на картосхемата · стикер „Контролна точка“ с номера ѝ</span></div>
         </div>
       </div>
       <div class="panel">
@@ -412,7 +412,7 @@ header('Cache-Control: private, no-store, max-age=0');
 </footer>
 
 <script defer src="assets/js/three.min.js"></script>
-<script defer src="assets/js/app.min.js?v=803d58ef"></script>
+<script defer src="assets/js/app.min.js?v=e25f7b78"></script>
 <script>/* моделите тръгват на заден план след зареждането или когато 3D схемата наближи */addEventListener('DOMContentLoaded',function(){var st=document.getElementById('stage');if(!st||!window.KL_GLTF)return;var go=function(){KL_GLTF.start();};addEventListener('load',function(){setTimeout(function(){(window.requestIdleCallback||function(f){f();})(go);},1500);});if('IntersectionObserver' in window){var io=new IntersectionObserver(function(en){if(en[0].isIntersecting){go();io.disconnect();}},{rootMargin:'1400px'});io.observe(st);}else go();});</script>
 <script>/* телефон: докато 3D схемата е на екрана, бутоните за контакт се отдръпват */(function(){var d=document.querySelector('.dock'),c=document.querySelector('.stage-col');if(!d||!c||!('IntersectionObserver' in window))return;new IntersectionObserver(function(e){d.classList.toggle('dim',e[0].isIntersecting);},{threshold:.25}).observe(c);})();</script>
 <script>/* локален сървър: след обновяване предлага презареждане */(function(){if(!document.querySelector('meta[name="kl-local"]'))return;var v=null;function chk(){fetch('/__version',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){if(!j||!j.sha)return;if(v===null){v=j.sha;return;}if(j.sha!==v&&!document.getElementById('klUpd')){var b=document.createElement('button');b.id='klUpd';b.type='button';b.textContent='Има нова версия на офертата · Обнови';b.onclick=function(){location.reload();};document.body.appendChild(b);}}).catch(function(){});}chk();setInterval(chk,60000);})();</script>
