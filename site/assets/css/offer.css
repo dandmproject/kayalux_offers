@@ -1163,3 +1163,13 @@ footer.foot{overflow:hidden} /* the glint across the footer mark never widens th
 @media (min-width:860px) and (max-width:1300px){.nav .doc .dl2{display:inline}}
 
 /* phones: the map keeps the city names and counts; who services each city is in the chips and the card under it (the second lines overlapped) */
+/* Венци's name tag over his head in the 3D scene */
+.vztag{position:absolute;left:0;top:0;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 10px 5px;margin-top:-6px;border:1px solid var(--gold);border-radius:12px;background:rgba(14,12,10,.82);color:#f3d27a;white-space:nowrap;box-shadow:0 4px 14px -6px rgba(0,0,0,.6)}
+.vztag b{font:600 13px/1.1 var(--body);letter-spacing:.02em}
+.vztag i{font:600 8.5px/1.1 var(--body);font-style:normal;letter-spacing:.14em;text-transform:uppercase;color:#d9c08a}
+.vztag::after{content:"";position:absolute;left:50%;bottom:-5px;width:8px;height:8px;margin-left:-4px;transform:rotate(45deg);background:rgba(14,12,10,.82);border-right:1px solid var(--gold);border-bottom:1px solid var(--gold)}
+/* „Последвай Венци“ stands out from the other views */
+.views .follow-ddd{display:inline-flex;align-items:center;justify-content:center;gap:6px;color:var(--gold)!important;border:1px solid var(--gold)!important;font-weight:600}
+.views .follow-ddd svg{flex:none}
+.views .follow-ddd[aria-pressed="true"]{background:var(--gold);color:var(--on-gold)!important}
+@media (max-width:560px){.stage-bar .views [data-view="ddd"]{grid-column:1/-1;order:9}.stage-bar .views [data-zoom]{order:8}}

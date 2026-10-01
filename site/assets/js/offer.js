@@ -948,7 +948,7 @@ const space=(function(){
     const gridOf=g=>g.userData.stroller?nav.G55:(g.userData.buyer?nav.G35:(nav.G35X||nav.G35));
     // the grid with the people who are standing still (at a shelf, in the queue, at the till, just inside the door) marked as obstacles,
     // so a route is planned round them instead of through them; route() falls back to the bare grid if that leaves no way at all
-    function gridDyn(g){const G=gridOf(g);let D=null;for(const o of people){if(o===g||!o.visible||o.userData.follow!=null)continue;const s=o.userData.state;if(!(s==='browse'||s==='queue'||s==='enter'||o.userData.pay))continue;
+    function gridDyn(g){const G=gridOf(g);let D=null;for(const o of people){if(o===g||!o.visible||o.userData.follow!=null)continue;const s=o.userData.state;if(!(s==='browse'||s==='queue'||s==='enter'||s==='ddd'||o.userData.pay))continue;
       if(!D)D=G.slice();const [i,j]=nav.toCell(o.position.x,o.position.z);for(let dj=-1;dj<=1;dj++)for(let di=-1;di<=1;di++){const ii=i+di,jj=j+dj;if(ii>=0&&jj>=0&&ii<nav.cols&&jj<nav.rows)D[jj*nav.cols+ii]=1;}}return D||G;}
     // §1: arrival rate now → time a slot stays "away" before the next visitor uses it
     function lambdaNow(){const h=Math.floor(state.t/60);const l=PARAMS.lambda[h]||6;return l*(PARAMS.dayMul[state.day]||1)*Math.max(.3,S.A/PARAMS.areaRef);}
@@ -1240,7 +1240,8 @@ const space=(function(){
       else q=d.plan||[o.position.x,o.position.y,o.position.z];
       o.position.set(q[0],q[1],q[2]);if(d.ry!=null)o.rotation.y=d.ry;});}
     function stepPeople(dt,T_,open){
-      people.forEach((g,i)=>{const ud=g.userData;if(!open){g.visible=false;if(ud.stroller)ud.stroller.visible=false;return;}
+      if(!VZ.g&&T_>VZ.nextTry&&people.length){VZ.nextTry=T_+1.5;vzTex();vzSpawn(T_);} // Венци joins once his model and textures are in
+      people.forEach((g,i)=>{const ud=g.userData;if(ud.ddd){vzStep(g,dt,T_,open);g.position.y=floorY(g.position.x,g.position.z)+(ud.dz.lift||0);return;}if(!open){g.visible=false;if(ud.stroller)ud.stroller.visible=false;return;}
         if(ud.follow!=null){followParent(g,dt,T_);return;}
         if(ud.state==null)navStart(g,T_,i);
         if(ud.state==='away'){g.visible=false;if(ud.stroller)ud.stroller.visible=false;if(T_>ud.until){if(doorBusy(g))ud.until=T_+rnd(.8,1.6);else if(ud.isChild){restyle(g);navEnter(g,T_);}else navEnter(regen(i),T_);}return;}
@@ -1283,7 +1284,7 @@ const space=(function(){
         ud.lookDir=0;poseAny(g,T_,dt,ud.state==='walk'&&!ud.turning&&!ud.yielding&&ud.legsOn?Math.min(ud.sp*ud.blend,ud.vNow!=null?Math.max(ud.vNow,ud.sp*.35):9):ud.turning&&ud.state==='walk'?.3:((ud.room||ud.pay)?ud.dockV||0:0));});
       // nobody overlaps anybody: two bodies closer than half a metre are eased apart (a walker moves, someone standing at a shelf or in the
       // queue stays put; a couple or a parent and child may come closer), only onto walkable floor, so no one ever walks through another
-      {const n=people.length,mov=u=>(u.state==='walk'&&(u.vNow||0)>.2)||u.follow!=null,wt=u=>u.pay||u.state==='queue'||u.state==='browse'?0:(mov(u)?1:.25),cap=u=>(mov(u)?.6:.25)*dt; // walkers give way (within their stride); someone standing only shifts a foot; the queue and the till stay
+      {const n=people.length,mov=u=>(u.state==='walk'&&(u.vNow||0)>.2)||u.follow!=null,wt=u=>u.pay||u.state==='queue'||u.state==='browse'||u.state==='ddd'?0:(mov(u)?1:.25),cap=u=>(mov(u)?.6:.25)*dt; // walkers give way (within their stride); someone standing only shifts a foot; the queue and the till stay
         const ux0=(d,L)=>d/(L||1),acc=new Map(),add=(g,x,z)=>{const v=acc.get(g)||[0,0];v[0]+=x;v[1]+=z;acc.set(g,v);}; // all pushes on a person are summed, then limited once (two neighbours must not push twice as fast)
         for(let a=0;a<n;a++){const A=people[a];if(!A.visible)continue;const ua=A.userData;
           for(let b=a+1;b<n;b++){const B=people[b];if(!B.visible)continue;const ub=B.userData,pair=ua.follow===b||ub.follow===a||ua.partner===b||ub.partner===a,r=pair?.46:.5;
@@ -1331,7 +1332,7 @@ const space=(function(){
     let warmT=0;const warmSoon=()=>{if(!warmT)warmT=setTimeout(()=>{warmT=0;warm();},120);};
     const WARMED=new Set(); // model files whose shaders are already compiled
     function gltfPerson(spec){const G=GL();if(!G)return null;spec=spec||{};let kind=spec.staff?'staff':spec.isChild?'child':spec.elder?'elderly':(spec.fem?'f':'m');if(!G.has(kind)){if(kind==='child')return null;kind=spec.fem?'f':'m';if(!G.has(kind))return null;}
-      const g=G.spawn({kind,height:spec.h||(spec.isChild?1.18:1.72),avoid:usedFiles()});if(!g)return null;if(!WARMED.has(g.userData.file)){WARMED.add(g.userData.file);const mm=G.models.find(m=>m.file===g.userData.file);if(!mm||!mm.warm)warmSoon();} /* models compiled behind the bar need no second pass (a full compile() costs 100+ ms in Firefox) */const ud=g.userData,k=(ud.height||1.72)/1.72;
+      const g=G.spawn({kind,height:spec.h||(spec.isChild?1.18:1.72),avoid:usedFiles(),file:spec.file,fresh:spec.fresh});if(!g)return null;if(!WARMED.has(g.userData.file)){WARMED.add(g.userData.file);const mm=G.models.find(m=>m.file===g.userData.file);if(!mm||!mm.warm)warmSoon();} /* models compiled behind the bar need no second pass (a full compile() costs 100+ ms in Firefox) */const ud=g.userData,k=(ud.height||1.72)/1.72;
       ud.gltfP=true;ud.k=k;ud.elder=!!spec.elder||ud.kind==='elderly';ud.isChild=!!spec.isChild||ud.kind==='child';ud.yaw=0;ud.dist=0;ud.blend=0;ud.phone=!!spec.phone;ud.hipY=.9*k;
       ud.rh=g.getObjectByName('Bip01_R_Hand')||g.getObjectByName('Bip02_R_Hand')||null;ud.lh=g.getObjectByName('Bip01_L_Hand')||null;
       const basket=new T.Group();basket.add(new T.Mesh(SHARED.basket(),M.vc2));
@@ -1437,7 +1438,7 @@ const space=(function(){
     // foot keeps that height (a clip or a skeleton that rides a little high or low no longer floats or sinks)
     const _fa=new T.Vector3();
     function ground(g,dt){const ud=g.userData,m=g.children[0];if(!m||ud.isChild||ud.state==='restock')return;if(ud.ftB===undefined){const B=n=>g.getObjectByName('Bip01_'+n)||g.getObjectByName('Bip02_'+n);ud.ftB=[B('L_Foot'),B('R_Foot')].filter(Boolean);ud.gBase=m.position.y;ud.ftRef=.09*(ud.k||1);}
-      if(ud.ftB.length<2)return;ud.ftB[0].getWorldPosition(_fa);let y=_fa.y;ud.ftB[1].getWorldPosition(_fa);y=Math.min(y,_fa.y);const fl=floorY(g.position.x,g.position.z),off=ud.gOff||0,walk=/walk/.test(ud.clip||''),k=1-Math.exp(-dt*4);
+      if(ud.ftB.length<2)return;if(ud.dz&&ud.dz.lift>0){m.position.y=ud.gBase+(ud.gOff||0);return;} /* on the ladder: his feet are on the step, not on the floor */ud.ftB[0].getWorldPosition(_fa);let y=_fa.y;ud.ftB[1].getWorldPosition(_fa);y=Math.min(y,_fa.y);const fl=floorY(g.position.x,g.position.z),off=ud.gOff||0,walk=/walk/.test(ud.clip||''),k=1-Math.exp(-dt*4);
       if(!walk){const kk=ud.k||1;ud.ftRef=clamp(ud.ftRef+((y-off-fl)-ud.ftRef)*k*.5,.05*kk,.13*kk);ud.gOff=off*(1-k);} /* a real ankle height: the reference can never creep into the floor */else ud.gOff=clamp(off-(y-fl-ud.ftRef)*k,-.22,.06);
       m.position.y=ud.gBase+ud.gOff;}
     function gltfHeads(dt){people.concat(extras).forEach(g=>{const ud=g.userData;if(!ud.gltfP||!g.visible||ud.culledFar){ud.hShow=null;ud.nShow=null;return;}ground(g,dt);poseIn(g);if(ud.pushing&&!ud.pay)pushArms(g);else hands(g,dt);{const gt=ud.gripT||(ud.gripT=[0,0]),tt=ud.tillGrip||[0,0];gt[0]=tt[0]||((ud.basket&&ud.basket.visible&&ud.basketL)||(ud.phoneM&&ud.phoneM.visible&&ud.phHand===0)?1:0);gt[1]=tt[1]||((ud.bag&&ud.bag.visible)||(ud.basket&&ud.basket.visible&&!ud.basketL)||ud.cardOn||(ud.phoneM&&ud.phoneM.visible&&ud.phHand===1)||(ud.itemM&&ud.itemM.visible&&!(ud.rch&&ud.rch.sd===0))||ud.pushing?1:0);if(ud.itemM&&ud.itemM.visible&&ud.rch&&ud.rch.sd===0)gt[0]=1;ud.tillGrip=null;gripFingers(g,dt);hangProps(g,dt);}poseOut(g);/* at the till the cart is let go of: both hands work */if(ud.headB===undefined)ud.headB=g.getObjectByName('Bip01_Head')||g.getObjectByName('Bip02_Head')||null;const hb=ud.headB;if(!hb)return;
@@ -1485,7 +1486,100 @@ const space=(function(){
     document.addEventListener('kl-gltf-model',e=>{if(!room||!people.length||upBusy)return;if(!(e.detail.count>=8||window.KL_GLTF&&KL_GLTF.has('staff')&&e.detail.count>=5))return;upBusy=true;people.forEach(p=>{p.userData.noUp=false;});
       const step=()=>{const i=people.findIndex(p=>!p.userData.gltfP&&!p.userData.noUp);if(i<0){try{upgradeCashier();}catch(err){}upBusy=false;kick();return;}try{if(!upgrade(i))people[i].userData.noUp=true;}catch(err){people[i].userData.noUp=true;console.warn('upgrade',err);}kick();requestAnimationFrame(step);};requestAnimationFrame(step);});
     window.__upgradeAll=()=>{let n=0;const err=[];people.forEach((p,i)=>{try{if(upgrade(i))n++;else err.push([i,'null',!!p.userData.gltfP,p.userData.isChild,p.userData.elder,p.userData.fem]);}catch(e){err.push([i,String(e).slice(0,120)]);}});window.__upErr=err;return n;};
-    function clearRoom(){buildTok++;pending.forEach(cancelAnimationFrame);pending=[];camSub=null;
+    // ---- Венци, the KAYA LUX service man: the real man (his face from his photo on one of the models), a black shirt with the gold
+    // KL monogram and KAYA LUX across the back, jeans. He comes in with a folding step ladder and a shoulder bag of aroma oil bottles,
+    // sets the ladder under each diffuser, climbs, opens the unit, takes out the empty bottle, puts in a full one, closes it, checks
+    // the schedule on his phone (Bluetooth), lets it puff once, climbs down, folds the ladder and goes on to the next one ----
+    const VZ={g:null,tex:null,texN:0,geo:null,nextTry:0};
+    const _zA=new T.Vector3(),_zB=new T.Vector3(),_zC=new T.Vector3(),_zD=new T.Vector3(),_zQ=new T.Quaternion(),_zM=new T.Matrix4(),_zM2=new T.Matrix4(),_zS=new T.Vector3(),_zE=new T.Euler();
+    function vzTex(){if(VZ.tex)return VZ.tex;const L=new T.TextureLoader(),mk=f=>{const t=L.load('assets/models/'+f,()=>{VZ.texN++;});t.flipY=false;t.encoding=T.sRGBEncoding;t.anisotropy=4;return t;};VZ.tex={head:mk('venci-head.jpg'),body:mk('venci-kl-body.jpg')};return VZ.tex;}
+    function vzKit(){if(VZ.geo)return;const C=(r0,r1,h,s)=>new T.CylinderGeometry(r0,r1,h,s||10),at=(g,x,y,z)=>g.translate(x,y,z);
+      const AL='#c9cdd2',ST='#9aa0a6',BL='#151517',GD='#c9a656';
+      // the step ladder: two halves hinged at the top (steps on the front half), 1.25 m rails
+      const front=[],rear=[];for(const s of [-1,1]){front.push([at(new T.BoxGeometry(.032,1.25,.024),s*.22,-.625,0),AL]);rear.push([at(new T.BoxGeometry(.028,1.25,.02),s*.21,-.625,0),AL]);front.push([at(new T.BoxGeometry(.04,.03,.04),s*.22,-1.24,0),'#222']);rear.push([at(new T.BoxGeometry(.04,.03,.04),s*.21,-1.24,0),'#222']);}
+      [.95,.65,.35].forEach(y=>front.push([at(new T.BoxGeometry(.44,.025,.085),0,-1.25+y,.03),ST]));front.push([at(new T.BoxGeometry(.47,.03,.06),0,.0,-.01),'#2a2b2e']);
+      VZ.geo={front:mergeColored(front),rear:mergeColored(rear),
+        bottle:mergeColored([[C(.026,.028,.085,14).translate(0,.0425,0),'#7a4a12'],[C(.012,.02,.02,12).translate(0,.095,0),'#7a4a12'],[C(.013,.013,.022,12).translate(0,.115,0),BL],[C(.0285,.0285,.028,14).translate(0,.04,0),GD]]),
+        bag:mergeColored([[roundedBox(.24,.2,.07,.02),BL],[at(new T.BoxGeometry(.25,.035,.072),0,.07,0),'#26262a']]),
+        phone:mergeColored([[new T.BoxGeometry(.072,.15,.009),'#141416'],[at(new T.BoxGeometry(.064,.135,.001),0,0,.005),'#9fd0ff']])};
+      Object.values(VZ.geo).forEach(g=>GEOSET.add(g));
+      const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d');const im=new Image();const tt_=new T.CanvasTexture(c);tt_.encoding=T.sRGBEncoding;
+      im.onload=()=>{x.clearRect(0,0,128,128);x.drawImage(im,128/2-36,8,72,96);x.fillStyle='#c9a656';x.font='600 13px Inter, Arial';x.textAlign='center';x.fillText('KAYA LUX',64,122);tt_.needsUpdate=true;};im.src='assets/img/logo-mark.png';
+      VZ.mat={decal:new T.MeshStandardMaterial({map:tt_,transparent:true,roughness:.5,depthWrite:false})};M.vz_decal=VZ.mat.decal;VZ.geo.decal=new T.PlaneGeometry(.12,.12);GEOSET.add(VZ.geo.decal);}
+    function vzBone(b,obj,wp,wq){b.updateMatrixWorld(true);_zM.compose(wp,wq||_zQ.set(0,0,0,1),_zS.set(1,1,1));_zM2.copy(b.matrixWorld).invert().multiply(_zM);_zM2.decompose(obj.position,obj.quaternion,obj.scale);b.add(obj);return obj;}
+    function vzSpawn(T_){const G=GL();if(!G||!nav||!nav.entry||VZ.texN<2)return false;
+      const g=gltfPerson({h:1.78,file:'male_adult_08.glb',fresh:true});if(!g||g.userData.file!=='male_adult_08.glb'){if(g&&window.KL_GLTF)KL_GLTF.release(g);return false;}
+      vzKit();const ud=g.userData,VT=vzTex();ud.ddd=true;ud.noPool=true;ud.ownMats=[];ud.sp=.95;ud.phone=false;if(ud.basket)ud.basket.visible=false;if(ud.bag)ud.bag.visible=false;
+      g.traverse(o=>{if(!o.isSkinnedMesh)return;const om=o.material,m=om.clone(),n=om.name||'';const sw=t=>{if(om.map){t.offset.copy(om.map.offset);t.repeat.copy(om.map.repeat);t.rotation=om.map.rotation;}m.map=t;m.normalMap=null;};
+        if(/head/.test(n))sw(VT.head);else if(/body/.test(n))sw(VT.body);else if(/opacity/.test(n))m.color=new T.Color(0x5e5852);m.needsUpdate=true;o.material=m;ud.ownMats.push(m);});
+      g.position.set(0,0,0);g.rotation.set(0,0,0);g.updateMatrixWorld(true);const B=n=>g.getObjectByName('Bip01_'+n),P=n=>B(n).getWorldPosition(new T.Vector3());const pv=P('Pelvis');
+      // the shoulder bag with the oil bottles, on his left hip, the gold KL on its flap
+      const bag=vzBone(B('Pelvis'),new T.Mesh(VZ.geo.bag,M.vc2),new T.Vector3(.2,pv.y-.02,.02),new T.Quaternion().setFromEuler(_zE.set(0,Math.PI/2,0)));const dec=new T.Mesh(VZ.geo.decal,VZ.mat.decal);dec.position.set(0,0,.037);dec.scale.setScalar(.8);bag.add(dec);
+      const lad=new T.Group(),lf=new T.Mesh(VZ.geo.front,M.vc2),lr=new T.Mesh(VZ.geo.rear,M.vc2);lf.castShadow=lr.castShadow=true;lad.add(lf,lr);
+      const btl=new T.Mesh(VZ.geo.bottle,M.vc2);btl.visible=false;const ph=new T.Mesh(VZ.geo.phone,M.vc2);ph.visible=false;room.add(lad,btl,ph);
+      const tag=document.createElement('div');tag.className='vztag';tag.innerHTML='<b>Венци</b><i>KAYA LUX · сервиз</i>';tag.hidden=true;ovl.appendChild(tag);const tagV=new T.Vector3();overlay.push({el:tag,v:tagV,kind:'vz'});
+      ud.dz={tag,tagV,bag,lad,lf,lr,btl,ph,ladTh:0,ladOn:false,ladP:[0,0,0],ladYaw:0,lift:0,holdB:null,phOn:false,q:[],task:null,ph_:'away',t:0,until:T_+rnd(2,6)};
+      g.visible=false;ud.state='away';g.position.set(nav.entry[0],0,nav.entry[1]);room.add(g);people.push(g);VZ.g=g;return true;}
+    function vzClear(){if(VZ.g){(VZ.g.userData.ownMats||[]).forEach(m=>m.dispose());}VZ.g=null;}
+    const vzFree=(x,z,r)=>x>-S.hw+r&&x<S.hw-r&&z>-S.hd+r&&z<S.hd-r&&!OBS.some(o=>x+r>o[0]&&x-r<o[1]&&z+r>o[2]&&z-r<o[3]);
+    // one stop per diffuser: the ladder under it (or a little to the side when a fixture stands below), nearest first from the door
+    function vzPlan(){const q=[];(S.units||[]).forEach((u,i)=>{const d=u.d,tx=-d[2],tz=d[0];let ok=false;for(const off of [.42,.6,.8,1.0])for(const lt of [0,.35,-.35,.6,-.6]){if(ok)break;const fx=u.p[0]+d[0]*off+tx*lt,fz=u.p[2]+d[2]*off+tz*lt,sx=fx+d[0]*.45,sz=fz+d[2]*.45;
+        if(vzFree(fx,fz,.26)&&vzFree(sx,sz,.2)&&!(S.wine&&Math.abs(fz-S.zW)<.8)){ok=true;q.push({u:i,F:[fx,fz],stand:[sx,sz],off,face:Math.atan2(-d[0],-d[2]),k:clamp(Math.round((u.p[1]-1.5)/.3)+(off>.5?1:0),1,3)});}}}); /* a fixture under the diffuser: the ladder in front of it, he leans over */
+      const out=[];let cur=[S.door.x,S.hd];while(q.length){let bi=0,bd=1e9;q.forEach((t,i)=>{const d=Math.hypot(t.stand[0]-cur[0],t.stand[1]-cur[1]);if(d<bd){bd=d;bi=i;}});const t=q.splice(bi,1)[0];out.push(t);cur=t.stand;}return out;}
+    function vzGo(g,to,T_){setPath(g,nav.route(gridDyn(g),[g.position.x,g.position.z],to),T_);}
+    function vzStep(g,dt,T_,open){const ud=g.userData,dz=ud.dz;dz.t+=dt;
+      const faceTo=(a,k)=>{ud.ang=angStep(ud.ang||0,a,k||5,dt,2.4);g.rotation.y=ud.ang;};
+      let v=0,lookP=null,clip=null;const R=[null,null];ud.ikReq=R;dz.holdB=null;dz.phOn=false;
+      const fwd=_zA.set(Math.sin(ud.ang||0),0,Math.cos(ud.ang||0)),rgt=_zB.set(-fwd.z,0,fwd.x),px=g.position.x,pz=g.position.z;
+      let tt=dz.t;const win=(t0,t1,f)=>tt>=t0&&tt<t1?Math.min(1,(tt-t0)/(f||.3),(t1-tt)/(f||.3)):0,ramp=(t0,t1)=>clamp((tt-t0)/(t1-t0),0,1);
+      if(dz.ph_==='away'){g.visible=false;if(T_>dz.until&&!doorBusy(g)){dz.q=vzPlan();g.position.set(nav.entry[0],0,nav.entry[1]);ud.ang=Math.PI;g.rotation.y=ud.ang;g.visible=true;ud.blend=0;dz.task=null;dz.ph_='next';dz.t=0;dz.ladOn=false;dz.ladTh=0;}}
+      if(dz.ph_==='next'){dz.task=dz.q.shift()||{exit:true};dz.t=0;dz.ph_='go';vzGo(g,dz.task.exit?nav.exit:dz.task.stand,T_);}
+      if(dz.ph_==='go'){ud.blend=Math.min(1,ud.blend+dt*2);if(advance(g,ud.sp*ud.blend*dt,dt)){ud.state='ddd';dz.t=0;dz.ph_=dz.task.exit?'gone':'work';}else v=ud.vNow!=null?ud.vNow:ud.sp*ud.blend;}
+      if(dz.ph_==='gone'){g.visible=false;dz.ph_='away';dz.until=T_+rnd(18,30);ud.state='away';}
+      tt=dz.t;const t=dz.task; /* read after arriving: the walk's time must not count as work done */
+      if(dz.ph_==='work'&&t&&!t.exit){const u=S.units[t.u],d=u.d,k=t.k,top=.3*k,F=t.F;faceTo(t.face);
+        const tUp=1.4+.55*k,tDn=tUp+7.4,tEnd=tDn+.55*k+1.2;
+        // the ladder: set down and opened (0.4–1.3 s), folded and picked up at the end
+        if(tt>.4&&tt<tEnd-.5){if(!dz.ladOn){dz.ladOn=true;dz.ladP=[F[0],0,F[1]];dz.ladYaw=Math.atan2(d[0],d[2]);}dz.ladTh=.22*Math.min(ramp(.5,1.3),1-ramp(tEnd-1.1,tEnd-.6));}else dz.ladOn=false;
+        if(tt<1.3)R[1]={p:[F[0],1.1,F[1]],w:win(.2,1.3,.3)};
+        // climbing: step by step up the front, both hands on the rails
+        const sx=t.stand[0],sz=t.stand[1],ex=F[0]+d[0]*.2,ez=F[1]+d[2]*.2;let lift=0;
+        if(tt>=1.4&&tt<tUp){const s=(tt-1.4)/.55,st=Math.floor(s),f=s-st;lift=.3*(st+tE(Math.min(1,f*1.6)));clip='walkslow';}else if(tt>=tUp&&tt<tDn)lift=top;else if(tt>=tDn&&tt<tDn+.55*k){const s=(tt-tDn)/.55,st=Math.floor(s),f=s-st;lift=top-.3*(st+tE(Math.min(1,f*1.6)));clip='walkslow';}
+        const on=clamp(lift/Math.max(.3,top),0,1);g.position.x=sx+(ex-sx)*on;g.position.z=sz+(ez-sz)*on;dz.lift=Math.max(0,lift);
+        const rail=s=>[F[0]+(-d[2])*s*.21,(1.1+lift*.6),F[1]+d[0]*s*.21];
+        if((tt>=1.4&&tt<tUp+.3)||(tt>=tDn-.2&&tt<tDn+.55*k+.2)){R[0]={p:rail(1),w:.9};R[1]={p:rail(-1),w:.9};}
+        // at the top: open the diffuser, the empty bottle out into the bag, a full one in, close, the phone, one test puff
+        const w0=tUp+.2,uo=u.o,uf=[u.p[0]+d[0]*.12,u.p[1],u.p[2]+d[2]*.12],hip=hp_=>[px+rgt.x*(hp_?-.2:.2),.95+lift,pz+rgt.z*(hp_?-.2:.2)];
+        dz.open=tt<w0+.4?0:tt<w0+1?(tt-w0-.4)/.6:tt<w0+4.2?1:tt<w0+4.8?1-(tt-w0-4.2)/.6:0;
+        if(tt>=w0&&tt<w0+1.1){const w=win(w0,w0+1.1,.3);R[0]={p:[uf[0]-d[2]*.1,uf[1]-.05,uf[2]+d[0]*.1],w};R[1]={p:[uf[0]+d[2]*.1,uf[1]-.05,uf[2]-d[0]*.1],w};}
+        if(tt>=w0+1.1&&tt<w0+2.4){R[1]={p:tt<w0+1.6?uf:hip(0),w:win(w0+1.1,w0+2.4,.25)};if(tt>w0+1.5&&tt<w0+2.25)dz.holdB='old';}          // the empty bottle out, into the bag
+        if(tt>=w0+2.2&&tt<w0+3.6){R[0]={p:tt<w0+2.7?hip(1):uf,w:win(w0+2.2,w0+3.6,.25)};if(tt>w0+2.6&&tt<w0+3.3)dz.holdB='newL';}         // a full one from the bag, in
+        if(tt>=w0+3.9&&tt<w0+4.9){const w=win(w0+3.9,w0+4.9,.3);R[0]={p:[uf[0]-d[2]*.1,uf[1]-.05,uf[2]+d[0]*.1],w};R[1]={p:[uf[0]+d[2]*.1,uf[1]-.05,uf[2]-d[0]*.1],w};}
+        if(tt>=w0+5&&tt<tDn-.3){dz.phOn=true;R[1]={p:[px+fwd.x*.3+rgt.x*.08,1.25+lift,pz+fwd.z*.3+rgt.z*.08],w:win(w0+5,tDn-.3,.3)};if(!dz.puffed&&tt>w0+5.9){dz.puffed=true;u.vzPuff=T_+2.6;}}
+        ud.leanBoost=tt>=tUp&&tt<tDn?clamp((t.off-.42)*.7,0,.32):0;dz.u=u;lookP=tt>=w0+5&&tt<w0+5.8?[px+fwd.x*.3,pz+fwd.z*.3]:[u.p[0],u.p[2]];
+        if(tt>=tEnd-.6&&tt<tEnd)R[1]={p:[F[0],1.1,F[1]],w:win(tEnd-.6,tEnd,.2)};
+        if(tt>tEnd){dz.ph_='next';dz.puffed=false;dz.lift=0;dz.open=0;ud.leanBoost=0;}}
+      if(dz.ph_!=='work'){dz.lift=0;dz.open=0;}
+      ud.lookAtP=lookP;ud.tillGrip=[dz.holdB==='newL'||R[0]?1:0,dz.holdB==='old'||dz.phOn||!dz.ladOn||R[1]?1:0];
+      if(!dz.ladOn&&dz.ph_!=='away'&&!R[1])R[1]={p:[px+rgt.x*.24+fwd.x*.05,.92,pz+rgt.z*.24+fwd.z*.05],w:.85}; // carrying the folded ladder at his right side
+      if(g.visible){if(v>.04){ud.play(v<.6?'walkslow':'walk',.3);ud.setSpeed(v);}else if(clip){ud.play(clip,.25);ud.setSpeed(.35);}else ud.play('idle',.4);}
+      if(ud.state!=='walk'&&dz.ph_!=='go'&&dz.ph_!=='away')ud.state='ddd';}
+    // the props each frame
+    function vzProps(dt){const g=VZ.g;if(!g)return;const ud=g.userData,dz=ud.dz;if(!dz)return;const vis=g.visible;dz.tag.hidden=!vis;dz.lad.visible=vis;dz.bag.visible=true;
+      if(!vis){dz.btl.visible=dz.ph.visible=false;return;}g.updateMatrixWorld(true);const hd=ud.headB;if(hd){hd.getWorldPosition(_zS);dz.tagV.set(_zS.x,_zS.y+.36,_zS.z);}
+      // the ladder: open on the floor under the diffuser, or folded in his right hand
+      dz.lf.rotation.x=-dz.ladTh;dz.lr.rotation.x=dz.ladTh;const hy=1.25*Math.cos(dz.ladTh);
+      if(dz.ladOn){dz.lad.position.set(dz.ladP[0],hy,dz.ladP[2]);dz.lad.rotation.set(0,dz.ladYaw,0);}
+      else{const rp=palmOf(g,1);if(rp){const a=ud.ang||0;dz.lad.position.set(rp[0],Math.max(1.3,rp[1]+.55),rp[2]);dz.lad.rotation.set(0,a+Math.PI/2,0);}}
+      // the unit opens on its bottom edge
+      if(dz.u&&dz.u.grp){const G_=dz.u.grp,u=dz.u,a=-.32*tE(dz.open||0);G_.rotation.order='YXZ';G_.rotation.x=a;const bh=u.bh||.26,yy=-bh/2;const dy=yy-(yy*Math.cos(a)),dzz=-(yy*Math.sin(a));G_.position.set(u.p[0]+u.d[0]*dzz,u.p[1]+dy,u.p[2]+u.d[2]*dzz);}
+      dz.btl.visible=!!dz.holdB;if(dz.holdB){const pp=palmOf(g,dz.holdB==='newL'?0:1);if(pp){dz.btl.position.set(pp[0],pp[1]-.05,pp[2]);dz.btl.rotation.set(0,0,0);}}
+      dz.ph.visible=!!dz.phOn;if(dz.phOn&&hd){const pp=palmOf(g,1);if(pp){dz.ph.position.set(pp[0],pp[1]+.02,pp[2]);dz.ph.lookAt(_zS);}}}
+    window.__vz=()=>{const g=VZ.g;if(!g)return {none:true,texN:VZ.texN};const d=g.userData.dz;return {ph:d.ph_,u:d.task&&d.task.u,t:+d.t.toFixed(1),x:+g.position.x.toFixed(2),y:+g.position.y.toFixed(2),z:+g.position.z.toFixed(2),ang:+(g.userData.ang||0).toFixed(2),vis:g.visible,q:d.q.length,lift:+(d.lift||0).toFixed(2),lad:d.ladOn,st:g.userData.state,clip:g.userData.clip};};
+    window.__vzPlan=()=>vzPlan().map(t=>t.u+' k'+t.k+' '+JSON.stringify(t.F.map(v=>+v.toFixed(2))));
+    window.__vzSkip=()=>{const g=VZ.g;if(g)g.userData.dz.until=0;};
+    window.__vzCam=()=>({cam:camera.position.toArray().map(v=>+v.toFixed(2)),pick:VZ.pick?VZ.pick.toArray().map(v=>+v.toFixed(2)):null,view:view.name});
+    function clearRoom(){vzClear();buildTok++;pending.forEach(cancelAnimationFrame);pending=[];camSub=null;
       people.concat(extras).forEach(p=>{if(p.userData.gltfP){room.remove(p);if(window.KL_GLTF)window.KL_GLTF.release(p);}});
       room.traverse(o=>{if(o.geometry&&!GEOSET.has(o.geometry))o.geometry.dispose();if(o.isSkinnedMesh){o.skeleton.dispose();if(o.material.map)o.material.map.dispose();o.material.dispose();}if(o.isSprite||(o.material&&o.material.userData&&o.material.userData.own))o.material.dispose();});
       // textures and materials made for this store (labels, stickers, signs drawn on canvases...) are freed too; a shared one that is used
@@ -1740,7 +1834,7 @@ const space=(function(){
         const pin=document.createElement('button');pin.type='button';pin.className='pin';pin.innerHTML='<b>'+(i+1)+'</b><i>Дифузер '+(i+1)+'</i>';pin.setAttribute('aria-label','Дифузер '+(i+1)+' ('+(u.title||'')+'): '+u.zone);
         pin.addEventListener('click',e=>{e.stopPropagation();pick(i);focusUnit(i);});ovl.appendChild(pin);
         overlay.push({el:pin,v:new T.Vector3(p[0]+d[0]*.1,p[1]+bh/2+.1,p[2]+d[2]*.1),kind:'pin'});
-        S.units.push({jet,p,d,o,info:u,led,light,plume,wave,R:Rr,ph:i/U.length,pin,PL});pin.classList.toggle('pl',PL);
+        S.units.push({jet,p,d,o,info:u,led,light,plume,wave,R:Rr,ph:i/U.length,pin,PL,grp:g,bh});pin.classList.toggle('pl',PL);
       });
       flush();
       S.ceil=room.children.filter(o=>o.material===M.vcC||o.material===M.ledC||o.material===M.grille||o===S.ceilPlane);
@@ -1868,7 +1962,7 @@ const space=(function(){
     const view={name:'tour',theta:.62,phi:.98,r:20,tx:0,ty:1,tz:0};let tween=null,idle=0,drag=null,walkSnap=false;
     function presets(name){const {W,D}=S,Hh=S.H,m=Math.max(W,D);
       if(name==='plan')return {theta:0,phi:.07,r:m*1.55+5,tx:0,ty:0,tz:0};
-      if(name==='walk'){return null;}
+      if(name==='walk'||name==='ddd'){return null;}
       if(name==='door'){const c=[S.door.x-.95,1.9,S.hd+1.9],t=[S.door.x*.35-W*.08,1.0,-S.hd*.35];const dx=c[0]-t[0],dy=c[1]-t[1],dz=c[2]-t[2],r=Math.hypot(dx,dy,dz);return {theta:Math.atan2(dx,dz),phi:Math.acos(dy/r),r,tx:t[0],ty:t[1],tz:t[2]};}
       // whole store in frame: distance from the room's bounding sphere and the narrower of the two fields of view
       const vf=camera.fov*Math.PI/180,f=Math.min(vf,2*Math.atan(Math.tan(vf/2)*camera.aspect)),R=.5*Math.hypot(W,D,Hh);
@@ -1931,7 +2025,7 @@ const space=(function(){
     focusUnit=i=>{if(!S.units||!S.units[i])return;view.name='focus';TIP.fu=i;idle=0;$$('.views [data-view]').forEach(b=>b.setAttribute('aria-pressed','false'));flyTo(unitKey(i),1.8);};
     function apply(){const s=Math.sin(view.phi);camera.position.set(view.tx+view.r*s*Math.sin(view.theta),view.ty+view.r*Math.cos(view.phi),view.tz+view.r*s*Math.cos(view.theta));camera.lookAt(view.tx,view.ty,view.tz);}
     function go(name,instant){
-      view.name=name;idle=0;if(name==='walk')walkSnap=true;if(name!=='tour')autoLayers(name==='plan');$$('.views [data-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view===name)));
+      view.name=name;idle=0;if(name==='walk'||name==='ddd')walkSnap=true;if(name!=='tour')autoLayers(name==='plan');$$('.views [data-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view===name)));
       if(name==='tour'){tour.k=-1;tour.t=0;tour.first=!!instant;kick();return;}
       const p=presets(name);if(!p){tween=null;kick();return;}if(instant||reduce){Object.assign(view,p);tween=null;apply();kick();return;}
       const from={theta:view.theta,phi:view.phi,r:view.r,tx:view.tx,ty:view.ty,tz:view.tz};let dth=p.theta-from.theta;dth=((dth+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;
@@ -1942,7 +2036,7 @@ const space=(function(){
     // fingers (touch events, reliable on iOS): one finger sideways = orbit around the store (and tilt once it has started), one finger up/down first = the page
     // scrolls as usual; two fingers = pinch to zoom, move together up/down to tilt, sideways to orbit; a flick keeps turning and slows down; double tap = presentation
     const TCH={n:0,x0:0,y0:0,x:0,y:0,lock:null,d0:0,r0:0,mx:0,my:0,vx:0,vy:0,t:0,tap:0};let spin={vx:0,vy:0};
-    const freeView=()=>{idle=0;tween=null;autoLayers(false);if(view.name!=='free'){if(view.name==='walk')apply();view.name='free';$$('.views [data-view]').forEach(b=>b.setAttribute('aria-pressed','false'));}};
+    const freeView=()=>{idle=0;tween=null;autoLayers(false);if(view.name!=='free'){if(view.name==='walk'||view.name==='ddd')apply();view.name='free';$$('.views [data-view]').forEach(b=>b.setAttribute('aria-pressed','false'));}};
     const zoomR=r=>{const m=Math.max(S.W,S.D);return clamp(r,m*.35,m*3.2+10);};
     const tpts=e=>[...e.touches].map(t=>[t.clientX,t.clientY]);
     const twoInit=P=>{TCH.lock='two';TCH.d0=Math.hypot(P[0][0]-P[1][0],P[0][1]-P[1][1])||1;TCH.r0=view.r;TCH.mx=(P[0][0]+P[1][0])/2;TCH.my=(P[0][1]+P[1][1])/2;TCH.a=Math.atan2(P[1][1]-P[0][1],P[1][0]-P[0][0]);freeView();};
@@ -1973,7 +2067,7 @@ const space=(function(){
     stage.addEventListener('pointerdown',e=>{if(e.pointerType==='touch'||e.target.closest('button,label,input,select,.hud-card'))return;
       spin.vx=spin.vy=0;drag={x:e.clientX,y:e.clientY,x0:e.clientX,y0:e.clientY,id:e.pointerId,on:true};stage.classList.add('drag');try{stage.setPointerCapture(e.pointerId);}catch(_){}});
     stage.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id||e.pointerType==='touch')return;
-      if(view.name==='walk'){view.name='free';apply();}const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.x=e.clientX;drag.y=e.clientY;
+      if(view.name==='walk'||view.name==='ddd'){view.name='free';apply();}const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.x=e.clientX;drag.y=e.clientY;
       view.theta-=dx*.0065;view.phi=clamp(view.phi-dy*.005,.07,1.5);tween=null;idle=0;if(view.name!=='free'){autoLayers(false);view.name='free';$$('.views [data-view]').forEach(b=>b.setAttribute('aria-pressed','false'));}apply();kick();});
     const end=()=>{drag=null;stage.classList.remove('drag');};stage.addEventListener('pointerup',end);stage.addEventListener('pointercancel',end);
     stage.addEventListener('wheel',e=>{e.preventDefault();idle=0;if(view.name==='tour'){autoLayers(false);view.name='free';$$('.views [data-view]').forEach(b=>b.setAttribute('aria-pressed','false'));}const m=Math.max(S.W,S.D);view.r=clamp(view.r*Math.exp(e.deltaY*.0025),m*.35,m*3.2+10);tween=null;apply();kick();},{passive:false});
@@ -2067,10 +2161,22 @@ const space=(function(){
         else{['theta','phi','r','tx','ty','tz'].forEach(p=>view[p]=tween.from[p]+(tween.to[p]-tween.from[p])*k);apply();}if(tween.t>=1)tween=null;}
       else if(spin.vx||spin.vy){view.theta-=spin.vx*dt*1000*.0072;view.phi=clamp(view.phi-spin.vy*dt*1000*.005,.07,1.5);const k=Math.exp(-dt*4.2);spin.vx*=k;spin.vy*=k;if(Math.abs(spin.vx)+Math.abs(spin.vy)<.004)spin.vx=spin.vy=0;idle=0;apply();}
       else if(!drag&&view.name==='tour'&&LD.done)tourStep(dt);
-      else if(!drag&&!TCH.n&&view.name!=='walk'&&!hover){idle+=dt;if(idle>(touchUI?8:14))go('tour');}
+      else if(!drag&&!TCH.n&&view.name!=='walk'&&view.name!=='ddd'&&!hover){idle+=dt;if(idle>(touchUI?8:14))go('tour');}
       if(view.name==='walk'&&people.length){let p=(camSub&&camSub.parent&&camSub.visible&&camSub.userData.state==='walk')?camSub:null;const inside=g=>g.visible&&g.parent&&g.position.z<S.hd-1.2&&Math.abs(g.position.x)<S.hw-.2;const browsing=g=>{const u=g.userData,l=u.visit&&u.visit[u.legI];return !!l&&l.kind==='browse';};if(p&&(!inside(p)||!browsing(p)))p=null;if(!p){const w=people.filter(g=>inside(g)&&browsing(g)&&g.userData.follow==null&&g.userData.state==='walk'&&!g.userData.turning&&Math.cos(g.rotation.y)<.3);if(w.length){w.sort((a,b)=>a.position.distanceToSquared(camera.position)-b.position.distanceToSquared(camera.position));p=w[0];}}if(p)camSub=p;p=camSub&&camSub.parent&&inside(camSub)?camSub:(people.find(g=>inside(g)&&g.userData.follow==null)||people.find(inside)||people[0]);const ud=p.userData;if(ud.state==='walk'&&!ud.turning&&inside(p))ud.camAng=p.rotation.y;else ud.camAng=Math.atan2((S.mainX||0)*.3-p.position.x,-S.hd*.3-p.position.z);const fw=new T.Vector3(0,0,1).applyAxisAngle(new T.Vector3(0,1,0),ud.camAng),side=new T.Vector3(fw.z,0,-fw.x);
         let want=null;for(let d=3.2;d>=1.2;d-=.2){const x=p.position.x-fw.x*d+side.x*.5*(d/3.2),z=p.position.z-fw.z*d+side.z*.5*(d/3.2);const cc=nav?nav.toCell(x,z):null;if(z<S.hd-.35&&Math.abs(x)<S.hw-.3&&(!nav||nav.free(nav.G0,cc[0],cc[1]))){want=new T.Vector3(x,1.55,z);break;}}
         if(!want)want=new T.Vector3(p.position.x,1.55,p.position.z);camera.position.lerp(want,walkSnap?1:Math.min(1,dt*2));walkSnap=false;const tgt=new T.Vector3(p.position.x+fw.x*3.0,1.42,p.position.z+fw.z*3.0);camera.lookAt(tgt);}
+      // „Последвай Венци“: behind him while he walks; while he works, a spot that sees him and the diffuser; the entrance while he is out
+      if(view.name==='ddd'){const g=VZ.g,cell=(x,z)=>{if(!nav)return true;const c=nav.toCell(x,z);return z<S.hd-.35&&Math.abs(x)<S.hw-.3&&nav.free(nav.G0,c[0],c[1]);};let want=null,tg=null;
+        if(g&&g.visible){const ud=g.userData,a=ud.ang||0,fx=Math.sin(a),fz=Math.cos(a),px=g.position.x,pz=g.position.z,dz=ud.dz;
+          if(ud.state==='ddd'&&dz.task&&dz.u!==undefined){const u=S.units[dz.task.u];
+            if(VZ.pickFor!==dz.task||!VZ.pick){VZ.pickFor=dz.task;VZ.pick=null;const rc=VZ.rc||(VZ.rc=new T.Raycaster()),L=losMeshes(),seen=(c,t)=>{const d_=t.clone().sub(c),len=d_.length();rc.set(c,d_.normalize());rc.far=len-.2;return !rc.intersectObjects(L,false).length;};
+              const tu=new T.Vector3(u.p[0],u.p[1],u.p[2]),th=new T.Vector3(px,.6,pz);
+              const af=dz.task.face;for(const [an_,yy] of [[1.75,1.6],[-1.75,1.6],[2.3,1.7],[-2.3,1.7],[3.14,1.7]]){for(let d=3.2;d>=2.0&&!VZ.pick;d-=.2){ /* from the side first (his working direction, not mid-turn): the ladder and the diffuser both in view */const an=af+an_,x=px+Math.sin(an)*d,z=pz+Math.cos(an)*d;if(!cell(x,z))continue;const c=new T.Vector3(x,yy,z);if(seen(c,tu)&&seen(c,th))VZ.pick=c;}if(VZ.pick)break;}
+              if(!VZ.pick)VZ.pick=new T.Vector3(px-Math.sin(af)*2.4,2.0,pz-Math.cos(af)*2.4);}
+            want=VZ.pick.clone();tg=new T.Vector3((px+u.p[0])/2,(.9+(dz.lift||0)+u.p[1])/2-.15,(pz+u.p[2])/2);}
+          if(!want){for(let d=2.8;d>=1.1&&!want;d-=.2){const x=px-fx*d-fz*.45,z=pz-fz*d+fx*.45;if(cell(x,z))want=new T.Vector3(x,1.7,z);}if(!want)want=new T.Vector3(px-fx*1.2,1.8,pz-fz*1.2);tg=new T.Vector3(px+fx*1.6,1.1,pz+fz*1.6);}}
+        else{want=new T.Vector3(S.door.x-.9,1.9,S.hd+1.9);tg=new T.Vector3(S.door.x,1.0,S.hd-2.2);}
+        VZ.camT=VZ.camT||tg.clone();camera.position.lerp(want,walkSnap?1:Math.min(1,dt*2.2));VZ.camT.lerp(tg,walkSnap?1:Math.min(1,dt*3));walkSnap=false;camera.lookAt(VZ.camT);}
       const _t1=DIAG?performance.now():0;
       if(!LD.done)ldTick();
       const on=sysOn(state.t),open=isOpen(state.t);
@@ -2085,8 +2191,8 @@ const space=(function(){
       S.units.forEach(u=>{u.led.visible=on;u.pin.classList.toggle('off',!on);});
       M.led.color.setScalar(.3+.7*clamp((lightK-.45)/.55,0,1));if(S.lights)S.lights.forEach(l=>{l.intensity=.22*lightK;});if(S.coolLight)S.coolLight.intensity=.3*(.4+.6*lightK);
       if(S.sign){const sm=open?M.signOpen:M.signClosed;if(S.sign.material!==sm){S.sign.material=sm;S.sign2.material=sm;}}
-      extras.forEach(e=>{if(!e.userData.restocker)e.visible=open;if(e.visible&&!window.__frz)poseAny(e,now/1000,dt,0);});const _t2=DIAG?performance.now():0;if(GL()&&!window.__frz){window.KL_GLTF.update(dt);gltfHeads(dt);}if(!window.__frz)tillPlace();const _t3=DIAG?performance.now():0;
-      const tt=now/1000;S.units.forEach(u=>{const cyc=(tt/PUFF_T+u.ph)%1,pk=on&&cyc<PUFF_ON/PUFF_T?Math.sin(Math.PI*cyc*PUFF_T/PUFF_ON):0;u.act=pk>0; // puff … rest … puff
+      extras.forEach(e=>{if(!e.userData.restocker)e.visible=open;if(e.visible&&!window.__frz)poseAny(e,now/1000,dt,0);});const _t2=DIAG?performance.now():0;if(GL()&&!window.__frz){window.KL_GLTF.update(dt);gltfHeads(dt);vzProps(dt);}if(!window.__frz)tillPlace();const _t3=DIAG?performance.now():0;
+      const tt=now/1000;S.units.forEach(u=>{const cyc=(tt/PUFF_T+u.ph)%1;let pk=on&&cyc<PUFF_ON/PUFF_T?Math.sin(Math.PI*cyc*PUFF_T/PUFF_ON):0;if(u.vzPuff&&u.vzPuff>tt)pk=Math.max(pk,Math.sin(Math.PI*clamp(1-(u.vzPuff-tt)/2.6,0,1))); /* the test puff after a refill */u.act=pk>0; // puff … rest … puff
         if(u.jet){const vis=pk>.02,o=u.o,up=u.PL?1:0,dx=u.d[0]*(1-.55*up),dz=u.d[2]*(1-.55*up);u.jet.forEach((js,k)=>{js.visible=vis;if(!vis)return;const ph=(tt*.85+k/6)%1;
           js.position.set(o[0]+dx*(.04+.7*ph),o[1]+.02+(.08+.5*up)*ph+.18*ph*ph,o[2]+dz*(.04+.7*ph));const sc=.06+.46*ph;js.scale.set(sc,sc,1);js.material.opacity=pk*.8*Math.sin(Math.PI*Math.min(1,ph*1.4))*(1-.45*ph);});} // mist streaming out while it sprays
         u.plume.visible=pk>.02;if(u.plume.visible){const q=cyc*PUFF_T/PUFF_ON,up=u.PL?1:0,out=.06+.3*q,o=u.o;u.plume.position.set(o[0]+u.d[0]*out,o[1]+.04+(.12+.1*up)*q,o[2]+u.d[2]*out);const sc=.16+.34*q;u.plume.scale.set(sc*(1.1+.3*up),sc*1.35,1);u.plume.material.opacity=.55*pk*(1-.35*q);}
@@ -2130,7 +2236,7 @@ const space=(function(){
       const lbl=g=>{const u=g.userData;return (u.cashier?'cashier':u.restocker?'restocker':u.isChild?'child':u.elder?'elder':'adult')+'#'+(people.indexOf(g)>=0?people.indexOf(g):'x'+extras.indexOf(g))+' st='+u.state+' clip='+u.clip+(u.phase?' ph='+u.phase:'')+(u.pushing?' cart':'')+(u.follow!=null?' follow':'');};
       const B=(g,n)=>g.getObjectByName('Bip01_'+n)||g.getObjectByName('Bip02_'+n),wp=o=>{const v=new T.Vector3();o.getWorldPosition(v);return v;};
       const push=(k,o)=>{if(R[k].length<400)R[k].push(o);};
-      for(let s=0;s<N;s++){window.__simT+=dt;const T_=window.__simT;stepPeople(dt,T_,true);extras.forEach(e=>{if(e.visible)poseAny(e,T_,dt,0);});if(GL()){window.KL_GLTF.update(dt);gltfHeads(dt);}tillPlace();
+      for(let s=0;s<N;s++){window.__simT+=dt;const T_=window.__simT;stepPeople(dt,T_,true);extras.forEach(e=>{if(e.visible)poseAny(e,T_,dt,0);});if(GL()){window.KL_GLTF.update(dt);gltfHeads(dt);vzProps(dt);}tillPlace();
         const all=people.concat(extras).filter(g=>g.visible);
         all.forEach(g=>{const u=g.userData,p=g.position;if(!isFinite(p.x)||!isFinite(p.z)){R.nan++;return;}if(u.culledFar){seen.delete(g);return;}
           let h=seen.get(g);if(!h){h={p:p.clone(),ry:g.rotation.y,hand:null,hv:null,hr:0,head:null,dv:null,drv:0,mv:0};seen.set(g,h);return;}
@@ -2166,7 +2272,7 @@ const space=(function(){
       const sum={};Object.keys(R).forEach(k=>sum[k]=Array.isArray(R[k])?R[k].length:R[k]);return {sum,R};};
 
     // debug: with the loop frozen, advance the people n fixed steps (a slow machine can still record every moment of a scene)
-    window.__step=(n,dt)=>{dt=dt||1/30;if(window.__simT==null)window.__simT=performance.now()/1000;for(let i=0;i<n;i++){window.__simT+=dt;stepPeople(dt,window.__simT,true);extras.forEach(e=>{if(e.visible)poseAny(e,window.__simT,dt,0);});if(GL()){window.KL_GLTF.update(dt);gltfHeads(dt);}tillPlace();}renderer.render(scene,camera);return window.__simT;};
+    window.__step=(n,dt)=>{dt=dt||1/30;if(window.__simT==null)window.__simT=performance.now()/1000;for(let i=0;i<n;i++){window.__simT+=dt;stepPeople(dt,window.__simT,true);extras.forEach(e=>{if(e.visible)poseAny(e,window.__simT,dt,0);});if(GL()){window.KL_GLTF.update(dt);gltfHeads(dt);vzProps(dt);}tillPlace();}renderer.render(scene,camera);return window.__simT;};
     window.__tillD=()=>S.tillD&&S.tillD.map(d=>({m:d.m,v:d.o.visible,p:d.o.position.toArray().map(x=>+x.toFixed(3)),palm:d.who?palmOf(d.who,d.side):null,fk:d.fk,tk:d.tk,from:d.from,to:d.to,plan:d.plan}));window.__till=()=>({cashier:S.cashier,q0:nav&&nav.queue&&nav.queue[0],basket:S.counterBasket&&S.counterBasket.position.toArray(),beep:S.beep&&S.beep.position.toArray(),a:S.counterItems&&S.counterItems.map(m=>m.userData.a),b:S.counterItems&&S.counterItems.map(m=>m.userData.b),arms:extras.concat(people).filter(g=>g.userData.gltfP).slice(0,3).map(g=>{const B=n=>g.getObjectByName('Bip01_'+n)||g.getObjectByName('Bip02_'+n);const s0=new T.Vector3(),e0=new T.Vector3(),w0=new T.Vector3();const u=B('R_UpperArm'),f=B('R_Forearm'),h=B('R_Hand');if(!u||!f||!h)return null;u.getWorldPosition(s0);f.getWorldPosition(e0);h.getWorldPosition(w0);return {l1:+s0.distanceTo(e0).toFixed(3),l2:+e0.distanceTo(w0).toFixed(3),sh:+s0.y.toFixed(2),cashier:!!g.userData.cashier,h:+(g.userData.k||1).toFixed(2)};})})
     window.__zf=()=>{const F=[],add=(id,a,s,p,r,src)=>F.push({id,a,s,p,r,src});
       ZB.forEach(b=>{for(let a=0;a<3;a++){const o=[0,1,2].filter(k=>k!==a),r=[b.mn[o[0]],b.mx[o[0]],b.mn[o[1]],b.mx[o[1]]];add(b.id,a,-1,b.mn[a],r,b.s);add(b.id,a,1,b.mx[a],r,b.s);}});

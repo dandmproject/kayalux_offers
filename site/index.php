@@ -19,7 +19,7 @@ header('Cache-Control: private, no-store, max-age=0');
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/cormorant-garamond-cyrillic-400-italic.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-cyrillic-400-normal.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-cyrillic-500-normal.woff2">
-<link rel="stylesheet" href="assets/css/offer.min.css?v=d2808357">
+<link rel="stylesheet" href="assets/css/offer.min.css?v=09ea1142">
 </head>
 <body>
 <div class="grain" aria-hidden="true"></div>
@@ -204,6 +204,7 @@ header('Cache-Control: private, no-store, max-age=0');
             <button type="button" data-view="plan" aria-pressed="false">План</button>
             <button type="button" data-view="door" aria-pressed="false">От входа</button>
             <button type="button" data-view="walk" aria-pressed="false">С клиент</button>
+            <button type="button" data-view="ddd" class="follow-ddd" aria-pressed="false" title="Последвай Венци: камерата следва сервизния техник на KAYA LUX – как зарежда дифузерите"><svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true"><circle cx="10" cy="5" r="2.6" fill="currentColor"/><path d="M5.5 18v-5.2c0-2.4 2-4.3 4.5-4.3s4.5 1.9 4.5 4.3V18" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>Последвай Венци</button>
             <button type="button" data-zoom="-1" aria-label="Приближи">+</button>
             <button type="button" data-zoom="1" aria-label="Отдалечи">−</button>
           </div>
@@ -496,7 +497,7 @@ header('Cache-Control: private, no-store, max-age=0');
 </footer>
 
 <script defer src="assets/js/three.min.js"></script>
-<script defer src="assets/js/app.min.js?v=81e4108e"></script>
+<script defer src="assets/js/app.min.js?v=986bd741"></script>
 <script>/* моделите (~5 MB, кеширани) тръгват на заден план след зареждането на страницата или когато 3D схемата наближи */addEventListener('DOMContentLoaded',function(){var st=document.getElementById('stage');if(!st||!window.KL_GLTF)return;var go=function(){KL_GLTF.start();};addEventListener('load',function(){setTimeout(function(){(window.requestIdleCallback||function(f){f();})(go);},1500);});if('IntersectionObserver' in window){var io=new IntersectionObserver(function(en){if(en[0].isIntersecting){go();io.disconnect();}},{rootMargin:'1400px'});io.observe(st);}else go();});</script>
 <script>/* телефон: докато 3D схемата е на екрана, бутоните за контакт се отдръпват */(function(){var d=document.querySelector('.dock'),c=document.querySelector('.stage-col');if(!d||!c||!('IntersectionObserver' in window))return;new IntersectionObserver(function(e){d.classList.toggle('dim',e[0].isIntersecting);},{threshold:.25}).observe(c);})();</script>
 <script>/* локален сървър (tools/serve.py): след обновяване предлага презареждане; на хостинга /__version го няма и нищо не се показва */(function(){if(!document.querySelector('meta[name="kl-local"]'))return;var v=null;function chk(){fetch('/__version',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){if(!j||!j.sha)return;if(v===null){v=j.sha;return;}if(j.sha!==v&&!document.getElementById('klUpd')){var b=document.createElement('button');b.id='klUpd';b.type='button';b.textContent='Има нова версия на офертата · Обнови';b.onclick=function(){location.reload();};document.body.appendChild(b);}}).catch(function(){});}chk();setInterval(chk,60000);})();</script>
