@@ -1291,3 +1291,4 @@ footer.foot .kl-marka-prava{align-items:center}
 @media (max-width:760px){.menu-btn{width:44px;height:44px}} /* the same touch size as the theme button */
 @media (max-width:440px){.nav .doc .dl{display:none}.nav .wrap{gap:8px}} /* narrow phones: the bar keeps the brand, the offer and both buttons */
 @media (max-width:360px){.brand .logo{height:19px}}
+:root:is([data-theme="paper"],[data-theme="olive"],[data-theme="clean"],[data-theme="gallery"],[data-theme="green"]) .tbtn.viber{color:#5B48D6;border-color:#5B48D6} /* Viber in the light themes of this offer */
