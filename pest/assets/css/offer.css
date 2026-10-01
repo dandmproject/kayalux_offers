@@ -1292,3 +1292,9 @@ footer.foot .kl-marka-prava{align-items:center}
 @media (max-width:440px){.nav .doc .dl{display:none}.nav .wrap{gap:8px}} /* narrow phones: the bar keeps the brand, the offer and both buttons */
 @media (max-width:360px){.brand .logo{height:19px}}
 :root:is([data-theme="paper"],[data-theme="olive"],[data-theme="clean"],[data-theme="gallery"],[data-theme="green"]) .tbtn.viber{color:#5B48D6;border-color:#5B48D6} /* Viber in the light themes of this offer */
+.nav .doc{display:inline-flex;align-items:center}
+.nav .doc .av-logo{height:22px;width:auto;margin-left:9px;border-radius:3px;box-shadow:0 3px 10px -4px rgba(0,0,0,.45);flex:none} /* the client's own logo, not just its name */
+@media (max-width:440px){.nav .doc .av-logo{height:19px;margin-left:0}}
+@media (max-width:360px){.brand .logo{height:16px}.nav .doc .av-logo{height:16px}.nav .doc{margin-left:6px;padding-left:6px}.nav .wrap{gap:6px}} /* 320-360 px phones: everything in the bar still fits */
+footer.foot{overflow:hidden} /* the glint moving over the letters never widens the page on a phone */
+@media (max-width:380px){.head h2{font-size:clamp(1.45rem,7.2vw,1.9rem);overflow-wrap:break-word;hyphens:auto}} /* long Bulgarian words fit a 320 px screen */

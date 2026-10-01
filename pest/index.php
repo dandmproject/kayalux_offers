@@ -16,7 +16,7 @@ header('Cache-Control: private, no-store, max-age=0');
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/cormorant-garamond-cyrillic-400-italic.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-cyrillic-400-normal.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-cyrillic-500-normal.woff2">
-<link rel="stylesheet" href="assets/css/offer.min.css?v=34f784cd">
+<link rel="stylesheet" href="assets/css/offer.min.css?v=90a18f1e">
 </head>
 <body>
 <div class="grain" aria-hidden="true"></div>
@@ -24,7 +24,7 @@ header('Cache-Control: private, no-store, max-age=0');
 <nav class="nav" id="nav" aria-label="Глави на офертата">
   <div class="wrap">
     <a class="brand" href="#top" aria-label="УНИЩОЖИТЕЛИ, към началото"><img class="logo" src="assets/img/logo.png" alt="УНИЩОЖИТЕЛИ" width="1000" height="190"></a>
-    <span class="doc"><span class="dl">Пест контрол </span><b>АВАНТИ</b></span>
+    <span class="doc"><span class="dl">Пест контрол </span><img class="av-logo" src="assets/img/avanti-logo.svg" alt="АВАНТИ" width="999" height="288"></span>
     <ul class="chapters">
       <li><a href="#pismo"><i>I</i>Писмо</a></li>
       <li><a href="#tochki"><i>II</i>Точките</a></li>
@@ -64,7 +64,7 @@ header('Cache-Control: private, no-store, max-age=0');
       <div><dt>На вниманието на</dt><dd>г-жа Татяна Попова</dd></div>
       <div><dt>От</dt><dd>„УНИЩОЖИТЕЛИ“ ЕООД<br>Венцислав Великов</dd></div>
       <div><dt>Валидност</dt><dd>30&nbsp;дни, до&nbsp;31.10.2026&nbsp;г.<br><span class="valid-left" id="validLeft"></span></dd></div>
-      <div><dt>Месечно, без ДДС</dt><dd><span class="total num"><span>1&nbsp;443,50&nbsp;€</span><small>48 обекта · складовете по оферта</small></span></dd></div>
+      <div><dt>Месечно, без ДДС</dt><dd><span class="total num"><span>1&nbsp;443,90&nbsp;€</span><small>48 обекта · складовете по оферта</small></span></dd></div>
     </dl>
   </div>
   <a class="cue" href="#pismo">Към офертата</a>
@@ -94,7 +94,7 @@ header('Cache-Control: private, no-store, max-age=0');
         <div class="fig"><b class="num">48</b><span>търговски обекта в четири града</span></div>
         <div class="fig"><b class="num">2–3</b><span>неотровни дератизационни точки във всеки обект</span></div>
         <div class="fig"><b class="num long">24–48&nbsp;ч</b><span>реакция при сигнал, без доплащане</span></div>
-        <div class="fig"><b class="num long">1&nbsp;443,50&nbsp;€</b><span>месечно за 48-те обекта, без ДДС</span></div>
+        <div class="fig"><b class="num long">1&nbsp;443,90&nbsp;€</b><span>месечно за 48-те обекта, без ДДС</span></div>
       </div>
     </div>
   </div>
@@ -214,8 +214,8 @@ header('Cache-Control: private, no-store, max-age=0');
           <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Дезинсекцията за септември 2026&nbsp;г. вече е извършена във всички 48 обекта и в централния склад в гр.&nbsp;София.</span></li>
         </ul></section>
         <section><h4>Постоянни неотровни точки</h4><ul>
-          <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>2 до 3 вътрешни точки във всеки обект: лепливи плоскости в затворени кутии с капак (еко трап), неподвижно закрепени.</span></li>
-          <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>При всяко посещение точките се проверяват, плоскостите се сменят при необходимост, а резултатът се отразява в протокола.</span></li>
+          <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>2 до 3 вътрешни неотровни дератизационни точки във всеки обект: лепливи плоскости в затворени кутии с капак, по изискване на СРЗИ и БАБХ, поставени на необходимите позиции в обекта.</span></li>
+          <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>При всяко посещение точките се проверяват, плоскостите се сменят при необходимост, кутиите се почистват, а резултатът се отразява в протокола за извършената дератизационна обработка.</span></li>
         </ul></section>
       </div>
       <div>
@@ -266,7 +266,7 @@ header('Cache-Control: private, no-store, max-age=0');
   <div class="wrap">
     <div class="head">
       <div class="no"><b>VI</b><span>Цени</span></div>
-      <div><h2>Ценово предложение</h2><p class="lead">Раздел II. Цените са в евро, месечно, без ДДС. Дезинсекция: 15,00&nbsp;€ на обект + 0,078&nbsp;€ на м², закръглено до 0,50&nbsp;€. Неотровни точки: 5,00&nbsp;€ на обект.</p></div>
+      <div><h2>Ценово предложение</h2><p class="lead">Раздел II. Цените са в евро, месечно, без ДДС. Дезинсекция: 12,00&nbsp;€ на обект + 0,095&nbsp;€ на м², закръглено до 0,50&nbsp;€. Дератизация: средно 5,80&nbsp;€ на обект.</p></div>
     </div>
 
     <div class="sumwrap">
@@ -274,11 +274,11 @@ header('Cache-Control: private, no-store, max-age=0');
       <caption>Обобщение (месечно, без ДДС)</caption>
       <thead><tr><th scope="col"><span class="sr">Позиция</span></th><th scope="col">Обхват</th><th scope="col" class="cf">Месечно</th></tr></thead>
       <tbody>
-        <tr><td>Дезинсекция</td><td>48 обекта · средно 25,07&nbsp;€ на обект</td><td class="cf">1&nbsp;203,50&nbsp;€</td></tr>
-        <tr><td>Дератизационни точки</td><td>48 обекта · 5,00&nbsp;€ на обект</td><td class="cf">240,00&nbsp;€</td></tr>
+        <tr><td>Дезинсекция</td><td>48 обекта · средно 24,28&nbsp;€ на обект</td><td class="cf">1&nbsp;165,50&nbsp;€</td></tr>
+        <tr><td>Дератизационни точки</td><td>48 обекта · средно 5,80&nbsp;€ на обект</td><td class="cf">278,40&nbsp;€</td></tr>
         <tr><td>Складови бази</td><td>София и Бургас, след оглед</td><td class="cf">по оферта</td></tr>
       </tbody>
-      <tfoot><tr><td>Общо на месец за 48 обекта</td><td></td><td class="cf">1&nbsp;443,50&nbsp;€</td></tr></tfoot>
+      <tfoot><tr><td>Общо на месец за 48 обекта</td><td></td><td class="cf">1&nbsp;443,90&nbsp;€</td></tr></tfoot>
     </table>
     </div>
 
@@ -304,7 +304,7 @@ header('Cache-Control: private, no-store, max-age=0');
           <th scope="col" class="r cf" data-k="tot"><button type="button">Общо, €</button></th>
         </tr></thead>
         <tbody id="rows"></tbody>
-        <tfoot><tr class="tot3"><td colspan="4" id="tLabel">Общо на месец, 48 обекта, без ДДС</td><td class="r cs" id="tDez">1&nbsp;203,50&nbsp;€</td><td class="r" id="tPts">240,00&nbsp;€</td><td class="r cf" id="tTot">1&nbsp;443,50&nbsp;€</td></tr></tfoot>
+        <tfoot><tr class="tot3"><td colspan="4" id="tLabel">Общо на месец, 48 обекта, без ДДС</td><td class="r cs" id="tDez">1&nbsp;165,50&nbsp;€</td><td class="r" id="tPts">278,40&nbsp;€</td><td class="r cf" id="tTot">1&nbsp;443,90&nbsp;€</td></tr></tfoot>
       </table>
     </div>
 
@@ -312,7 +312,7 @@ header('Cache-Control: private, no-store, max-age=0');
       <div>
         <section><h4>Оборудване и условия</h4><ul>
           <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>96 до 144 неотровни кутии с лепливи плоскости, безплатно, за сметка на „УНИЩОЖИТЕЛИ“ ЕООД за срока на договора.</span></li>
-          <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Смяна на плоскостите и стикерите, включена в месечната цена от 5,00&nbsp;€ на обект.</span></li>
+          <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Смяна на плоскостите и стикерите, включена в месечната цена от средно 5,80&nbsp;€ на обект.</span></li>
           <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Без транспортни разходи извън София: 8-те обекта в страната се обслужват при редовните посещения.</span></li>
         </ul></section>
       </div>
@@ -414,7 +414,7 @@ header('Cache-Control: private, no-store, max-age=0');
 </footer>
 
 <script defer src="assets/js/three.min.js"></script>
-<script defer src="assets/js/app.min.js?v=c5b16acc"></script>
+<script defer src="assets/js/app.min.js?v=4bedc3ef"></script>
 <script>/* моделите тръгват на заден план след зареждането или когато 3D схемата наближи */addEventListener('DOMContentLoaded',function(){var st=document.getElementById('stage');if(!st||!window.KL_GLTF)return;var go=function(){KL_GLTF.start();};addEventListener('load',function(){setTimeout(function(){(window.requestIdleCallback||function(f){f();})(go);},1500);});if('IntersectionObserver' in window){var io=new IntersectionObserver(function(en){if(en[0].isIntersecting){go();io.disconnect();}},{rootMargin:'1400px'});io.observe(st);}else go();});</script>
 <script>/* телефон: докато 3D схемата е на екрана, бутоните за контакт се отдръпват */(function(){var d=document.querySelector('.dock'),c=document.querySelector('.stage-col');if(!d||!c||!('IntersectionObserver' in window))return;new IntersectionObserver(function(e){d.classList.toggle('dim',e[0].isIntersecting);},{threshold:.25}).observe(c);})();</script>
 <script>/* локален сървър: след обновяване предлага презареждане */(function(){if(!document.querySelector('meta[name="kl-local"]'))return;var v=null;function chk(){fetch('/__version',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){if(!j||!j.sha)return;if(v===null){v=j.sha;return;}if(j.sha!==v&&!document.getElementById('klUpd')){var b=document.createElement('button');b.id='klUpd';b.type='button';b.textContent='Има нова версия на офертата · Обнови';b.onclick=function(){location.reload();};document.body.appendChild(b);}}).catch(function(){});}chk();setInterval(chk,60000);})();</script>
