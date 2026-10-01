@@ -33,13 +33,20 @@
     if(!P)CLIPS.forEach(function(n){if(src.clips[n]){acts[n]=mixer.clipAction(src.clips[n]);if(!/^walk/.test(n))acts[n].setLoop(THREE.LoopPingPong,Infinity);}}); /* standing clips go back and forth: no jump where a loop starts again */
     var cur=null;
     g.userData.gltf=true;g.userData.kl={root:root,mixer:mixer,acts:acts,scale:scale,h:profile.height||src.height,file:src.file};g.userData.mixer=mixer;g.userData.kind=src.tags[0];g.userData.file=src.file;g.userData.sex=sex;g.userData.scale=scale;g.userData.height=profile.height||src.height;
-    g.userData.play=function(n,fade){var a=acts[n]||acts.idle;if(!a||a===cur)return;a.reset().setEffectiveWeight(1).play();if(cur)cur.crossFadeTo(a,fade||0.3,false);cur=a;g.userData.clip=n;};
+    /* blending by hand, always normalised: the weights of the playing clips add up to 1 at every moment. (The mixer's own crossFade starts
+       a clip that comes back while still fading out again from 0, and fills what is missing with the skeleton's bind pose: an arm or the
+       spine jumps.) A clip that is still blending keeps its time, so a walk that resumes goes on with the same step, not from the start */
+    var W=[],rate=1/0.3;
+    g.userData.play=function(n,fade){var a=acts[n]||acts.idle;if(!a||a===cur)return;rate=1/Math.max(.05,fade||0.3);var e=null;for(var i=0;i<W.length;i++)if(W[i].a===a)e=W[i];
+      if(!e){a.reset();a.play();e={a:a,w:cur?0:1};W.push(e);a.setEffectiveWeight(e.w);}cur=a;g.userData.clip=n;};
+    g.userData.mixW=function(dt){if(W.length<2&&W.length&&W[0].a===cur){W[0].w=1;return;}var sum=0,i;for(i=0;i<W.length;i++){var e=W[i];e.w=e.a===cur?Math.min(1,e.w+dt*rate):Math.max(0,e.w-dt*rate);sum+=e.w;}
+      for(i=W.length-1;i>=0;i--){var e2=W[i];if(e2.w<=0&&e2.a!==cur){e2.a.stop();W.splice(i,1);}else e2.a.setEffectiveWeight(sum>0?e2.w/sum:1);}};
     g.userData.setSpeed=function(mps){/* ходене: клипът е ~1.3 m/s при timeScale 1 */var a=acts.walk;if(a)a.setEffectiveTimeScale(Math.max(.4,Math.min(1.8,mps/1.3)));var b=acts.walkslow;if(b)b.setEffectiveTimeScale(Math.max(.4,Math.min(1.8,mps/0.8)));};
     /* лицеви форми (ако моделът е с blendshapes): face('smile'|'blink'|'aa'|'oh'|'ee'|'jaw'|'brows', 0..1) */
     var morphs=[];root.traverse(function(x){if(x.isMesh&&x.morphTargetDictionary&&x.morphTargetInfluences)morphs.push(x);});
     if(morphs.length){g.userData.face=function(name,w){for(var i=0;i<morphs.length;i++){var k=morphs[i].morphTargetDictionary[name];if(k!=null)morphs[i].morphTargetInfluences[k]=w;}};g.userData.faces=Object.keys(morphs[0].morphTargetDictionary);}
     g.userData.play('idle');G.instances.push(g);return g;};
-  G.update=function(dt){for(var i=0;i<G.instances.length;i++){var g=G.instances[i];if(g.visible&&g.parent&&!g.userData.culled)g.userData.mixer.update(dt);}}; /* off-screen people are not animated */
+  G.update=function(dt){for(var i=0;i<G.instances.length;i++){var g=G.instances[i];if(g.visible&&g.parent&&!g.userData.culled){g.userData.mixW(dt);g.userData.mixer.update(dt);}}}; /* off-screen people are not animated */
   /* a person leaves the scene: free what was made only for them (their skeleton's bone texture, the animation mixer's cache);
      models, geometry and materials are shared and stay */
   G.release=function(g){var i=G.instances.indexOf(g);if(i>=0)G.instances.splice(i,1);var K=g.userData.kl,mx=g.userData.mixer;
