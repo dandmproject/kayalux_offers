@@ -1223,3 +1223,15 @@ footer.foot .wrap{align-items:center}
 .theme-pop{min-width:236px}
 .theme-pop button small{margin-left:auto;padding-left:14px;white-space:nowrap;font-size:11px;color:var(--ink-faint);letter-spacing:.02em}
 @media (max-width:600px){.obj.m-full tr.row td.cf,.obj.m-std tr.row td.cs{line-height:1.2;padding-top:0}}
+
+/* Еко — истинско зелено: безопасно за хора и животни, неотровни точки (зеленото в ДДД = еко и безопасност) */
+:root[data-theme="green"]{
+  --ground:#EFF5F0; --surface:#FFFFFF; --surface-2:#E1ECE3; --line:#C8DACC;
+  --ink:#132119; --ink-soft:#37503F; --ink-faint:#566D5D;
+  --gold:#17703F; --gold-soft:#6CAB82; --on-gold:#FFFFFF;
+  --ok:#17703F; --warn:#B8472A;
+  --glow:rgba(23,112,63,.16); --glow-2:rgba(23,112,63,.06);
+  --stage-a:#ECF3ED; --stage-b:#DAE7DD; --vig:rgba(15,50,30,.06);
+  --paper:#FFFFFF; --paper-ink:#132119; --paper-soft:#37503F; --paper-line:#C8DACC;
+  color-scheme:light;
+}
