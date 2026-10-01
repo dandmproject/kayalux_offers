@@ -1494,8 +1494,12 @@ const space=(function(){
           [new T.TorusGeometry(.085,.004,4,22).scale(1,1,1.15).rotateY(Math.PI/2).rotateZ(Math.PI/2).translate(0,.02,-.07),BL]]),
         gun:mergeColored([[at(X(C(.016,.016,.15,10),Math.PI/2),0,.03,.05),'#f1f1ee'],[at(X(C(.004,.013,.05,8),Math.PI/2),0,.03,.15),'#c8861e'],[at(new T.BoxGeometry(.022,.085,.03),0,-.015,0),BL],[at(X(C(.003,.003,.08,6),Math.PI/2),0,.03,-.06),'#9a9a9a']]),
         hood:mergeColored([[new T.TorusGeometry(.085,.032,7,18,Math.PI*1.3).rotateX(-Math.PI/2).rotateY(-.468).scale(1,.8,1),'#eceef0']]),
-        dot:new T.SphereGeometry(.008,8,5).scale(1,.55,1)};
-      Object.values(VZ.geo).forEach(g=>GEOSET.add(g));
+        dot:new T.SphereGeometry(.008,8,5).scale(1,.55,1),
+        // his tool case (gel, glue boards, gloves, the protocol): carried by the handle, set down beside him while he works
+        kase:mergeColored([[roundedBox(.36,.24,.12,.025).translate(0,-.15,0),'#2b2d31'],[at(new T.BoxGeometry(.37,.018,.125),0,-.07,0),'#f0a81c'],...[-1,1].map(s_=>[at(new T.BoxGeometry(.03,.035,.13),s_*.1,-.045,0),'#c9c9c9']),[at(new T.BoxGeometry(.13,.018,.03),0,-.005,0),BL],...[-1,1].map(s_=>[at(new T.BoxGeometry(.015,.03,.025),s_*.06,-.02,0),BL])]),
+        clip:mergeColored([[new T.BoxGeometry(.22,.30,.008),'#5a3a22'],[at(new T.BoxGeometry(.19,.25,.002),0,-.015,.005),'#f4f2ec'],[at(new T.BoxGeometry(.09,.03,.014),0,.14,.004),'#b8b8b8'],...[0,1,2,3,4,5].map(i=>[at(new T.BoxGeometry(.15,.004,.001),0,.07-i*.035,.0066),'#7b8aa0'])]),
+        handB:new T.PlaneGeometry(.19,.14)};
+      Object.values(VZ.geo).forEach(g=>GEOSET.add(g));VZ.bU=M.boardUsed.clone();VZ.bU.side=T.DoubleSide;VZ.bN=M.boardNew.clone();VZ.bN.side=T.DoubleSide;M.vz_bU=VZ.bU;M.vz_bN=VZ.bN;
       // the decal on the tank's back: the emblem and the name, as on his van and his badge
       const c=document.createElement('canvas');c.width=256;c.height=256;const x=c.getContext('2d');const em=new Image();const draw=()=>{x.clearRect(0,0,256,256);if(em.complete&&em.naturalWidth)x.drawImage(em,48,14,160,160);x.fillStyle='#ffffff';x.font='800 27px Inter, Arial, sans-serif';x.textAlign='center';x.fillText('УНИЩОЖИТЕЛИ',128,214);x.font='600 17px Inter, Arial, sans-serif';x.fillText('ДДД · 0897 555 751',128,240);};
       const tt=new T.CanvasTexture(c);tt.encoding=T.sRGBEncoding;em.onload=()=>{draw();tt.needsUpdate=true;};em.src='assets/img/emblem.png';draw();
@@ -1517,6 +1521,12 @@ const space=(function(){
       const stow=new T.Object3D();stow.position.set(-.18,.1,.0);stow.quaternion.setFromEuler(_zE.set(Math.PI/2-.08,0,0));tank.add(stow); /* the lance hangs nozzle down in its holder on the tank's right side */
       const outlet=new T.Object3D();outlet.position.set(-.1,-.26,0);tank.add(outlet);const pump=new T.Object3D();pump.position.set(.175,-.2,.34);tank.add(pump);
       vzBone(B('Neck'),new T.Mesh(VZ.geo.hood,M.vc2),new T.Vector3(0,nk.y-.03,nk.z-.05));
+      // the sprayer's webbing: over each shoulder, down the chest, a chest strap; only on when the tank is (measured on his own chest)
+      let body=null;g.traverse(o=>{if(o.isSkinnedMesh&&/body/.test(o.material.name||''))body=o;});const fz=(y,xm)=>{let z=-9;if(!body)return s2.z+.12;const pa=body.geometry.attributes.position,v=new T.Vector3();for(let i=0;i<pa.count;i++){v.fromBufferAttribute(pa,i).applyMatrix4(body.matrixWorld);if(Math.abs(v.y-y)<.025&&Math.abs(Math.abs(v.x)-xm)<.03&&v.z>z)z=v.z;}return z>-9?z:s2.z+.12;};
+      const sg=[];for(const sd of [-1,1]){const pts=[[.1,nk.y-.08,s2.z-.13],[.105,nk.y-.025,nk.z-.02],[.108,nk.y-.07,fz(nk.y-.07,.108)+.006],[.115,s2.y,fz(s2.y,.115)+.008],[.13,s2.y-.15,fz(s2.y-.15,.13)+.008],[.16,s2.y-.23,fz(s2.y-.23,.16)-.02]].map(q=>new T.Vector3(sd*q[0],q[1],q[2]));sg.push([new T.TubeGeometry(new T.CatmullRomCurve3(pts),18,.011,4).scale(1,1,.55),'#151617']);}
+      {const yc=s2.y+.035,zc=fz(yc,.0)+.01;sg.push([new T.BoxGeometry(.23,.022,.008).translate(0,yc,zc),'#151617'],[new T.BoxGeometry(.035,.03,.014).translate(0,yc,zc+.004),'#2b2b2b']);}
+      const straps=vzBone(B('Spine2'),new T.Mesh(mergeColored(sg),M.vc2),new T.Vector3(0,0,0));ud.ownGeo=[straps.geometry];
+      const kase=new T.Mesh(VZ.geo.kase,M.vc2);kase.castShadow=true;const clip=new T.Mesh(VZ.geo.clip,M.vc2);clip.visible=false;const handB=new T.Mesh(VZ.geo.handB,VZ.bU);handB.visible=false;room.add(kase,clip,handB);const tag=document.createElement('div');tag.className='vztag';tag.innerHTML='<b>Венци</b><i>„УНИЩОЖИТЕЛИ“ · ДДД</i>';tag.hidden=true;ovl.appendChild(tag);const tagV=new T.Vector3();overlay.push({el:tag,v:tagV,kind:'vz'}); /* his name over his head, so everyone knows it is him */
       // the half-mask: on the face while spraying, hanging on the chest otherwise
       const mFace=vzBone(B('Head'),new T.Object3D(),new T.Vector3(0,(ns.y+ul.y)/2-.004,ns.z+.012));
       const mNeck=vzBone(B('Spine2'),new T.Object3D(),new T.Vector3(0,nk.y-.17,s2.z+.15),new T.Quaternion().setFromEuler(_zE.set(1.0,0,0)));
@@ -1527,9 +1537,9 @@ const space=(function(){
       if(!VZ.gel){VZ.gel=new T.InstancedMesh(VZ.geo.dot,VZ.mat.gel,90);VZ.gel.count=0;VZ.gelN=0;}if(!VZ.gel.parent)room.add(VZ.gel);
       if(!VZ.mist.length)for(let i=0;i<28;i++){const s_=new T.Sprite(VZ.mat.mist.clone());s_.visible=false;s_.userData={t:9,v:new T.Vector3()};VZ.mist.push(s_);}VZ.mist.forEach(s_=>{room.add(s_);s_.visible=false;s_.userData.t=9;});
       const legs=['L','R'].map(s=>[B(s+'_Thigh'),B(s+'_Calf'),B(s+'_Foot')]);poseBones(g);ud.pB=ud.pB.concat(...legs.map(l=>l.slice(0,3))).filter(Boolean);
-      ud.dz={tank,stow,outlet,pump,mFace,mNeck,mask,lance,gun,hose,HN,HR,legs,maskT:0,maskW:0,lanceT:0,lanceW:0,ldir:new T.Vector3(0,-.5,.8).normalize(),sq:0,sqT:0,q:[],task:null,ph:'away',t:0,until:T_+rnd(2,6),spraying:false,emit:0,pumpT:0};
+      ud.dz={tag,tagV,tank,straps,kase,clip,handB,caseOn:false,caseP:[0,0,0],holdB:null,clipOn:false,kind:'service',stow,outlet,pump,mFace,mNeck,mask,lance,gun,hose,HN,HR,legs,maskT:0,maskW:0,lanceT:0,lanceW:0,ldir:new T.Vector3(0,-.5,.8).normalize(),sq:0,sqT:0,q:[],task:null,ph:'away',t:0,until:T_+rnd(2,6),spraying:false,emit:0,pumpT:0};
       g.visible=false;ud.state='away';g.position.set(nav.entry[0],0,nav.entry[1]);room.add(g);people.push(g);VZ.g=g;return true;}
-    function vzClear(){if(VZ.g){(VZ.g.userData.ownMats||[]).forEach(m=>m.dispose());const dz=VZ.g.userData.dz;if(dz)dz.hose.geometry.dispose();}VZ.g=null;if(VZ.gel){VZ.gel.count=0;VZ.gelN=0;}}
+    function vzClear(){if(VZ.g){(VZ.g.userData.ownMats||[]).forEach(m=>m.dispose());(VZ.g.userData.ownGeo||[]).forEach(g_=>g_.dispose());const dz=VZ.g.userData.dz;if(dz)dz.hose.geometry.dispose();}VZ.g=null;if(VZ.gel){VZ.gel.count=0;VZ.gelN=0;}}
     // where is open floor (for him to stand) / a free wall (to spray its skirting)
     const vzFree=(x,z,r)=>x>-S.hw+r&&x<S.hw-r&&z>-S.hd+r&&z<S.hd-r&&!OBS.some(o=>x+r>o[0]&&x-r<o[1]&&z+r>o[2]&&z-r<o[3]);
     function vzPlan(){const q=[],hw=S.hw,hd=S.hd;
@@ -1555,21 +1565,39 @@ const space=(function(){
       let v=0,lookP=null;const R=[null,null];ud.ikReq=R;dz.gunOn=false;dz.spraying=false;let sqTarget=0,lanceMode=dz.task&&dz.task.kind==='spray'&&dz.ph!=='go'&&dz.ph!=='maskOn'?1:0,maskOn=0,lanceHold=dz.lanceT>.5;
       const fwd=_zA.set(Math.sin(ud.ang||0),0,Math.cos(ud.ang||0)),rgt=_zB.set(-fwd.z,0,fwd.x),k=ud.k||1,px=g.position.x,pz=g.position.z;
       const hp=(f,r,y)=>[px+fwd.x*f+rgt.x*r,y*k,pz+fwd.z*f+rgt.z*r]; /* a point in his own frame: f ahead, r to his right, y up */
-      if(dz.ph==='away'){g.visible=false;if(T_>dz.until&&!doorBusy(g)){dz.q=vzPlan();if(window.__vzOnly)dz.q=dz.q.filter(t=>t.kind===window.__vzOnly);g.position.set(nav.entry[0],0,nav.entry[1]);ud.ang=Math.PI;g.rotation.y=ud.ang;g.visible=true;ud.blend=0;dz.task=null;dz.ph='next';dz.t=0;}}
+      if(dz.ph==='away'){g.visible=false;if(T_>dz.until&&!doorBusy(g)){VZ.vn=(VZ.vn||0)+1;const all=vzPlan(),spr=all.filter(t=>t.kind==='spray');dz.kind=spr.length&&VZ.vn%2===0?'spray':'service';dz.q=dz.kind==='spray'?spr:all.filter(t=>t.kind!=='spray');dz.caseOn=false;if(window.__vzOnly){dz.q=all.filter(t=>t.kind===window.__vzOnly);dz.kind=window.__vzOnly==='spray'?'spray':'service';}g.position.set(nav.entry[0],0,nav.entry[1]);ud.ang=Math.PI;g.rotation.y=ud.ang;g.visible=true;ud.blend=0;dz.task=null;dz.ph='next';dz.t=0;}}
       if(dz.ph==='next'){dz.task=dz.q.shift()||{kind:'exit'};const t=dz.task;dz.t=0;dz.ph='go';vzGo(g,t.kind==='exit'?nav.exit:(t.stand||t.a),T_);}
       if(dz.ph==='go'){ud.blend=Math.min(1,ud.blend+dt*2);if(advance(g,ud.sp*ud.blend*dt,dt)){ud.state='ddd';dz.t=0;dz.ph=dz.task.kind==='exit'?'gone':dz.task.kind==='spray'?'maskOn':'work';}else v=ud.vNow!=null?ud.vNow:ud.sp*ud.blend;}
       if(dz.ph==='gone'){g.visible=false;dz.ph='away';dz.until=T_+rnd(18,30);ud.state='away';}
       const t=dz.task,tt=dz.t;
-      if(dz.ph==='work'&&t.kind==='box'){const u=S.units[t.u];faceTo(t.face);const hgB=u&&u.hinge;sqTarget=tt<6.4?1:0;
-        const open_=tt<1.4?0:tt<2.1?(tt-1.4)/.7:tt<5.4?1:tt<6.1?1-(tt-5.4)/.7:0;if(hgB){hgB.rotation.x=-1.2*tE(open_);hgB.updateMatrixWorld(true);
-          if(tt>.9&&tt<6.4){const w=tt<1.3?(tt-.9)/.4:tt>6.0?(6.4-tt)/.4:1;for(const s of [0,1]){const lp=_zC.set(s?-.08:.08,.0,.2*.96).applyMatrix4(hgB.matrixWorld);R[s]={p:[lp.x,lp.y+.01,lp.z],w:w*.95};}
-            if(tt>2.4&&tt<5.0){const c=_zD.set(0,.05,0).applyMatrix4(hgB.parent.matrixWorld);const wob=Math.sin((tt-2.4)*3.2)*.03;R[1]={p:[c.x+fwd.x*wob,c.y,c.z+fwd.z*wob],w:.95};}}}
-        lookP=u?[u.p[0],u.p[2]]:null;if(tt>7.4)dz.ph='next';}
-      if(dz.ph==='work'&&t.kind==='gel'){faceTo(t.face);if(lanceHold)dz.ph='stowG';else{dz.gunOn=tt>.5;const per=1.5,i=Math.min(t.pts.length-1,Math.floor(Math.max(0,tt-.8)/per)),f=((Math.max(0,tt-.8))%per)/per,p=t.pts[i];
-          sqTarget=clamp((1.05-p[1])/.9,0,1);const dab=f>.35&&f<.8?(f-.35)/.45:f>=.8?1:0;R[1]={p:[p[0],p[1]+.02-.03*dab,p[2]],w:tt<.8?tt/.8:1};dz.gunTgt=p;lookP=[p[0],p[2]];
-          if(f>.78&&!dz.dotDone){dz.dotDone=true;vzDot(p[0],p[1]-.012*(p[1]>.1?0:1)+(p[1]>.1?-.01:0),p[2]);}if(f<.3)dz.dotDone=false;
-          if(tt>.8+per*t.pts.length+.6)dz.ph='next';}}
-      if(dz.ph==='stowG'){/* the lance back into its holder before the gel gun comes out */R[1]={p:vzWorld(dz.stow),w:1};if(tt>.7){dz.lanceT=0;dz.ph='work';dz.t=.0;}}
+      // the tool case: put down on his left as he crouches, picked up again before he stands
+      const caseDown=(tDown,tUp)=>{const cs=hp(.12,-.45,0);if(tt<tDown){R[0]={p:[cs[0],.3,cs[2]],w:clamp((tt-(tDown-.5))/.3,0,1)};}else if(tt<tUp){if(!dz.caseOn){dz.caseOn=true;dz.caseP=[cs[0],.27,cs[2]];}}else{dz.caseOn=false;}if(tt>tUp-.5&&tt<tUp+.3)R[0]={p:[dz.caseP[0],dz.caseP[1]+.03,dz.caseP[2]],w:clamp((tt-(tUp-.5))/.3,0,1)*clamp((tUp+.3-tt)/.3,0,1)};};
+      const ramp=(t0,t1)=>clamp((tt-t0)/(t1-t0),0,1),win=(t0,t1,f)=>tt>=t0&&tt<t1?Math.min(1,(tt-t0)/(f||.3),(t1-tt)/(f||.3)):0;
+      if(dz.ph==='work'&&t.kind==='box'){const u=S.units[t.u];faceTo(t.face);const hgB=u&&u.hinge;sqTarget=tt<9.6?1:0;caseDown(.7,9.2);
+        // the full service of a point: lid up, the used glue board out and looked at, into the case, a new board in, lid down, a note in the protocol
+        const open_=tt<1.4?0:tt<2.1?(tt-1.4)/.7:tt<5.7?1:tt<6.4?1-(tt-5.7)/.7:0;
+        if(hgB&&u){hgB.rotation.x=-1.25*tE(open_);hgB.updateMatrixWorld(true);const B_=hgB.parent;B_.updateMatrixWorld(true);
+          const edge=sd=>{const v=_zC.set(sd?-.08:.08,0,.2*.96).applyMatrix4(hgB.matrixWorld);return [v.x,v.y+.01,v.z];},inBox=()=>{const v=_zD.set(0,.05,.02).applyMatrix4(B_.matrixWorld);return [v.x,v.y,v.z];};
+          const cTop=[dz.caseP[0],dz.caseP[1]+.04,dz.caseP[2]],look=hp(.34,.02,.66);
+          if(tt>1.0&&tt<2.2){const w=win(1.0,2.2,.3);R[0]={p:edge(0),w};R[1]={p:edge(1),w};}
+          if(tt>=2.2&&tt<5.7)R[0]={p:edge(0),w:win(2.2,5.7,.3)};                                              // the left hand keeps the lid up
+          if(tt>=2.1&&tt<5.75){let p_;if(tt<2.8)p_=inBox();else if(tt<3.7)p_=look;else if(tt<4.3)p_=cTop;else if(tt<4.8)p_=cTop;else if(tt<5.45)p_=inBox();else p_=edge(1);R[1]={p:p_,w:win(2.1,5.75,.25)};}
+          if(tt>=5.75&&tt<6.5){const w=win(5.75,6.5,.25);R[0]={p:edge(0),w};R[1]={p:edge(1),w};}
+          if(tt>2.75&&!dz.took){dz.took=true;u.board.visible=false;dz.holdB='used';}                         // the used board comes out
+          if(tt>4.2&&dz.holdB==='used')dz.holdB=null;                                                       // into the waste bag in the case
+          if(tt>4.55&&tt<5.4&&!dz.holdB&&!dz.put)dz.holdB='new';                                             // a fresh board from the case
+          if(tt>5.4&&!dz.put){dz.put=true;dz.holdB=null;u.board.material=M.boardNew;u.board.visible=true;}  // laid into the box
+          dz.clipOn=tt>6.6&&tt<8.7;if(dz.clipOn){const cp=hp(.3,-.05,.72);R[0]={p:cp,w:win(6.6,8.7,.3)};const wr=Math.sin(tt*9)*.025,wl=((tt*1.3)%1)*.05;R[1]={p:[cp[0]+rgt.x*(.03+wr)+fwd.x*.01,cp[1]+.06-wl,cp[2]+rgt.z*(.03+wr)+fwd.z*.01],w:win(6.7,8.6,.3)};}
+          lookP=dz.clipOn?[px+fwd.x*.3,pz+fwd.z*.3]:[u.p[0],u.p[2]];}
+        if(tt>10.4){dz.ph='next';dz.took=dz.put=false;dz.holdB=null;dz.clipOn=false;if(u&&u.board)u.board.visible=true;}}
+      if(dz.ph==='work'&&t.kind==='gel'){faceTo(t.face);const per=1.5,t0=1.5,n=t.pts.length,tEnd=t0+per*n;caseDown(.6,tEnd+.95);
+        dz.gunOn=tt>1.1&&tt<tEnd+.35;if(tt>.7&&tt<1.2)R[1]={p:[dz.caseP[0],dz.caseP[1]+.04,dz.caseP[2]],w:win(.7,1.2,.2)};      // the bait gun out of the case
+        if(tt>=t0-.3&&tt<tEnd){const i=Math.min(n-1,Math.floor(Math.max(0,tt-t0)/per)),f=(Math.max(0,tt-t0)%per)/per,p=t.pts[i];sqTarget=clamp((1.05-p[1])/.9,0,1);
+          const dab=f>.35&&f<.8?(f-.35)/.45:f>=.8?1:0;R[1]={p:[p[0],p[1]+.02-.03*dab,p[2]],w:ramp(t0-.3,t0)};dz.gunTgt=p;lookP=[p[0],p[2]];
+          if(f>.78&&!dz.dotDone){dz.dotDone=true;vzDot(p[0],p[1]>.1?p[1]-.01:p[1],p[2]);}if(f<.3)dz.dotDone=false;}
+        else if(tt<t0)sqTarget=.6;
+        if(tt>=tEnd){sqTarget=tt<tEnd+1.1?1:0;R[1]={p:[dz.caseP[0],dz.caseP[1]+.04,dz.caseP[2]],w:win(tEnd,tEnd+.6,.2)};}
+        if(tt>tEnd+2.0)dz.ph='next';}
       if(dz.ph==='maskOn'){faceTo(Math.atan2(t.b[0]-t.a[0],t.b[1]-t.a[1]));const f=Math.min(1,tt/1.1);const mp=vzWorld(f<.5?dz.mNeck:dz.mFace);R[1]={p:mp,w:Math.sin(Math.PI*f)};if(tt>.55)maskOn=1;
         if(tt>1.1){const sp=vzWorld(dz.stow);R[1]={p:sp,w:Math.min(1,(tt-1.1)/.4)*Math.max(0,1-(tt-1.9)/.4)};maskOn=1;}if(tt>1.7)dz.lanceT=1;if(tt>2.3){dz.ph='spray';dz.t=0;}}
       if(dz.ph==='spray'||dz.ph==='hold'){maskOn=1;const L=Math.hypot(t.b[0]-t.a[0],t.b[1]-t.a[1]),dx=(t.b[0]-t.a[0])/L,dzz=(t.b[1]-t.a[1])/L,done=((px-t.a[0])*dx+(pz-t.a[1])*dzz)/L;faceTo(Math.atan2(dx,dzz),4);
@@ -1580,7 +1608,7 @@ const space=(function(){
         lookP=[tg[0],tg[2]];if(dz.ph==='after')dz.t=0;}
       if(dz.ph==='after'){const f=tt;R[1]=f<1?{p:vzWorld(dz.stow),w:Math.sin(Math.PI*f)}:{p:vzWorld(dz.mFace),w:Math.sin(Math.PI*Math.min(1,(f-1)/1.1))};if(f>.55)dz.lanceT=0;maskOn=f<1.55?1:0;if(f>2.2)dz.ph='next';}
       if(lanceMode||dz.lanceT>.5){if(!R[1]&&dz.lanceT>.5)R[1]={p:hp(.3,.2,.9),w:1};}
-      dz.maskT=maskOn;dz.sqT=sqTarget;ud.lookAtP=lookP;
+      dz.maskT=maskOn;dz.sqT=sqTarget;ud.lookAtP=lookP;if(dz.kind==='service')ud.tillGrip=[dz.caseOn&&!R[0]?0:1,dz.gunOn||dz.holdB?1:0]; /* the case's handle in his left hand; the gun or a board in the right */
       // the body: walking clip while he moves, standing otherwise; a squat is the legs bending under him (gltfHeads → vzPose)
       dz.sq=ease(dz.sq,dz.sqT,3.2);ud.sqD=dz.sq*.4*k;
       if(g.visible){if(v>.04){ud.play(v<.6?'walkslow':'walk',.3);ud.setSpeed(v);}else ud.play('idle',.4);}
@@ -1603,7 +1631,8 @@ const space=(function(){
       if(s>.004){dz.legs.forEach(l=>{if(!l[2])return;l[2].getWorldPosition(_zC);_zC.y+=s;vzLeg(g,l,_zC);});leanTo(g,dz.sq*.5);}}
     // props each frame: the mask between chest and face, the lance in the hand or in its holder, the gel gun, the hose, the mist
     function vzSetW(o,p,q){o.position.copy(p);if(q)o.quaternion.copy(q);}
-    function vzProps(dt){const g=VZ.g;if(!g)return;const ud=g.userData,dz=ud.dz;if(!dz)return;const vis=g.visible;[dz.mask,dz.lance,dz.gun,dz.hose].forEach(o=>o.visible=vis);if(!vis){VZ.mist.forEach(s_=>s_.visible=false);return;}
+    function vzProps(dt){const g=VZ.g;if(!g)return;const ud=g.userData,dz=ud.dz;if(!dz)return;const vis=g.visible,spr=dz.kind==='spray';dz.mask.visible=vis;dz.lance.visible=dz.hose.visible=vis&&spr;dz.tank.visible=dz.straps.visible=spr;dz.kase.visible=vis&&!spr;
+      dz.tag.hidden=!vis;if(!vis){VZ.mist.forEach(s_=>s_.visible=false);dz.gun.visible=dz.clip.visible=dz.handB.visible=false;return;}
       g.updateMatrixWorld(true);dz.maskW+=(dz.maskT-dz.maskW)*(1-Math.exp(-dt*5));const mw=tE(dz.maskW);
       dz.mNeck.getWorldPosition(_zA);dz.mFace.getWorldPosition(_zB);dz.mNeck.getWorldQuaternion(_zQ);dz.mFace.getWorldQuaternion(_zQ2);_zA.lerp(_zB,mw);_zQ.slerp(_zQ2,mw);vzSetW(dz.mask,_zA,_zQ);
       dz.lanceW+=(dz.lanceT-dz.lanceW)*(1-Math.exp(-dt*7));const lw=tE(dz.lanceW);
@@ -1611,6 +1640,13 @@ const space=(function(){
       _zM.lookAt(dz.ldir,_zC.set(0,0,0),_zD.set(0,1,0));_zQ2.setFromRotationMatrix(_zM); /* the lance's +z along the spray direction */
       _zA.lerp(_zB,lw);_zQ.slerp(_zQ2,lw);vzSetW(dz.lance,_zA,_zQ);dz.lance.updateMatrixWorld(true);
       dz.gun.visible=!!dz.gunOn;if(dz.gunOn&&pp){_zA.set(pp[0],pp[1],pp[2]);const tg=dz.gunTgt||[pp[0],0,pp[2]+1];_zC.set(tg[0]-pp[0],tg[1]-pp[1],tg[2]-pp[2]).normalize();_zM.lookAt(_zC,_zD.set(0,0,0),_zB.set(0,1,0));_zQ.setFromRotationMatrix(_zM);vzSetW(dz.gun,_zA,_zQ);}
+      // the tool case: on the floor beside him, or by its handle in his left hand; the clipboard; a glue board in his right hand
+      if(!spr){if(dz.caseOn){dz.kase.position.set(dz.caseP[0],dz.caseP[1],dz.caseP[2]);dz.kase.rotation.set(0,(ud.ang||0)+Math.PI/2,0);}
+        else{const lp=palmOf(g,0);if(lp){dz.kase.position.set(lp[0],Math.max(.27,lp[1]-.01),lp[2]);dz.kase.rotation.set(0,(ud.ang||0)+Math.PI/2,0);}}}
+      const hd=ud.headB;if(hd){hd.getWorldPosition(_zS);dz.tagV.set(_zS.x,_zS.y+.36,_zS.z);}
+      dz.clip.visible=!!dz.clipOn;if(dz.clipOn){const lp=palmOf(g,0);if(lp&&hd){dz.clip.position.set(lp[0],lp[1]+.08,lp[2]);dz.clip.lookAt(_zS);}}
+      dz.handB.visible=!!dz.holdB;if(dz.holdB){dz.handB.material=dz.holdB==='used'?VZ.bU:VZ.bN;const rp=palmOf(g,1);if(rp&&hd){dz.handB.position.set(rp[0],rp[1]+.03,rp[2]);dz.handB.lookAt(_zS);}}
+      if(!spr){[dz.lance,dz.hose].forEach(o=>o.visible=false);VZ.mist.forEach(s_=>{if(s_.userData.t>=1.2)s_.visible=false;});return;}
       // hose: outlet → down → up to the lance's back end, a cubic curve with its own sag
       const a=_zA,b=_zB;dz.outlet.getWorldPosition(a);b.set(0,0,-.09).applyMatrix4(dz.lance.matrixWorld);const c1=_zC.copy(a).add(_zS.set(0,-.35,0)),c2=_zD.set(0,-.05,-.3).applyMatrix4(dz.lance.matrixWorld);c2.y-=.3;
       const pos=dz.hose.geometry.attributes.position.array,nor=dz.hose.geometry.attributes.normal.array,HN=dz.HN,HR=dz.HR,r=.0075;let pX=0,pY=0,pZ=0;
@@ -1845,6 +1881,11 @@ const space=(function(){
       M.baitBox=M.baitBox||new T.MeshStandardMaterial({color:0x30352a,roughness:.62,metalness:.05,envMapIntensity:.3});
       M.baitLid=M.baitLid||new T.MeshStandardMaterial({color:0x3c4232,roughness:.55,metalness:.05,envMapIntensity:.4});
       M.baitHole=M.baitHole||new T.MeshStandardMaterial({color:0x14160f,roughness:.9});
+      // the glue board inside each box: a cream sticky sheet in a printed frame; a used one has a few catches on it
+      const boardTex=used=>tex2(128,96,(g,w,h)=>{g.fillStyle='#2a2a2a';g.fillRect(0,0,w,h);g.fillStyle='#efe0a0';g.fillRect(5,5,w-10,h-10);g.strokeStyle='rgba(120,100,40,.35)';g.lineWidth=1;for(let x=14;x<w-6;x+=12){g.beginPath();g.moveTo(x,6);g.lineTo(x,h-6);g.stroke();}for(let y=14;y<h-6;y+=12){g.beginPath();g.moveTo(6,y);g.lineTo(w-6,y);g.stroke();}
+        const gl=g.createLinearGradient(0,0,w,h);gl.addColorStop(0,'rgba(255,255,255,.25)');gl.addColorStop(.5,'rgba(255,255,255,0)');g.fillStyle=gl;g.fillRect(5,5,w-10,h-10);
+        if(used){g.fillStyle='rgba(60,50,30,.25)';g.fillRect(30,40,40,16);[[34,30,5],[70,52,7],[52,62,4],[92,34,5],[80,70,3],[26,64,4]].forEach(([x,y,r])=>{g.fillStyle='#1a140c';g.beginPath();g.ellipse(x,y,r,r*.6,.6,0,6.283);g.fill();g.strokeStyle='#1a140c';g.lineWidth=1;for(let k=-1;k<=1;k++){g.beginPath();g.moveTo(x-r,y+k*2);g.lineTo(x-r-3,y+k*3);g.moveTo(x+r,y+k*2);g.lineTo(x+r+3,y+k*3);g.stroke();}});}});
+      M.boardUsed=M.boardUsed||new T.MeshStandardMaterial({map:boardTex(true),roughness:.35});M.boardNew=M.boardNew||new T.MeshStandardMaterial({map:boardTex(false),roughness:.3});
       // the real УНИЩОЖИТЕЛИ sticker (from the client's photo): black gloss, the gold logo, red „⊠ ОТРОВНА ⊠ / КОНТРОЛНА ТОЧКА“,
       // a cream circle where the point's number is written in marker, the gold phone line
       const SL=S.stickerLogo||(S.stickerLogo=Object.assign(new Image(),{src:'assets/img/logo.png'}));
@@ -1923,7 +1964,8 @@ const space=(function(){
         const hole=new T.Mesh(new T.PlaneGeometry(.09,.05),M.baitHole);hole.position.set(0,.035,bd/2+.001);   // rodent entrance on the room-facing side
         const stTex=stickerTex(i+1),sticker=new T.Mesh(new T.PlaneGeometry(.17,.17),new T.MeshStandardMaterial({map:stTex,roughness:.28,metalness:0,envMapIntensity:.7,emissive:0xffffff,emissiveMap:stTex,emissiveIntensity:.32}));sticker.rotation.x=-Math.PI/2;sticker.position.set(0,bh+.008+.01+.015*.6+.0015,0); // flat on the lid's real top (the extrude bevel adds .6r above the nominal lid), reading from the room side
         const hinge=new T.Group();hinge.position.set(0,bh+.008,-bd*.48);lid.position.set(0,-(bh+.008),bd*.48);sticker.position.y-=bh+.008;sticker.position.z+=bd*.48;hinge.add(lid,sticker); // the lid turns on its back edge: the pest controller opens it to check the board
-        g.add(body,hinge,hole);room.add(g);
+        const board=new T.Mesh(new T.PlaneGeometry(.19,.14).rotateX(-Math.PI/2).translate(0,.022,0),Math.random()<.6?M.boardUsed:M.boardNew); // the sticky sheet on the floor of the box
+        g.add(body,hinge,hole,board);room.add(g);
         const led=new T.Group();led.visible=false;room.add(led); // (kept for the shared per-frame loop; a bait box has no light)
         // o: the pin/aim anchor just above the box top
         const o=[p[0],bh+.06,p[2]];
@@ -1940,7 +1982,7 @@ const space=(function(){
         const pin=document.createElement('button');pin.type='button';pin.className='pin';pin.innerHTML='<b>'+(i+1)+'</b><i>Точка '+(i+1)+'</i>';pin.setAttribute('aria-label','Дератизационна точка '+(i+1)+' ('+(u.title||'')+'): '+u.zone);
         pin.addEventListener('click',e=>{e.stopPropagation();pick(i);focusUnit(i);});ovl.appendChild(pin);
         overlay.push({el:pin,v:new T.Vector3(o[0],o[1]+.02,o[2]),kind:'pin'});
-        S.units.push({jet,p,d,o,info:u,led,light,plume,wave,seal,R:Rr,ph:i/U.length,pin,PL:false,hinge,bh,bd});
+        S.units.push({jet,p,d,o,info:u,led,light,plume,wave,seal,R:Rr,ph:i/U.length,pin,PL:false,hinge,bh,bd,board});
       });
       // entry-path traces on the floor (the „Пътища на проникване“ layer / the UV inspection beat): a chevron strip from the way in to each point
       {const pos=[],uv=[],w=.075,tile=.5,quad=(ax,az,bx,bz)=>{const dx=bx-ax,dz=bz-az,L=Math.hypot(dx,dz);if(L<.25)return;const nx=-dz/L*w,nz=dx/L*w,u1=L/tile,y=.03;
@@ -2074,7 +2116,7 @@ const space=(function(){
     const view={name:'tour',theta:.62,phi:.98,r:20,tx:0,ty:1,tz:0};let tween=null,idle=0,drag=null,walkSnap=false;
     function presets(name){const {W,D}=S,Hh=S.H,m=Math.max(W,D);
       if(name==='plan')return {theta:0,phi:.07,r:m*1.55+5,tx:0,ty:0,tz:0};
-      if(name==='walk'){return null;}
+      if(name==='walk'||name==='ddd'){return null;}
       if(name==='door'){const c=[S.door.x-.95,1.9,S.hd+1.9],t=[S.door.x*.35-W*.08,1.0,-S.hd*.35];const dx=c[0]-t[0],dy=c[1]-t[1],dz=c[2]-t[2],r=Math.hypot(dx,dy,dz);return {theta:Math.atan2(dx,dz),phi:Math.acos(dy/r),r,tx:t[0],ty:t[1],tz:t[2]};}
       // whole store in frame: distance from the room's bounding sphere and the narrower of the two fields of view
       const vf=camera.fov*Math.PI/180,f=Math.min(vf,2*Math.atan(Math.tan(vf/2)*camera.aspect)),R=.5*Math.hypot(W,D,Hh);
@@ -2141,7 +2183,7 @@ const space=(function(){
     focusUnit=i=>{if(!S.units||!S.units[i])return;view.name='focus';TIP.fu=i;idle=0;$$('.views [data-view]').forEach(b=>b.setAttribute('aria-pressed','false'));flyTo(unitKey(i),1.8);};
     function apply(){const s=Math.sin(view.phi);camera.position.set(view.tx+view.r*s*Math.sin(view.theta),view.ty+view.r*Math.cos(view.phi),view.tz+view.r*s*Math.cos(view.theta));camera.lookAt(view.tx,view.ty,view.tz);}
     function go(name,instant){
-      view.name=name;idle=0;if(name==='walk')walkSnap=true;if(name!=='tour')autoLayers(name==='plan');$$('.views [data-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view===name)));
+      view.name=name;idle=0;if(name==='walk'||name==='ddd')walkSnap=true;if(name!=='tour')autoLayers(name==='plan');$$('.views [data-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view===name)));
       if(name==='tour'){tour.k=-1;tour.t=0;tour.first=!!instant;kick();return;}
       const p=presets(name);if(!p){tween=null;kick();return;}if(instant||reduce){Object.assign(view,p);tween=null;apply();kick();return;}
       const from={theta:view.theta,phi:view.phi,r:view.r,tx:view.tx,ty:view.ty,tz:view.tz};let dth=p.theta-from.theta;dth=((dth+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;
@@ -2152,7 +2194,7 @@ const space=(function(){
     // fingers (touch events, reliable on iOS): one finger sideways = orbit around the store (and tilt once it has started), one finger up/down first = the page
     // scrolls as usual; two fingers = pinch to zoom, move together up/down to tilt, sideways to orbit; a flick keeps turning and slows down; double tap = presentation
     const TCH={n:0,x0:0,y0:0,x:0,y:0,lock:null,d0:0,r0:0,mx:0,my:0,vx:0,vy:0,t:0,tap:0};let spin={vx:0,vy:0};
-    const freeView=()=>{idle=0;tween=null;autoLayers(false);if(view.name!=='free'){if(view.name==='walk')apply();view.name='free';$$('.views [data-view]').forEach(b=>b.setAttribute('aria-pressed','false'));}};
+    const freeView=()=>{idle=0;tween=null;autoLayers(false);if(view.name!=='free'){if(view.name==='walk'||view.name==='ddd')apply();view.name='free';$$('.views [data-view]').forEach(b=>b.setAttribute('aria-pressed','false'));}};
     const zoomR=r=>{const m=Math.max(S.W,S.D);return clamp(r,m*.35,m*3.2+10);};
     const tpts=e=>[...e.touches].map(t=>[t.clientX,t.clientY]);
     const twoInit=P=>{TCH.lock='two';TCH.d0=Math.hypot(P[0][0]-P[1][0],P[0][1]-P[1][1])||1;TCH.r0=view.r;TCH.mx=(P[0][0]+P[1][0])/2;TCH.my=(P[0][1]+P[1][1])/2;TCH.a=Math.atan2(P[1][1]-P[0][1],P[1][0]-P[0][0]);freeView();};
@@ -2183,7 +2225,7 @@ const space=(function(){
     stage.addEventListener('pointerdown',e=>{if(e.pointerType==='touch'||e.target.closest('button,label,input,select,.hud-card'))return;
       spin.vx=spin.vy=0;drag={x:e.clientX,y:e.clientY,x0:e.clientX,y0:e.clientY,id:e.pointerId,on:true};stage.classList.add('drag');try{stage.setPointerCapture(e.pointerId);}catch(_){}});
     stage.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id||e.pointerType==='touch')return;
-      if(view.name==='walk'){view.name='free';apply();}const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.x=e.clientX;drag.y=e.clientY;
+      if(view.name==='walk'||view.name==='ddd'){view.name='free';apply();}const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.x=e.clientX;drag.y=e.clientY;
       view.theta-=dx*.0065;view.phi=clamp(view.phi-dy*.005,.07,1.5);tween=null;idle=0;if(view.name!=='free'){autoLayers(false);view.name='free';$$('.views [data-view]').forEach(b=>b.setAttribute('aria-pressed','false'));}apply();kick();});
     const end=()=>{drag=null;stage.classList.remove('drag');};stage.addEventListener('pointerup',end);stage.addEventListener('pointercancel',end);
     stage.addEventListener('wheel',e=>{e.preventDefault();idle=0;if(view.name==='tour'){autoLayers(false);view.name='free';$$('.views [data-view]').forEach(b=>b.setAttribute('aria-pressed','false'));}const m=Math.max(S.W,S.D);view.r=clamp(view.r*Math.exp(e.deltaY*.0025),m*.35,m*3.2+10);tween=null;apply();kick();},{passive:false});
@@ -2277,10 +2319,25 @@ const space=(function(){
         else{['theta','phi','r','tx','ty','tz'].forEach(p=>view[p]=tween.from[p]+(tween.to[p]-tween.from[p])*k);apply();}if(tween.t>=1)tween=null;}
       else if(spin.vx||spin.vy){view.theta-=spin.vx*dt*1000*.0072;view.phi=clamp(view.phi-spin.vy*dt*1000*.005,.07,1.5);const k=Math.exp(-dt*4.2);spin.vx*=k;spin.vy*=k;if(Math.abs(spin.vx)+Math.abs(spin.vy)<.004)spin.vx=spin.vy=0;idle=0;apply();}
       else if(!drag&&view.name==='tour'&&LD.done)tourStep(dt);
-      else if(!drag&&!TCH.n&&view.name!=='walk'&&!hover){idle+=dt;if(idle>(touchUI?8:14))go('tour');}
+      else if(!drag&&!TCH.n&&view.name!=='walk'&&view.name!=='ddd'&&!hover){idle+=dt;if(idle>(touchUI?8:14))go('tour');}
       if(view.name==='walk'&&people.length){let p=(camSub&&camSub.parent&&camSub.visible&&camSub.userData.state==='walk')?camSub:null;const inside=g=>g.visible&&g.parent&&g.position.z<S.hd-1.2&&Math.abs(g.position.x)<S.hw-.2;const browsing=g=>{const u=g.userData,l=u.visit&&u.visit[u.legI];return !!l&&l.kind==='browse';};if(p&&(!inside(p)||!browsing(p)))p=null;if(!p){const w=people.filter(g=>inside(g)&&browsing(g)&&g.userData.follow==null&&g.userData.state==='walk'&&!g.userData.turning&&Math.cos(g.rotation.y)<.3);if(w.length){w.sort((a,b)=>a.position.distanceToSquared(camera.position)-b.position.distanceToSquared(camera.position));p=w[0];}}if(p)camSub=p;p=camSub&&camSub.parent&&inside(camSub)?camSub:(people.find(g=>inside(g)&&g.userData.follow==null)||people.find(inside)||people[0]);const ud=p.userData;if(ud.state==='walk'&&!ud.turning&&inside(p))ud.camAng=p.rotation.y;else ud.camAng=Math.atan2((S.mainX||0)*.3-p.position.x,-S.hd*.3-p.position.z);const fw=new T.Vector3(0,0,1).applyAxisAngle(new T.Vector3(0,1,0),ud.camAng),side=new T.Vector3(fw.z,0,-fw.x);
         let want=null;for(let d=3.2;d>=1.2;d-=.2){const x=p.position.x-fw.x*d+side.x*.5*(d/3.2),z=p.position.z-fw.z*d+side.z*.5*(d/3.2);const cc=nav?nav.toCell(x,z):null;if(z<S.hd-.35&&Math.abs(x)<S.hw-.3&&(!nav||nav.free(nav.G0,cc[0],cc[1]))){want=new T.Vector3(x,1.55,z);break;}}
         if(!want)want=new T.Vector3(p.position.x,1.55,p.position.z);camera.position.lerp(want,walkSnap?1:Math.min(1,dt*2));walkSnap=false;const tgt=new T.Vector3(p.position.x+fw.x*3.0,1.42,p.position.z+fw.z*3.0);camera.lookAt(tgt);}
+      // „Последвай дезинфектора“: behind him while he walks; a three-quarter front view while he works, so his face and hands show;
+      // the entrance while he is out (he is back in a few seconds)
+      if(view.name==='ddd'){const g=VZ.g,cell=(x,z)=>{if(!nav)return true;const c=nav.toCell(x,z);return z<S.hd-.35&&Math.abs(x)<S.hw-.3&&nav.free(nav.G0,c[0],c[1]);};let want=null,tg=null;
+        if(g&&g.visible){const ud=g.userData,a=ud.ang||0,fx=Math.sin(a),fz=Math.cos(a),px=g.position.x,pz=g.position.z;
+          if(ud.state==='ddd'){const lp=ud.lookAtP||[px+fx,pz+fz],dz=ud.dz;
+            // chosen once per task: the first spot that is free floor AND sees his hands and the work (nothing standing in between)
+            if(VZ.pickFor!==dz.task||!VZ.pick){VZ.pickFor=dz.task;VZ.pick=null;const rc=VZ.rc||(VZ.rc=new T.Raycaster()),L=losMeshes(),seen=(c,t)=>{const d_=t.clone().sub(c),len=d_.length();rc.set(c,d_.normalize());rc.far=len-.15;return !rc.intersectObjects(L,false).length;};
+              const tw=new T.Vector3((px+lp[0])/2,.4,(pz+lp[1])/2),th=new T.Vector3(px,1.0,pz);
+              for(const [an_,yy] of [[.95,1.5],[-.95,1.5],[1.6,1.7],[-1.6,1.7],[2.3,2.0],[-2.3,2.0],[0,2.2]]){for(let d=2.4;d>=1.1&&!VZ.pick;d-=.2){const an=a+an_,x=px+Math.sin(an)*d,z=pz+Math.cos(an)*d;if(!cell(x,z))continue;const c=new T.Vector3(x,yy,z);if(seen(c,tw)&&seen(c,th))VZ.pick=c;}if(VZ.pick)break;}
+              if(!VZ.pick)VZ.pick=new T.Vector3(px-fx*1.4,2.3,pz-fz*1.4);} /* the front three-quarter first, then the side, then over his shoulder from above */
+            want=VZ.pick.clone();
+            tg=new T.Vector3((px+lp[0])/2,.55,(pz+lp[1])/2);}
+          if(!want){for(let d=2.8;d>=1.1&&!want;d-=.2){const x=px-fx*d-fz*.45,z=pz-fz*d+fx*.45;if(cell(x,z))want=new T.Vector3(x,1.65,z);}if(!want)want=new T.Vector3(px-fx*1.2,1.8,pz-fz*1.2);tg=tg||new T.Vector3(px+fx*1.6,1.0,pz+fz*1.6);}}
+        else{want=new T.Vector3(S.door.x-.9,1.9,S.hd+1.9);tg=new T.Vector3(S.door.x,1.0,S.hd-2.2);}
+        VZ.camT=VZ.camT||tg.clone();const k_=walkSnap?1:Math.min(1,dt*2.2);camera.position.lerp(want,k_);VZ.camT.lerp(tg,walkSnap?1:Math.min(1,dt*3));walkSnap=false;camera.lookAt(VZ.camT);}
       const _t1=DIAG?performance.now():0;
       if(!LD.done)ldTick();
       const on=PEST?false:sysOn(state.t),open=isOpen(state.t);

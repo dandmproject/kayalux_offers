@@ -1344,3 +1344,8 @@ footer.foot{overflow:hidden} /* the glint moving over the letters never widens t
 @media (max-width:360px){.obj tfoot tr.tot3{column-gap:6px;padding-right:6px}.obj tfoot tr.tot3 td.cs,.obj tfoot tr.tot3 td#tPts{font-size:1.05rem}.obj tfoot tr.tot3 td#tPts::before{font-size:11px}} /* 320 px: the monthly totals fit the card */
 
 /* phones: the map keeps the city names and counts; who services each city is in the chips and the card under it (the second lines overlapped) */
+/* the pest controller's name tag over his head in the 3D scene */
+.vztag{position:absolute;left:0;top:0;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 10px 5px;margin-top:-6px;border:1px solid var(--gold);border-radius:12px;background:rgba(14,12,10,.82);color:#f3d27a;white-space:nowrap;box-shadow:0 4px 14px -6px rgba(0,0,0,.6)}
+.vztag b{font:600 13px/1.1 var(--body);letter-spacing:.02em}
+.vztag i{font:600 8.5px/1.1 var(--body);font-style:normal;letter-spacing:.14em;text-transform:uppercase;color:#d9c08a}
+.vztag::after{content:"";position:absolute;left:50%;bottom:-5px;width:8px;height:8px;margin-left:-4px;transform:rotate(45deg);background:rgba(14,12,10,.82);border-right:1px solid var(--gold);border-bottom:1px solid var(--gold)}
