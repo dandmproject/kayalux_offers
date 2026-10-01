@@ -16,7 +16,7 @@ header('Cache-Control: private, no-store, max-age=0');
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/cormorant-garamond-cyrillic-400-italic.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-cyrillic-400-normal.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-cyrillic-500-normal.woff2">
-<link rel="stylesheet" href="assets/css/offer.min.css?v=eb31812a">
+<link rel="stylesheet" href="assets/css/offer.min.css?v=21d4f469">
 </head>
 <body>
 <div class="grain" aria-hidden="true"></div>
@@ -408,11 +408,12 @@ header('Cache-Control: private, no-store, max-age=0');
 
 <div class="dock" aria-label="Бърз контакт"><a class="dbtn up" href="#top" id="toTop" aria-label="Към началото на офертата" title="Нагоре"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a><a class="dbtn" href="tel:+359897555751" aria-label="Обади се: 0897 55 57 51" title="0897 55 57 51"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15 15 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.58 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.58 3.6a1 1 0 0 1-.25 1z" fill="currentColor"/></svg><span>Обади се</span></a></div>
 <footer class="foot">
-  <div class="wrap"><img class="foot-logo" src="assets/img/logo.png" alt="УНИЩОЖИТЕЛИ" width="1000" height="190" loading="lazy"><span>„УНИЩОЖИТЕЛИ“ ЕООД · www.Unishtojiteli.com · unishtojiteli@gmail.com · <a href="tel:+359897555751">0897 55 57 51</a></span><span>Оферта №&nbsp;0926-A · 01.10.2026&nbsp;г.</span></div>
+  <div class="wrap kl-marka-dno"><div class="kl-marka-prava"><img class="foot-logo" src="assets/img/logo.png" alt="УНИЩОЖИТЕЛИ" width="1000" height="190" loading="lazy"><span>„УНИЩОЖИТЕЛИ“ ЕООД · www.Unishtojiteli.com · unishtojiteli@gmail.com · <a href="tel:+359897555751">0897 55 57 51</a></span><span>Оферта №&nbsp;0926-A · 01.10.2026&nbsp;г.</span></div>
+    <div class="kl-marka" aria-hidden="true"><div class="kl-marka-ramka"><div class="kl-marka-bukvi"></div><div class="kl-marka-blyasak"><span class="kl-marka-luch" data-k="1"></span><span class="kl-marka-luch" data-k="2"></span></div></div></div></div>
 </footer>
 
 <script defer src="assets/js/three.min.js"></script>
-<script defer src="assets/js/app.min.js?v=64173a87"></script>
+<script defer src="assets/js/app.min.js?v=d872d797"></script>
 <script>/* моделите тръгват на заден план след зареждането или когато 3D схемата наближи */addEventListener('DOMContentLoaded',function(){var st=document.getElementById('stage');if(!st||!window.KL_GLTF)return;var go=function(){KL_GLTF.start();};addEventListener('load',function(){setTimeout(function(){(window.requestIdleCallback||function(f){f();})(go);},1500);});if('IntersectionObserver' in window){var io=new IntersectionObserver(function(en){if(en[0].isIntersecting){go();io.disconnect();}},{rootMargin:'1400px'});io.observe(st);}else go();});</script>
 <script>/* телефон: докато 3D схемата е на екрана, бутоните за контакт се отдръпват */(function(){var d=document.querySelector('.dock'),c=document.querySelector('.stage-col');if(!d||!c||!('IntersectionObserver' in window))return;new IntersectionObserver(function(e){d.classList.toggle('dim',e[0].isIntersecting);},{threshold:.25}).observe(c);})();</script>
 <script>/* локален сървър: след обновяване предлага презареждане */(function(){if(!document.querySelector('meta[name="kl-local"]'))return;var v=null;function chk(){fetch('/__version',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){if(!j||!j.sha)return;if(v===null){v=j.sha;return;}if(j.sha!==v&&!document.getElementById('klUpd')){var b=document.createElement('button');b.id='klUpd';b.type='button';b.textContent='Има нова версия на офертата · Обнови';b.onclick=function(){location.reload();};document.body.appendChild(b);}}).catch(function(){});}chk();setInterval(chk,60000);})();</script>

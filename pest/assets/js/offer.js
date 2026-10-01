@@ -188,6 +188,9 @@ const logoImg=new Image();let logoMono=null;
   logoImg.addEventListener('load',()=>{if(reduce)draw(unit());});
 })();
 
+/* ---------- the brand at the foot: the glint runs only while the footer is (nearly) on screen; paused, not restarted ---------- */
+(function(){const el=document.querySelector('.kl-marka');if(!el)return;el.classList.add('kl-spryano');if(!('IntersectionObserver' in window)){el.classList.remove('kl-spryano');return;}
+  new IntersectionObserver(es=>es.forEach(e=>el.classList.toggle('kl-spryano',!e.isIntersecting)),{rootMargin:'120px 0px'}).observe(el);})();
 /* ---------- cinematic reveal + chapter watermarks + counters ---------- */
 (function(){
   $$('.head').forEach(h=>{const b=$('.no b',h);if(b)h.setAttribute('data-no',b.textContent);});

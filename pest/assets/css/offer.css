@@ -467,7 +467,28 @@ table.obj{width:100%;border-collapse:collapse;min-width:760px;font-size:16px}
 .lines div{border-top:1px solid var(--paper-ink);padding-top:8px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--paper-soft)}
 @media (max-width:600px){ .sig,.lines{grid-template-columns:1fr} .sig .contact{justify-items:start} }
 footer.foot{border-top:1px solid var(--line);padding-block:26px 34px;color:var(--ink-soft);font-size:13px}
-footer.foot .wrap{display:flex;justify-content:space-between;gap:10px 24px;flex-wrap:wrap}
+footer.foot .kl-marka-prava{display:flex;justify-content:space-between;gap:10px 24px;flex-wrap:wrap}
+/* the brand at the foot of the page: a watermark of the УНИЩОЖИТЕЛИ letters (the emblem's ring with its cross as the О), its lower part
+   cut by the page edge, a glint gliding over the letters. One SVG mask; the glint moves by transform only (compositor); paused off-screen */
+footer.foot:has(.kl-marka){padding-bottom:0!important}
+.kl-marka-dno{display:grid;row-gap:.5rem}
+@media (min-width:640px){.kl-marka-dno{row-gap:0}.kl-marka-dno>*{grid-area:1/1}}
+.kl-marka-prava{align-self:start;position:relative;z-index:1;padding-bottom:10px}
+.kl-marka{align-self:end;position:relative;width:100%;aspect-ratio:999.33/150.93;overflow:hidden;pointer-events:none;user-select:none;-webkit-user-select:none}
+@media (min-width:640px){.kl-marka{aspect-ratio:999.33/132.07}}
+.kl-marka-ramka{position:absolute;top:0;left:0;width:100%;aspect-ratio:999.33/188.67}
+.kl-marka-bukvi,.kl-marka-blyasak{position:absolute;inset:0}
+.kl-marka:not(.kl-spryano) .kl-marka-bukvi,.kl-marka:not(.kl-spryano) .kl-marka-blyasak{-webkit-mask:url("../img/unishtojiteli-marka.svg") 0 0/100% 100% no-repeat;mask:url("../img/unishtojiteli-marka.svg") 0 0/100% 100% no-repeat}
+.kl-marka-bukvi{background-color:color-mix(in srgb,var(--gold) 11%,transparent)}
+.kl-marka-blyasak{overflow:hidden}
+.kl-marka-luch{--mk-glint:255 230 154;--mk-a:.14;position:absolute;inset:0;background:linear-gradient(104deg,rgb(var(--mk-glint)/0) 40%,rgb(var(--mk-glint)/var(--mk-a)) 50%,rgb(var(--mk-glint)/0) 60%);transform:translate3d(-62%,0,0);will-change:transform;animation:kl-marka-luch 14s cubic-bezier(.42,0,.38,1) infinite}
+.kl-marka-luch[data-k="2"]{animation-delay:-7s}
+@keyframes kl-marka-luch{0%{transform:translate3d(-62%,0,0)}64.3%{transform:translate3d(62%,0,0)}100%{transform:translate3d(62%,0,0)}}
+.kl-marka.kl-spryano .kl-marka-luch{animation-play-state:paused;will-change:auto}
+/* light themes: the letters a touch darker than the page, the glint paler (white) */
+:root:is([data-theme="paper"],[data-theme="olive"],[data-theme="clean"],[data-theme="gallery"],[data-theme="green"]) .kl-marka-luch{--mk-glint:255 255 255;--mk-a:.55}
+@media print{.kl-marka{display:none!important}}
+@media (max-width:760px){.kl-marka-prava{padding-right:50px}} /* the floating contact buttons sit on the right: the text never goes under them */
 
 
 @media print{ .nav,.grain,.stage-hud,.stage-foot,.clock,.controls,.more,.copy,.theme-btn{display:none!important} .reel,.close{padding-block:36px;break-inside:avoid-page} .hero{padding-block:40px} }
@@ -1131,7 +1152,7 @@ input[type=range]{height:28px;padding:6px 0;box-sizing:border-box}
 @media (max-width:420px){.brand .logo{height:24px}}
 :root:not([data-theme="dark"]):not([data-theme="bordo"]):not([data-theme="forest"]) .brand .logo,:root:not([data-theme="dark"]):not([data-theme="bordo"]):not([data-theme="forest"]) .foot-logo{filter:brightness(.66) saturate(1.45) contrast(1.15) drop-shadow(0 .5px .5px rgba(60,45,10,.35))}
 .paperlogo img{width:min(300px,70%);height:auto;filter:brightness(.66) saturate(1.45) contrast(1.15) drop-shadow(0 .5px .5px rgba(60,45,10,.3))}
-footer.foot .wrap{align-items:center}
+footer.foot .kl-marka-prava{align-items:center}
 .foot-logo{height:26px;width:auto;opacity:.9}
 
 /* ===== откриващият кадър: емблемата, осветена като обект на снимачна площадка ===== */
