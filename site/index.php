@@ -16,7 +16,7 @@ header('Cache-Control: private, no-store, max-age=0');
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/cormorant-garamond-cyrillic-400-italic.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-cyrillic-400-normal.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-cyrillic-500-normal.woff2">
-<link rel="stylesheet" href="assets/css/offer.min.css?v=722069e9">
+<link rel="stylesheet" href="assets/css/offer.min.css?v=5c6c2b9b">
 </head>
 <body>
 <div class="grain" aria-hidden="true"></div>
@@ -49,7 +49,7 @@ header('Cache-Control: private, no-store, max-age=0');
 <div class="vignette" aria-hidden="true"></div>
 <header class="hero" id="top">
   <div class="wrap hero-in">
-    <div class="mark rise d1">Търговска оферта за АВАНТИ <b>№&nbsp;2026-148-А</b> · актуализирана · <span style="white-space:nowrap">28.09.2026&nbsp;г.</span></div>
+    <div class="mark rise d1">Търговска оферта за АВАНТИ <b>№&nbsp;2026-148-А</b> · актуализирана · <span style="white-space:nowrap">01.10.2026&nbsp;г.</span></div>
     <div class="offer-word rise d1" role="heading" aria-level="1"><span class="shine">ОФЕРТА</span><em>за професионална ароматизация на 48-те търговски обекта на&nbsp;веригата&nbsp;„АВАНТИ“</em></div>
     <h1 class="rise d2" aria-level="2" role="heading">Един аромат. <em>Четиридесет и осем</em> обекта.</h1>
     <p class="lead rise d3">Окончателни и обосновани цени, изготвени по реалните данни от тестовия период и от монтажа.</p>
@@ -59,8 +59,8 @@ header('Cache-Control: private, no-store, max-age=0');
     <dl class="credits rise d4" aria-label="Данни за офертата">
       <div><dt>До</dt><dd>Верига „АВАНТИ“, 48&nbsp;обекта</dd></div>
       <div><dt>На вниманието на</dt><dd>г-жа Татяна Попова</dd></div>
-      <div><dt>Дата</dt><dd>28.09.2026&nbsp;г.</dd></div>
-      <div><dt>Валидност</dt><dd>15&nbsp;дни, до&nbsp;13.10.2026&nbsp;г.<br><span class="valid-left" id="validLeft">остават 15&nbsp;дни</span></dd></div>
+      <div><dt>Дата</dt><dd>01.10.2026&nbsp;г.</dd></div>
+      <div><dt>Валидност</dt><dd>15&nbsp;дни, до&nbsp;16.10.2026&nbsp;г.<br><span class="valid-left" id="validLeft">остават 15&nbsp;дни</span></dd></div>
       <div><dt>Месечно, без ДДС</dt><dd><span class="total num"><span data-bind="total">1&nbsp;665,00&nbsp;€</span><small data-bind="modeLabel">Пълно работно време, за 48 обекта</small></span>
         <div class="seg" role="radiogroup" aria-label="Режим на работа" data-mode-group>
           <button type="button" role="radio" data-mode="std" aria-checked="false">Стандартен</button>
@@ -102,7 +102,7 @@ header('Cache-Control: private, no-store, max-age=0');
       <li><div class="when">06.07.2026</div><div class="what">Първоначална оферта</div><div class="why">Изготвена предварително, преди да имаме реални данни.</div></li>
       <li><div class="when">юли – август</div><div class="what">Тест в 13 обекта</div><div class="why">5 в София и 8 във Варна, Бургас и Велико Търново.</div></li>
       <li><div class="when">септември</div><div class="what">Монтаж в останалите обекти</div><div class="why">Ароматизацията работи във всички 48 обекта.</div></li>
-      <li class="now"><div class="when">28.09.2026</div><div class="what">Тази актуализация</div><div class="why">Окончателни цени от фактурата за септември 2026&nbsp;г.</div></li>
+      <li class="now"><div class="when">01.10.2026</div><div class="what">Тази актуализация</div><div class="why">Окончателни цени от фактурата за септември 2026&nbsp;г.</div></li>
     </ol>
   </div>
 </section>
@@ -456,7 +456,7 @@ header('Cache-Control: private, no-store, max-age=0');
     <div class="paper">
       <img class="plogo" id="paperLogo" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="KAYA LUX · Лукс, който се усеща" width="775" height="562">
       <h2>Благодарим Ви за доверието и за ползотворното партньорство!</h2>
-      <p class="thanks">Оферта №&nbsp;2026-148-А (актуализирана)&nbsp;· 28.09.2026&nbsp;г.&nbsp;· валидна 15&nbsp;дни</p>
+      <p class="thanks">Оферта №&nbsp;2026-148-А (актуализирана)&nbsp;· 01.10.2026&nbsp;г.&nbsp;· валидна 15&nbsp;дни</p>
       <div class="sig">
         <div class="who">
           <small>С уважение,</small>
@@ -471,7 +471,7 @@ header('Cache-Control: private, no-store, max-age=0');
         </div>
       </div>
       <div class="signs">
-        <div class="sbox done"><small>За доставчика</small><img src="assets/img/signature.png" alt="Подпис на Венцислав Великов" width="200" height="110"><b>Венцислав Великов</b><span>Управител, „Унищожители“ ЕООД (KAYA LUX)</span><span class="when">28.09.2026&nbsp;г.</span></div>
+        <div class="sbox done"><small>За доставчика</small><img src="assets/img/signature.png" alt="Подпис на Венцислав Великов" width="200" height="110"><b>Венцислав Великов</b><span>Управител, „Унищожители“ ЕООД (KAYA LUX)</span><span class="when">01.10.2026&nbsp;г.</span></div>
         <div class="sbox" id="clientBox"><small>За клиента</small>
           <div class="pad" id="padWrap"><canvas id="pad" width="600" height="240" aria-label="Поле за подпис"></canvas><span class="padhint" id="padHint">Подпишете тук с пръст, стилус или мишка</span></div>
           <b>Татяна Попова</b><span>Верига „АВАНТИ“</span><span class="when" id="signedWhen"></span>
@@ -487,11 +487,12 @@ header('Cache-Control: private, no-store, max-age=0');
 
 <div class="dock" aria-label="Бърз контакт"><a class="dbtn up" href="#top" id="toTop" aria-label="Към началото на офертата" title="Нагоре"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a><a class="dbtn" href="tel:+359999999883" aria-label="Обади се: 0999 999 883" title="0999 999 883"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15 15 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.58 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.58 3.6a1 1 0 0 1-.25 1z" fill="currentColor"/></svg><span>Обади се</span></a><a class="dbtn viber" href="viber://chat?number=%2B359999999883" aria-label="Пиши по Viber" title="Viber"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.5 2 3 5.2 3 10.2c0 2.6 1 4.8 2.8 6.3v3.9l3.4-1.9c.9.2 1.8.3 2.8.3 5.5 0 9-3.2 9-8.4S17.5 2 12 2zm3.8 11.5c-.3.7-1.5 1.3-2.1 1.3-.6.1-1 .3-3.4-.7-2.9-1.2-4.7-4.2-4.9-4.4-.1-.2-1.1-1.5-1.1-2.9s.7-2.1 1-2.4c.3-.3.6-.3.8-.3h.6c.2 0 .4 0 .7.5l.9 2.2c.1.2.1.4 0 .6l-.4.6-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.4 1.8 2.2 1.2 1.1 2.2 1.4 2.5 1.6.3.2.5.1.7-.1l.9-1.1c.2-.3.4-.2.7-.1l2 .9c.3.1.5.2.6.3 0 .3 0 .8-.3 1.3z" fill="currentColor"/></svg><span>Viber</span></a></div>
 <footer class="foot">
-  <div class="wrap"><span>KAYA LUX · www.kayalux.bg · scent@kayalux.bg · <a href="tel:+359999999883">0999 999 883</a> · <a href="viber://chat?number=%2B359999999883">Viber</a></span><span>Оферта №&nbsp;2026-148-А (актуализирана) · 28.09.2026&nbsp;г.</span></div>
+  <div class="wrap kl-marka-dno"><div class="kl-marka-prava"><span>KAYA LUX · www.kayalux.bg · scent@kayalux.bg · <a href="tel:+359999999883">0999 999 883</a> · <a href="viber://chat?number=%2B359999999883">Viber</a></span><span>Оферта №&nbsp;2026-148-А (актуализирана) · 01.10.2026&nbsp;г.</span></div>
+    <div class="kl-marka" aria-hidden="true"><div class="kl-marka-ramka"><div class="kl-marka-bukvi"></div><div class="kl-marka-blyasak"><span class="kl-marka-luch" data-k="1"></span><span class="kl-marka-luch" data-k="2"></span></div></div></div></div>
 </footer>
 
 <script defer src="assets/js/three.min.js"></script>
-<script defer src="assets/js/app.min.js?v=e41ec7e5"></script>
+<script defer src="assets/js/app.min.js?v=9b29cf1c"></script>
 <script>/* моделите (~5 MB, кеширани) тръгват на заден план след зареждането на страницата или когато 3D схемата наближи */addEventListener('DOMContentLoaded',function(){var st=document.getElementById('stage');if(!st||!window.KL_GLTF)return;var go=function(){KL_GLTF.start();};addEventListener('load',function(){setTimeout(function(){(window.requestIdleCallback||function(f){f();})(go);},1500);});if('IntersectionObserver' in window){var io=new IntersectionObserver(function(en){if(en[0].isIntersecting){go();io.disconnect();}},{rootMargin:'1400px'});io.observe(st);}else go();});</script>
 <script>/* телефон: докато 3D схемата е на екрана, бутоните за контакт се отдръпват */(function(){var d=document.querySelector('.dock'),c=document.querySelector('.stage-col');if(!d||!c||!('IntersectionObserver' in window))return;new IntersectionObserver(function(e){d.classList.toggle('dim',e[0].isIntersecting);},{threshold:.25}).observe(c);})();</script>
 <script>/* локален сървър (tools/serve.py): след обновяване предлага презареждане; на хостинга /__version го няма и нищо не се показва */(function(){if(!document.querySelector('meta[name="kl-local"]'))return;var v=null;function chk(){fetch('/__version',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){if(!j||!j.sha)return;if(v===null){v=j.sha;return;}if(j.sha!==v&&!document.getElementById('klUpd')){var b=document.createElement('button');b.id='klUpd';b.type='button';b.textContent='Има нова версия на офертата · Обнови';b.onclick=function(){location.reload();};document.body.appendChild(b);}}).catch(function(){});}chk();setInterval(chk,60000);})();</script>

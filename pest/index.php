@@ -51,7 +51,7 @@ header('Cache-Control: private, no-store, max-age=0');
     <div class="disc"><img src="assets/img/emblem.png" alt="" width="480" height="480"><i class="scan"></i></div>
   </div>
   <div class="wrap hero-in">
-    <div class="mark rise d1">Търговско предложение за веригата „АВАНТИ“ <b>№&nbsp;0926-A</b> · <span style="white-space:nowrap">28.09.2026&nbsp;г.</span></div>
+    <div class="mark rise d1">Търговско предложение за веригата „АВАНТИ“ <b>№&nbsp;0926-A</b> · <span style="white-space:nowrap">01.10.2026&nbsp;г.</span></div>
     <div class="offer-word rise d1" role="heading" aria-level="1"><span class="shine">ОФЕРТА</span><em>Професионален пест контрол за 48-те търговски обекта и 2 складови бази на&nbsp;веригата&nbsp;„АВАНТИ“</em></div>
     <h1 class="rise d2" aria-level="2" role="heading">Хигиена, съответствие, <em>единен стандарт</em>.</h1>
     <p class="lead rise d3">Ежемесечна дезинсекция и постоянни неотровни дератизационни точки във всеки обект — с картосхема и протокол по нормативния образец.</p>
@@ -62,7 +62,7 @@ header('Cache-Control: private, no-store, max-age=0');
       <div><dt>До</dt><dd>Верига „АВАНТИ“, 48&nbsp;обекта и 2&nbsp;склада</dd></div>
       <div><dt>На вниманието на</dt><dd>г-жа Татяна Попова</dd></div>
       <div><dt>От</dt><dd>„УНИЩОЖИТЕЛИ“ ЕООД<br>Венцислав Великов</dd></div>
-      <div><dt>Валидност</dt><dd>30&nbsp;дни, до&nbsp;28.10.2026&nbsp;г.<br><span class="valid-left" id="validLeft"></span></dd></div>
+      <div><dt>Валидност</dt><dd>30&nbsp;дни, до&nbsp;31.10.2026&nbsp;г.<br><span class="valid-left" id="validLeft"></span></dd></div>
       <div><dt>Месечно, без ДДС</dt><dd><span class="total num"><span>1&nbsp;443,50&nbsp;€</span><small>48 обекта · складовете по оферта</small></span></dd></div>
     </dl>
   </div>
@@ -376,7 +376,7 @@ header('Cache-Control: private, no-store, max-age=0');
     <div class="paper">
       <div class="paperlogo"><img src="assets/img/logo.png" alt="УНИЩОЖИТЕЛИ" width="1000" height="190"></div>
       <h2>Благодарим за доверието!</h2>
-      <p class="thanks">Оферта №&nbsp;0926-A&nbsp;· 28.09.2026&nbsp;г.&nbsp;· валидна 30&nbsp;дни</p>
+      <p class="thanks">Оферта №&nbsp;0926-A&nbsp;· 01.10.2026&nbsp;г.&nbsp;· валидна 30&nbsp;дни</p>
       <p class="prose" style="max-width:64ch;margin:0 auto 8px">Вярваме, че с нашия опит, организация и професионализъм ще бъдем надежден и дългосрочен партньор в поддържането на безупречна хигиена и нормативно съответствие във всички обекти на веригата „АВАНТИ“.</p>
       <div class="sig">
         <div class="who">
@@ -392,7 +392,7 @@ header('Cache-Control: private, no-store, max-age=0');
         </div>
       </div>
       <div class="signs">
-        <div class="sbox done"><small>За доставчика</small><img src="assets/img/signature.png" alt="Подпис на Венцислав Великов" width="200" height="110"><b>Венцислав Великов</b><span>Ръководител ДДД, „УНИЩОЖИТЕЛИ“ ЕООД</span><span class="when">28.09.2026&nbsp;г.</span></div>
+        <div class="sbox done"><small>За доставчика</small><img src="assets/img/signature.png" alt="Подпис на Венцислав Великов" width="200" height="110"><b>Венцислав Великов</b><span>Ръководител ДДД, „УНИЩОЖИТЕЛИ“ ЕООД</span><span class="when">01.10.2026&nbsp;г.</span></div>
         <div class="sbox" id="clientBox"><small>За клиента</small>
           <div class="pad" id="padWrap"><canvas id="pad" width="600" height="240" aria-label="Поле за подпис"></canvas><span class="padhint" id="padHint">Подпишете тук с пръст, стилус или мишка</span></div>
           <b>Татяна Попова</b><span>Верига „АВАНТИ“</span><span class="when" id="signedWhen"></span>
@@ -408,11 +408,11 @@ header('Cache-Control: private, no-store, max-age=0');
 
 <div class="dock" aria-label="Бърз контакт"><a class="dbtn up" href="#top" id="toTop" aria-label="Към началото на офертата" title="Нагоре"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a><a class="dbtn" href="tel:+359897555751" aria-label="Обади се: 0897 55 57 51" title="0897 55 57 51"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15 15 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.58 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.58 3.6a1 1 0 0 1-.25 1z" fill="currentColor"/></svg><span>Обади се</span></a></div>
 <footer class="foot">
-  <div class="wrap"><img class="foot-logo" src="assets/img/logo.png" alt="УНИЩОЖИТЕЛИ" width="1000" height="190" loading="lazy"><span>„УНИЩОЖИТЕЛИ“ ЕООД · www.Unishtojiteli.com · unishtojiteli@gmail.com · <a href="tel:+359897555751">0897 55 57 51</a></span><span>Оферта №&nbsp;0926-A · 28.09.2026&nbsp;г.</span></div>
+  <div class="wrap"><img class="foot-logo" src="assets/img/logo.png" alt="УНИЩОЖИТЕЛИ" width="1000" height="190" loading="lazy"><span>„УНИЩОЖИТЕЛИ“ ЕООД · www.Unishtojiteli.com · unishtojiteli@gmail.com · <a href="tel:+359897555751">0897 55 57 51</a></span><span>Оферта №&nbsp;0926-A · 01.10.2026&nbsp;г.</span></div>
 </footer>
 
 <script defer src="assets/js/three.min.js"></script>
-<script defer src="assets/js/app.min.js?v=406caa08"></script>
+<script defer src="assets/js/app.min.js?v=64173a87"></script>
 <script>/* моделите тръгват на заден план след зареждането или когато 3D схемата наближи */addEventListener('DOMContentLoaded',function(){var st=document.getElementById('stage');if(!st||!window.KL_GLTF)return;var go=function(){KL_GLTF.start();};addEventListener('load',function(){setTimeout(function(){(window.requestIdleCallback||function(f){f();})(go);},1500);});if('IntersectionObserver' in window){var io=new IntersectionObserver(function(en){if(en[0].isIntersecting){go();io.disconnect();}},{rootMargin:'1400px'});io.observe(st);}else go();});</script>
 <script>/* телефон: докато 3D схемата е на екрана, бутоните за контакт се отдръпват */(function(){var d=document.querySelector('.dock'),c=document.querySelector('.stage-col');if(!d||!c||!('IntersectionObserver' in window))return;new IntersectionObserver(function(e){d.classList.toggle('dim',e[0].isIntersecting);},{threshold:.25}).observe(c);})();</script>
 <script>/* локален сървър: след обновяване предлага презареждане */(function(){if(!document.querySelector('meta[name="kl-local"]'))return;var v=null;function chk(){fetch('/__version',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){if(!j||!j.sha)return;if(v===null){v=j.sha;return;}if(j.sha!==v&&!document.getElementById('klUpd')){var b=document.createElement('button');b.id='klUpd';b.type='button';b.textContent='Има нова версия на офертата · Обнови';b.onclick=function(){location.reload();};document.body.appendChild(b);}}).catch(function(){});}chk();setInterval(chk,60000);})();</script>
