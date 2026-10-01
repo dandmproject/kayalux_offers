@@ -598,7 +598,7 @@ footer.foot .wrap{display:flex;justify-content:space-between;gap:10px 24px;flex-
 /* ===== Маслина (основна, светла) ===== */
 :root[data-theme="olive"]{
   --ground:#F3F4EA; --surface:#FBFBF5; --surface-2:#EDEEE2; --line:#D8DAC8;
-  --ink:#23271A; --ink-soft:#4C5140; --ink-faint:#83886F;
+  --ink:#23271A; --ink-soft:#4C5140; --ink-faint:#686D55;
   --gold:#856910; --gold-soft:#B99733; --on-gold:#FFFFFF;
   --ok:#2F7A34; --warn:#B8472A;
   --glow:rgba(133,105,16,.20); --glow-2:rgba(133,105,16,.07);
@@ -609,7 +609,7 @@ footer.foot .wrap{display:flex;justify-content:space-between;gap:10px 24px;flex-
 /* ===== Хартия (топла кремава, без зелено) ===== */
 :root[data-theme="paper"]{
   --ground:#F6F1E4; --surface:#FCF9F1; --surface-2:#F1EAD9; --line:#E3D9C2;
-  --ink:#2A2115; --ink-soft:#574834; --ink-faint:#8C7D63;
+  --ink:#2A2115; --ink-soft:#574834; --ink-faint:#7A6B52;
   --gold:#866710; --gold-soft:#C29A3F; --on-gold:#FFFFFF;
   --ok:#2F7A34; --warn:#B8472A;
   --glow:rgba(134,103,16,.20); --glow-2:rgba(134,103,16,.07);
@@ -1121,16 +1121,16 @@ input[type=range]{height:28px;padding:6px 0;box-sizing:border-box}
   color-scheme:dark;
 }
 /* a faint film scanline over the night theme, as in the client's own page */
-:root[data-theme="dark"] body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:57;background:repeating-linear-gradient(to bottom,rgba(255,255,255,.014) 0 1px,transparent 1px 3px)}
-:root[data-theme="dark"] .uv-wash{mix-blend-mode:screen;background:radial-gradient(120% 95% at 50% 42%,rgba(110,210,196,.34),rgba(80,150,190,.16) 60%,rgba(60,110,160,.06))}
+:root[data-theme="dark"] body::after,:root[data-theme="bordo"] body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:57;background:repeating-linear-gradient(to bottom,rgba(255,255,255,.014) 0 1px,transparent 1px 3px)}
+:root[data-theme="dark"] .uv-wash,:root[data-theme="bordo"] .uv-wash{mix-blend-mode:screen;background:radial-gradient(120% 95% at 50% 42%,rgba(110,210,196,.34),rgba(80,150,190,.16) 60%,rgba(60,110,160,.06))}
 
 /* ===== логото на УНИЩОЖИТЕЛИ (оригиналното злато) ===== */
 .brand{gap:0}
 .brand .logo{height:34px;width:auto;display:block;filter:drop-shadow(0 1px 6px rgba(0,0,0,.35))}
 @media (max-width:900px){.brand .logo{height:28px}}
 @media (max-width:420px){.brand .logo{height:24px}}
-:root[data-theme="olive"] .brand .logo,:root[data-theme="paper"] .brand .logo{filter:drop-shadow(0 1px 1px rgba(60,45,10,.35))}
-.paperlogo img{width:min(300px,70%);height:auto;filter:drop-shadow(0 1px 1px rgba(60,45,10,.3))}
+:root:not([data-theme="dark"]):not([data-theme="bordo"]) .brand .logo,:root:not([data-theme="dark"]):not([data-theme="bordo"]) .foot-logo{filter:brightness(.66) saturate(1.45) contrast(1.15) drop-shadow(0 .5px .5px rgba(60,45,10,.35))}
+.paperlogo img{width:min(300px,70%);height:auto;filter:brightness(.66) saturate(1.45) contrast(1.15) drop-shadow(0 .5px .5px rgba(60,45,10,.3))}
 footer.foot .wrap{align-items:center}
 .foot-logo{height:26px;width:auto;opacity:.9}
 
@@ -1151,8 +1151,8 @@ footer.foot .wrap{align-items:center}
 @keyframes emLock{0%,40%{transform:scale(1.08);opacity:.25}55%{transform:scale(1);opacity:.9}75%,100%{transform:scale(1);opacity:.45}}
 .emblem{animation:emIn 2s .7s cubic-bezier(.2,.7,.2,1) both}
 @keyframes emIn{from{opacity:0;transform:translateY(-46%) scale(.94)}to{opacity:1;transform:translateY(-50%) scale(1)}}
-:root[data-theme="olive"] .emblem::after,:root[data-theme="paper"] .emblem::after{display:none}
-:root[data-theme="olive"] .emblem .disc,:root[data-theme="paper"] .emblem .disc{box-shadow:0 30px 60px -24px rgba(60,45,10,.45),0 0 0 1px rgba(134,103,16,.25)}
+:root:not([data-theme="dark"]):not([data-theme="bordo"]) .emblem::after{display:none}
+:root:not([data-theme="dark"]):not([data-theme="bordo"]) .emblem .disc{box-shadow:0 30px 60px -24px rgba(60,45,10,.45),0 0 0 1px rgba(134,103,16,.25)}
 /* narrower screens: the emblem stands above the title, centred, smaller */
 @media (max-width:1279px){
   .emblem{position:relative;left:auto;top:auto;transform:none;align-self:center;width:clamp(150px,26vw,210px);margin:0 auto clamp(18px,3vw,30px);animation:emInS 1.6s .6s cubic-bezier(.2,.7,.2,1) both}
@@ -1183,3 +1183,43 @@ footer.foot .wrap{align-items:center}
 }
 .obj tfoot tr.tot3 td#tPts{font-family:var(--display);font-weight:500;font-size:1.5rem;white-space:nowrap;color:var(--ink)}
 @media (max-width:600px){.obj tfoot tr.tot3 td#tPts{font-size:1.25rem}}
+
+/* ===== още теми за ДДД (проучване: синьо = хигиена и безопасност на храните/HACCP; зелено = безопасно за хора и животни;
+   червено/бордо = сигнал, само приглушено — като диска в емблемата; неутрално = корпоративен документ) ===== */
+/* Хигиена — клинично бяло и синьото на безопасността на храните */
+:root[data-theme="clean"]{
+  --ground:#F2F6F9; --surface:#FFFFFF; --surface-2:#E5EDF3; --line:#CCD9E3;
+  --ink:#13212E; --ink-soft:#3B4D5E; --ink-faint:#5B6D7D;
+  --gold:#1D5FA3; --gold-soft:#6E9CCB; --on-gold:#FFFFFF;
+  --ok:#2F7A4A; --warn:#B8472A;
+  --glow:rgba(29,95,163,.16); --glow-2:rgba(29,95,163,.06);
+  --stage-a:#EDF3F7; --stage-b:#DCE6EE; --vig:rgba(20,45,70,.06);
+  --paper:#FFFFFF; --paper-ink:#13212E; --paper-soft:#3B4D5E; --paper-line:#CCD9E3;
+  color-scheme:light;
+}
+/* Емблема — бордото и златото от логото, тъмна */
+:root[data-theme="bordo"]{
+  --ground:#170C0E; --surface:#211215; --surface-2:#2B171B; --line:#43262B;
+  --ink:#F2E7DD; --ink-soft:#CDB9AC; --ink-faint:#A08B80;
+  --gold:#D6B062; --gold-soft:#B08E50; --on-gold:#170C0E;
+  --ok:#A9C47E; --warn:#E58A6A;
+  --glow:rgba(214,176,98,.22); --glow-2:rgba(150,40,50,.12);
+  --stage-a:#1F1114; --stage-b:#0D0607; --vig:rgba(0,0,0,.62);
+  --paper:#FBF8F3; --paper-ink:#1E1412; --paper-soft:#5A463F; --paper-line:#DCCFC4;
+  color-scheme:dark;
+}
+/* Галерия — неутрално бяло и графит със злато (както в образеца на клиента) */
+:root[data-theme="gallery"]{
+  --ground:#F4F5F6; --surface:#FFFFFF; --surface-2:#E9EBED; --line:#D8DCE0;
+  --ink:#15191D; --ink-soft:#454C53; --ink-faint:#5E656C;
+  --gold:#86681F; --gold-soft:#CDB57A; --on-gold:#FFFFFF;
+  --ok:#3E6B2F; --warn:#B3432A;
+  --glow:rgba(156,122,44,.14); --glow-2:rgba(156,122,44,.05);
+  --stage-a:#F1F2F4; --stage-b:#E2E5E8; --vig:rgba(20,25,30,.05);
+  --paper:#FFFFFF; --paper-ink:#15191D; --paper-soft:#454C53; --paper-line:#D8DCE0;
+  color-scheme:light;
+}
+:root[data-theme="bordo"] .hero::before{background:radial-gradient(60% 55% at var(--gx,72%) var(--gy,64%),rgba(150,40,50,.22) 0,var(--glow-2) 40%,transparent 70%)}
+.theme-pop{min-width:236px}
+.theme-pop button small{margin-left:auto;padding-left:14px;white-space:nowrap;font-size:11px;color:var(--ink-faint);letter-spacing:.02em}
+@media (max-width:600px){.obj.m-full tr.row td.cf,.obj.m-std tr.row td.cs{line-height:1.2;padding-top:0}}
