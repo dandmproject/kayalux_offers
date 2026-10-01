@@ -1304,3 +1304,29 @@ footer.foot{overflow:hidden} /* the glint moving over the letters never widens t
 @media print{.svc-ic{border-color:#c9b98a;background:#fff;color:#8a6a22}}
 .nav .doc{flex:none} /* never squeezed: the logo stays inside its block */
 @media (min-width:1301px) and (max-width:1520px){.nav .doc .dl{display:none}.nav .doc .av-logo{margin-left:0}} /* with the chapter bar shown: the logo alone, so nothing touches the chapters */
+/* Раздел III: допълнителни услуги като корпоративен ценоразпис: карта = илюстрация, къде, какво, подробности, цена */
+.svc-bar{display:flex;align-items:center;justify-content:space-between;gap:12px 20px;flex-wrap:wrap;margin:6px 0 18px}
+.svc-note{margin:0;font-size:13px;color:var(--ink-soft)}
+.svc2-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:16px}
+.svc2{--svc-bg:color-mix(in srgb,var(--gold) 9%,var(--surface));position:relative;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);padding:22px 22px 0;transition:border-color .2s,box-shadow .2s}
+.svc2::before{content:"";position:absolute;left:-1px;top:-1px;right:-1px;height:2px;background:linear-gradient(90deg,var(--gold),transparent 75%);opacity:.6}
+.svc2:hover{border-color:color-mix(in srgb,var(--gold) 45%,var(--line));box-shadow:0 16px 36px -24px rgba(0,0,0,.6)}
+.svc2-h{display:flex;gap:14px;align-items:center;margin-bottom:12px}
+.svc2 .svc-ic{margin:0;flex:none}
+.svc2-tag{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:4px}
+.svc2 h4{margin:0;font-family:var(--display);font-size:1.38rem;font-weight:600;color:var(--ink);line-height:1.15}
+.svc2 p{margin:0 0 12px;font-size:14.5px;line-height:1.55;color:var(--ink-soft)}
+.svc2-li{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:7px}
+.svc2-li li{display:grid;grid-template-columns:16px 1fr;gap:9px;font-size:13.8px;line-height:1.5;color:var(--ink)}
+.svc2-li svg{width:15px;height:15px;color:var(--gold);margin-top:3px}
+.svc2-p{margin-top:auto;border-top:1px solid var(--line);padding:14px 0 16px;display:flex;align-items:center;gap:6px 10px;flex-wrap:wrap}
+.svc2-from{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-soft)}
+.svc2-amt{font-family:var(--display);font-size:2rem;font-weight:600;color:var(--gold);line-height:1;white-space:nowrap}
+.svc2-amt.q{font-family:var(--body);font-size:1.05rem;letter-spacing:.02em}
+.svc2-u{font-size:13px;color:var(--ink-soft);display:flex;flex-direction:column;line-height:1.35}
+.svc2-u em{font-style:normal;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint)}
+.svc2[hidden]{display:none}
+.svc-foot{margin:16px 0 0;font-size:13px;line-height:1.55;color:var(--ink-soft);max-width:78ch}
+@media (max-width:420px){.svc2-grid{grid-template-columns:1fr}.svc2{padding:18px 16px 0}.svc-bar .seg{width:100%}.svc-bar .seg button{flex:1 1 auto;padding:8px 9px}}
+@media print{.svc-bar .seg{display:none}.svc2{break-inside:avoid}.svc2[hidden]{display:flex}}
+@media (max-width:520px){.svc-bar .seg{display:grid;grid-template-columns:1fr 1fr;width:100%}.svc-bar .seg button{padding:9px 8px}} /* the filter as a neat 2 x 2 on phones */

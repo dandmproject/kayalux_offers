@@ -188,6 +188,10 @@ const logoImg=new Image();let logoMono=null;
   logoImg.addEventListener('load',()=>{if(reduce)draw(unit());});
 })();
 
+/* ---------- Раздел III: filter of the extra services ---------- */
+(function(){const f=$('#svcFilter'),g=$('#svcGrid');if(!f||!g)return;
+  f.addEventListener('click',e=>{const b=e.target.closest('button[data-f]');if(!b)return;const v=b.dataset.f;f.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
+    g.querySelectorAll('.svc2').forEach(c=>{c.hidden=!(v==='all'||c.dataset.cat===v);if(!c.hidden)c.classList.remove('pre');});});})();
 /* ---------- chapters menu (hamburger) when the chapter bar does not fit ---------- */
 (function(){const btn=$('#menuBtn'),sh=$('#navSheet'),ch=$('.chapters');if(!btn||!sh||!ch)return;sh.innerHTML='<ul>'+ch.innerHTML+'</ul>';
   const set=o=>{sh.hidden=!o;btn.setAttribute('aria-expanded',String(o));btn.setAttribute('aria-label',o?'Затвори съдържанието':'Съдържание');
