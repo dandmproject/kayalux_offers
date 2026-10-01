@@ -16,7 +16,7 @@ header('Cache-Control: private, no-store, max-age=0');
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/cormorant-garamond-cyrillic-400-italic.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-cyrillic-400-normal.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-cyrillic-500-normal.woff2">
-<link rel="stylesheet" href="assets/css/offer.min.css?v=ca6aca76">
+<link rel="stylesheet" href="assets/css/offer.min.css?v=baec486f">
 </head>
 <body>
 <div class="grain" aria-hidden="true"></div>
@@ -27,7 +27,7 @@ header('Cache-Control: private, no-store, max-age=0');
       <svg viewBox="0 0 26 36" aria-hidden="true"><ellipse cx="13" cy="18" rx="12.2" ry="17.2" fill="none" stroke="var(--gold)" stroke-width="1"/><ellipse cx="13" cy="18" rx="10.4" ry="15.2" fill="var(--gold)"/><text x="11.4" y="17.6" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="12.5" fill="var(--ground)">K</text><text x="14.6" y="27.4" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="12.5" fill="var(--ground)">L</text></svg>
       <img class="bm" src="assets/img/logo-mark.png" alt="" width="36" height="48"><img class="bw" src="assets/img/logo-word.png" alt="KAYA LUX" width="106" height="20">
     </a>
-    <span class="doc"><span class="dl">Търговска </span>оферта <b>АВАНТИ</b></span>
+    <span class="doc"><span class="dl">Търговска оферта </span><img class="av-logo" src="assets/img/avanti-logo.svg" alt="АВАНТИ" width="999" height="288"></span>
     <ul class="chapters">
       <li><a href="#pilot"><i>I</i>Тестът</a></li>
       <li><a href="#aromat"><i>II</i>Ароматът</a></li>

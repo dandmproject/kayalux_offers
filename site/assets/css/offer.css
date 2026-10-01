@@ -1145,3 +1145,10 @@ footer.foot{overflow:hidden} /* the glint moving over the letters never widens t
 @media (max-width:380px){.head h2{font-size:clamp(1.45rem,7.2vw,1.9rem);overflow-wrap:break-word;hyphens:auto}} /* long Bulgarian words fit a 320 px screen */
 .nav .doc{flex:none}
 @media (min-width:1301px) and (max-width:1520px){.nav .doc .dl{display:none}} /* with the chapter bar shown: a shorter label, so the bar never pushes the theme button off screen */
+
+.nav .doc{display:inline-flex;align-items:center}
+.nav .doc .av-logo{height:22px;width:auto;margin-left:9px;border-radius:3px;box-shadow:0 3px 10px -4px rgba(0,0,0,.45);flex:none} /* the client's own logo, not just its name */
+@media (max-width:440px){.nav .doc .av-logo{height:19px;margin-left:0}}
+@media (max-width:360px){.brand .logo{height:16px}.nav .doc .av-logo{height:16px}.nav .doc{margin-left:6px;padding-left:6px}.nav .wrap{gap:6px}}
+@media (min-width:1301px) and (max-width:1520px){.nav .doc .av-logo{margin-left:0}}
+footer.foot{overflow:hidden} /* the glint across the footer mark never widens the page */

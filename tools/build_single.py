@@ -11,7 +11,7 @@ import base64, os, re
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 SITE = os.path.join(ROOT, 'site')
 OUT = os.path.join(ROOT, 'offers', 'avanti-777', 'aromatizatsia-2026-148-a.html')
-MIME = {'.jpg': 'image/jpeg', '.png': 'image/png', '.woff2': 'font/woff2'}
+MIME = {'.jpg': 'image/jpeg', '.png': 'image/png', '.svg': 'image/svg+xml', '.woff2': 'font/woff2'}
 
 
 def data_uri(rel):

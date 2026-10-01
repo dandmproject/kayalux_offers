@@ -428,9 +428,9 @@ const space=(function(){
     const model='Неотровна дератизационна точка: леплива плоскост в затворена еко кутия с капак, неподвижно закрепена на пода.';
     const base={model},pts=A>100?3:2;
     const check='Състоянието на лепливата плоскост, следи от гризачи, целостта на кутията и номерирания стикер. Резултатът се вписва в протокола.';
-    const P1={...base,title:'Точка при входа',zone:'До входната врата',why:'Входната врата е основният път за проникване на гризачи от улицата, а входът и касата са с най-голям поток. Точка №1 пази първата линия.',where:'На пода до рамката на входната врата, встрани от пътя на клиентите.',check,at:'FD',f:0};
-    const P2={...base,title:'Точка във вътрешната част',zone:'Зад хладилните витрини',why:'Топлината и кабелните канали зад хладилните витрини привличат гризачи и са скрити от погледа: типична рискова зона в магазин за храни.',where:'На пода зад хладилните витрини, до стената.',check,at:'FL',f:.05};
-    const P3={...base,title:'Точка в задната част',zone:'Заден вход / към склада',why:'Задният вход и зоната за доставки са с най-висок риск. Ако обектът няма заден вход, третата точка се поставя зад хладилните витрини.',where:'До задния вход или в ъгъла към склада, на пода до стената.',check,at:'FB',f:-.1};
+    const P1={...base,title:'Точка при входа',zone:'До входната врата',why:'Входната врата е основният път за проникване на гризачи от улицата, а входът и касата са с най-голям поток. Точка №1 пази първата линия.',where:'На пода в ъгъла до входа, до стената, встрани от пътя на клиентите.',check,at:'FD',f:0};
+    const P2={...base,title:'Точка във вътрешната част',zone:'Зад хладилните витрини',why:'Топлината и кабелните канали зад хладилните витрини привличат гризачи и са скрити от погледа: типична рискова зона в магазин за храни.',where:'На пода в ъгъла между хладилните витрини и стената или стелажа.',check,at:'FL',f:.05};
+    const P3={...base,title:'Точка в задната част',zone:'Заден вход / към склада',why:'Задният вход и зоната за доставки са с най-висок риск. Ако обектът няма заден вход, третата точка се поставя зад хладилните витрини.',where:'В ъгъла към склада или задния вход, на пода до стената.',check,at:'FB',f:-.1};
     return pts===2?[P1,{...P3,title:'Точка в задната част',zone:'Задна част на залата',why:'Покрива далечната половина на залата и зоната към склада, докъдето рискът от входа не стига.'}]:[P1,P2,P3];
   }
   function schedText(){
@@ -1638,7 +1638,7 @@ const space=(function(){
         if(wine&&zW+hd>2.3){const cx=x1+.65,cz=-hd+.32;blk(cx,cz,.9,.6);cbox(.85,1.8,.45,B,cx,yF+.9,cz);[.45,.95,1.45].forEach(y=>{cbox(.85,.03,.42,BD,cx,yF+y,cz);for(let i=0;i<3;i++)put('carton',cx-.26+i*.26,yF+y+.02,cz+.02,.16,.24,.14,pick_(['#c8382e','#1b1917','#e0b23a','#5a1a22']));});}
         cbox(.34,.26,.24,'#efe9dc',xm+.9,yF+1.5+.14,-hd+.21);cbox(.34,.05,.24,'#3c7a3e',xm+.9,yF+1.5+.28,-hd+.21);}}
       // glass-door drink coolers along both side walls: black cabinets, lit interiors, brand headers, LED door edges
-      const coolers=(side,z0,z1,xwall,hs)=>{const n=Math.floor((z1-z0)/.74);if(n<1)return 0;const xw=xwall!=null?xwall:(side<0?-hw:hw),xc=xw-side*.37,xf=xw-side*.74,zc_=z0+n*.37,L=n*.74;hs=hs||[1,2];
+      const coolers=(side,z0,z1,xwall,hs)=>{const n=Math.floor((z1-z0)/.74);if(n<1)return 0;const xw=xwall!=null?xwall:(side<0?-hw:hw),xc=xw-side*.37,xf=xw-side*.74,zc_=z0+n*.37,L=n*.74;hs=hs||[1,2];(S.coolR||(S.coolR=[])).push([xc,z0,z0+L]);
         blk(xc,zc_,.76,L);for(let i=0;i<n;i++)face(xf,z0+.37+i*.74,-side,0,'cooler');
         ao(xf,zc_,L,-side,0);
         cbox(.05,2.0,L,BLK,xw-side*.025,1.0,zc_);cbox(.74,.06,L,BLK,xc,.03,zc_);cbox(.74,.06,L,BLK,xc,1.97,zc_);cbox(.74,.26,L,BLK,xc,2.13,zc_);for(let i=0;i<=n;i++)cbox(.68,1.9,.05,BLK,xc,1.0,z0+i*.74);
@@ -1732,12 +1732,40 @@ const space=(function(){
       const settle=(p,d)=>{const side=d[0]!==0,hx=side?.1:.13,hz=side?.13:.1;let best=null,bd2=1e9;
         for(let j=0;j<=5&&!best;j++)for(let k=-60;k<=60;k++){const x=p[0]+(side?0:k*.05)+d[0]*j*.15,z=p[2]+(side?k*.05:0)+d[2]*j*.15;if(!fpFree(x,z,hx,hz))continue;const q=k*k;if(q<bd2){bd2=q;best=[x,0,z];}}
         const r=best||p;placed.push(r);blk(r[0],r[2],hx*2+.04,hz*2+.04);return r;}; // registered, so shoppers walk around the box, not through it
+      // where a pest controller really puts them: tucked into a corner, against the wall, between a rack and a cooler or in a corner
+      // of the room, never in the middle of the shop or on a walkway; doors and the till stay clear
+      const SG=.02,gw=Math.ceil(W/SG)+2,gd=Math.ceil(D/SG)+2,SOL=new Uint8Array(gw*gd);
+      OBS.forEach(r=>{const i0=Math.max(0,Math.floor((r[0]+hw)/SG)),i1=Math.min(gw-1,Math.ceil((r[1]+hw)/SG)),j0=Math.max(0,Math.floor((r[2]+hd)/SG)),j1=Math.min(gd-1,Math.ceil((r[3]+hd)/SG));for(let j=j0;j<j1;j++)for(let i=i0;i<i1;i++)SOL[j*gw+i]=1;});
+      const ROOMB=[];if(S.hasStore)ROOMB.push([hw-S.sw-t,hw,-hd,-hd+S.sd+t]);if(shape==='L')ROOMB.push([-hw,-hw+lw+t,-hd,-hd+ld+t]);
+      const wallAt=(x,z)=>x<=-hw||x>=hw||z<=-hd||z>=hd||ROOMB.some(r=>x>r[0]&&x<r[1]&&z>r[2]&&z<r[3]);
+      const solidAt=(x,z)=>{if(wallAt(x,z))return 2;const i=Math.floor((x+hw)/SG),j=Math.floor((z+hd)/SG);return i>=0&&j>=0&&i<gw&&j<gd&&SOL[j*gw+i]?1:0;};
+      const DOORS=[[doorX,hd,doorW/2+.45]];if(S.hasStore)DOORS.push([hw-S.sw/2,-hd+S.sd,.8]);if(shape==='L')DOORS.push([-hw+lw*.5,-hd+ld,.8]);
+      const cornerSpot=(u)=>{let T_;const CR=S.coolR||[];
+        if(u.at==='FD')T_=[[doorX,hd]];
+        else if(u.at==='FL')T_=CR.length?[].concat(...CR.map(c=>[[c[0],c[1]],[c[0],c[2]]])):[[-hw,0]];
+        else T_=S.hasStore?[[hw-.2,-hd+S.sd+.2]]:shape==='L'?[[-hw+lw+.2,-hd+.2]]:[[hw-.2,-hd+.2],[-hw+.2,-hd+.2]];
+        const cx0=0,cz0=0;let best=null;
+        for(let z=-hd+.1;z<hd-.1;z+=.04)for(let x=-hw+.1;x<hw-.1;x+=.04){
+          if(S.wine&&Math.abs(z-S.zW)<.75)continue;
+          if(DOORS.some(D_=>Math.hypot(x-D_[0],z-D_[1])<D_[2]+.25))continue;
+          for(const d of [[1,0,0],[-1,0,0],[0,0,1],[0,0,-1]]){const side=d[0]!==0,hx=side?.1:.13,hz=side?.13:.1;
+            const pr=(sx,sz)=>{const a=sx?[x+sx*(hx+.08),z-hz*.6]:[x-hx*.6,z+sz*(hz+.08)],b=sx?[x+sx*(hx+.08),z+hz*.6]:[x+hx*.6,z+sz*(hz+.08)];const A_=solidAt(a[0],a[1]),B_=solidAt(b[0],b[1]);return A_&&B_?Math.max(A_,B_):0;};
+            const tx1=pr(1,0),tx0=pr(-1,0),tz1=pr(0,1),tz0=pr(0,-1);
+            if((d[0]===1&&tx1)||(d[0]===-1&&tx0)||(d[2]===1&&tz1)||(d[2]===-1&&tz0))continue; // the hole faces open floor
+            const tx=(tx1?1:0)+(tx0?1:0),tz=(tz1?1:0)+(tz0?1:0),wl=[tx1,tx0,tz1,tz0].filter(v=>v===2).length;
+            if(!wl||!tx||!tz)continue;                                                             // a real corner: two perpendicular sides, one of them a wall
+            if(!(d[0]===1?!tx1:d[0]===-1?!tx0:d[2]===1?!tz1:!tz0))continue;
+            if(!fpFree(x,z,hx,hz))continue;
+            let sc=Math.min(...T_.map(q=>Math.hypot(x-q[0],z-q[1])));if(tx+tz>=3)sc-=.6;sc+=placed.reduce((a,q)=>a+(Math.hypot(q[0]-x,q[2]-z)<2.2?3:0),0);
+            const ro=Math.atan2(-x,-z),dd=-(d[0]*Math.sin(ro)+d[2]*Math.cos(ro));sc+=dd*.05;                // the hole rather towards the room
+            if(!best||sc<best.sc)best={sc,p:[x,S.wine&&z<S.zW?S.yF:0,z],d,hx,hz};}}
+        if(best){placed.push(best.p);blk(best.p[0],best.p[2],best.hx*2+.04,best.hz*2+.04);}return best;};
       U.forEach((u,i)=>{
-        let p,d;
+        let p,d;const cs_=cornerSpot(u);if(cs_){p=cs_.p;d=cs_.d;}else{
         if(u.at==='FD'){p=[Math.min(hw-.4,doorX+doorW/2+.5),0,hd-.34];d=[0,0,-1];}          // on the floor beside the entrance door
         else if(u.at==='FL'){p=[-hw+.92,0,D*u.f];d=[1,0,0];}                                  // on the floor at the base of the coolers, protruding just into the aisle so it stays in view
         else{p=[Math.max(-hw+.4,W*u.f),0,-hd+.22];d=[0,0,1];}                                 // on the floor at the back / storage corner
-        p=settle(p,d);                                                                           // never inside a freezer, a stand or a shelf: the nearest free spot along the same wall
+        p=settle(p,d);}                                                                          // no corner free: the nearest free spot along the same wall
         const bw=.26,bh=.12,bd=.2;
         const g=new T.Group();g.position.set(p[0],p[1],p[2]);g.rotation.y=Math.atan2(d[0],d[2]);
         const body=new T.Mesh(roundedBox(bw,bh,bd,.02).translate(0,bh/2,0),M.baitBox);body.castShadow=true;body.receiveShadow=true;
