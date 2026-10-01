@@ -1152,3 +1152,12 @@ footer.foot{overflow:hidden} /* the glint moving over the letters never widens t
 @media (max-width:360px){.brand .logo{height:16px}.nav .doc .av-logo{height:16px}.nav .doc{margin-left:6px;padding-left:6px}.nav .wrap{gap:6px}}
 @media (min-width:1301px) and (max-width:1520px){.nav .doc .av-logo{margin-left:0}}
 footer.foot{overflow:hidden} /* the glint across the footer mark never widens the page */
+
+/* "под 0,25 €": the small word sits just above the number (out of the line), so the figure is as wide as its neighbours and the two
+   figures of a row share one baseline; on phones every figure scales with the screen, so a two-column cell always holds it */
+.fig b{position:relative;white-space:nowrap}
+.fig b .fig-pre{position:absolute;left:0;bottom:100%;margin:0 0 .4em;vertical-align:baseline;font-size:.3em;line-height:1;letter-spacing:.16em}
+@media (max-width:430px){.fig b{font-size:min(2.6rem,10vw)}.fig{padding:18px 14px 20px}}
+/* the full label „Търговска оферта за професионална ароматизация“ only where the bar has the room for it; elsewhere the short one */
+.nav .doc .dl2{display:none}
+@media (min-width:860px) and (max-width:1300px){.nav .doc .dl2{display:inline}}

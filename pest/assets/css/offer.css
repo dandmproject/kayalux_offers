@@ -1336,3 +1336,9 @@ footer.foot{overflow:hidden} /* the glint moving over the letters never widens t
 .live i::before{border-color:var(--live)}
 .live b{color:var(--live)}
 :root[data-theme="light"] .live{--live:#e00000}
+/* phones: every figure scales with the screen so a two-column cell always holds it; the long sums a step smaller; a little more room in each cell */
+@media (max-width:430px){.fig b{font-size:min(2.6rem,10vw)}.fig b.long{font-size:min(1.7rem,7.2vw)}.fig{padding:18px 14px 20px}}
+/* 320–360 px: the company name and the summary table fit the screen */
+@media (max-width:360px){.party strong{font-size:1.45rem}.summary{font-size:13.5px}.summary th,.summary td{padding-left:6px;padding-right:6px}.summary th:first-child,.summary td:first-child{padding-left:0}.summary th:last-child,.summary td:last-child{padding-right:0}.summary tfoot td{font-size:1.2rem}}
+@media (max-width:520px){.nav .doc .dl{display:none}.nav .doc .av-logo{margin-left:0}} /* 441–520 px: the logo alone, the bar keeps its buttons on screen */
+@media (max-width:360px){.obj tfoot tr.tot3{column-gap:6px;padding-right:6px}.obj tfoot tr.tot3 td.cs,.obj tfoot tr.tot3 td#tPts{font-size:1.05rem}.obj tfoot tr.tot3 td#tPts::before{font-size:11px}} /* 320 px: the monthly totals fit the card */
