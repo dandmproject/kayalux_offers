@@ -1012,7 +1012,7 @@ const space=(function(){
         const ahead=(ox*fx+oz*fz)/L2;if(ahead<.25)continue;
         const rvx=ovx-fx*want,rvz=ovz-fz*want,rv2=rvx*rvx+rvz*rvz;const t=rv2>1e-4?clamp(-(ox*rvx+oz*rvz)/rv2,0,1.2):0;   // when are we closest?
         const cx=ox+rvx*t,cz=oz+rvz*t,cd=Math.hypot(cx,cz);
-        if(cd<.7){const side=(cx*fz-cz*fx),headOn=walking&&(ovx*fx+ovz*fz)<-.2*want,s=Math.abs(side)<.08&&headOn?-1:(side>0?-1:1),w=(.7-cd)/.7/(.35+t); // steer to the side that opens
+        if(cd<.7){const side=(cx*fz-cz*fx),headOn=walking&&(ovx*fx+ovz*fz)<-.2*want,SM=ud.sideMem||(ud.sideMem=new WeakMap()),prev=SM.get(o),s=Math.abs(side)<.12&&prev?prev:(Math.abs(side)<.08&&headOn?-1:(side>0?-1:1)),w=(.7-cd)/.7/(.35+t);SM.set(o,s); /* the side once chosen round someone is kept while it is close to a tie: no left-right-left from frame to frame */ // steer to the side that opens
           ax+=fz*s*w*.9;az+=-fx*s*w*.9;}
         if(walking&&L2<1.0&&ahead>.8&&(ovx*fx+ovz*fz)>.2){want=Math.min(want,Math.max(.25,ovx*fx+ovz*fz));}   // follow a slower walker instead of walking through
         if(walking&&L2<.5&&ahead>.5&&(ovx*fx+ovz*fz)<-.1)want=Math.min(want,.15); // face to face, nearly touching: both slow to a shuffle, the steering takes them past each other
@@ -1047,7 +1047,10 @@ const space=(function(){
       if(vx||vz){ud.blkT=0;ud.blkRe=false;} // only onto walkable floor: drop the sideways part; along the route the bare walls are the limit
       ud.vAct=(ud.vAct||0)+(Math.hypot(nx-x,nz-z)/Math.max(dt,1e-3)-(ud.vAct||0))*Math.min(1,dt*6);ud.slowT=ud.vAct<.08?(ud.slowT||0)+dt:0;
       if(ud.slowT>.6)for(const o of people){if(o===g||!o.visible)continue;const ou=o.userData;if((ou.state==='browse'||ou.state==='queue')&&Math.hypot(o.position.x-x,o.position.z-z)<.7)askRoom(o,g,fx,fz);}x=nx;z=nz;ud.vx=vx;ud.vz=vz;ud.vNow=Math.hypot(vx,vz);
-      if(ud.vNow>.3)ud.ang=angStep(ud.ang,(vx*fx+vz*fz)>0?Math.atan2(vx,vz):Math.atan2(fx,fz),6,dt,3.3); // faces where it walks; pushed back for a moment, it keeps facing its way
+      // the body faces where it walks, but by a smoothed velocity (~0.2 s): steering that nudges left/right from frame to frame never makes
+      // the whole body twitch round its axis (seen most at the hands); pushed back for a moment, it keeps facing its way
+      {const kf=Math.min(1,dt*5);ud.fvx=(ud.fvx==null?vx:ud.fvx)+(vx-(ud.fvx==null?vx:ud.fvx))*kf;ud.fvz=(ud.fvz==null?vz:ud.fvz)+(vz-(ud.fvz==null?vz:ud.fvz))*kf;
+        if(ud.vNow>.3&&Math.hypot(ud.fvx,ud.fvz)>.2)ud.ang=angStep(ud.ang,(ud.fvx*fx+ud.fvz*fz)>0?Math.atan2(ud.fvx,ud.fvz):Math.atan2(fx,fz),6,dt,3.3);}
       g.position.set(x,floorY(x,z),z);g.rotation.y=ud.ang;
       const tr=ud.trail;if(tr){const l=tr[tr.length-1];if(Math.hypot(l[0]-x,l[1]-z)>.2){tr.push([x,z]);if(tr.length>40)tr.shift();}}
       rem=0;for(let k=ud.pi;k<P.length-1;k++){const a=k===ud.pi?[x,z]:P[k];rem+=Math.hypot(P[k+1][0]-a[0],P[k+1][1]-a[1]);}
@@ -2136,8 +2139,8 @@ const space=(function(){
           if(u.gltfP){const a=armBones(g)[1],hb=a&&a[2],hd=u.headB||B(g,'Head');
             [[hb,'hand','hv','hr','handTrem'],[hd,'head','dv','drv','headTrem']].forEach(([bone,k,vk,rk,rep])=>{if(!bone)return;const w=wp(bone);
               // motion relative to the body (walking itself is not tremor)
-              w.x-=p.x;w.z-=p.z;if(h[k]){const v=w.clone().sub(h[k]);if(h[vk]&&v.length()>.0025&&h[vk].length()>.0025&&v.dot(h[vk])<-.6*v.length()*h[vk].length())h[rk]+=1;else h[rk]=Math.max(0,h[rk]-.15);
-                if(h[rk]>=5){push(rep,{t:+T_.toFixed(2),who:lbl(g)});h[rk]=0;}h[vk]=v;}h[k]=w;});
+              w.x-=p.x;w.z-=p.z;if(h[k]){const v=w.clone().sub(h[k]);if(k==='hand'){(h.hh=h.hh||[]).push([+(v.x*1000).toFixed(1),+(v.y*1000).toFixed(1),+(v.z*1000).toFixed(1),u.clip]);if(h.hh.length>12)h.hh.shift();}if(h[vk]&&v.length()>.0025&&h[vk].length()>.0025&&v.dot(h[vk])<-.6*v.length()*h[vk].length())h[rk]+=1;else h[rk]=Math.max(0,h[rk]-.15);
+                if(h[rk]>=5){push(rep,{t:+T_.toFixed(2),who:lbl(g),legs:u.legsOn,vA:+(u.vAct||0).toFixed(2),vN:+(u.vNow||0).toFixed(2),bl:+(u.blend||0).toFixed(2),arm:u.armS?u.armS.map(a=>+a.w.toFixed(2)):null,ik:!!u.ikReq,rch:u.rch?+u.rch.p.toFixed(2):null,dry:+((g.rotation.y-h.ry)/dt).toFixed(2),tn:!!u.turning,yl:!!u.yielding,room:!!u.room,look:!!u.lookAtP,lean:+(u.leanS||0).toFixed(3),str:!!u.stroller,sp:+(h.spd||0).toFixed(2),hist:(h.hh||[]).slice(-8)});h[rk]=0;}h[vk]=v;}h[k]=w;});
             if(!u.isChild&&u.state!=='enter'){const fl=B(g,'L_Foot'),fr=B(g,'R_Foot');if(fl&&fr){const y=Math.min(wp(fl).y,wp(fr).y)-floorY(p.x,p.z);if(y>.16||y<-.06)push('feet',{t:+T_.toFixed(2),who:lbl(g),kind:u.kind,mdl:(g.children.find(c=>c.name)||{}).name,k:+(u.k||1).toFixed(2),y:+y.toFixed(3),py:+p.y.toFixed(3),fy:+floorY(p.x,p.z).toFixed(3),at:[+p.x.toFixed(2),+p.z.toFixed(2)],hd:+S.hd.toFixed(2)});}}
             if(!u.cashier&&u.state!=='enter'&&u.follow==null){const ob=OBS.filter(r=>!r[4]&&p.x>r[0]+.06&&p.x<r[1]-.06&&p.z>r[2]+.06&&p.z<r[3]-.06);if(ob.length)push('inFixture',{t:+T_.toFixed(2),who:lbl(g),at:[+p.x.toFixed(2),+p.z.toFixed(2)]});}}
           {if(u.turning)h.tn=T_;const free=u.state==='walk'&&!u.pay&&!u.turning&&!u.yielding&&u.follow==null&&!(h.tn>T_-2);const rb=free?(h.rb||(h.rb=[])):(h.rb=[]);rb.push([T_,p.x,p.z]);while(rb.length&&T_-rb[0][0]>2)rb.shift();if(free&&T_-rb[0][0]>=1.95&&Math.hypot(p.x-rb[0][1],p.z-rb[0][2])<.05){if(!h.stk){h.stk=1;push('stuck2s',{t:+T_.toFixed(2),who:lbl(g),at:[+p.x.toFixed(2),+p.z.toFixed(2)],vNow:+(u.vNow||0).toFixed(2),wait:+(u.waitAcc||0).toFixed(1),sq:!!u.squeeze,stT:u.stuckT||0,nud:u.nudged||0,pi:u.pi,np:u.path&&u.path.length,toEnd:u.path?+Math.hypot(u.path[u.path.length-1][0]-p.x,u.path[u.path.length-1][1]-p.z).toFixed(2):null,next:u.path&&u.path[u.pi]?[+u.path[u.pi][0].toFixed(2),+u.path[u.pi][1].toFixed(2)]:null,leg:u.visit&&u.visit[u.legI]&&u.visit[u.legI].kind,blend:+(u.blend||0).toFixed(2)});}}else if(!free||Math.hypot(p.x-rb[0][1],p.z-rb[0][2])>.2)h.stk=0;}
