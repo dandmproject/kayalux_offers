@@ -575,6 +575,8 @@ const space=(function(){
     M.flow=new T.MeshBasicMaterial({transparent:true,depthWrite:false,side:T.DoubleSide,color:0xE6C27A,polygonOffset:true,polygonOffsetFactor:-2,map:(()=>{const c=document.createElement('canvas');c.width=64;c.height=32;const g=c.getContext('2d');g.fillStyle='rgba(255,255,255,.28)';g.fillRect(0,12,64,8);g.fillStyle='#fff';g.beginPath();g.moveTo(18,2);g.lineTo(40,16);g.lineTo(18,30);g.lineTo(26,16);g.closePath();g.fill();const t=new T.CanvasTexture(c);t.wrapS=T.RepeatWrapping;t.anisotropy=4;return t;})()});
     // АВАНТИ shopping bag: white, red handles, the logo on both faces (faces point sideways, as a bag hangs from the hand)
     M.bagLogo=(()=>{const c=document.createElement('canvas');c.width=128;c.height=160;const g=c.getContext('2d');g.fillStyle='#fbfaf7';g.fillRect(0,0,128,160);g.fillStyle='#d3232a';g.fillRect(0,128,128,32);g.font='bold 27px Inter, Arial, sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText('АВАНТИ',64,66);g.fillRect(22,86,84,3);const t=new T.CanvasTexture(c);t.encoding=T.sRGBEncoding;t.anisotropy=4;return new T.MeshStandardMaterial({map:t,roughness:.7,envMapIntensity:.3});})();
+    function mkOpenBag(){const w=.27,h=.33,d=.11,t=.004,Wc='#fbfaf7',R='#d3232a';const m=new T.Mesh(mergeColored([[new T.BoxGeometry(t,h,w).translate(d/2,0,0),Wc],[new T.BoxGeometry(t,h,w).translate(-d/2,0,0),Wc],[new T.BoxGeometry(d-t,h,t).translate(0,0,w/2-t/2),Wc],[new T.BoxGeometry(d-t,h,t).translate(0,0,-w/2+t/2),Wc],[new T.BoxGeometry(d-t,t,w-t).translate(0,-h/2+t/2,0),Wc],
+        [new T.TorusGeometry(.065,.008,4,10,Math.PI).rotateY(Math.PI/2).translate(d*.3,h/2,0),R],[new T.TorusGeometry(.065,.008,4,10,Math.PI).rotateY(Math.PI/2).translate(-d*.3,h/2,0),R]]),M.vc2);m.castShadow=true;const g=new T.Group();g.add(m);for(const sd of [-1,1]){const l=new T.Mesh(new T.PlaneGeometry(w*.97,h*.97),M.bagLogo);l.rotation.y=sd*Math.PI/2;l.position.x=sd*(d/2+.003);g.add(l);}return g;} // the same АВАНТИ print as the bag that leaves with the customer
     function mkBag(k){const bag=new T.Group(),w=.27*k,h=.33*k,d=.11*k;const bm=new T.Mesh(mergeColored([[new T.BoxGeometry(d,h,w),'#fbfaf7'],[new T.TorusGeometry(.065*k,.008,4,10,Math.PI).rotateY(Math.PI/2).translate(d*.3,h/2,0),'#d3232a'],[new T.TorusGeometry(.065*k,.008,4,10,Math.PI).rotateY(Math.PI/2).translate(-d*.3,h/2,0),'#d3232a']]),M.vc2);bm.castShadow=true;bag.add(bm);
       for(const s of [-1,1]){const l=new T.Mesh(new T.PlaneGeometry(w*.97,h*.97),M.bagLogo);l.rotation.y=s*Math.PI/2;l.position.x=s*(d/2+.002);bag.add(l);}return bag;}
     const SHARED=(()=>{let b=null,bg=null,ph=null,bl=null;return {
@@ -907,6 +909,8 @@ const space=(function(){
     const rnd=(a,b)=>a+Math.random()*(b-a),rr=r=>rnd(r[0],r[1]);
     const qOcc=[];let flowDirty=true,flowT=0,camSub=null;
     const angTo=(a,b,k)=>{let d=b-a;d=((d+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;return a+d*k;};
+    // turning like a person: eased toward the new heading, but never faster than w rad/s (≈150–230°/s) — no snapping round on the spot
+    const angStep=(a,b,k,dt,w)=>{let d=b-a;d=((d+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;const st=d*Math.min(1,dt*k),m=w*dt;return a+Math.max(-m,Math.min(m,st));};
     const floorY=(x,z)=>{if(!S.wine)return 0;const zW=S.zW;if(z>zW+.55)return 0;if(z<zW-.55)return S.yF;return S.yF*(zW+.55-z)/1.1;};
     const gridOf=g=>g.userData.stroller?nav.G55:(g.userData.buyer?nav.G35:(nav.G35X||nav.G35));
     // the grid with the people who are standing still (at a shelf, in the queue, at the till, just inside the door) marked as obstacles,
@@ -925,7 +929,7 @@ const space=(function(){
     function setPath(g,path,T_){const ud=g.userData;if(!path){path=fallbackPath([g.position.x,g.position.z]);ud.fallback=true;}ud.path=path;ud.pi=0;ud.stuckT=0;ud.px=null;ud.pAcc=0;ud.state='walk';ud.blend=ud.blend||0;flowDirty=true;}
     // §2/§3/§9: a visit = ENTER(decompression, basket pickup) → stops (grab | browse) → [QUEUE → PAY → RETURN_BASKET] → EXIT
     function planVisit(g,inside){const ud=g.userData,ts=PARAMS.timeScale,eld=!!ud.elder;ud.items=nItems();ud.buyer=Math.random()<PARAMS.buyP;
-      ud.hasBasket=!ud.pushing&&!ud.isChild&&(ud.items>=PARAMS.basketMin||Math.random()<PARAMS.basketP);
+      ud.hasBasket=!ud.pushing&&!ud.isChild&&(ud.items>=PARAMS.basketMin||Math.random()<PARAMS.basketP);ud.bagTaken=false;ud.basketL=false;ud.basketOnCounter=false;
       const stops=Math.max(1,Math.min(4,(inside?Math.max(1,ud.items-1):ud.items)+(Math.random()<PARAMS.impulseP?1:0)));
       const bp=state.t>=690&&state.t<=810?PARAMS.browseP.lunch:(eld?PARAMS.browseP.elder:PARAMS.browseP.adult);
       ud.visit=pickBrowse(g,stops).map(b=>({kind:'browse',b,dur:(Math.random()<bp?rr(PARAMS.browse)*ts*1.25:rr(PARAMS.grab))}));
@@ -962,7 +966,7 @@ const space=(function(){
       const n=P[ud.pi+1],dx=n[0]-x,dz=n[1]-z,L=Math.hypot(dx,dz)||1,fx=dx/L,fz=dz/L,vx0=ud.vx||0,vz0=ud.vz||0,moving=Math.hypot(vx0,vz0)>.2;
       // from a standstill, first turn towards the next leg when it points more than ~50° away (nobody sets off sideways)
       {const a0=Math.atan2(dx,dz);let dd=a0-ud.ang;dd=((dd+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;if(Math.abs(dd)>.9&&!moving)ud.turning=true;
-        if(ud.turning){ud.ang=angTo(ud.ang,a0,Math.min(1,dt*5));g.rotation.y=ud.ang;ud.vx=ud.vz=0;ud.vNow=0;if(Math.abs(dd)<.25)ud.turning=false;else return false;}}
+        if(ud.turning){ud.ang=angStep(ud.ang,a0,5,dt,2.8);g.rotation.y=ud.ang;ud.vx=ud.vz=0;ud.vNow=0;if(Math.abs(dd)<.25)ud.turning=false;else return false;}}
       const sp=d/Math.max(dt,1e-3);let want=Math.min(sp,(rem-stopAt)/Math.max(dt,1e-3)),ax=0,az=0,block=null;const me=people.indexOf(g);
       for(const o of people){if(o===g||!o.visible||o.userData.follow===me||ud.follow===people.indexOf(o))continue;const ox=o.position.x-x,oz=o.position.z-z,L2=Math.hypot(ox,oz);if(L2>1.8||L2<.02)continue;
         const ou=o.userData,walking=ou.state==='walk'&&!ou.turning&&!ou.yielding,ovx=walking?(ou.vx||0):0,ovz=walking?(ou.vz||0):0;
@@ -996,7 +1000,7 @@ const space=(function(){
       let nx=x+vx*dt,nz=z+vz*dt;
       if(!ok(nx,nz)){const f=Math.max(0,vx*fx+vz*fz);nx=x+fx*f*dt;nz=z+fz*f*dt;if(ok(nx,nz)||ok(nx,nz,true)){vx=fx*f;vz=fz*f;}else{nx=x;nz=z;vx=vz=0;}} // only onto walkable floor: drop the sideways part; along the route the bare walls are the limit
       x=nx;z=nz;ud.vx=vx;ud.vz=vz;ud.vNow=Math.hypot(vx,vz);
-      if(ud.vNow>.3)ud.ang=angTo(ud.ang,(vx*fx+vz*fz)>0?Math.atan2(vx,vz):Math.atan2(fx,fz),Math.min(1,dt*6)); // faces where it walks; pushed back for a moment, it keeps facing its way
+      if(ud.vNow>.3)ud.ang=angStep(ud.ang,(vx*fx+vz*fz)>0?Math.atan2(vx,vz):Math.atan2(fx,fz),6,dt,3.3); // faces where it walks; pushed back for a moment, it keeps facing its way
       g.position.set(x,floorY(x,z),z);g.rotation.y=ud.ang;
       const tr=ud.trail;if(tr){const l=tr[tr.length-1];if(Math.hypot(l[0]-x,l[1]-z)>.2){tr.push([x,z]);if(tr.length>40)tr.shift();}}
       rem=0;for(let k=ud.pi;k<P.length-1;k++){const a=k===ud.pi?[x,z]:P[k];rem+=Math.hypot(P[k+1][0]-a[0],P[k+1][1]-a[1]);}
@@ -1009,31 +1013,118 @@ const space=(function(){
     // §2 companions: child / partner follow the leader's trail 0.6–1.0 m behind
     function followParent(g,dt,T_){const ud=g.userData,lead=people[ud.follow];if(!lead){g.visible=false;return;}const lu=lead.userData;
       if(lu.state==='away'||lu.state==null){g.visible=false;ud.placed=false;return;}g.visible=true;
-      if(lu.chat){const dx=lead.position.x-g.position.x,dz=lead.position.z-g.position.z;ud.ang=angTo(ud.ang||0,Math.atan2(dx,dz),Math.min(1,dt*4));g.rotation.y=ud.ang;g.position.y=floorY(g.position.x,g.position.z);ud.state='chat';ud.lookAtP=[lead.position.x,lead.position.z];ud.talking=lu.chat.talker===1;ud.blend=Math.max(0,(ud.blend||0)-dt*3);if(ud.basket){ud.basket.visible=false;ud.bag.visible=false;}poseAny(g,T_,dt,0);return;}else{ud.lookAtP=null;ud.talking=false;}
+      if(lu.chat){const dx=lead.position.x-g.position.x,dz=lead.position.z-g.position.z;ud.ang=angStep(ud.ang||0,Math.atan2(dx,dz),4,dt,2.6);g.rotation.y=ud.ang;g.position.y=floorY(g.position.x,g.position.z);ud.state='chat';ud.lookAtP=[lead.position.x,lead.position.z];ud.talking=lu.chat.talker===1;ud.blend=Math.max(0,(ud.blend||0)-dt*3);if(ud.basket){ud.basket.visible=false;ud.bag.visible=false;}poseAny(g,T_,dt,0);return;}else{ud.lookAtP=null;ud.talking=false;}
       const tr=lu.trail||[[lead.position.x,lead.position.z]];let need=ud.gap||.9,tx=lead.position.x,tz=lead.position.z;
       for(let k=tr.length-1;k>=0;k--){const dx=tr[k][0]-tx,dz=tr[k][1]-tz,L=Math.hypot(dx,dz);if(L>=need){tx+=dx/L*need;tz+=dz/L*need;need=0;break;}tx=tr[k][0];tz=tr[k][1];need-=L;}
       if(!ud.isChild&&lu.state==='walk'){if(ud.sideS==null)ud.sideS=Math.random()<.5?-1:1;const a=lead.rotation.y,sx=tx+Math.cos(a)*.5*ud.sideS,sz=tz-Math.sin(a)*.5*ud.sideS,[ci,cj]=nav.toCell(sx,sz);if(nav.free(nav.G35,ci,cj)){tx=sx;tz=sz;}} // a partner walks beside, not behind, where the aisle is wide enough
       let dx=tx-g.position.x,dz=tz-g.position.z,L=Math.hypot(dx,dz);let v=0;
       if(L>2.2||!ud.placed){ud.placed=true;g.position.set(lead.position.x,0,lead.position.z);dx=tx-g.position.x;dz=tz-g.position.z;L=Math.hypot(dx,dz);}
-      if(L>.12){v=Math.min(lu.sp*1.25,L*2.5);const s=Math.min(L,v*dt);g.position.x+=dx/L*s;g.position.z+=dz/L*s;ud.ang=angTo(ud.ang||0,Math.atan2(dx,dz),Math.min(1,dt*8));}
+      if(L>.12){v=Math.min(lu.sp*1.25,L*2.5);const s=Math.min(L,v*dt);g.position.x+=dx/L*s;g.position.z+=dz/L*s;ud.ang=angStep(ud.ang||0,Math.atan2(dx,dz),8,dt,4);}
       g.position.y=floorY(g.position.x,g.position.z);g.rotation.y=ud.ang||0;ud.state=v>0?'walk':lu.state==='walk'?'queue':lu.state;ud.blend=v>0?Math.min(1,(ud.blend||0)+dt*3):Math.max(0,(ud.blend||0)-dt*3);
       if(ud.basket){ud.basket.visible=false;ud.bag.visible=false;}poseAny(g,T_,dt,v*ud.blend);}
     // §6 checkout at the head of the queue: greeting → scan n items → cash | card → bagging → goodbye; the next customer advances only afterwards
-    function checkout(g,T_){const ud=g.userData,ts=PARAMS.payScale;const P=PARAMS;
-      if(!ud.pay){const n=Math.max(1,Math.min(ud.items||1,8)),cash=Math.random()<P.cashP,eld=ud.elder?P.elderPayMul:1;const d={greet:rr(P.greet)+n*.85/ts,scan:n*P.scanPerItem,pay:(cash?rr(P.cash):rr(P.card))*eld,bag:n>1?rr([2,P.bagging[1]*.4]):0,bye:rr(P.goodbye)};let acc=0;const ph=[];for(const k of ['greet','scan','pay','bag','bye']){acc+=d[k]*ts;ph.push([k,acc]);}
-        ud.pay={t0:T_,n,cash,ph,total:acc};if(S.counterBasket)S.counterBasket.visible=!!ud.hasBasket;if(ud.basket)ud.basket.visible=false;}
-      const e=T_-ud.pay.t0,cs=extras.find(x=>x.userData.cashier);let phase='bye';for(const [k,t] of ud.pay.ph){if(e<t){phase=k;break;}}
-      ud.phase=phase==='pay'?(ud.pay.cash?'cash':'tap'):phase;
-      if(cs){cs.userData.state=phase==='scan'?'scan':(phase==='greet'||phase==='bye')?'greet':'queue';cs.userData.lookAtP=(phase==='greet'||phase==='bye'||phase==='tap'||phase==='cash')?[g.position.x,g.position.z]:null;cs.userData.talking=phase==='greet';cs.userData.smile=phase!=='scan';}
+    // §6 the till, step by step — every object is always somewhere: in the basket, on the counter, in a hand, in the bag.
+    // Each action is reach → carry → (hold) → let go. What is carried rides in the palm of the hand that carries it (the arm drives the
+    // object, never the other way round), so nothing floats, jumps or vanishes; when it is let go it settles into its exact place.
+    // The customer lifts the basket onto the counter and takes the items out one by one (left hand); the cashier, in parallel, takes each one,
+    // passes it over the scanner (beep) and puts it into a carrier bag she has opened on the counter; card at the terminal or a banknote
+    // handed over; she lifts the bag across, the customer takes it; the empty basket goes back into the left hand for the stack by the door.
+    const tE=x=>x<=0?0:x>=1?1:x*x*(3-2*x);
+    function tillPlan(g,T_){const P=PARAMS,ts=P.payScale,ud=g.userData,n=Math.max(1,Math.min(ud.items||1,8)),cash=Math.random()<P.cashP,eld=ud.elder?P.elderPayMul:1,sp=ud.elder?1.25:1,hb=!!ud.hasBasket&&!!S.counterBasket;
+      const E=[];let t=.3;
+      if(hb){E.push({k:'basketUp',who:'c',side:1,t0:t,re:0,ca:.8*sp,rt:.35});t+=.95*sp;}
+      const U=1.05*sp,uS=[];for(let j=0;j<n;j++){uS.push(t+j*U);E.push({k:'unload',j,who:'c',side:0,t0:t+j*U,re:.34*sp,ca:.46*sp,rt:.25*sp});}
+      E.push({k:'bagOut',who:'s',side:1,t0:Math.max(0,t-.3),re:.3,ca:.55,rt:.2});
+      let sc=t+1.0;for(let j=0;j<n;j++){sc=Math.max(sc,uS[j]+(.34+.46+.12)*sp);E.push({k:'scan',j,who:'s',side:1,t0:sc,re:.3,ca:.7,rt:.24});sc+=1.24;}
+      const unloadEnd=uS[n-1]+U;
+      if(hb)E.push({k:'basketBack',who:'c',side:0,t0:unloadEnd,re:.34,ca:.6,rt:0});
+      const tp=Math.max(sc,hb?unloadEnd+1.0:unloadEnd)+.2,payD=Math.max(cash?1.8:1.6,(cash?rr(P.cash):rr(P.card))*eld*ts);
+      if(cash){E.push({k:'noteGive',who:'c',side:1,t0:tp,re:0,ca:.6,rt:.3,hold:.4});E.push({k:'noteTake',who:'s',side:1,t0:tp+.55,re:.25,ca:.55,rt:.25});}
+      else E.push({k:'card',who:'c',side:1,t0:tp,re:.5,ca:0,rt:.45,hold:Math.max(.5,payD-1.1)});
+      const tb=tp+payD;
+      E.push({k:'bagLift',who:'s',side:1,t0:tb,re:.32,ca:.55,rt:.3,hold:.32});
+      E.push({k:'bagTake',who:'c',side:1,t0:tb+.66,re:.3,ca:.6,rt:0});
+      const bagEnd=tb+1.7,bye=rr(P.goodbye)*ts;
+      ud.bagTaken=false;ud.basketOnCounter=false;ud.basketL=false;
+      return {t0:T_,n,cash,hb,E,ph:[['greet',uS[0]+U*.6],['scan',Math.max(sc,unloadEnd)],['pay',tb],['bag',bagEnd],['bye',bagEnd+bye]],total:bagEnd+bye};}
+    // stage of an action at time e: 0 before · 1 reach · 2 carry · 3 hold · 4 let go / return · 5 done
+    function evSt(ev,e){const a=e-ev.t0,h=ev.hold||0;if(a<0)return [0,0];if(a<ev.re)return [1,a/ev.re];const b=a-ev.re;if(b<ev.ca)return [2,b/ev.ca];const c=b-ev.ca;if(c<h)return [3,c/h];const d=c-h;if(d<ev.rt)return [4,d/ev.rt];return [5,1];}
+    const vl=(a,b,t)=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t];
+    function arcP(a,b,u,lift){const s_=tE(u),p=vl(a,b,s_);p[1]+=lift*4*s_*(1-s_);return p;}
+    function scanPath(a,u){const T=S.tl,sc=T.scan,mo=[T.bag[0],T.bag[1]+.165+.07,T.bag[2]];
+      if(u<.38)return arcP(a,sc,u/.38,.05);if(u<.56)return [sc[0]+Math.sin((u-.38)/.18*Math.PI)*.015,sc[1],sc[2]];return arcP(sc,mo,(u-.56)/.44,.06);}
+    function checkout(g,T_){const ud=g.userData,cs=extras.find(x=>x.userData.cashier),T=S.tl;
+      if(!ud.pay)ud.pay=tillPlan(g,T_);
+      const pl=ud.pay,e=T_-pl.t0;let phase='bye';for(const [k,t] of pl.ph){if(e<t){phase=k;break;}}
+      ud.phase=phase==='pay'?(pl.cash?'cash':'tap'):phase;
+      if(cs){cs.userData.state=phase==='scan'?'scan':(phase==='greet'||phase==='bye')?'greet':'queue';cs.userData.lookAtP=(phase==='greet'||phase==='bye'||phase==='tap'||phase==='cash'||phase==='bag')?[g.position.x,g.position.z]:null;cs.userData.talking=phase==='greet'||phase==='bye';cs.userData.smile=phase!=='scan';}
       ud.lookAtP=(phase==='greet'||phase==='bye'||phase==='bag')?[cs?cs.position.x:g.position.x,cs?cs.position.z:g.position.z]:null;ud.talking=phase==='bye';ud.smile=phase!=='scan';
-      if(S.beep)S.beep.visible=phase==='scan'&&((e-ud.pay.ph[0][1])%(PARAMS.scanPerItem*ts))<.25;
-      if(S.counterItems){const n=ud.pay.n,g0=ud.pay.ph[0][1],put=phase==='greet'?clamp((e/Math.max(.01,g0))*n,0,n):n,k=phase==='greet'?0:phase==='scan'?Math.floor((e-g0)/(PARAMS.scanPerItem*ts)):n,bagged=phase==='bag'||phase==='bye';
-        S.counterItems.forEach((m,j)=>{m.visible=j<Math.floor(put)&&!bagged;if(m.visible){const P=j<k?m.userData.b:m.userData.a;m.position.set(P[0],P[1],P[2]);}});
-        // the customer's hand puts each item down; the cashier's hand follows the one being scanned
-        const pj=clamp(Math.floor(put)||0,0,n-1);ud.placeTg=phase==='greet'&&put<n?S.counterItems[pj].userData.a:null;ud.placeQ=put%1;
-        if(cs){const sj=clamp(k||0,0,n-1);cs.userData.scanTg=phase==='scan'?S.counterItems[sj].userData.a:null;cs.userData.scanQ=phase==='scan'?((e-g0)/(PARAMS.scanPerItem*ts))%1:0;}}
-      if(phase==='bag'||phase==='bye'){if(S.counterBasket)S.counterBasket.visible=false;}
-      if(e>=ud.pay.total){if(S.counterItems)S.counterItems.forEach(m=>m.visible=false);ud.placeTg=null;if(cs)cs.userData.scanTg=null;ud.pay=null;ud.phase=null;ud.lookAtP=null;ud.talking=false;ud.smile=false;if(cs){cs.userData.lookAtP=null;cs.userData.talking=false;cs.userData.smile=false;}qOcc[0]=null;navNext(g,T_);}}
+      const RQ={c:[null,null],s:[null,null]},D=[],who=k=>k==='c'?g:cs;
+      const req=(ev,p,w)=>{if(w>.001)RQ[ev.who][ev.side]={p,w};};
+      // the hand's target is the wrist: a little above what it holds
+      const reqStage=(ev,st,u,start,end,path,grip)=>{const G=grip||.07;
+        if(st===1)req(ev,[start[0],start[1]+G,start[2]],tE(u));
+        else if(st===2){const p=path(u);req(ev,[p[0],p[1]+G,p[2]],ev.fade?1-tE(u):1);}
+        else if(st===3)req(ev,[end[0],end[1]+G,end[2]],1);
+        else if(st===4){const r=restP(who(ev.who),ev.side),k=tE(u/.6);req(ev,[end[0]+(r[0]-end[0])*k,end[1]+G+(r[1]-end[1]-G)*k,end[2]+(r[2]-end[2])*k],1-tE((u-.4)/.6));}};
+      // letting go: the hand first comes down to its own side, in front of the hip, and only then the arm hands back to the body's own motion
+      const ev=k=>pl.E.filter(x=>x.k===k);
+      function restP(p,side){if(!p)return [0,1,0];const ry=p.rotation.y,fx=Math.sin(ry),fz=Math.cos(ry),o=side?1:-1,k=p.userData.k||1;return [p.position.x+fx*.22-fz*o*.17,.95*k,p.position.z+fz*.22+fx*o*.17];}
+      let beep=false;const B=S.counterBasket;
+      // basket: up onto the counter (right hand), back into the left hand when empty
+      if(pl.hb&&B){const up=ev('basketUp')[0],bk=ev('basketBack')[0],[su,uu]=evSt(up,e),[sb,ub]=bk?evSt(bk,e):[0,0];
+        if(su>=1&&!ud.basketOnCounter){ud.basketOnCounter=true;ud.basket.getWorldPosition(_hv);up.from=[_hv.x,_hv.y,_hv.z];}
+        if(su===2){up.fade=false;reqStage(up,2,uu,null,null,u=>arcP(up.from,T.basket,u,.15),.2);D.push({o:B,m:'hand',who:g,side:1,off:[0,-.2,0],to:T.basket,tk:tE((uu-.7)/.3)});}
+        else if(su===4){reqStage(up,4,uu,null,T.basket,null,.2);D.push({o:B,m:'at',p:T.basket});}
+        else if(su>=3&&sb<2)D.push({o:B,m:'at',p:T.basket});
+        if(sb===1){reqStage(bk,1,ub,T.basket,null,null,.2);D.push({o:B,m:'at',p:T.basket});}
+        else if(sb===2){bk.fade=true;reqStage(bk,2,ub,null,null,()=>T.basket,.2);D.push({o:B,m:'hand',who:g,side:0,off:[0,-.2,0],from:T.basket,fk:tE(ub/.3)});if(ub>.97)ud.basketL=true;}
+        else if(sb===5){ud.basketL=true;D.push({o:B,m:'hide'});}}
+      // the carrier bag: out from under the counter, the items go in, lifted across, taken by the customer
+      if(S.counterBag){const bo=ev('bagOut')[0],bl=ev('bagLift')[0],bt=ev('bagTake')[0],[so,uo]=evSt(bo,e),[sl,ul]=evSt(bl,e),[st_,ut]=evSt(bt,e),BG=S.counterBag;
+        BG.rotation.y=0;
+        if(st_===5||ud.bagTaken){if(!ud.bagTaken)ud.bagTaken=true;D.push({o:BG,m:'hide'});}
+        else if(st_===2){bt.fade=true;reqStage(bt,2,ut,null,null,()=>T.H,.26);D.push({o:BG,m:'hand',who:g,side:1,off:[0,-.24,0],from:[T.H[0],T.H[1]-.26,T.H[2]],fk:tE(ut/.25),ry:g.rotation.y});if(ut>.97)ud.bagTaken=true;}
+        else{if(st_===1)reqStage(bt,1,ut,[T.H[0],T.H[1]-.26,T.H[2]],null,null,.26);
+          if(sl===2){reqStage(bl,2,ul,null,null,u=>arcP(T.bag,[T.H[0],T.H[1]-.26,T.H[2]],u,.05),.26);D.push({o:BG,m:'hand',who:cs,side:1,off:[0,-.26,0],from:T.bag,fk:tE(ul/.3),to:[T.H[0],T.H[1]-.26,T.H[2]],tk:tE((ul-.7)/.3)});}
+          else if(sl>=3){reqStage(bl,sl,ul,null,[T.H[0],T.H[1]-.26,T.H[2]],null,.26);D.push({o:BG,m:'at',p:[T.H[0],T.H[1]-.26,T.H[2]]});}
+          else{if(sl===1)reqStage(bl,1,ul,T.bag,null,null,.26);
+            if(so===2){reqStage(bo,2,uo,null,null,u=>arcP(T.bagStore,T.bag,u,.12),.2);D.push({o:BG,m:'hand',who:cs,side:1,off:[0,-.2,0],to:T.bag,tk:tE((uo-.7)/.3)});}
+            else if(so>=3){if(so===4)reqStage(bo,4,uo,null,T.bag,null,.2);D.push({o:BG,m:'at',p:T.bag});}
+            else{if(so===1)reqStage(bo,1,uo,T.bagStore,null,null,.2);D.push({o:BG,m:'hide'});}}}}
+      // the items
+      const IT=S.counterItems||[];const un=ev('unload'),scn=ev('scan');
+      IT.forEach((m,j)=>{if(j>=pl.n){D.push({o:m,m:'hide'});return;}
+        const ue=un[j],se=scn[j],[su,uu]=evSt(ue,e),[ss,us]=evSt(se,e),a=m.userData.a,hy=m.userData.hy,bo_=m.userData.bo;
+        const inB=()=>{const p=B?B.position:null;return p?[p.x+bo_[0],p.y-.1+hy,p.z+bo_[1]]:a;};
+        const mouthY=T.bag[1]+.165+.07,botY=T.bag[1]-.165+hy;
+        if(ss===5||(ss===4&&us>.42)||ud.bagTaken){D.push({o:m,m:'hide'});}
+        else if(ss===4){const y=mouthY+(botY-mouthY)*tE(us/.42);D.push({o:m,m:'at',p:[T.bag[0],y,T.bag[2]]});reqStage(se,4,us,null,[T.bag[0],mouthY,T.bag[2]],null);}
+        else if(ss===2){reqStage(se,2,us,null,null,u=>scanPath(a,u));D.push({o:m,m:'hand',who:cs,side:1,off:[0,-.04,0],from:a,fk:tE(us/.28),to:[T.bag[0],mouthY,T.bag[2]],tk:tE((us-.7)/.3),plan:scanPath(a,us)});if(us>=.38&&us<.56)beep=true;}
+        else if(su===2){const fr=pl.hb?inB():null;reqStage(ue,2,uu,null,null,u=>arcP(fr||a,a,u,.14));D.push({o:m,m:'hand',who:g,side:0,off:[0,-.04,0],from:fr,fk:tE(uu/.3),to:a,tk:tE((uu-.7)/.3),plan:arcP(fr||a,a,uu,.14)});}
+        else if(su>=3){D.push({o:m,m:'at',p:a});if(su===4)reqStage(ue,4,uu,null,a,null);if(ss===1)reqStage(se,1,us,a,null,null);}
+        else{if(su===1&&pl.hb){const p=inB();reqStage(ue,1,uu,p,null,null);}D.push(pl.hb?{o:m,m:'at',p:inB()}:{o:m,m:'hide'});}});
+      // paying: the card to the terminal, or a banknote handed across and put in the drawer
+      ud.cardOn=false;
+      if(pl.cash){const ng=ev('noteGive')[0],nt=ev('noteTake')[0],[sg,ug]=evSt(ng,e),[sn,un_]=evSt(nt,e),N=S.tillNote;
+        if(sn===2){reqStage(nt,2,un_,null,null,u=>arcP(T.H,T.drawer,u,.05),.02);D.push({o:N,m:'hand',who:cs,side:1,off:[0,-.01,0],from:[T.H[0],T.H[1]-.25,T.H[2]],fk:tE(un_/.3),to:T.drawer,tk:tE((un_-.7)/.3)});}
+        else if(sn>=3)D.push({o:N,m:'hide'});
+        else if(sg===2||sg===3){if(sg===2){if(!ng.from){ud.rh&&ud.rh.getWorldPosition(_hv);ng.from=[_hv.x,_hv.y,_hv.z];}reqStage(ng,2,ug,null,null,u=>arcP(ng.from,[T.H[0],T.H[1]-.25,T.H[2]],u,.05),.02);}else req(ng,[T.H[0],T.H[1]-.23,T.H[2]],1);
+          D.push({o:N,m:'hand',who:g,side:1,off:[0,-.01,0]});if(sn===1)reqStage(nt,1,un_,[T.H[0],T.H[1]-.25,T.H[2]],null,null,.02);}
+        else{if(sg===4)reqStage(ng,4,ug,null,[T.H[0],T.H[1]-.25,T.H[2]],null,.02);D.push({o:N,m:'hide'});}}
+      else if(S.termP){const cd=ev('card')[0],[sc_,uc]=evSt(cd,e),tp_=[S.termP[0],S.termP[1]+.02,S.termP[2]];if(sc_>=1&&sc_<=4){reqStage(cd,sc_,uc,tp_,tp_,null,.05);ud.cardOn=true;}if(S.tillNote)D.push({o:S.tillNote,m:'hide'});}
+      if(S.beep)S.beep.visible=beep;
+      ud.ikReq=RQ.c;if(cs)cs.userData.ikReq=RQ.s;S.tillD=D;
+      if(e>=pl.total){(S.counterItems||[]).forEach(m=>m.visible=false);[S.counterBag,S.tillNote,S.counterBasket].forEach(o=>{if(o)o.visible=false;});if(S.beep)S.beep.visible=false;S.tillD=null;ud.ikReq=null;ud.cardOn=false;ud.basketOnCounter=false;
+        if(cs){cs.userData.ikReq=null;cs.userData.lookAtP=null;cs.userData.talking=false;cs.userData.smile=false;}ud.pay=null;ud.phase=null;ud.lookAtP=null;ud.talking=false;ud.smile=false;qOcc[0]=null;navNext(g,T_);}}
+    // after the arms are posed: what is held goes into the palm; what is let go settles exactly into its place
+    const _pa=new T.Vector3(),_pb=new T.Vector3();
+    function palmOf(g,side){if(!g)return null;const ud=g.userData;if(ud.gltfP){const a=armBones(g)[side];if(a&&a[1]&&a[2]){a[2].getWorldPosition(_pa);a[1].getWorldPosition(_pb);_pb.subVectors(_pa,_pb).normalize();return [_pa.x+_pb.x*.075,_pa.y+_pb.y*.075,_pa.z+_pb.z*.075];}}
+      const h=side?ud.rh:ud.lh;if(h){h.getWorldPosition(_pa);return [_pa.x,_pa.y,_pa.z];}return null;}
+    function tillPlace(){const D=S.tillD;if(!D)return;D.forEach(d=>{const o=d.o;if(!o)return;if(d.m==='hide'){o.visible=false;return;}o.visible=true;
+      if(d.m==='at'){o.position.set(d.p[0],d.p[1],d.p[2]);return;}
+      let q=palmOf(d.who,d.side);if(q){q=[q[0]+d.off[0],q[1]+d.off[1],q[2]+d.off[2]];}else q=d.plan||d.to||d.from||[o.position.x,o.position.y,o.position.z];
+      if(d.from&&d.fk<1)q=vl(d.from,q,d.fk);if(d.to&&d.tk>0)q=vl(q,d.to,Math.min(1,d.tk));o.position.set(q[0],q[1],q[2]);if(d.ry!=null)o.rotation.y=d.ry;});}
     function stepPeople(dt,T_,open){
       people.forEach((g,i)=>{const ud=g.userData;if(!open){g.visible=false;if(ud.stroller)ud.stroller.visible=false;return;}
         if(ud.follow!=null){followParent(g,dt,T_);return;}
@@ -1054,26 +1145,27 @@ const space=(function(){
           const pt=ud.partner!=null?people[ud.partner]:null;
           const pd=pt?Math.hypot(pt.position.x-g.position.x,pt.position.z-g.position.z):0;if(pt&&pt.visible&&!ud.chat&&pd>.5&&pd<1.7&&Math.random()<dt*.08){ud.chat={until:T_+rnd(6,15),sw:T_+3,talker:0};ud.until=Math.max(ud.until,ud.chat.until+1);}
           if(ud.chat){if(!pt||!pt.visible||T_>ud.chat.until){ud.chat=null;ud.lookAtP=null;ud.talking=false;}else{if(T_>ud.chat.sw){ud.chat.sw=T_+rnd(2,4);ud.chat.talker^=1;}ud.faceAng=Math.atan2(pt.position.x-g.position.x,pt.position.z-g.position.z);ud.lookAtP=[pt.position.x,pt.position.z];ud.talking=ud.chat.talker===0;}}
-          ud.ang=angTo(ud.ang,ud.faceAng,Math.min(1,dt*4));g.rotation.y=ud.ang;if(T_>ud.until&&!ud.chat)navNext(g,T_);}
-        else if(ud.state==='queue'){ud.blend=Math.max(0,ud.blend-dt*3);ud.ang=angTo(ud.ang,ud.faceAng,Math.min(1,dt*4));g.rotation.y=ud.ang;const k=ud.slot;
+          ud.ang=angStep(ud.ang,ud.faceAng,4,dt,2.6);g.rotation.y=ud.ang;if(T_>ud.until&&!ud.chat)navNext(g,T_);}
+        else if(ud.state==='queue'){ud.blend=Math.max(0,ud.blend-dt*3);ud.ang=angStep(ud.ang,ud.faceAng,4,dt,2.6);g.rotation.y=ud.ang;const k=ud.slot;
           if(k>0&&!qOcc[k-1]){qOcc[k]=null;qOcc[k-1]=g;ud.slot=k-1;setPath(g,nav.route(gridDyn(g),[g.position.x,g.position.z],nav.queue[k-1]),T_);}
           else if(k>0&&T_-ud.qT>PARAMS.renegeAfter*PARAMS.timeScale&&Math.random()<dt*.05){qOcc[k]=null;ud.legI=ud.visit.length-1;startLeg(g,T_);} // §5 reneging
           else if(k===0)checkout(g,T_);}
         if(ud.stroller)strollerFollow(g,dt);
         const leg=ud.visit[ud.legI],leaving=leg&&(leg.kind==='exit'||leg.kind==='returnBasket'),entering=ud.state==='enter';
-        if(ud.basket){ud.basket.visible=!!ud.hasBasket&&!leaving&&!entering&&!ud.pay;ud.bag.visible=!!ud.buyer&&(leaving||ud.phase==='bag'||ud.phase==='bye');}
+        if(ud.basket){ud.basket.visible=!!ud.hasBasket&&!entering&&(ud.pay?(!ud.basketOnCounter||!!ud.basketL):(!leaving||!!(leg&&leg.kind==='returnBasket')));ud.bag.visible=!!ud.buyer&&(ud.pay?!!ud.bagTaken:leaving);}
         if(ud.stroller&&ud.stroller.userData.bag){ud.stroller.userData.bag.visible=ud.bag.visible;ud.bag.visible=false;}
         if(ud.phoneM)ud.phoneM.visible=!!ud.phone&&ud.state==='queue'&&!ud.pay&&!ud.pushing;
         ud.lookDir=0;poseAny(g,T_,dt,ud.state==='walk'&&!ud.turning&&!ud.yielding?Math.min(ud.sp*ud.blend,ud.vNow!=null?Math.max(ud.vNow,ud.sp*.35):9):0);});
       // nobody overlaps anybody: two bodies closer than half a metre are eased apart (a walker moves, someone standing at a shelf or in the
       // queue stays put; a couple or a parent and child may come closer), only onto walkable floor, so no one ever walks through another
-      {const n=people.length,wt=u=>u.pay||u.state==='queue'?0:(u.state==='walk'||u.follow!=null?1:.4); // walkers give way; someone browsing shuffles a little; the queue and the till stay
+      {const n=people.length,mov=u=>(u.state==='walk'&&(u.vNow||0)>.2)||u.follow!=null,wt=u=>u.pay||u.state==='queue'?0:(mov(u)?1:.25),cap=u=>(mov(u)?.6:.25)*dt; // walkers give way (within their stride); someone standing only shifts a foot; the queue and the till stay
+        const acc=new Map(),add=(g,x,z)=>{const v=acc.get(g)||[0,0];v[0]+=x;v[1]+=z;acc.set(g,v);}; // all pushes on a person are summed, then limited once (two neighbours must not push twice as fast)
         for(let a=0;a<n;a++){const A=people[a];if(!A.visible)continue;const ua=A.userData;
           for(let b=a+1;b<n;b++){const B=people[b];if(!B.visible)continue;const ub=B.userData,pair=ua.follow===b||ub.follow===a||ua.partner===b||ub.partner===a,r=pair?.42:.5;
             let dx=B.position.x-A.position.x,dz=B.position.z-A.position.z,L=Math.hypot(dx,dz);if(L>=r)continue;if(L<1e-3){dx=Math.cos(a*2.4),dz=Math.sin(a*2.4);L=1;}
-            const wa=wt(ua),wb=wt(ub),ws=wa+wb;if(!ws)continue;const mv=Math.min(r-L,.06+dt*.8),ux=dx/L*mv,uz=dz/L*mv;
-            const put=(g,px,pz)=>{const [ci,cj]=nav.toCell(px,pz);if(nav.free(gridOf(g),ci,cj))g.position.set(px,floorY(px,pz),pz);};
-            if(wa)put(A,A.position.x-ux*wa/ws,A.position.z-uz*wa/ws);if(wb)put(B,B.position.x+ux*wb/ws,B.position.z+uz*wb/ws);}}}
+            const wa=wt(ua),wb=wt(ub),ws=wa+wb;if(!ws)continue;const mv=r-L,ux=dx/L,uz=dz/L;
+            if(wa)add(A,-ux*mv*wa/ws,-uz*mv*wa/ws);if(wb)add(B,ux*mv*wb/ws,uz*mv*wb/ws);}}
+        acc.forEach((v,g)=>{const L=Math.hypot(v[0],v[1]),c=cap(g.userData),k=L>c?c/L:1,px=g.position.x+v[0]*k,pz=g.position.z+v[1]*k,[ci,cj]=nav.toCell(px,pz);if(nav.free(gridOf(g),ci,cj))g.position.set(px,floorY(px,pz),pz);});} // never faster than a step: no gliding
       // §8 restocking staff: on the shelf 10–20 min every 1–2 h (scene-time scaled)
       const rs=extras.find(x=>x.userData.state==='restock'||x.userData.restocker);if(rs){const u=rs.userData;u.restocker=true;if(u.rsUntil==null){u.rsOn=true;u.rsUntil=T_+rr(PARAMS.restockOn)*PARAMS.timeScale*.15;}if(T_>u.rsUntil){u.rsOn=!u.rsOn;u.rsUntil=T_+(u.rsOn?rr(PARAMS.restockOn):rr(PARAMS.restockEvery)*.25)*PARAMS.timeScale*.15;}rs.visible=open&&u.rsOn;}
       // the flow layer: planned polylines of the shoppers currently inside
@@ -1117,7 +1209,7 @@ const space=(function(){
       const basket=new T.Group();basket.add(new T.Mesh(SHARED.basket(),M.vc2));
       basket.visible=false;g.add(basket);
       const bag=SHARED.bag();bag.visible=false;g.add(bag);
-      const ph=new T.Mesh(SHARED.phone(),M.vc2);ph.visible=false;g.add(ph);
+      const ph=new T.Group();{const pb=new T.Mesh(SHARED.phone(),M.vc2),scr=new T.Mesh(new T.PlaneGeometry(.062,.128),M.phoneScr||(M.phoneScr=new T.MeshBasicMaterial({color:0xcfe0ff})));scr.position.z=.0058;ph.add(pb,scr);}ph.visible=false;g.add(ph); // a real phone: dark body, lit screen
       const it=new T.Mesh(SHARED.item((Math.random()*5)|0),M.vc);it.visible=false;it.castShadow=false;g.add(it);ud.itemM=it;const cd=new T.Mesh(SHARED.card(),M.vc);cd.visible=false;g.add(cd);ud.cardM=cd;const nt=new T.Mesh(SHARED.note(),M.vc);nt.visible=false;g.add(nt);ud.noteM=nt;
       const bl=new T.Mesh(SHARED.blob(),M.blob);bl.scale.setScalar(.34*k);bl.rotation.x=-Math.PI/2;bl.position.y=.012;bl.renderOrder=1;g.add(bl);
       ud.basket=basket;ud.bag=bag;ud.phoneM=ph;ud.arms=[{userData:{hd:ud.lh||g}},{userData:{hd:ud.rh||g}}];ud.legs=[];return g;}
@@ -1140,7 +1232,7 @@ const space=(function(){
         if(st==='browse'&&Math.random()<.004&&!F.surp)F.surp=now+.5;if(F.surp&&now>F.surp+.3)F.surp=null;ease('surprise',F.surp&&now<F.surp?.3:0,.3);
         const talking=/talk/.test(ud.clip||'');ease('jaw',talking?.15+.2*Math.abs(Math.sin(now*9+(ud.ph||0))):0,.4);ease('oh',talking&&Math.sin(now*3.7)>.6?.25:0,.3);}
       // hand-held props follow the hand bones but stay upright (basket / bag hang from the palm)
-      if(ud.rh){ud.rh.getWorldPosition(_hv);g.worldToLocal(_hv);ud.basket.position.set(_hv.x,_hv.y-.2,_hv.z);ud.bag.position.set(_hv.x,_hv.y-.24,_hv.z);ud.basket.rotation.y=ud.bag.rotation.y=0;}
+      if(ud.rh){ud.rh.getWorldPosition(_hv);g.worldToLocal(_hv);ud.bag.position.set(_hv.x,_hv.y-.24,_hv.z);const bh=ud.basketL&&ud.lh?ud.lh:ud.rh;bh.getWorldPosition(_hv);g.worldToLocal(_hv);ud.basket.position.set(_hv.x,_hv.y-.2,_hv.z);ud.basket.rotation.y=ud.bag.rotation.y=0;}
       if(ud.lh&&ud.phoneM){ud.lh.getWorldPosition(_hv);g.worldToLocal(_hv);ud.phoneM.position.set(_hv.x,_hv.y+.02,_hv.z+.05);ud.phoneM.rotation.x=-.9;}}
     function poseAny(g,t,dt,v){if(g.userData.gltfP)gltfPose(g,v);else posePerson(g,t,dt,v);}
     // after the mixer: head yaw toward whoever the person looks at, pitch for a child looking up / elderly looking down / a nod when handed the bag
@@ -1154,22 +1246,54 @@ const space=(function(){
     // hands at work: a shopper at a shelf or fridge reaches in and takes a product (it rides in the hand to the basket), a customer at the till
     // puts the items on the counter one by one, the cashier reaches for each item she scans – arm bones aimed on top of the clip, nothing new to load
     const _rt=new T.Vector3();
+    function armBones(g){const ud=g.userData;if(!ud.armB){const B=n=>g.getObjectByName('Bip01_'+n)||g.getObjectByName('Bip02_'+n);ud.armB=['L','R'].map(s_=>[B(s_+'_UpperArm'),B(s_+'_Forearm'),B(s_+'_Hand')]);}return ud.armB;}
+    // a real arm: shoulder–elbow–wrist solved exactly (law of cosines), the elbow kept down, out and a little back (no flips), and when the
+    // target is further than the arm the body leans forward from the waist; targets and weights are smoothed, so a hand never trembles or jumps
+    const _S0=new T.Vector3(),_E0=new T.Vector3(),_W0=new T.Vector3(),_Dv=new T.Vector3(),_Ed=new T.Vector3(),_Wd=new T.Vector3(),_pl=new T.Vector3(),_rv=new T.Vector3(),_fv=new T.Vector3(),_lq=new T.Quaternion();
+    function ik2(g,side,tg,w){const a=armBones(g)[side];if(!a[0]||!a[1]||!a[2]||w<.004)return;
+      a[0].getWorldPosition(_S0);a[1].getWorldPosition(_E0);a[2].getWorldPosition(_W0);const l1=_S0.distanceTo(_E0),l2=_E0.distanceTo(_W0);
+      _Dv.copy(tg).sub(_S0);let d=_Dv.length();if(d<1e-4)return;_Dv.multiplyScalar(1/d);d=Math.min(Math.max(d,Math.abs(l1-l2)+.02),(l1+l2)*.985);
+      const ry=g.rotation.y;_fv.set(Math.sin(ry),0,Math.cos(ry));_rv.set(-_fv.z,0,_fv.x);if(!side)_rv.negate(); // outward = this arm's side
+      _pl.set(0,-1,0).addScaledVector(_rv,.55).addScaledVector(_fv,-.3);_pl.addScaledVector(_Dv,-_pl.dot(_Dv));if(_pl.lengthSq()<1e-6)_pl.set(0,-1,0);_pl.normalize();
+      const x=(l1*l1-l2*l2+d*d)/(2*d),h=Math.sqrt(Math.max(0,l1*l1-x*x));_Ed.copy(_S0).addScaledVector(_Dv,x).addScaledVector(_pl,h);_Wd.copy(_S0).addScaledVector(_Dv,d);
+      aimBone(a[0],a[1],_Ed,w);aimBone(a[1],a[2],_Wd,w);}
+    function leanTo(g,ang){const ud=g.userData;if(ud.spB===undefined){const B=n=>g.getObjectByName('Bip01_'+n)||g.getObjectByName('Bip02_'+n);ud.spB=[B('Spine1'),B('Spine2')].filter(Boolean);}
+      if(!ud.spB.length||Math.abs(ang)<.002)return;const ry=g.rotation.y;_rv.set(Math.cos(ry),0,-Math.sin(ry)); // the person's left: turning about it bends the chest forward
+      ud.spB.forEach((b,i)=>{_lq.setFromAxisAngle(_rv,ang*(i?.45:.55));b.getWorldQuaternion(_qb);_qb.premultiply(_lq);b.parent.getWorldQuaternion(_q).invert();b.quaternion.copy(_q.multiply(_qb));b.updateMatrixWorld(true);});}
+    function armsApply(g,R,dt){const ud=g.userData,A=ud.armS||(ud.armS=[{t:new T.Vector3(),w:0,on:false},{t:new T.Vector3(),w:0,on:false}]),kt=1-Math.exp(-dt*26),kw=1-Math.exp(-dt*16);let lean=0;
+      A.forEach((s_,i)=>{const r=R[i];if(r){if(!s_.on){s_.t.set(r.p[0],r.p[1],r.p[2]);s_.on=true;}else{_rt.set(r.p[0],r.p[1],r.p[2]);s_.t.lerp(_rt,kt);}}s_.w+=((r?r.w:0)-s_.w)*kw;if(s_.w<.004&&!r){s_.w=0;s_.on=false;}
+        if(s_.on&&s_.w>0){const k=ud.k||1,hz=Math.hypot(s_.t.x-g.position.x,s_.t.z-g.position.z);lean=Math.max(lean,clamp((hz-.38*k)/.3,0,1)*.36*s_.w*(s_.t.y<1.35*k?1:.4));}});
+      // the lean comes from where the target is relative to the feet, not to the shoulder (which the lean itself moves): no feedback, no rocking
+      ud.leanS=(ud.leanS||0)+(lean-(ud.leanS||0))*(1-Math.exp(-dt*6));leanTo(g,ud.leanS);
+      A.forEach((s_,i)=>{if(s_.on&&s_.w>.004)ik2(g,i,s_.t,s_.w);});}
     function reachArm(g,tg,w){const ud=g.userData;if(!ud.armB){const B=n=>g.getObjectByName('Bip01_'+n)||g.getObjectByName('Bip02_'+n);ud.armB=['L','R'].map(s_=>[B(s_+'_UpperArm'),B(s_+'_Forearm'),B(s_+'_Hand')]);}
       const a=ud.armB[1];if(!a[0]||!a[1]||!a[2]||w<.01)return;aimBone(a[0],a[1],tg,w);aimBone(a[1],a[2],tg,w);}
-    function handItem(g,show){const ud=g.userData,it=ud.itemM;if(!it)return;it.visible=show;if(show&&ud.rh){ud.rh.getWorldPosition(_hv);g.worldToLocal(_hv);it.position.set(_hv.x,_hv.y-.02,_hv.z);}}
-    function hands(g,dt){const ud=g.userData;let show=false;
+    function handItem(g,show){const ud=g.userData,it=ud.itemM;if(!it)return;it.visible=show;if(show&&ud.rh){const pp=palmOf(g,1);if(pp)_hv.set(pp[0],pp[1],pp[2]);else ud.rh.getWorldPosition(_hv);g.worldToLocal(_hv);it.position.set(_hv.x,_hv.y-.03,_hv.z);}} // held in the palm, not inside the wrist
+    function hands(g,dt){const ud=g.userData;let show=false;const RB=[null,null];
       if(ud.state==='browse'&&!ud.pushing&&!ud.isChild&&!ud.phone){const r=ud.rch||(ud.rch={t:0,next:.5+Math.random()*1.2,p:-1});r.t+=dt;
         if(r.p<0&&r.t>r.next&&(ud.until||0)-performance.now()/1000>1.9){r.p=0;const fa=ud.faceAng!=null?ud.faceAng:g.rotation.y,k=ud.k||1,h=(.85+Math.random()*.7)*k;r.tg=[g.position.x+Math.sin(fa)*.55,g.position.y+h,g.position.z+Math.cos(fa)*.55];}
-        if(r.p>=0){r.p+=dt/1.8;const w=r.p<.38?r.p/.38:r.p<.55?1:Math.max(0,(1-r.p)/.45);_rt.set(r.tg[0],r.tg[1],r.tg[2]);reachArm(g,_rt,w*.95);show=r.p>.46&&r.p<.97;if(r.p>=1){r.p=-1;r.next=r.t+1.6+Math.random()*2.8;}}}
+        if(r.p>=0){r.p+=dt/1.8;const w=tE(r.p<.38?r.p/.38:r.p<.55?1:Math.max(0,(1-r.p)/.45));RB[1]={p:r.tg,w:w*.95};show=r.p>.46&&r.p<.97;if(r.p>=1){r.p=-1;r.next=r.t+1.6+Math.random()*2.8;}}}
       else if(ud.rch){ud.rch.p=-1;}
-      if(ud.placeTg){const q=ud.placeQ||0,w=Math.sin(Math.PI*q);_rt.set(ud.placeTg[0],ud.placeTg[1]+.04,ud.placeTg[2]);reachArm(g,_rt,w*.9);show=show||q<.5;}
       if(ud.phoneM){const on=!!ud.clip&&ud.clip.indexOf('phone')===0&&!!ud.rh;ud.phoneM.visible=on; // a phone really in the hand while looking at it
-        if(on){const lh=ud.lh||ud.rh;ud.rh.getWorldPosition(_hv);lh.getWorldPosition(_rt);const hand=_rt.y>_hv.y?lh:ud.rh;hand.getWorldPosition(_hv);g.worldToLocal(_hv);ud.phoneM.position.set(_hv.x,_hv.y+.02,_hv.z);if(ud.headB){ud.headB.getWorldPosition(_rt);ud.phoneM.lookAt(_rt);}}}
-      if(ud.cardM){const tap=ud.phase==='tap'&&S.termP,cash=ud.phase==='cash'&&S.counterItems;if(tap){_rt.set(S.termP[0],S.termP[1]+.06,S.termP[2]);reachArm(g,_rt,.9);}else if(cash){const a_=S.counterItems[0].userData.a;_rt.set(a_[0]-.05,a_[1]+.03,a_[2]);reachArm(g,_rt,.8);}
-        ud.cardM.visible=!!tap;ud.noteM.visible=!!cash;const pm=tap?ud.cardM:cash?ud.noteM:null;if(pm&&ud.rh){ud.rh.getWorldPosition(_hv);g.worldToLocal(_hv);pm.position.set(_hv.x,_hv.y-.01,_hv.z);pm.rotation.set(-.4,g.rotation.y*0,0);}}
-      if(ud.scanTg){const w=.55+.35*Math.sin(ud.scanQ*Math.PI*2);_rt.set(ud.scanTg[0],ud.scanTg[1]+.05,ud.scanTg[2]);reachArm(g,_rt,w);}
+        if(on){const lh=ud.lh||ud.rh;ud.rh.getWorldPosition(_hv);lh.getWorldPosition(_rt);const hand=_rt.y>_hv.y?lh:ud.rh,pp=palmOf(g,hand===ud.lh?0:1);if(pp)_hv.set(pp[0],pp[1],pp[2]);else hand.getWorldPosition(_hv);g.worldToLocal(_hv);ud.phoneM.position.set(_hv.x,_hv.y+.015,_hv.z); /* in the palm, in front of the fingers — at the wrist it was buried inside the hand */if(ud.headB){ud.headB.getWorldPosition(_rt);ud.phoneM.lookAt(_rt);}}}
+      if(ud.ikReq){if(ud.ikReq[0])RB[0]=ud.ikReq[0];if(ud.ikReq[1])RB[1]=ud.ikReq[1];}
+      armsApply(g,RB,dt);
+      if(ud.cardM){ud.cardM.visible=!!ud.cardOn;if(ud.noteM)ud.noteM.visible=false;if(ud.cardOn){const p=palmOf(g,1);if(p){_hv.set(p[0],p[1],p[2]);g.worldToLocal(_hv);ud.cardM.position.set(_hv.x,_hv.y-.01,_hv.z);ud.cardM.rotation.set(-.4,0,0);}}}
       handItem(g,show);}
-    function gltfHeads(dt){people.concat(extras).forEach(g=>{const ud=g.userData;if(!ud.gltfP||!g.visible||ud.culled){ud.hShow=null;ud.nShow=null;return;}if(ud.pushing)pushArms(g);else hands(g,dt);if(ud.headB===undefined)ud.headB=g.getObjectByName('Bip01_Head')||g.getObjectByName('Bip02_Head')||null;const hb=ud.headB;if(!hb)return;
+    // AnimationMixer only writes a bone when the clip's value changed since the last frame; in calm clips (waiting, standing) the spine and
+    // arms hardly change, so whatever we added last frame would stay and the next addition would stack on it (a slowly growing lean that
+    // suddenly snaps back = trembling). Each bone we touch is first returned to its clean animated pose, then modified, then remembered.
+    function poseBones(g){const ud=g.userData;if(!ud.pB){armBones(g);if(ud.spB===undefined)leanTo(g,0);ud.pB=[].concat(...(ud.armB||[]).map(a=>[a[0],a[1]]),ud.spB||[]).filter(Boolean);}return ud.pB;}
+    function poseIn(g){poseBones(g).forEach(b=>{const d=b.userData;if(d.qo&&b.quaternion.equals(d.qo))b.quaternion.copy(d.qi);(d.qi||(d.qi=new T.Quaternion())).copy(b.quaternion);});}
+    function poseOut(g){poseBones(g).forEach(b=>{const d=b.userData;(d.qo||(d.qo=new T.Quaternion())).copy(b.quaternion);});}
+    // feet on the floor: every model learns its own ankle height while standing; while walking the body is eased up or down so the lower
+    // foot keeps that height (a clip or a skeleton that rides a little high or low no longer floats or sinks)
+    const _fa=new T.Vector3();
+    function ground(g,dt){const ud=g.userData,m=g.children[0];if(!m||ud.isChild||ud.state==='restock')return;if(ud.ftB===undefined){const B=n=>g.getObjectByName('Bip01_'+n)||g.getObjectByName('Bip02_'+n);ud.ftB=[B('L_Foot'),B('R_Foot')].filter(Boolean);ud.gBase=m.position.y;ud.ftRef=.09*(ud.k||1);}
+      if(ud.ftB.length<2)return;ud.ftB[0].getWorldPosition(_fa);let y=_fa.y;ud.ftB[1].getWorldPosition(_fa);y=Math.min(y,_fa.y);const fl=floorY(g.position.x,g.position.z),off=ud.gOff||0,walk=/walk/.test(ud.clip||''),k=1-Math.exp(-dt*4);
+      if(!walk){ud.ftRef+=((y-off-fl)-ud.ftRef)*k*.5;ud.gOff=off*(1-k);}else ud.gOff=clamp(off-(y-fl-ud.ftRef)*k,-.22,.06);
+      m.position.y=ud.gBase+ud.gOff;}
+    function gltfHeads(dt){people.concat(extras).forEach(g=>{const ud=g.userData;if(!ud.gltfP||!g.visible||ud.culledFar){ud.hShow=null;ud.nShow=null;return;}ground(g,dt);poseIn(g);if(ud.pushing)pushArms(g);else hands(g,dt);poseOut(g);if(ud.headB===undefined)ud.headB=g.getObjectByName('Bip01_Head')||g.getObjectByName('Bip02_Head')||null;const hb=ud.headB;if(!hb)return;
       // a living face (the models carry smile, squint, blink, jaw, oh, brows): a friendly resting expression of their own, natural blinks,
       // now and then a real smile with the eyes, a big one at the till and when taking the bag, the mouth moving while talking; near faces only
       if(ud.face&&g.position.distanceToSquared(camera.position)<110){const f=ud.fx||(ud.fx={t:0,mood:ud.cashier?1.7:1.3+Math.random()*.4,blink:1+Math.random()*3,grin:3+Math.random()*9,gT:0,sm:0,br:0});f.t+=dt;
@@ -1352,8 +1476,8 @@ const space=(function(){
       {const po=new T.Mesh(new T.PlaneGeometry(.6,.5),M.poster);po.position.set(ckX+ckW/2-.5,.55,ckZ+.41);room.add(po);
         const px=ckX+ckW/2-.3;cbox(.3,.02,.2,BLK,px,1.05,ckZ-.05);cbox(.03,.14,.03,BLK,px,1.12,ckZ-.05);
         const mon=new T.Group();mon.position.set(px,1.3,ckZ-.05);mon.rotation.y=-.35;mon.rotation.x=-.15;const bz=new T.Mesh(new T.BoxGeometry(.34,.24,.02),M.unit);const sc=new T.Mesh(new T.PlaneGeometry(.31,.21),M.screen);sc.position.z=.011;mon.add(bz,sc);room.add(mon);S.screen=sc;
-        const term=new T.Group();term.position.set(px+.02,1.06,ckZ+.25);term.rotation.y=.5;term.rotation.x=-.3;const tb=new T.Mesh(new T.BoxGeometry(.085,.03,.15),M.unit);const ts=new T.Mesh(new T.PlaneGeometry(.06,.035),M.screen2);ts.rotation.x=-Math.PI/2;ts.position.set(0,.016,-.045);const keys=new T.Mesh(new T.PlaneGeometry(.06,.06),M.keys);keys.rotation.x=-Math.PI/2;keys.position.set(0,.016,.03);term.add(tb,ts,keys);room.add(term);S.termP=[term.position.x,term.position.y,term.position.z];
-        cbox(.16,.1,.2,BLK,px-.32,1.09,ckZ-.15);cbox(.1,.02,.02,WHT,px-.32,1.15,ckZ-.06);cbox(.06,.06,.06,BLK,ckX-ckW/2+.3,1.07,ckZ+.15);S.cashier=[px,ckZ-.6];}
+        const term=new T.Group();term.position.set(ckX+ckW/2-.08,1.06,ckZ-.31);term.rotation.y=Math.PI/2;term.rotation.x=-.3; /* the card terminal stands at the customer's end, within reach */const tb=new T.Mesh(new T.BoxGeometry(.085,.03,.15),M.unit);const ts=new T.Mesh(new T.PlaneGeometry(.06,.035),M.screen2);ts.rotation.x=-Math.PI/2;ts.position.set(0,.016,-.045);const keys=new T.Mesh(new T.PlaneGeometry(.06,.06),M.keys);keys.rotation.x=-Math.PI/2;keys.position.set(0,.016,.03);term.add(tb,ts,keys);room.add(term);S.termP=[term.position.x,term.position.y,term.position.z];
+        cbox(.16,.1,.2,BLK,px-.32,1.09,ckZ-.15);cbox(.1,.02,.02,WHT,px-.32,1.15,ckZ-.06);cbox(.06,.06,.06,BLK,ckX-ckW/2+.3,1.07,ckZ+.15);S.cashier=[px,ckZ-.54];}
       label('Каса',ckX,1.5,ckZ);
       {const tz0=ckZ-.9,tz1=Math.min(ckZ+.6,hd-.25),tl=tz1-tz0;if(tl>.8){blk(-hw+.16,(tz0+tz1)/2,.34,tl);box(.3,2.2,tl,M.oak,-hw+.16,1.1,(tz0+tz1)/2);for(let lv=0;lv<7;lv++)box(.34,.015,tl,M.oak,-hw+.18,.22+lv*.27,(tz0+tz1)/2,false);for(let lv=0;lv<7;lv++)for(let z=tz0+.06;z<tz1-.05;z+=.1*dens)put('pack',-hw+.33,.23+lv*.27,z,.055,.09,.024,pick_(['#c9a24a','#b7b7b7','#274a7a','#8c3b2e','#e6e2d8','#3a3a3a','#2f6fb5']));label('Цигари',-hw+.35,2.45,(tz0+tz1)/2);
         cgeo(new T.CylinderGeometry(.065,.065,.48,8),'#c41e1e',-hw+.16,.65,tz0-.25);cgeo(new T.CylinderGeometry(.03,.05,.08,8),BLK,-hw+.16,.93,tz0-.25);cbox(.06,.05,.16,BLK,-hw+.1,.7,tz0-.25);}}
@@ -1517,7 +1641,7 @@ const space=(function(){
       nav.entry=nf(doorX+.2,hd+1.2);nav.exit=nf(doorX-.2,hd+1.2);
       // queue places: the first beside the till, the rest 0.8 m apart behind it; where a shelf cuts that line off, the place moves a little further
       // back or bends out into the aisle, and a place that would land on top of another is simply not made (fewer people wait, nobody stacks)
-      {const qx=ckX+ckW/2+.6,qz0=ckZ+.1,gap=PARAMS.queueGap,Q=[];
+      {const qx=ckX+ckW/2+.42,qz0=ckZ+.1,gap=PARAMS.queueGap,Q=[];
         for(let k=0;k<4;k++){const cand=[];for(let e=0;e<=1.0;e+=.25)cand.push([qx,qz0-k*gap-e]);for(let j=1;j<=3;j++)cand.push([qx+j*.4,qz0-k*gap],[qx+j*.4,qz0-k*gap-.4],[qx+j*.4,qz0-k*gap+.4]);
           let q=null;for(const c of cand){const p=nf(c[0],c[1]),prev=Q[Q.length-1];if(Q.every(s=>Math.hypot(s[0]-p[0],s[1]-p[1])>=.7)&&(!prev||Math.hypot(prev[0]-p[0],prev[1]-p[1])<=1.5)){q=p;break;}}
           if(!q)break;Q.push(q);}
@@ -1525,12 +1649,16 @@ const space=(function(){
       qOcc.length=0;nav.queue.forEach(()=>qOcc.push(null));
       nav.stack=nf(doorX-doorW/2-.35,hd-1.1);
       if(A>=60){nav.G35X=nav.G35.slice();nav.queue.forEach(q=>{const [i,j]=nav.toCell(q[0],q[1]);for(let dj=-1;dj<=1;dj++)for(let di=-1;di<=1;di++){const ii=i+di,jj=j+dj;if(ii>=0&&jj>=0&&ii<nav.cols&&jj<nav.rows)nav.G35X[jj*nav.cols+ii]=1;}});}
-      {const cb=new T.Mesh(mergeColored([[new T.CylinderGeometry(.15,.12,.2,8,1,true),'#d0212b'],[new T.CircleGeometry(.12,8).rotateX(Math.PI/2).translate(0,-.1,0),'#d0212b'],[new T.TorusGeometry(.14,.008,4,10,Math.PI).translate(0,.1,0),'#3a1a14']]),M.vc2);cb.position.set(ckX+ckW/2-.05,1.14,ckZ+.15);cb.visible=false;room.add(cb);S.counterBasket=cb;
-        const bp=new T.Mesh(new T.BoxGeometry(.03,.03,.03),M.led);bp.position.set(ckX+ckW/2-.2,1.07,ckZ-.16);bp.visible=false;room.add(bp);S.beep=bp;
-        // the customer's items on the counter: unscanned at the customer's end, scanned ones slide past the scanner
-        const cols=['#c8382e','#2f6fb5','#e0b23a','#3c7a3e','#5b2d8e','#e8e2d0','#f28c28','#1b1917'],px=ckX+ckW/2-.3;S.counterItems=[];
+      {const E_=ckX+ckW/2,cb=new T.Mesh(mergeColored([[new T.CylinderGeometry(.15,.12,.2,8,1,true),'#d0212b'],[new T.CircleGeometry(.12,8).rotateX(Math.PI/2).translate(0,-.1,0),'#d0212b'],[new T.TorusGeometry(.14,.008,4,10,Math.PI).translate(0,.1,0),'#3a1a14']]),M.vc2);cb.position.set(E_-.15,1.14,ckZ+.12);cb.visible=false;room.add(cb);S.counterBasket=cb;
+        const bp=new T.Mesh(new T.BoxGeometry(.03,.03,.03),M.led);bp.position.set(E_-.2,1.07,ckZ-.16);bp.visible=false;room.add(bp);S.beep=bp;
+        // till points: where the basket stands, where unscanned items wait, the scanner, the open bag, the hand-over point, the cash drawer
+        S.tl={basket:[E_-.15,1.14,ckZ+.12],a:[[E_-.05,ckZ-.1],[E_-.15,ckZ-.07],[E_-.08,ckZ-.21]],scan:[E_-.2,1.16,ckZ-.16],bag:[E_-.66,1.04+.165,ckZ-.13],bagStore:[E_-.6,.86,ckZ-.5],H:[E_+.08,1.42,ckZ-.24],drawer:[E_-.3,1.0,ckZ-.34]};
+        const ob=mkOpenBag();ob.position.set(S.tl.bag[0],S.tl.bag[1],S.tl.bag[2]);ob.visible=false;room.add(ob);S.counterBag=ob;
+        const nt=new T.Mesh(new T.BoxGeometry(.14,.003,.07),new T.MeshStandardMaterial({color:0x7fae86,roughness:.8}));nt.visible=false;room.add(nt);S.tillNote=nt;
+        // the customer's items: each has its own place in the basket, its spot on the counter while it waits for the scanner
+        const cols=['#c8382e','#2f6fb5','#e0b23a','#3c7a3e','#5b2d8e','#e8e2d0','#f28c28','#1b1917'];S.counterItems=[];
         for(let j=0;j<8;j++){const bottle=j%3===0,geo=bottle?new T.CylinderGeometry(.035,.035,.24,8):new T.BoxGeometry(.09,.13,.06),m=new T.Mesh(mergeColored([[geo,cols[j]]]),M.vc);m.castShadow=true;const hy=bottle?.12:.065;
-          m.userData.a=[ckX+ckW/2-.1-(j%2)*.12,1.04+hy,ckZ+.05+((j/2)|0)*.075];m.userData.b=[px-.42-(j%3)*.12,1.04+hy,ckZ-.02+((j/3)|0)*.1];m.visible=false;room.add(m);S.counterItems.push(m);}}
+          const sp=S.tl.a[j%3],an=j*2.4;m.userData.hy=hy;m.userData.a=[sp[0],1.04+hy,sp[1]];m.userData.bo=[Math.cos(an)*.075*(j%2?1:.55),Math.sin(an)*.075*(j%2?1:.55)];m.visible=false;room.add(m);S.counterItems.push(m);}}
       S.mainX=aR;S.zTop=zTop;flowDirty=true;
       {const c=nav.browse.filter(x=>x.tag==='coffee'||x.tag==='sweets');S.restock=c.length?c[(Math.random()*c.length)|0]:null;if(S.restock){const [i,j]=nav.toCell(S.restock.p[0],S.restock.p[1]);[nav.G0,nav.G35,nav.G55,nav.G35X].forEach(g=>{for(let dj=-1;dj<=1;dj++)for(let di=-1;di<=1;di++){const ii=i+di,jj=j+dj;if(ii>=0&&jj>=0&&ii<nav.cols&&jj<nav.rows&&(g!==nav.G0||(di===0&&dj===0)))g[jj*nav.cols+ii]=1;}});nav.browse=nav.browse.filter(x=>x!==S.restock);}}
       flowLine=new T.Mesh(new T.BufferGeometry(),M.flow);flowLine.renderOrder=2;flowLine.frustumCulled=false;flowLine.visible=$('#lyFlow').checked;room.add(flowLine);
@@ -1848,7 +1976,7 @@ const space=(function(){
       S.units.forEach(u=>{u.led.visible=PEST?false:on;u.pin.classList.toggle('off',PEST?false:!on);});
       M.led.color.setScalar(.3+.7*clamp((lightK-.45)/.55,0,1));if(S.lights)S.lights.forEach(l=>{l.intensity=.22*lightK;});if(S.coolLight)S.coolLight.intensity=.3*(.4+.6*lightK);
       if(S.sign){const sm=open?M.signOpen:M.signClosed;if(S.sign.material!==sm){S.sign.material=sm;S.sign2.material=sm;}}
-      extras.forEach(e=>{if(!e.userData.restocker)e.visible=open;if(e.visible)poseAny(e,now/1000,dt,0);});const _t2=DIAG?performance.now():0;if(GL()){window.KL_GLTF.update(dt);gltfHeads(dt);}const _t3=DIAG?performance.now():0;
+      extras.forEach(e=>{if(!e.userData.restocker)e.visible=open;if(e.visible&&!window.__frz)poseAny(e,now/1000,dt,0);});const _t2=DIAG?performance.now():0;if(GL()&&!window.__frz){window.KL_GLTF.update(dt);gltfHeads(dt);}if(!window.__frz)tillPlace();const _t3=DIAG?performance.now():0;
       if(PEST){
         // UV Обход: while the tour holds just inside the door, a pale-teal wash washes over, the entry-path traces fluoresce and flow toward the
         // boxes in sequence, each control ring pulses and a gold „контрол“ seal lights onto the box — then it all resolves to the warm daytime look
@@ -1873,7 +2001,7 @@ const space=(function(){
       stepP(dt,on,false);stepHeat(dt);
       if(nav&&!window.__frz)stepPeople(dt,now/1000,open);const _t4=DIAG?performance.now():0;
       camera.updateMatrixWorld();_fm.multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse);_fr.setFromProjectionMatrix(_fm);
-      people.concat(extras).forEach(p=>{if(!p.visible)return;const d=Math.hypot(p.position.x-camera.position.x,p.position.z-camera.position.z);_sp.center.set(p.position.x,p.position.y+.9,p.position.z);const inV=_fr.intersectsSphere(_sp);p.userData.culled=!inV;if(p.userData.gltfP){if(p.children[0])p.children[0].visible=d>.6&&inV;}else if(p.userData.skin){const m=p.userData.skin.material,o=Math.max(0,Math.min(1,(d-.35)/.5));if(o<1||m.transparent){m.transparent=o<1;m.opacity=o;m.depthWrite=o>=.5;}}});
+      people.concat(extras).forEach(p=>{if(!p.visible)return;const d=Math.hypot(p.position.x-camera.position.x,p.position.z-camera.position.z);_sp.center.set(p.position.x,p.position.y+.9,p.position.z);const inV=_fr.intersectsSphere(_sp);p.userData.culled=!inV;_sp.radius=2.6;p.userData.culledFar=!_fr.intersectsSphere(_sp);_sp.radius=1.15; /* arms and hands keep being posed a little beyond the frame edge, so nobody walks into view mid-snap */if(p.userData.gltfP){if(p.children[0])p.children[0].visible=d>.6&&inV;}else if(p.userData.skin){const m=p.userData.skin.material,o=Math.max(0,Math.min(1,(d-.35)/.5));if(o<1||m.transparent){m.transparent=o<1;m.opacity=o;m.depthWrite=o>=.5;}}});
       const w=w0||stage.clientWidth,h=h0||stage.clientHeight;
       const kept=[],LBL=stage.classList.contains('show-labels');overlay.forEach(o=>{if(o.kind==='lbl'&&!LBL){o.off=true;return;}v3.copy(o.v).project(camera);o.sx=(v3.x+1)/2*w;o.sy=(1-v3.y)/2*h;o.sz=v3.z;o.off=v3.z>1||v3.x<-1.1||v3.x>1.1||v3.y<-1.1||v3.y>1.1;});
       let HR=null;if(hud&&hudIn&&hud.offsetParent){const a=hud.getBoundingClientRect(),b=stage.getBoundingClientRect();HR=[a.left-b.left,a.top-b.top,a.right-b.left,a.bottom-b.top];}
@@ -1899,6 +2027,43 @@ const space=(function(){
     window.__navStress=(steps,dt)=>{dt=dt||.05;let viol=0,samples=0;const ex=[];if(window.__simT==null)window.__simT=performance.now()/1000;for(let s=0;s<steps;s++){window.__simT+=dt;stepPeople(dt,window.__simT,true);extras.forEach(e=>{if(e.visible)poseAny(e,window.__simT,dt,0);});if(GL())window.KL_GLTF.update(dt);const v=navViol();samples+=people.length;if(v.length){viol+=v.length;if(ex.length<5)ex.push(v[0]);}}return {steps,samples,viol,ex,failed:nav.failed(),people:people.length};};
     window.__navCheck=sec=>new Promise(res=>{let viol=0,samples=0,frames=0;const ex=[];const t0=performance.now();const tick=()=>{frames++;const v=navViol();samples+=people.length;if(v.length){viol+=v.length;if(ex.length<5)ex.push(v[0]);}if(performance.now()-t0<sec*1000)requestAnimationFrame(tick);else res({frames,samples,viol,ex});};requestAnimationFrame(tick);});
     window.__freeze=b=>{window.__frz=!!b;};
+    // debug: an unnatural-motion audit. Freezes the loop, runs the people for `secs` in fixed steps (no drawing) and measures, every frame,
+    // for everyone visible: jumps (teleports), snapping turns, feet sliding (moving without walking) / walking on the spot, hand and head
+    // tremor (direction reversals of fast small moves), people inside each other or inside fixtures, feet off / into the floor, props that jump.
+    window.__motion=(secs,dt)=>{dt=dt||1/30;const N=Math.round(secs/dt),was=!!window.__frz;window.__frz=true;if(window.__simT==null)window.__simT=performance.now()/1000;
+      const R={teleport:[],spin:[],slide:[],moon:[],handTrem:[],headTrem:[],overlap:[],inFixture:[],feet:[],propJump:[],nan:0},seen=new Map(),props=new Map();
+      const lbl=g=>{const u=g.userData;return (u.cashier?'cashier':u.restocker?'restocker':u.isChild?'child':u.elder?'elder':'adult')+'#'+(people.indexOf(g)>=0?people.indexOf(g):'x'+extras.indexOf(g))+' st='+u.state+' clip='+u.clip+(u.phase?' ph='+u.phase:'')+(u.pushing?' cart':'')+(u.follow!=null?' follow':'');};
+      const B=(g,n)=>g.getObjectByName('Bip01_'+n)||g.getObjectByName('Bip02_'+n),wp=o=>{const v=new T.Vector3();o.getWorldPosition(v);return v;};
+      const push=(k,o)=>{if(R[k].length<400)R[k].push(o);};
+      for(let s=0;s<N;s++){window.__simT+=dt;const T_=window.__simT;stepPeople(dt,T_,true);extras.forEach(e=>{if(e.visible)poseAny(e,T_,dt,0);});if(GL()){window.KL_GLTF.update(dt);gltfHeads(dt);}tillPlace();
+        const all=people.concat(extras).filter(g=>g.visible);
+        all.forEach(g=>{const u=g.userData,p=g.position;if(!isFinite(p.x)||!isFinite(p.z)){R.nan++;return;}if(u.culledFar){seen.delete(g);return;}
+          let h=seen.get(g);if(!h){h={p:p.clone(),ry:g.rotation.y,hand:null,hv:null,hr:0,head:null,dv:null,drv:0,mv:0};seen.set(g,h);return;}
+          const sp=Math.hypot(p.x-h.p.x,p.z-h.p.z)/dt,dy=Math.atan2(Math.sin(g.rotation.y-h.ry),Math.cos(g.rotation.y-h.ry))/dt;
+          if(sp>3.2)push('teleport',{t:+T_.toFixed(2),who:lbl(g),v:+sp.toFixed(1),at:[+p.x.toFixed(2),+p.z.toFixed(2)]});
+          if(Math.abs(dy)>7)push('spin',{t:+T_.toFixed(2),who:lbl(g),w:+dy.toFixed(1)});
+          const walking=/walk/.test(u.clip||'');
+          h.sl=(u.gltfP&&!walking&&sp>.2&&!u.pushing)?(h.sl||0)+1:0;if(h.sl===3)push('slide',{t:+T_.toFixed(2),who:lbl(g),v:+sp.toFixed(2),vNow:+(u.vNow||0).toFixed(2),bl:+(u.blend||0).toFixed(2)});
+          if(u.gltfP&&walking){h.mv=sp<.05?h.mv+dt:0;if(h.mv>.6&&h.mv<.6+dt*1.5)push('moon',{t:+T_.toFixed(2),who:lbl(g)});}
+          if(u.gltfP){const a=armBones(g)[1],hb=a&&a[2],hd=u.headB||B(g,'Head');
+            [[hb,'hand','hv','hr','handTrem'],[hd,'head','dv','drv','headTrem']].forEach(([bone,k,vk,rk,rep])=>{if(!bone)return;const w=wp(bone);
+              // motion relative to the body (walking itself is not tremor)
+              w.x-=p.x;w.z-=p.z;if(h[k]){const v=w.clone().sub(h[k]);if(h[vk]&&v.length()>.0025&&h[vk].length()>.0025&&v.dot(h[vk])<-.6*v.length()*h[vk].length())h[rk]+=1;else h[rk]=Math.max(0,h[rk]-.15);
+                if(h[rk]>=5){push(rep,{t:+T_.toFixed(2),who:lbl(g)});h[rk]=0;}h[vk]=v;}h[k]=w;});
+            if(!u.isChild&&u.state!=='enter'){const fl=B(g,'L_Foot'),fr=B(g,'R_Foot');if(fl&&fr){const y=Math.min(wp(fl).y,wp(fr).y)-floorY(p.x,p.z);if(y>.16||y<-.06)push('feet',{t:+T_.toFixed(2),who:lbl(g),kind:u.kind,mdl:(g.children.find(c=>c.name)||{}).name,k:+(u.k||1).toFixed(2),y:+y.toFixed(3),py:+p.y.toFixed(3),fy:+floorY(p.x,p.z).toFixed(3),at:[+p.x.toFixed(2),+p.z.toFixed(2)],hd:+S.hd.toFixed(2)});}}
+            if(!u.cashier&&u.state!=='enter'&&u.follow==null){const ob=OBS.filter(r=>!r[4]&&p.x>r[0]+.06&&p.x<r[1]-.06&&p.z>r[2]+.06&&p.z<r[3]-.06);if(ob.length)push('inFixture',{t:+T_.toFixed(2),who:lbl(g),at:[+p.x.toFixed(2),+p.z.toFixed(2)]});}}
+          h.p.copy(p);h.ry=g.rotation.y;});
+        for(let i=0;i<all.length;i++)for(let j=i+1;j<all.length;j++){const a=all[i],b=all[j];if(a.userData.follow!=null||b.userData.follow!=null)continue;const d=Math.hypot(a.position.x-b.position.x,a.position.z-b.position.z),ra=(a.userData.isChild?.13:.19),rb=(b.userData.isChild?.13:.19);if(d<(ra+rb)*.8)push('overlap',{t:+T_.toFixed(2),a:lbl(a),b:lbl(b),d:+d.toFixed(2)});}
+        // props: everything a person or the till holds
+        const P=[];(S.counterItems||[]).forEach((m,i)=>P.push(['item'+i,m]));[['bag',S.counterBag],['basket',S.counterBasket],['note',S.tillNote]].forEach(x=>x[1]&&P.push(x));
+        all.forEach(g=>{const u=g.userData;if(u.culledFar)return;[['itemM',u.itemM],['phone',u.phoneM],['basketH',u.basket],['bagH',u.bag],['card',u.cardM]].forEach(([k,o])=>{if(o)P.push([k+'@'+lbl(g).split(' ')[0],o]);});});
+        P.forEach(([k,o])=>{const v=o.visible&&o.parent&&(o.parent.visible!==false);const w=wp(o),q=props.get(o);if(q&&q.v&&v){const j=w.distanceTo(q.w)/dt;if(j>3.5){const td=(S.tillD||[]).find(d=>d.o===o),cu=people.find(x=>x.userData.pay),pl=cu&&cu.userData.pay;push('propJump',{t:+T_.toFixed(2),k,v:+j.toFixed(1),m:td?td.m:null,who:td&&td.who?(td.who.userData.cashier?'cashier':'customer'):null,e:pl?+(T_-pl.t0).toFixed(2):null,ev:pl?pl.E.filter(x=>{const a=T_-pl.t0-x.t0;return a>=0&&a<x.re+x.ca+(x.hold||0)+x.rt;}).map(x=>x.k+(x.j!=null?x.j:'')+':'+evSt(x,T_-pl.t0)[0]).join(','):null});}}props.set(o,{w,v});});}
+      window.__frz=was;renderer.render(scene,camera);
+      const sum={};Object.keys(R).forEach(k=>sum[k]=Array.isArray(R[k])?R[k].length:R[k]);return {sum,R};};
+
+    // debug: with the loop frozen, advance the people n fixed steps (a slow machine can still record every moment of a scene)
+    window.__step=(n,dt)=>{dt=dt||1/30;if(window.__simT==null)window.__simT=performance.now()/1000;for(let i=0;i<n;i++){window.__simT+=dt;stepPeople(dt,window.__simT,true);extras.forEach(e=>{if(e.visible)poseAny(e,window.__simT,dt,0);});if(GL()){window.KL_GLTF.update(dt);gltfHeads(dt);}tillPlace();}renderer.render(scene,camera);return window.__simT;};
+    window.__tillD=()=>S.tillD&&S.tillD.map(d=>({m:d.m,v:d.o.visible,p:d.o.position.toArray().map(x=>+x.toFixed(3)),palm:d.who?palmOf(d.who,d.side):null,fk:d.fk,tk:d.tk,from:d.from,to:d.to,plan:d.plan}));window.__till=()=>({cashier:S.cashier,q0:nav&&nav.queue&&nav.queue[0],basket:S.counterBasket&&S.counterBasket.position.toArray(),beep:S.beep&&S.beep.position.toArray(),a:S.counterItems&&S.counterItems.map(m=>m.userData.a),b:S.counterItems&&S.counterItems.map(m=>m.userData.b),arms:extras.concat(people).filter(g=>g.userData.gltfP).slice(0,3).map(g=>{const B=n=>g.getObjectByName('Bip01_'+n)||g.getObjectByName('Bip02_'+n);const s0=new T.Vector3(),e0=new T.Vector3(),w0=new T.Vector3();const u=B('R_UpperArm'),f=B('R_Forearm'),h=B('R_Hand');if(!u||!f||!h)return null;u.getWorldPosition(s0);f.getWorldPosition(e0);h.getWorldPosition(w0);return {l1:+s0.distanceTo(e0).toFixed(3),l2:+e0.distanceTo(w0).toFixed(3),sh:+s0.y.toFixed(2),cashier:!!g.userData.cashier,h:+(g.userData.k||1).toFixed(2)};})})
     window.__zf=()=>{const F=[],add=(id,a,s,p,r,src)=>F.push({id,a,s,p,r,src});
       ZB.forEach(b=>{for(let a=0;a<3;a++){const o=[0,1,2].filter(k=>k!==a),r=[b.mn[o[0]],b.mx[o[0]],b.mn[o[1]],b.mx[o[1]]];add(b.id,a,-1,b.mn[a],r,b.s);add(b.id,a,1,b.mx[a],r,b.s);}});
       room.updateMatrixWorld(true);const inv=new T.Matrix4().copy(room.matrixWorld).invert();
