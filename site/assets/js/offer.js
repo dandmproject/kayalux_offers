@@ -976,7 +976,7 @@ const space=(function(){
       ud.state='enter';ud.until=T_+(rr(PARAMS.decompress)/1.3+(ud.hasBasket?rr(PARAMS.basketPickup):0))*PARAMS.timeScale*2;}
     function navStart(g,T_,i){const ud=g.userData;ud.blend=0;ud.ang=0;
       if(i===0||!nav.browse.length){navEnter(g,T_);return;}
-      const cs=pickBrowse(g,8),b=cs.find(c=>people.every(o=>o===g||o.userData.state!=='browse'||Math.hypot(o.position.x-c.p[0],o.position.z-c.p[1])>.8))||cs[0];if(!b){navEnter(g,T_);return;} /* a free spot: nobody starts inside somebody else */g.position.set(b.p[0],floorY(b.p[0],b.p[1]),b.p[1]);ud.trail=[[b.p[0],b.p[1]]];ud.ang=Math.atan2(-b.f[0],-b.f[1]);g.rotation.y=ud.ang;
+      const cs=pickBrowse(g,8),b=cs.find(c=>people.every(o=>o===g||o.userData.state==null||o.userData.state==='away'||Math.hypot(o.position.x-c.p[0],o.position.z-c.p[1])>.8))||cs[0];if(!b){navEnter(g,T_);return;} /* a free spot: nobody starts inside somebody else */g.position.set(b.p[0],floorY(b.p[0],b.p[1]),b.p[1]);ud.trail=[[b.p[0],b.p[1]]];ud.ang=Math.atan2(-b.f[0],-b.f[1]);g.rotation.y=ud.ang;
       planVisit(g,true);if(ud.stroller)ud.stroller.position.set(b.p[0],0,b.p[1]);
       ud.state='browse';ud.until=T_+rnd(2,20);ud.faceAng=ud.ang;}
     function startLeg(g,T_){const ud=g.userData,leg=ud.visit[ud.legI],from=[g.position.x,g.position.z];let to;
@@ -1042,7 +1042,9 @@ const space=(function(){
       const k=Math.min(1,dt*8);let vx=vx0+(vdx-vx0)*k,vz=vz0+(vdz-vz0)*k;
       const G=gridOf(g),ok=(px,pz,g0)=>{const [ci,cj]=nav.toCell(px,pz);return nav.free(g0?nav.G0:G,ci,cj);};
       let nx=x+vx*dt,nz=z+vz*dt;
-      if(!ok(nx,nz)){const f=Math.max(0,vx*fx+vz*fz);nx=x+fx*f*dt;nz=z+fz*f*dt;if(ok(nx,nz)||ok(nx,nz,true)){vx=fx*f;vz=fz*f;}else{nx=x;nz=z;vx=vz=0;}} // only onto walkable floor: drop the sideways part; along the route the bare walls are the limit
+      if(!ok(nx,nz)){const f=Math.max(0,vx*fx+vz*fz);nx=x+fx*f*dt;nz=z+fz*f*dt;if(ok(nx,nz)||ok(nx,nz,true)){vx=fx*f;vz=fz*f;}else if(ok(x+vx*dt,z)){nx=x+vx*dt;nz=z;vz=0;}else if(ok(x,z+vz*dt)){nx=x;nz=z+vz*dt;vx=0;}else{nx=x;nz=z;vx=vz=0;ud.blkT=(ud.blkT||0)+dt;
+        if(ud.blkT>.4&&!ud.blkRe){ud.blkRe=true;const np=nav.route(gridDyn(g),[x,z],end);if(np&&np.length>1){setPath(g,np);return false;}}}} // against an edge: slide along it; boxed in a corner: a new route at once
+      if(vx||vz){ud.blkT=0;ud.blkRe=false;} // only onto walkable floor: drop the sideways part; along the route the bare walls are the limit
       ud.vAct=(ud.vAct||0)+(Math.hypot(nx-x,nz-z)/Math.max(dt,1e-3)-(ud.vAct||0))*Math.min(1,dt*6);ud.slowT=ud.vAct<.08?(ud.slowT||0)+dt:0;
       if(ud.slowT>.6)for(const o of people){if(o===g||!o.visible)continue;const ou=o.userData;if((ou.state==='browse'||ou.state==='queue')&&Math.hypot(o.position.x-x,o.position.z-z)<.7)askRoom(o,g,fx,fz);}x=nx;z=nz;ud.vx=vx;ud.vz=vz;ud.vNow=Math.hypot(vx,vz);
       if(ud.vNow>.3)ud.ang=angStep(ud.ang,(vx*fx+vz*fz)>0?Math.atan2(vx,vz):Math.atan2(fx,fz),6,dt,3.3); // faces where it walks; pushed back for a moment, it keeps facing its way
@@ -1054,11 +1056,11 @@ const space=(function(){
     // aside (~0.4 m, onto free floor, away from the walker's line), waits until the walker is past, then steps back to their place
     function askRoom(b,w,fx,fz,stay){const bu=b.userData;if(bu.room||bu.pay||bu.cashier||bu.follow!=null||(bu.state!=='browse'&&bu.state!=='queue'))return;
       const bx=b.position.x,bz=b.position.z,cr=(bx-w.position.x)*fz-(bz-w.position.z)*fx,s0=cr>=0?1:-1;
-      for(const s of [s0,-s0])for(const d of [.42,.3]){const tx=bx+fz*s*d,tz=bz-fx*s*d,[ci,cj]=nav.toCell(tx,tz);
+      for(const s of [s0,-s0])for(const d of stay?[.56,.46]:[.42,.3]){const tx=bx+fz*s*d,tz=bz-fx*s*d,[ci,cj]=nav.toCell(tx,tz);
         if(nav.free(nav.G0,ci,cj)&&circleFree(tx,tz,.2)&&people.every(o=>o===b||o===w||!o.visible||Math.hypot(o.position.x-tx,o.position.z-tz)>.5)){bu.room={w,home:[bx,bz],to:[tx,tz],ph:0,t:0,stay:!!stay};return;}}}
     function makeRoom(g,dt){const ud=g.userData,R=ud.room;if(!R)return;if(ud.pay){ud.room=null;ud.dockV=0;return;}R.t+=dt;
       const w=R.w,past=!w.visible||w.userData.state!=='walk'||Math.hypot(w.position.x-R.home[0],w.position.z-R.home[1])>.95;
-      if(R.ph===0&&R.t>.6&&(past||R.t>5))R.ph=1;
+      if(R.ph===0&&!R.stay&&R.t>.6&&(past||R.t>5))R.ph=1; // a step along to a free spot at the shelf is for good: it never steps back
       const tg=R.ph===0?R.to:R.home,dx=tg[0]-g.position.x,dz=tg[1]-g.position.z,L=Math.hypot(dx,dz);
       if(L<.01){ud.dockV=0;if(R.ph===1||R.stay){ud.room=null;}return;}
       if(R.ph===1&&!past&&R.t<6){ud.dockV=0;return;} // still passing: wait aside
@@ -1140,7 +1142,7 @@ const space=(function(){
     // a circle (the body, r) against every registered fixture rectangle
     const circleFree=(x,z,r)=>OBS.every(q=>{const cx=Math.max(q[0],Math.min(x,q[1])),cz=Math.max(q[2],Math.min(z,q[3]));return Math.hypot(x-cx,z-cz)>=r;});
     function checkout(g,T_,dt){const ud=g.userData,cs=extras.find(x=>x.userData.cashier),T=S.tl;dt=Math.min(dt||1/30,.1);
-      if(!ud.pay){if(people.some(o=>o!==g&&o.visible&&o.userData.state==='walk'&&o.userData.follow==null&&Math.hypot(o.position.x-(T.E+.33),o.position.z-g.position.z)<.9)&&(ud.coW=(ud.coW||0)+dt)<3)return; /* the last customer is still stepping away (at most 3 s) */ud.pay=tillPlan(g,T_);}
+      if(!ud.pay){if(people.some(o=>o!==g&&o.visible&&o.userData.state==='walk'&&o.userData.follow==null&&Math.hypot(o.position.x-(T.E+.33),o.position.z-g.position.z)<.7)&&(ud.coW=(ud.coW||0)+dt)<1.5)return; /* the last customer is still stepping away (at most 3 s) */ud.pay=tillPlan(g,T_);}
       const pl=ud.pay;
       // FinalApproach: the grid stops a body ~0.54 m from the counter; the last step is taken off the grid, in small slow steps,
       // straight to 0.40 m from it (each step checked against the fixtures), then the customer is docked (the crowd does not push)
@@ -1262,7 +1264,7 @@ const space=(function(){
           if(k>0&&!ud.pay){const ah=qOcc[k-1],tp=ah&&ah.visible?[ah.position.x,ah.position.z]:nav.queue[k-1];if(tp&&Math.hypot(tp[0]-g.position.x,tp[1]-g.position.z)>.15)ud.faceAng=Math.atan2(tp[0]-g.position.x,tp[1]-g.position.z);
             if(!ud.phone&&S.tl){if(T_>(ud.qLook||0)){ud.qLook=T_+rnd(4,9);ud.qLookEnd=T_+rnd(1.2,2.4);}ud.lookAtP=T_<(ud.qLookEnd||0)?[S.tl.E-.3,S.tl.H[2]+.24]:null;}}
           ud.ang=angStep(ud.ang,ud.faceAng,4,dt,2.6);g.rotation.y=ud.ang;
-          let tillBusy=k===1&&people.some(o=>o!==g&&o.visible&&o.userData.state==='walk'&&!(o.userData.visit&&o.userData.visit[o.userData.legI]&&o.userData.visit[o.userData.legI].kind==='queue')&&Math.hypot(o.position.x-nav.queue[0][0],o.position.z-nav.queue[0][1])<.9);ud.tbT=tillBusy?(ud.tbT||0)+dt:0;if(ud.tbT>3)tillBusy=false; // the one just served walks off first (never more than 3 s)
+          let tillBusy=k===1&&people.some(o=>o!==g&&o.visible&&o.userData.state==='walk'&&!(o.userData.visit&&o.userData.visit[o.userData.legI]&&o.userData.visit[o.userData.legI].kind==='queue')&&Math.hypot(o.position.x-nav.queue[0][0],o.position.z-nav.queue[0][1])<.7);ud.tbT=tillBusy?(ud.tbT||0)+dt:0;if(ud.tbT>1.5)tillBusy=false; // the one just served walks off first (never more than 3 s)
           if(k>0&&!qOcc[k-1]&&!tillBusy){qOcc[k]=null;qOcc[k-1]=g;ud.slot=k-1;setPath(g,nav.route(gridDyn(g),[g.position.x,g.position.z],nav.queue[k-1]),T_);}
           // the place ahead was promised to someone still on the way from the far end of the shop: whoever is already here goes first
           else if(k>0&&qOcc[k-1]&&qOcc[k-1].userData.state==='walk'&&!qOcc[k-1].userData.pay){const o=qOcc[k-1],ou=o.userData,q0=nav.queue[k-1];
