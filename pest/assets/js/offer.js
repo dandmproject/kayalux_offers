@@ -936,7 +936,7 @@ const space=(function(){
     const gridOf=g=>g.userData.stroller?nav.G55:(g.userData.buyer?nav.G35:(nav.G35X||nav.G35));
     // the grid with the people who are standing still (at a shelf, in the queue, at the till, just inside the door) marked as obstacles,
     // so a route is planned round them instead of through them; route() falls back to the bare grid if that leaves no way at all
-    function gridDyn(g){const G=gridOf(g);let D=null;for(const o of people){if(o===g||!o.visible||o.userData.follow!=null)continue;const s=o.userData.state;if(!(s==='browse'||s==='queue'||s==='enter'||o.userData.pay))continue;
+    function gridDyn(g){const G=gridOf(g);let D=null;for(const o of people){if(o===g||!o.visible||o.userData.follow!=null)continue;const s=o.userData.state;if(!(s==='browse'||s==='queue'||s==='enter'||s==='ddd'||o.userData.pay))continue;
       if(!D)D=G.slice();const [i,j]=nav.toCell(o.position.x,o.position.z);for(let dj=-1;dj<=1;dj++)for(let di=-1;di<=1;di++){const ii=i+di,jj=j+dj;if(ii>=0&&jj>=0&&ii<nav.cols&&jj<nav.rows)D[jj*nav.cols+ii]=1;}}return D||G;}
     // §1: arrival rate now → time a slot stays "away" before the next visitor uses it
     function lambdaNow(){const h=Math.floor(state.t/60);const l=PARAMS.lambda[h]||6;return l*(PARAMS.dayMul[state.day]||1)*Math.max(.3,S.A/PARAMS.areaRef);}
@@ -1228,7 +1228,8 @@ const space=(function(){
       else q=d.plan||[o.position.x,o.position.y,o.position.z];
       o.position.set(q[0],q[1],q[2]);if(d.ry!=null)o.rotation.y=d.ry;});}
     function stepPeople(dt,T_,open){
-      people.forEach((g,i)=>{const ud=g.userData;if(!open){g.visible=false;if(ud.stroller)ud.stroller.visible=false;return;}
+      if(!VZ.g&&T_>VZ.nextTry&&people.length){VZ.nextTry=T_+1.5;vzTex();vzSpawn(T_);} // Венци joins once his model and textures are in
+      people.forEach((g,i)=>{const ud=g.userData;if(ud.ddd){vzStep(g,dt,T_,open);return;}if(!open){g.visible=false;if(ud.stroller)ud.stroller.visible=false;return;}
         if(ud.follow!=null){followParent(g,dt,T_);return;}
         if(ud.state==null)navStart(g,T_,i);
         if(ud.state==='away'){g.visible=false;if(ud.stroller)ud.stroller.visible=false;if(T_>ud.until){if(doorBusy(g))ud.until=T_+rnd(.8,1.6);else if(ud.isChild){restyle(g);navEnter(g,T_);}else navEnter(regen(i),T_);}return;}
@@ -1271,7 +1272,7 @@ const space=(function(){
         ud.lookDir=0;poseAny(g,T_,dt,ud.state==='walk'&&!ud.turning&&!ud.yielding&&ud.legsOn?Math.min(ud.sp*ud.blend,ud.vNow!=null?Math.max(ud.vNow,ud.sp*.35):9):ud.turning&&ud.state==='walk'?.3:((ud.room||ud.pay)?ud.dockV||0:0));});
       // nobody overlaps anybody: two bodies closer than half a metre are eased apart (a walker moves, someone standing at a shelf or in the
       // queue stays put; a couple or a parent and child may come closer), only onto walkable floor, so no one ever walks through another
-      {const n=people.length,mov=u=>(u.state==='walk'&&(u.vNow||0)>.2)||u.follow!=null,wt=u=>u.pay||u.state==='queue'||u.state==='browse'?0:(mov(u)?1:.25),cap=u=>(mov(u)?.6:.25)*dt; // walkers give way (within their stride); someone standing only shifts a foot; the queue and the till stay
+      {const n=people.length,mov=u=>(u.state==='walk'&&(u.vNow||0)>.2)||u.follow!=null,wt=u=>u.pay||u.state==='queue'||u.state==='browse'||u.state==='ddd'?0:(mov(u)?1:.25),cap=u=>(mov(u)?.6:.25)*dt; // walkers give way (within their stride); someone standing only shifts a foot; the queue and the till stay
         const ux0=(d,L)=>d/(L||1),acc=new Map(),add=(g,x,z)=>{const v=acc.get(g)||[0,0];v[0]+=x;v[1]+=z;acc.set(g,v);}; // all pushes on a person are summed, then limited once (two neighbours must not push twice as fast)
         for(let a=0;a<n;a++){const A=people[a];if(!A.visible)continue;const ua=A.userData;
           for(let b=a+1;b<n;b++){const B=people[b];if(!B.visible)continue;const ub=B.userData,pair=ua.follow===b||ub.follow===a||ua.partner===b||ub.partner===a,r=pair?.46:.5;
@@ -1319,7 +1320,7 @@ const space=(function(){
     let warmT=0;const warmSoon=()=>{if(!warmT)warmT=setTimeout(()=>{warmT=0;warm();},120);};
     const WARMED=new Set(); // model files whose shaders are already compiled
     function gltfPerson(spec){const G=GL();if(!G)return null;spec=spec||{};let kind=spec.staff?'staff':spec.isChild?'child':spec.elder?'elderly':(spec.fem?'f':'m');if(!G.has(kind)){if(kind==='child')return null;kind=spec.fem?'f':'m';if(!G.has(kind))return null;}
-      const g=G.spawn({kind,height:spec.h||(spec.isChild?1.18:1.72),avoid:usedFiles()});if(!g)return null;if(!WARMED.has(g.userData.file)){WARMED.add(g.userData.file);const mm=G.models.find(m=>m.file===g.userData.file);if(!mm||!mm.warm)warmSoon();} /* models compiled behind the bar need no second pass (a full compile() costs 100+ ms in Firefox) */const ud=g.userData,k=(ud.height||1.72)/1.72;
+      const g=G.spawn({kind,height:spec.h||(spec.isChild?1.18:1.72),avoid:usedFiles(),file:spec.file,fresh:spec.fresh});if(!g)return null;if(!WARMED.has(g.userData.file)){WARMED.add(g.userData.file);const mm=G.models.find(m=>m.file===g.userData.file);if(!mm||!mm.warm)warmSoon();} /* models compiled behind the bar need no second pass (a full compile() costs 100+ ms in Firefox) */const ud=g.userData,k=(ud.height||1.72)/1.72;
       ud.gltfP=true;ud.k=k;ud.elder=!!spec.elder||ud.kind==='elderly';ud.isChild=!!spec.isChild||ud.kind==='child';ud.yaw=0;ud.dist=0;ud.blend=0;ud.phone=!!spec.phone;ud.hipY=.9*k;
       ud.rh=g.getObjectByName('Bip01_R_Hand')||g.getObjectByName('Bip02_R_Hand')||null;ud.lh=g.getObjectByName('Bip01_L_Hand')||null;
       const basket=new T.Group();basket.add(new T.Mesh(SHARED.basket(),M.vc2));
@@ -1425,10 +1426,10 @@ const space=(function(){
     // foot keeps that height (a clip or a skeleton that rides a little high or low no longer floats or sinks)
     const _fa=new T.Vector3();
     function ground(g,dt){const ud=g.userData,m=g.children[0];if(!m||ud.isChild||ud.state==='restock')return;if(ud.ftB===undefined){const B=n=>g.getObjectByName('Bip01_'+n)||g.getObjectByName('Bip02_'+n);ud.ftB=[B('L_Foot'),B('R_Foot')].filter(Boolean);ud.gBase=m.position.y;ud.ftRef=.09*(ud.k||1);}
-      if(ud.ftB.length<2)return;ud.ftB[0].getWorldPosition(_fa);let y=_fa.y;ud.ftB[1].getWorldPosition(_fa);y=Math.min(y,_fa.y);const fl=floorY(g.position.x,g.position.z),off=ud.gOff||0,walk=/walk/.test(ud.clip||''),k=1-Math.exp(-dt*4);
+      if(ud.ftB.length<2)return;if(ud.sqD>.004){m.position.y=ud.gBase+(ud.gOff||0)-ud.sqD;return;} /* squatting (the pest controller): the hips go down, the legs fold under him */ud.ftB[0].getWorldPosition(_fa);let y=_fa.y;ud.ftB[1].getWorldPosition(_fa);y=Math.min(y,_fa.y);const fl=floorY(g.position.x,g.position.z),off=ud.gOff||0,walk=/walk/.test(ud.clip||''),k=1-Math.exp(-dt*4);
       if(!walk){const kk=ud.k||1;ud.ftRef=clamp(ud.ftRef+((y-off-fl)-ud.ftRef)*k*.5,.05*kk,.13*kk);ud.gOff=off*(1-k);} /* a real ankle height: the reference can never creep into the floor */else ud.gOff=clamp(off-(y-fl-ud.ftRef)*k,-.22,.06);
       m.position.y=ud.gBase+ud.gOff;}
-    function gltfHeads(dt){people.concat(extras).forEach(g=>{const ud=g.userData;if(!ud.gltfP||!g.visible||ud.culledFar){ud.hShow=null;ud.nShow=null;return;}ground(g,dt);poseIn(g);if(ud.pushing&&!ud.pay)pushArms(g);else hands(g,dt);{const gt=ud.gripT||(ud.gripT=[0,0]),tt=ud.tillGrip||[0,0];gt[0]=tt[0]||((ud.basket&&ud.basket.visible&&ud.basketL)||(ud.phoneM&&ud.phoneM.visible&&ud.phHand===0)?1:0);gt[1]=tt[1]||((ud.bag&&ud.bag.visible)||(ud.basket&&ud.basket.visible&&!ud.basketL)||ud.cardOn||(ud.phoneM&&ud.phoneM.visible&&ud.phHand===1)||(ud.itemM&&ud.itemM.visible&&!(ud.rch&&ud.rch.sd===0))||ud.pushing?1:0);if(ud.itemM&&ud.itemM.visible&&ud.rch&&ud.rch.sd===0)gt[0]=1;ud.tillGrip=null;gripFingers(g,dt);hangProps(g,dt);}poseOut(g);/* at the till the cart is let go of: both hands work */if(ud.headB===undefined)ud.headB=g.getObjectByName('Bip01_Head')||g.getObjectByName('Bip02_Head')||null;const hb=ud.headB;if(!hb)return;
+    function gltfHeads(dt){people.concat(extras).forEach(g=>{const ud=g.userData;if(!ud.gltfP||!g.visible||ud.culledFar){ud.hShow=null;ud.nShow=null;return;}ground(g,dt);poseIn(g);if(ud.ddd)vzPose(g,dt);if(ud.pushing&&!ud.pay)pushArms(g);else hands(g,dt);{const gt=ud.gripT||(ud.gripT=[0,0]),tt=ud.tillGrip||[0,0];gt[0]=tt[0]||((ud.basket&&ud.basket.visible&&ud.basketL)||(ud.phoneM&&ud.phoneM.visible&&ud.phHand===0)?1:0);gt[1]=tt[1]||((ud.bag&&ud.bag.visible)||(ud.basket&&ud.basket.visible&&!ud.basketL)||ud.cardOn||(ud.phoneM&&ud.phoneM.visible&&ud.phHand===1)||(ud.itemM&&ud.itemM.visible&&!(ud.rch&&ud.rch.sd===0))||ud.pushing?1:0);if(ud.itemM&&ud.itemM.visible&&ud.rch&&ud.rch.sd===0)gt[0]=1;ud.tillGrip=null;gripFingers(g,dt);hangProps(g,dt);}poseOut(g);/* at the till the cart is let go of: both hands work */if(ud.headB===undefined)ud.headB=g.getObjectByName('Bip01_Head')||g.getObjectByName('Bip02_Head')||null;const hb=ud.headB;if(!hb)return;
       // a living face (the models carry smile, squint, blink, jaw, oh, brows): a friendly resting expression of their own, natural blinks,
       // now and then a real smile with the eyes, a big one at the till and when taking the bag, the mouth moving while talking; near faces only
       if(ud.face&&g.position.distanceToSquared(camera.position)<110){const f=ud.fx||(ud.fx={t:0,mood:ud.cashier?1.7:1.3+Math.random()*.4,blink:1+Math.random()*3,grin:3+Math.random()*9,gT:0,sm:0,br:0});f.t+=dt;
@@ -1473,7 +1474,156 @@ const space=(function(){
     document.addEventListener('kl-gltf-model',e=>{if(!room||!people.length||upBusy)return;if(!(e.detail.count>=8||window.KL_GLTF&&KL_GLTF.has('staff')&&e.detail.count>=5))return;upBusy=true;people.forEach(p=>{p.userData.noUp=false;});
       const step=()=>{const i=people.findIndex(p=>!p.userData.gltfP&&!p.userData.noUp);if(i<0){try{upgradeCashier();}catch(err){}upBusy=false;kick();return;}try{if(!upgrade(i))people[i].userData.noUp=true;}catch(err){people[i].userData.noUp=true;console.warn('upgrade',err);}kick();requestAnimationFrame(step);};requestAnimationFrame(step);});
     window.__upgradeAll=()=>{let n=0;const err=[];people.forEach((p,i)=>{try{if(upgrade(i))n++;else err.push([i,'null',!!p.userData.gltfP,p.userData.isChild,p.userData.elder,p.userData.fem]);}catch(e){err.push([i,String(e).slice(0,120)]);}});window.__upErr=err;return n;};
-    function clearRoom(){buildTok++;pending.forEach(cancelAnimationFrame);pending=[];camSub=null;
+    // ---- Венци, the УНИЩОЖИТЕЛИ pest controller. The real man: his face from his photo baked onto one of the models, the white
+    // coverall with the black straps and the emblem, a blue backpack sprayer, the lance with the yellow nozzle, a half-mask. He comes in,
+    // checks every bait box (squats, opens the lid, looks at the board, closes it), puts gel into the door frames and the corners by the
+    // coolers, and sprays the skirting where the wall is free. Nobody is ever sprayed: the moment someone comes near, the spray stops
+    // and he waits for them to pass ----
+    const VZ={g:null,tex:null,texN:0,mat:null,geo:null,gel:null,gelN:0,mist:[],nextTry:0};
+    const _zA=new T.Vector3(),_zB=new T.Vector3(),_zC=new T.Vector3(),_zD=new T.Vector3(),_zQ=new T.Quaternion(),_zQ2=new T.Quaternion(),_zM=new T.Matrix4(),_zM2=new T.Matrix4(),_zS=new T.Vector3(),_zE=new T.Euler();
+    function vzTex(){if(VZ.tex)return VZ.tex;const L=new T.TextureLoader(),mk=f=>{const t=L.load('assets/models/'+f,()=>{VZ.texN++;});t.flipY=false;t.encoding=T.sRGBEncoding;t.anisotropy=4;return t;};VZ.tex={head:mk('venci-head.jpg'),body:mk('venci-body.jpg')};return VZ.tex;}
+    function vzKit(){if(VZ.geo)return;const C=(r0,r1,h,s)=>new T.CylinderGeometry(r0,r1,h,s||10),X=(g,a)=>g.rotateX(a),at=(g,x,y,z)=>g.translate(x,y,z);
+      const BL='#17181a',BLU='#2a7fd6',YEL='#f2c21a',ORG='#e2702a',GRY='#3c3f44',BRS='#b08d3a';
+      VZ.geo={
+        tank:mergeColored([[roundedBox(.30,.44,.16,.05),BLU],[at(C(.05,.05,.04,14),0,.24,0),'#1d1f22'],[at(new T.BoxGeometry(.27,.40,.016),0,0,.086),BL],[at(new T.BoxGeometry(.028,.24,.004),-.085,.02,-.082),'#8cc0ee'],
+          [at(C(.008,.008,.40,6),.165,0,.02),BL],[at(new T.BoxGeometry(.016,.016,.34),.175,-.2,.16),BL],[at(X(C(.016,.016,.11,8),Math.PI/2),.175,-.2,.34),BL],[at(C(.013,.013,.05,8),-.1,-.24,0),BL]]),
+        lance:mergeColored([[at(X(C(.017,.015,.13,10),Math.PI/2),0,0,.005),BL],[at(X(C(.012,.012,.04,8),Math.PI/2),0,0,.09),BRS],[at(new T.BoxGeometry(.012,.012,.09),0,-.026,.0),BL],
+          [at(X(C(.006,.006,.56,6),Math.PI/2),0,0,.39),BL],[at(X(C(.012,.009,.05,10),Math.PI/2),0,0,.69),YEL],[at(X(C(.01,.01,.03,8),Math.PI/2),0,0,-.075),BL]]),
+        mask:mergeColored([[new T.SphereGeometry(.05,14,10).scale(1,.95,.82),'#2b2e33'],...[-1,1].map(s=>[at(new T.CylinderGeometry(.03,.03,.024,14).rotateZ(Math.PI/2).rotateY(s*.55),s*.05,-.014,.014),GRY]),
+          ...[-1,1].map(s=>[at(new T.CylinderGeometry(.031,.031,.007,14).rotateZ(Math.PI/2).rotateY(s*.55),s*.06,-.014,.008+.004),ORG]),[at(X(C(.016,.016,.014,10),Math.PI/2),0,-.03,.042),'#1d1f22'],
+          [new T.TorusGeometry(.085,.004,4,22).scale(1,1,1.15).rotateY(Math.PI/2).rotateZ(Math.PI/2).translate(0,.02,-.07),BL]]),
+        gun:mergeColored([[at(X(C(.016,.016,.15,10),Math.PI/2),0,.03,.05),'#f1f1ee'],[at(X(C(.004,.013,.05,8),Math.PI/2),0,.03,.15),'#c8861e'],[at(new T.BoxGeometry(.022,.085,.03),0,-.015,0),BL],[at(X(C(.003,.003,.08,6),Math.PI/2),0,.03,-.06),'#9a9a9a']]),
+        hood:mergeColored([[new T.TorusGeometry(.085,.032,7,18,Math.PI*1.3).rotateX(-Math.PI/2).rotateY(-.468).scale(1,.8,1),'#eceef0']]),
+        dot:new T.SphereGeometry(.008,8,5).scale(1,.55,1)};
+      Object.values(VZ.geo).forEach(g=>GEOSET.add(g));
+      // the decal on the tank's back: the emblem and the name, as on his van and his badge
+      const c=document.createElement('canvas');c.width=256;c.height=256;const x=c.getContext('2d');const em=new Image();const draw=()=>{x.clearRect(0,0,256,256);if(em.complete&&em.naturalWidth)x.drawImage(em,48,14,160,160);x.fillStyle='#ffffff';x.font='800 27px Inter, Arial, sans-serif';x.textAlign='center';x.fillText('УНИЩОЖИТЕЛИ',128,214);x.font='600 17px Inter, Arial, sans-serif';x.fillText('ДДД · 0897 555 751',128,240);};
+      const tt=new T.CanvasTexture(c);tt.encoding=T.sRGBEncoding;em.onload=()=>{draw();tt.needsUpdate=true;};em.src='assets/img/emblem.png';draw();
+      VZ.mat={decal:new T.MeshStandardMaterial({map:tt,transparent:true,roughness:.4,depthWrite:false}),hose:new T.MeshStandardMaterial({color:0x111214,roughness:.5}),gel:new T.MeshStandardMaterial({color:0xc8861e,roughness:.2,metalness:0}),mist:new T.SpriteMaterial({map:spr,color:0xf2f6f8,transparent:true,opacity:0,depthWrite:false})};
+      Object.values(VZ.mat).forEach(m=>{M['vz_'+m.uuid.slice(0,6)]=m;}); /* kept across store switches (clearRoom frees only what a store made) */
+      VZ.geo.decal=new T.PlaneGeometry(.2,.2).rotateY(Math.PI);GEOSET.add(VZ.geo.decal);}
+    // a prop fixed to a bone at the model's rest pose: given where it sits in the world now, find its place in the bone's frame
+    function vzBone(b,obj,wp,wq){b.updateMatrixWorld(true);_zM.compose(wp,wq||_zQ.set(0,0,0,1),_zS.set(1,1,1));_zM2.copy(b.matrixWorld).invert().multiply(_zM);_zM2.decompose(obj.position,obj.quaternion,obj.scale);b.add(obj);return obj;}
+    function vzSpawn(T_){const G=GL();if(!G||!nav||!nav.entry||VZ.texN<2)return false;
+      const g=gltfPerson({h:1.78,file:'male_adult_08.glb',fresh:true});if(!g||g.userData.file!=='male_adult_08.glb'){if(g&&window.KL_GLTF)KL_GLTF.release(g);return false;}
+      vzKit();const ud=g.userData,VT=vzTex();ud.ddd=true;ud.noPool=true;ud.ownMats=[];ud.sp=.95;ud.phone=false;ud.basket.visible=false;ud.bag.visible=false;
+      g.traverse(o=>{if(!o.isSkinnedMesh)return;const om=o.material,m=om.clone(),n=om.name||'';const sw=t=>{if(om.map){t.offset.copy(om.map.offset);t.repeat.copy(om.map.repeat);t.rotation=om.map.rotation;}m.map=t;m.normalMap=null;};
+        if(/head/.test(n))sw(VT.head);else if(/body/.test(n)){sw(VT.body);if(m.roughness!=null)m.roughness=.85;}else if(/opacity/.test(n))m.color=new T.Color(0x5e5852);m.needsUpdate=true;o.material=m;ud.ownMats.push(m);});
+      g.position.set(0,0,0);g.rotation.set(0,0,0);g.updateMatrixWorld(true);const B=n=>g.getObjectByName('Bip01_'+n),P=n=>B(n).getWorldPosition(new T.Vector3());
+      const s2=P('Spine2'),nk=P('Neck'),ns=P('MNose'),ul=P('MUpperLip');
+      // backpack sprayer on the back, its lance holder on the right side, the hose outlet at the bottom
+      const tank=vzBone(B('Spine2'),new T.Mesh(VZ.geo.tank,M.vc2),new T.Vector3(0,s2.y-.03,s2.z-.2));tank.castShadow=true;
+      const dec=new T.Mesh(VZ.geo.decal,VZ.mat.decal);dec.position.set(0,.02,-.082);tank.add(dec);
+      const stow=new T.Object3D();stow.position.set(-.18,.1,.0);stow.quaternion.setFromEuler(_zE.set(Math.PI/2-.08,0,0));tank.add(stow); /* the lance hangs nozzle down in its holder on the tank's right side */
+      const outlet=new T.Object3D();outlet.position.set(-.1,-.26,0);tank.add(outlet);const pump=new T.Object3D();pump.position.set(.175,-.2,.34);tank.add(pump);
+      vzBone(B('Neck'),new T.Mesh(VZ.geo.hood,M.vc2),new T.Vector3(0,nk.y-.03,nk.z-.05));
+      // the half-mask: on the face while spraying, hanging on the chest otherwise
+      const mFace=vzBone(B('Head'),new T.Object3D(),new T.Vector3(0,(ns.y+ul.y)/2-.004,ns.z+.012));
+      const mNeck=vzBone(B('Spine2'),new T.Object3D(),new T.Vector3(0,nk.y-.17,s2.z+.15),new T.Quaternion().setFromEuler(_zE.set(1.0,0,0)));
+      const mask=new T.Mesh(VZ.geo.mask,M.vc2);const lance=new T.Mesh(VZ.geo.lance,M.vc2);lance.castShadow=true;const gun=new T.Mesh(VZ.geo.gun,M.vc2);gun.visible=false;
+      const hg=new T.BufferGeometry(),HN=18,HR=6;hg.setAttribute('position',new T.BufferAttribute(new Float32Array((HN+1)*HR*3),3));hg.setAttribute('normal',new T.BufferAttribute(new Float32Array((HN+1)*HR*3),3));
+      {const ix=[];for(let i=0;i<HN;i++)for(let j=0;j<HR;j++){const a=i*HR+j,b=i*HR+(j+1)%HR,c=a+HR,d=b+HR;ix.push(a,c,b,b,c,d);}hg.setIndex(ix);}
+      const hose=new T.Mesh(hg,VZ.mat.hose);hose.frustumCulled=false;room.add(mask,lance,gun,hose);
+      if(!VZ.gel){VZ.gel=new T.InstancedMesh(VZ.geo.dot,VZ.mat.gel,90);VZ.gel.count=0;VZ.gelN=0;}if(!VZ.gel.parent)room.add(VZ.gel);
+      if(!VZ.mist.length)for(let i=0;i<28;i++){const s_=new T.Sprite(VZ.mat.mist.clone());s_.visible=false;s_.userData={t:9,v:new T.Vector3()};VZ.mist.push(s_);}VZ.mist.forEach(s_=>{room.add(s_);s_.visible=false;s_.userData.t=9;});
+      const legs=['L','R'].map(s=>[B(s+'_Thigh'),B(s+'_Calf'),B(s+'_Foot')]);poseBones(g);ud.pB=ud.pB.concat(...legs.map(l=>l.slice(0,3))).filter(Boolean);
+      ud.dz={tank,stow,outlet,pump,mFace,mNeck,mask,lance,gun,hose,HN,HR,legs,maskT:0,maskW:0,lanceT:0,lanceW:0,ldir:new T.Vector3(0,-.5,.8).normalize(),sq:0,sqT:0,q:[],task:null,ph:'away',t:0,until:T_+rnd(2,6),spraying:false,emit:0,pumpT:0};
+      g.visible=false;ud.state='away';g.position.set(nav.entry[0],0,nav.entry[1]);room.add(g);people.push(g);VZ.g=g;return true;}
+    function vzClear(){if(VZ.g){(VZ.g.userData.ownMats||[]).forEach(m=>m.dispose());const dz=VZ.g.userData.dz;if(dz)dz.hose.geometry.dispose();}VZ.g=null;if(VZ.gel){VZ.gel.count=0;VZ.gelN=0;}}
+    // where is open floor (for him to stand) / a free wall (to spray its skirting)
+    const vzFree=(x,z,r)=>x>-S.hw+r&&x<S.hw-r&&z>-S.hd+r&&z<S.hd-r&&!OBS.some(o=>x+r>o[0]&&x-r<o[1]&&z+r>o[2]&&z-r<o[3]);
+    function vzPlan(){const q=[],hw=S.hw,hd=S.hd;
+      (S.units||[]).forEach((u,i)=>{let ok=false;for(const dd of [.6,.72,.5,.85])for(const lt of [0,.22,-.22,.38,-.38,.55,-.55]){if(ok)break;const sx=u.p[0]+u.d[0]*dd-u.d[2]*lt,sz=u.p[2]+u.d[2]*dd+u.d[0]*lt;if(vzFree(sx,sz,.16)){ok=true;q.push({kind:'box',u:i,stand:[sx,sz],face:Math.atan2(u.p[0]-sx,u.p[2]-sz)});}}}); /* in front of the box; in a tight corner a step to the side of it */
+      const gel=[];{const dx=S.door.x,dw=S.door.w;for(const s of [-1,1]){const jx=dx+s*(dw/2+.03),sx=dx+s*(dw/2-.2);if(vzFree(sx,hd-.7,.2))gel.push({kind:'gel',stand:[sx,hd-.7],face:Math.atan2(jx-sx,(hd-.05)-(hd-.7)),pts:[1.15,.85,.55,.3,.06].map(y=>[jx-s*.012,y,hd-.05])});}}
+      if(S.hasStore){const cx=hw-S.sw/2,zf=-hd+S.sd+.09;for(const s of [-1,1]){const jx=cx+s*.47,sx=cx+s*.2;if(vzFree(sx,zf+.7,.2))gel.push({kind:'gel',stand:[sx,zf+.7],face:Math.atan2(jx-sx,zf-(zf+.7)),pts:[1.1,.8,.5,.25,.06].map(y=>[jx,y,zf])});}}
+      (S.coolR||[]).forEach(c=>{const side=c[0]<0?1:-1,xf=c[0]+side*.38;for(const zz of [c[1]-.03,c[2]+.03]){const sx=xf+side*.5,sz=zz+(zz<c[1]?-.25:.25);if(vzFree(sx,sz,.2))gel.push({kind:'gel',stand:[sx,sz],face:Math.atan2(xf-sx,zz-sz),pts:[[xf-side*.02,.05,zz],[xf+side*.04,.03,zz],[xf+side*.1,.03,zz]]});}});
+      gel.sort(()=>Math.random()-.5);gel.slice(0,3).forEach(t=>q.push(t));
+      // spraying: a run along a free wall, the wall on his right, ~2.4 m, 0.75 m out from it; back and side walls only, never by the till
+      const runs=[],walls=[[[-hw,0],[1,0]],[[hw,0],[-1,0]],[[0,-hd],[0,1]],[[0,hd],[0,-1]]];const ck=S.cashier||[0,hd];
+      for(const [L,off,cR,eMin] of [[2.4,.75,3.2,3],[1.8,.65,2.6,1],[1.4,.6,2.2,0]]){if(runs.length)break;walls.forEach(([w0,n])=>{const tx=-n[1],tz=n[0],span=n[0]?hd:hw;for(let s=-span+.6;s+L<span-.6;s+=.4){const a=n[0]?[w0[0]+n[0]*off,s]:[s,w0[1]+n[1]*off],b=[a[0]+(n[0]?0:L),a[1]+(n[0]?L:0)];let ok=true,expo=0,smp=0;
+        for(let k=0;k<=8;k++){const px=a[0]+(b[0]-a[0])*k/8,pz=a[1]+(b[1]-a[1])*k/8;if(!vzFree(px,pz,.2)||(S.wine&&Math.abs(pz-S.zW)<1)||Math.hypot(px-ck[0],pz-ck[1])<cR||Math.hypot(px-S.door.x,pz-hd)<2.2){ok=false;break;}smp++;if(vzFree(px-n[0]*(off-.16),pz-n[1]*(off-.16),.08))expo++;}
+        if(ok&&expo>=eMin){const r=[a,b];const rx=b[0]-a[0],rz=b[1]-a[1],rgt=[-rz,rx];if(rgt[0]*(-n[0])+rgt[1]*(-n[1])<0)r.reverse();runs.push({kind:'spray',a:r[0],b:r[1],n});}}});}
+      runs.sort(()=>Math.random()-.5);const pickR=[];runs.forEach(r=>{if(pickR.length<2&&pickR.every(o=>Math.hypot(o.a[0]-r.a[0],o.a[1]-r.a[1])>2.5))pickR.push(r);});pickR.forEach(r=>q.push(r));
+      // nearest first from the door
+      const out=[];let cur=[S.door.x,hd];while(q.length){let bi=0,bd=1e9;q.forEach((t,i)=>{const p=t.stand||t.a,d=Math.hypot(p[0]-cur[0],p[1]-cur[1]);if(d<bd){bd=d;bi=i;}});const t=q.splice(bi,1)[0];out.push(t);cur=t.stand||t.b;}return out;}
+    // who is near him (for the spray: anyone ahead within ~3 m, or anyone at all within 1.6 m, stops it)
+    function vzUnsafe(g,dir){const x=g.position.x,z=g.position.z;return people.concat(extras).some(o=>{if(o===g||!o.visible||o.userData.cashier)return false;const ox=o.position.x-x,oz=o.position.z-z,L=Math.hypot(ox,oz);if(L<1.6)return true;if(L>3.2)return false;return (ox*dir.x+oz*dir.z)/L>.15;});}
+    function vzGo(g,to,T_){setPath(g,nav.route(gridDyn(g),[g.position.x,g.position.z],to),T_);}
+    function vzStep(g,dt,T_,open){const ud=g.userData,dz=ud.dz;dz.t+=dt;
+      const faceTo=(a,k)=>{ud.ang=angStep(ud.ang||0,a,k||5,dt,2.4);g.rotation.y=ud.ang;};
+      const ease=(cur,tg,r)=>cur+(tg-cur)*(1-Math.exp(-dt*r));
+      let v=0,lookP=null;const R=[null,null];ud.ikReq=R;dz.gunOn=false;dz.spraying=false;let sqTarget=0,lanceMode=dz.task&&dz.task.kind==='spray'&&dz.ph!=='go'&&dz.ph!=='maskOn'?1:0,maskOn=0,lanceHold=dz.lanceT>.5;
+      const fwd=_zA.set(Math.sin(ud.ang||0),0,Math.cos(ud.ang||0)),rgt=_zB.set(-fwd.z,0,fwd.x),k=ud.k||1,px=g.position.x,pz=g.position.z;
+      const hp=(f,r,y)=>[px+fwd.x*f+rgt.x*r,y*k,pz+fwd.z*f+rgt.z*r]; /* a point in his own frame: f ahead, r to his right, y up */
+      if(dz.ph==='away'){g.visible=false;if(T_>dz.until&&!doorBusy(g)){dz.q=vzPlan();if(window.__vzOnly)dz.q=dz.q.filter(t=>t.kind===window.__vzOnly);g.position.set(nav.entry[0],0,nav.entry[1]);ud.ang=Math.PI;g.rotation.y=ud.ang;g.visible=true;ud.blend=0;dz.task=null;dz.ph='next';dz.t=0;}}
+      if(dz.ph==='next'){dz.task=dz.q.shift()||{kind:'exit'};const t=dz.task;dz.t=0;dz.ph='go';vzGo(g,t.kind==='exit'?nav.exit:(t.stand||t.a),T_);}
+      if(dz.ph==='go'){ud.blend=Math.min(1,ud.blend+dt*2);if(advance(g,ud.sp*ud.blend*dt,dt)){ud.state='ddd';dz.t=0;dz.ph=dz.task.kind==='exit'?'gone':dz.task.kind==='spray'?'maskOn':'work';}else v=ud.vNow!=null?ud.vNow:ud.sp*ud.blend;}
+      if(dz.ph==='gone'){g.visible=false;dz.ph='away';dz.until=T_+rnd(18,30);ud.state='away';}
+      const t=dz.task,tt=dz.t;
+      if(dz.ph==='work'&&t.kind==='box'){const u=S.units[t.u];faceTo(t.face);const hgB=u&&u.hinge;sqTarget=tt<6.4?1:0;
+        const open_=tt<1.4?0:tt<2.1?(tt-1.4)/.7:tt<5.4?1:tt<6.1?1-(tt-5.4)/.7:0;if(hgB){hgB.rotation.x=-1.2*tE(open_);hgB.updateMatrixWorld(true);
+          if(tt>.9&&tt<6.4){const w=tt<1.3?(tt-.9)/.4:tt>6.0?(6.4-tt)/.4:1;for(const s of [0,1]){const lp=_zC.set(s?-.08:.08,.0,.2*.96).applyMatrix4(hgB.matrixWorld);R[s]={p:[lp.x,lp.y+.01,lp.z],w:w*.95};}
+            if(tt>2.4&&tt<5.0){const c=_zD.set(0,.05,0).applyMatrix4(hgB.parent.matrixWorld);const wob=Math.sin((tt-2.4)*3.2)*.03;R[1]={p:[c.x+fwd.x*wob,c.y,c.z+fwd.z*wob],w:.95};}}}
+        lookP=u?[u.p[0],u.p[2]]:null;if(tt>7.4)dz.ph='next';}
+      if(dz.ph==='work'&&t.kind==='gel'){faceTo(t.face);if(lanceHold)dz.ph='stowG';else{dz.gunOn=tt>.5;const per=1.5,i=Math.min(t.pts.length-1,Math.floor(Math.max(0,tt-.8)/per)),f=((Math.max(0,tt-.8))%per)/per,p=t.pts[i];
+          sqTarget=clamp((1.05-p[1])/.9,0,1);const dab=f>.35&&f<.8?(f-.35)/.45:f>=.8?1:0;R[1]={p:[p[0],p[1]+.02-.03*dab,p[2]],w:tt<.8?tt/.8:1};dz.gunTgt=p;lookP=[p[0],p[2]];
+          if(f>.78&&!dz.dotDone){dz.dotDone=true;vzDot(p[0],p[1]-.012*(p[1]>.1?0:1)+(p[1]>.1?-.01:0),p[2]);}if(f<.3)dz.dotDone=false;
+          if(tt>.8+per*t.pts.length+.6)dz.ph='next';}}
+      if(dz.ph==='stowG'){/* the lance back into its holder before the gel gun comes out */R[1]={p:vzWorld(dz.stow),w:1};if(tt>.7){dz.lanceT=0;dz.ph='work';dz.t=.0;}}
+      if(dz.ph==='maskOn'){faceTo(Math.atan2(t.b[0]-t.a[0],t.b[1]-t.a[1]));const f=Math.min(1,tt/1.1);const mp=vzWorld(f<.5?dz.mNeck:dz.mFace);R[1]={p:mp,w:Math.sin(Math.PI*f)};if(tt>.55)maskOn=1;
+        if(tt>1.1){const sp=vzWorld(dz.stow);R[1]={p:sp,w:Math.min(1,(tt-1.1)/.4)*Math.max(0,1-(tt-1.9)/.4)};maskOn=1;}if(tt>1.7)dz.lanceT=1;if(tt>2.3){dz.ph='spray';dz.t=0;}}
+      if(dz.ph==='spray'||dz.ph==='hold'){maskOn=1;const L=Math.hypot(t.b[0]-t.a[0],t.b[1]-t.a[1]),dx=(t.b[0]-t.a[0])/L,dzz=(t.b[1]-t.a[1])/L,done=((px-t.a[0])*dx+(pz-t.a[1])*dzz)/L;faceTo(Math.atan2(dx,dzz),4);
+        const sw=Math.sin(tt*2.6)*.35,tg=[px+dx*(.6+sw)-t.n[0]*.62,.07,pz+dzz*(.6+sw)-t.n[1]*.62];const hd_=hp(.34,.2,1.0);_zC.set(tg[0]-hd_[0],tg[1]-hd_[1],tg[2]-hd_[2]).normalize();
+        const unsafe=open&&!window.__vzNoSafe&&vzUnsafe(g,_zC);if(unsafe){dz.holdT=(dz.holdT||0)+dt;dz.ldir.lerp(_zD.set(fwd.x*.3,-1,fwd.z*.3).normalize(),1-Math.exp(-dt*5));R[1]={p:hp(.18,.2,.82),w:1};if(dz.holdT>7)dz.ph='after';}
+        else{dz.holdT=0;dz.ldir.lerp(_zC,1-Math.exp(-dt*6)).normalize();R[1]={p:hd_,w:1};dz.spraying=dz.ldir.dot(_zC)>.9;if(done<1){g.position.x+=dx*.32*dt;g.position.z+=dzz*.32*dt;v=.32;}else dz.ph='after';}
+        dz.pumpT+=dt;const pc=dz.pumpT%7;if(pc>4.6){const pp=vzWorld(dz.pump);R[0]={p:[pp[0],pp[1]+.06*Math.sin((pc-4.6)*Math.PI*1.5*2),pp[2]],w:Math.min(1,(pc-4.6)/.3,(7-pc)/.3)};}
+        lookP=[tg[0],tg[2]];if(dz.ph==='after')dz.t=0;}
+      if(dz.ph==='after'){const f=tt;R[1]=f<1?{p:vzWorld(dz.stow),w:Math.sin(Math.PI*f)}:{p:vzWorld(dz.mFace),w:Math.sin(Math.PI*Math.min(1,(f-1)/1.1))};if(f>.55)dz.lanceT=0;maskOn=f<1.55?1:0;if(f>2.2)dz.ph='next';}
+      if(lanceMode||dz.lanceT>.5){if(!R[1]&&dz.lanceT>.5)R[1]={p:hp(.3,.2,.9),w:1};}
+      dz.maskT=maskOn;dz.sqT=sqTarget;ud.lookAtP=lookP;
+      // the body: walking clip while he moves, standing otherwise; a squat is the legs bending under him (gltfHeads → vzPose)
+      dz.sq=ease(dz.sq,dz.sqT,3.2);ud.sqD=dz.sq*.4*k;
+      if(g.visible){if(v>.04){ud.play(v<.6?'walkslow':'walk',.3);ud.setSpeed(v);}else ud.play('idle',.4);}
+      if(ud.state!=='walk'&&dz.ph!=='go'&&dz.ph!=='away')ud.state='ddd';}
+    window.__vz=()=>{const g=VZ.g;if(!g)return {none:true,texN:VZ.texN,models:(window.KL_GLTF&&KL_GLTF.models||[]).map(m=>m.file).join(',')};const d=g.userData.dz;return {ph:d.ph,task:d.task&&d.task.kind,t:+d.t.toFixed(1),x:+g.position.x.toFixed(2),z:+g.position.z.toFixed(2),ang:+(g.userData.ang||0).toFixed(2),vis:g.visible,q:d.q.length,sq:+d.sq.toFixed(2),spray:d.spraying,mask:d.maskT,lance:d.lanceT,st:g.userData.state,clip:g.userData.clip};};
+    window.__vzPlan=()=>vzPlan().map(t=>t.kind+(t.kind==='box'?t.u:'')+' '+JSON.stringify((t.stand||t.a).map(v=>+v.toFixed(2))));
+    window.__vzSkip=()=>{const g=VZ.g;if(g){const d=g.userData.dz;d.until=0;}};
+    function vzWorld(o){o.updateMatrixWorld(true);o.getWorldPosition(_zD);return [_zD.x,_zD.y,_zD.z];}
+    function vzDot(x,y,z){const G_=VZ.gel;if(!G_)return;const i=VZ.gelN%G_.instanceMatrix.count;_zM.makeTranslation(x,Math.max(.004,y),z);G_.setMatrixAt(i,_zM);VZ.gelN++;G_.count=Math.min(VZ.gelN,G_.instanceMatrix.count);G_.instanceMatrix.needsUpdate=true;}
+    // legs: the hips go down, both feet stay where they stood (thigh–calf–foot solved like the arms, the knees forward), the chest leans
+    function vzLeg(g,l,tg){const [th,ca,ft]=l;th.getWorldPosition(_S0);ca.getWorldPosition(_E0);ft.getWorldPosition(_W0);const l1=_S0.distanceTo(_E0),l2=_E0.distanceTo(_W0);
+      _Dv.copy(tg).sub(_S0);let d=_Dv.length();if(d<1e-4)return;_Dv.multiplyScalar(1/d);d=Math.min(Math.max(d,Math.abs(l1-l2)+.02),(l1+l2)*.995);
+      const ry=g.rotation.y;_pl.set(Math.sin(ry),0,Math.cos(ry));_pl.addScaledVector(_Dv,-_pl.dot(_Dv));if(_pl.lengthSq()<1e-6)return;_pl.normalize();
+      const x=(l1*l1-l2*l2+d*d)/(2*d),h=Math.sqrt(Math.max(0,l1*l1-x*x));_Ed.copy(_S0).addScaledVector(_Dv,x).addScaledVector(_pl,h);_Wd.copy(_S0).addScaledVector(_Dv,d);
+      _zS.set(Math.cos(ry),0,-Math.sin(ry)); /* the knee is a hinge: both bones turn only about his left–right axis, so the knees go forward, never out */
+      const hinge=(bn,ch,tg)=>{bn.getWorldPosition(_zA);ch.getWorldPosition(_zB);_zB.sub(_zA);_zC.copy(tg).sub(_zA);_zB.addScaledVector(_zS,-_zB.dot(_zS));_zC.addScaledVector(_zS,-_zC.dot(_zS));
+        const an=Math.atan2(_zD.crossVectors(_zB,_zC).dot(_zS),_zB.dot(_zC));_zQ.setFromAxisAngle(_zS,an);bn.getWorldQuaternion(_qb);_qb.premultiply(_zQ);bn.parent.getWorldQuaternion(_q).invert();bn.quaternion.copy(_q.multiply(_qb));bn.updateMatrixWorld(true);};
+      ft.getWorldQuaternion(_zQ2);hinge(th,ca,_Ed);hinge(ca,ft,_Wd);ft.parent.getWorldQuaternion(_zQ).invert();ft.quaternion.copy(_zQ.multiply(_zQ2));ft.updateMatrixWorld(true);}
+    function vzPose(g,dt){const ud=g.userData,dz=ud.dz;if(!dz)return;const s=ud.sqD||0;
+      if(s>.004){dz.legs.forEach(l=>{if(!l[2])return;l[2].getWorldPosition(_zC);_zC.y+=s;vzLeg(g,l,_zC);});leanTo(g,dz.sq*.5);}}
+    // props each frame: the mask between chest and face, the lance in the hand or in its holder, the gel gun, the hose, the mist
+    function vzSetW(o,p,q){o.position.copy(p);if(q)o.quaternion.copy(q);}
+    function vzProps(dt){const g=VZ.g;if(!g)return;const ud=g.userData,dz=ud.dz;if(!dz)return;const vis=g.visible;[dz.mask,dz.lance,dz.gun,dz.hose].forEach(o=>o.visible=vis);if(!vis){VZ.mist.forEach(s_=>s_.visible=false);return;}
+      g.updateMatrixWorld(true);dz.maskW+=(dz.maskT-dz.maskW)*(1-Math.exp(-dt*5));const mw=tE(dz.maskW);
+      dz.mNeck.getWorldPosition(_zA);dz.mFace.getWorldPosition(_zB);dz.mNeck.getWorldQuaternion(_zQ);dz.mFace.getWorldQuaternion(_zQ2);_zA.lerp(_zB,mw);_zQ.slerp(_zQ2,mw);vzSetW(dz.mask,_zA,_zQ);
+      dz.lanceW+=(dz.lanceT-dz.lanceW)*(1-Math.exp(-dt*7));const lw=tE(dz.lanceW);
+      dz.stow.getWorldPosition(_zA);dz.stow.getWorldQuaternion(_zQ);const pp=palmOf(g,1);if(pp){_zB.set(pp[0],pp[1],pp[2]);}else _zB.copy(_zA);
+      _zM.lookAt(dz.ldir,_zC.set(0,0,0),_zD.set(0,1,0));_zQ2.setFromRotationMatrix(_zM); /* the lance's +z along the spray direction */
+      _zA.lerp(_zB,lw);_zQ.slerp(_zQ2,lw);vzSetW(dz.lance,_zA,_zQ);dz.lance.updateMatrixWorld(true);
+      dz.gun.visible=!!dz.gunOn;if(dz.gunOn&&pp){_zA.set(pp[0],pp[1],pp[2]);const tg=dz.gunTgt||[pp[0],0,pp[2]+1];_zC.set(tg[0]-pp[0],tg[1]-pp[1],tg[2]-pp[2]).normalize();_zM.lookAt(_zC,_zD.set(0,0,0),_zB.set(0,1,0));_zQ.setFromRotationMatrix(_zM);vzSetW(dz.gun,_zA,_zQ);}
+      // hose: outlet → down → up to the lance's back end, a cubic curve with its own sag
+      const a=_zA,b=_zB;dz.outlet.getWorldPosition(a);b.set(0,0,-.09).applyMatrix4(dz.lance.matrixWorld);const c1=_zC.copy(a).add(_zS.set(0,-.35,0)),c2=_zD.set(0,-.05,-.3).applyMatrix4(dz.lance.matrixWorld);c2.y-=.3;
+      const pos=dz.hose.geometry.attributes.position.array,nor=dz.hose.geometry.attributes.normal.array,HN=dz.HN,HR=dz.HR,r=.0075;let pX=0,pY=0,pZ=0;
+      for(let i=0;i<=HN;i++){const u=i/HN,iu=1-u,b0=iu*iu*iu,b1=3*iu*iu*u,b2=3*iu*u*u,b3=u*u*u;const x=a.x*b0+c1.x*b1+c2.x*b2+b.x*b3,y=a.y*b0+c1.y*b1+c2.y*b2+b.y*b3,z=a.z*b0+c1.z*b1+c2.z*b2+b.z*b3;
+        const d0=-3*iu*iu,d1=3*iu*iu-6*iu*u,d2=6*iu*u-3*u*u,d3=3*u*u;let tx=a.x*d0+c1.x*d1+c2.x*d2+b.x*d3,ty=a.y*d0+c1.y*d1+c2.y*d2+b.y*d3,tz=a.z*d0+c1.z*d1+c2.z*d2+b.z*d3;const tl=Math.hypot(tx,ty,tz)||1;tx/=tl;ty/=tl;tz/=tl;
+        let nx=-tz,ny=0,nz=tx;let nl=Math.hypot(nx,nz);if(nl<1e-3){nx=1;nz=0;nl=1;}nx/=nl;nz/=nl;const bx=ty*nz-tz*ny,by=tz*nx-tx*nz,bz=tx*ny-ty*nx;
+        for(let j=0;j<HR;j++){const an=j/HR*Math.PI*2,cs=Math.cos(an),sn=Math.sin(an),ox=nx*cs+bx*sn,oy=ny*cs+by*sn,oz=nz*cs+bz*sn,q=(i*HR+j)*3;pos[q]=x+ox*r;pos[q+1]=Math.max(.008,y+oy*r);pos[q+2]=z+oz*r;nor[q]=ox;nor[q+1]=oy;nor[q+2]=oz;}}
+      dz.hose.geometry.attributes.position.needsUpdate=true;dz.hose.geometry.attributes.normal.needsUpdate=true;
+      // the mist: a fine cone from the nozzle, drifting and fading in ~1.2 s; only while he really sprays
+      const tip=_zA.set(0,0,.73).applyMatrix4(dz.lance.matrixWorld),dir=_zB.set(0,0,1).transformDirection(dz.lance.matrixWorld);
+      if(dz.spraying){dz.emit+=dt*26;while(dz.emit>=1){dz.emit--;const s_=VZ.mist.find(m=>m.userData.t>=1.2);if(!s_)break;s_.userData.t=0;s_.position.copy(tip);s_.userData.v.copy(dir).multiplyScalar(1.4+Math.random()*.6).add(_zC.set(Math.random()-.5,Math.random()-.5,Math.random()-.5).multiplyScalar(.35));s_.visible=true;}}
+      VZ.mist.forEach(s_=>{const d=s_.userData;if(d.t>=1.2){s_.visible=false;return;}d.t+=dt;d.v.multiplyScalar(Math.exp(-dt*2.6));d.v.y-=dt*.12;s_.position.addScaledVector(d.v,dt);const f=d.t/1.2,sc=.06+.42*f;s_.scale.set(sc,sc,1);s_.material.opacity=.42*(1-f)*Math.min(1,d.t*8);});}
+    function clearRoom(){vzClear();buildTok++;pending.forEach(cancelAnimationFrame);pending=[];camSub=null;
       people.concat(extras).forEach(p=>{if(p.userData.gltfP){room.remove(p);if(window.KL_GLTF)window.KL_GLTF.release(p);}});
       room.traverse(o=>{if(o.geometry&&!GEOSET.has(o.geometry))o.geometry.dispose();if(o.isSkinnedMesh){o.skeleton.dispose();if(o.material.map)o.material.map.dispose();o.material.dispose();}if(o.isSprite||(o.material&&o.material.userData&&o.material.userData.own))o.material.dispose();});
       // textures and materials made for this store (labels, stickers, signs drawn on canvases...) are freed too; a shared one that is used
@@ -1772,7 +1922,8 @@ const space=(function(){
         const lid=new T.Mesh(roundedBox(bw*.96,.02,bd*.96,.015).translate(0,bh+.008,0),M.baitLid);
         const hole=new T.Mesh(new T.PlaneGeometry(.09,.05),M.baitHole);hole.position.set(0,.035,bd/2+.001);   // rodent entrance on the room-facing side
         const stTex=stickerTex(i+1),sticker=new T.Mesh(new T.PlaneGeometry(.17,.17),new T.MeshStandardMaterial({map:stTex,roughness:.28,metalness:0,envMapIntensity:.7,emissive:0xffffff,emissiveMap:stTex,emissiveIntensity:.32}));sticker.rotation.x=-Math.PI/2;sticker.position.set(0,bh+.008+.01+.015*.6+.0015,0); // flat on the lid's real top (the extrude bevel adds .6r above the nominal lid), reading from the room side
-        g.add(body,lid,hole,sticker);room.add(g);
+        const hinge=new T.Group();hinge.position.set(0,bh+.008,-bd*.48);lid.position.set(0,-(bh+.008),bd*.48);sticker.position.y-=bh+.008;sticker.position.z+=bd*.48;hinge.add(lid,sticker); // the lid turns on its back edge: the pest controller opens it to check the board
+        g.add(body,hinge,hole);room.add(g);
         const led=new T.Group();led.visible=false;room.add(led); // (kept for the shared per-frame loop; a bait box has no light)
         // o: the pin/aim anchor just above the box top
         const o=[p[0],bh+.06,p[2]];
@@ -1789,7 +1940,7 @@ const space=(function(){
         const pin=document.createElement('button');pin.type='button';pin.className='pin';pin.innerHTML='<b>'+(i+1)+'</b><i>Точка '+(i+1)+'</i>';pin.setAttribute('aria-label','Дератизационна точка '+(i+1)+' ('+(u.title||'')+'): '+u.zone);
         pin.addEventListener('click',e=>{e.stopPropagation();pick(i);focusUnit(i);});ovl.appendChild(pin);
         overlay.push({el:pin,v:new T.Vector3(o[0],o[1]+.02,o[2]),kind:'pin'});
-        S.units.push({jet,p,d,o,info:u,led,light,plume,wave,seal,R:Rr,ph:i/U.length,pin,PL:false});
+        S.units.push({jet,p,d,o,info:u,led,light,plume,wave,seal,R:Rr,ph:i/U.length,pin,PL:false,hinge,bh,bd});
       });
       // entry-path traces on the floor (the „Пътища на проникване“ layer / the UV inspection beat): a chevron strip from the way in to each point
       {const pos=[],uv=[],w=.075,tile=.5,quad=(ax,az,bx,bz)=>{const dx=bx-ax,dz=bz-az,L=Math.hypot(dx,dz);if(L<.25)return;const nx=-dz/L*w,nz=dx/L*w,u1=L/tile,y=.03;
@@ -2144,7 +2295,7 @@ const space=(function(){
       S.units.forEach(u=>{u.led.visible=PEST?false:on;u.pin.classList.toggle('off',PEST?false:!on);});
       M.led.color.setScalar(.3+.7*clamp((lightK-.45)/.55,0,1));if(S.lights)S.lights.forEach(l=>{l.intensity=.22*lightK;});if(S.coolLight)S.coolLight.intensity=.3*(.4+.6*lightK);
       if(S.sign){const sm=open?M.signOpen:M.signClosed;if(S.sign.material!==sm){S.sign.material=sm;S.sign2.material=sm;}}
-      extras.forEach(e=>{if(!e.userData.restocker)e.visible=open;if(e.visible&&!window.__frz)poseAny(e,now/1000,dt,0);});const _t2=DIAG?performance.now():0;if(GL()&&!window.__frz){window.KL_GLTF.update(dt);gltfHeads(dt);}if(!window.__frz)tillPlace();const _t3=DIAG?performance.now():0;
+      extras.forEach(e=>{if(!e.userData.restocker)e.visible=open;if(e.visible&&!window.__frz)poseAny(e,now/1000,dt,0);});const _t2=DIAG?performance.now():0;if(GL()&&!window.__frz){window.KL_GLTF.update(dt);gltfHeads(dt);vzProps(dt);}if(!window.__frz)tillPlace();const _t3=DIAG?performance.now():0;
       if(PEST){
         // UV Обход: while the tour holds just inside the door, a pale-teal wash washes over, the entry-path traces fluoresce and flow toward the
         // boxes in sequence, each control ring pulses and a gold „контрол“ seal lights onto the box — then it all resolves to the warm daytime look
@@ -2179,7 +2330,7 @@ const space=(function(){
       helpFrame();tipFrame(w,h);
       overlay.forEach(o=>{if(o.kind==='pin'&&HR&&!o.off&&o.sx>HR[0]-20&&o.sx<HR[2]+20&&o.sy>HR[1]-20&&o.sy<HR[3]+20)o.off=true;});
       overlay.forEach(o=>{if(o.vis!==!o.off){o.vis=!o.off;o.el.style.visibility=o.off?'hidden':'visible';}if(!o.off){const tf='translate('+o.sx.toFixed(1)+'px,'+o.sy.toFixed(1)+'px)'+(o.kind==='lbl'?' translate(-50%,-50%)':' translate(-50%,-100%)');if(o.tf!==tf){o.tf=tf;o.el.style.transform=tf;}}}); // DOM written only when something changed
-      const pT1=performance.now();renderer.render(scene,camera);if(DIAG){const e=performance.now();DG.seg=[_t1-pT0,_t2-_t1,_t3-_t2,_t4-_t3,pT1-_t4,e-pT1,e-pT0];}if(window.__prof){const P=window.__prof;P.js+=pT1-pT0;if(pT1-pT0>(P.max||0))P.max=pT1-pT0;(P.h=P.h||[]).push(+(pT1-pT0).toFixed(1));P.gl+=performance.now()-pT1;P.n++;}if(window.__perf){window.__perf.frames=(window.__perf.frames||0)+1;if(!window.__perf.first)window.__perf.first=performance.now();}
+      const pT1=performance.now();if(window.__camLock){const c_=window.__camLock;camera.position.set(c_.p[0],c_.p[1],c_.p[2]);camera.lookAt(c_.t[0],c_.t[1],c_.t[2]);}renderer.render(scene,camera);if(DIAG){const e=performance.now();DG.seg=[_t1-pT0,_t2-_t1,_t3-_t2,_t4-_t3,pT1-_t4,e-pT1,e-pT0];}if(window.__prof){const P=window.__prof;P.js+=pT1-pT0;if(pT1-pT0>(P.max||0))P.max=pT1-pT0;(P.h=P.h||[]).push(+(pT1-pT0).toFixed(1));P.gl+=performance.now()-pT1;P.n++;}if(window.__perf){window.__perf.frames=(window.__perf.frames||0)+1;if(!window.__perf.first)window.__perf.first=performance.now();}
       if(!raf)raf=requestAnimationFrame(frame); // exactly one loop: a kick() during this frame (a tour key, a click) has already scheduled the next one
     }
     kick=()=>{if(!raf&&(vis||!LD.done)){last=0;raf=requestAnimationFrame(frame);}};
@@ -2204,7 +2355,7 @@ const space=(function(){
       const lbl=g=>{const u=g.userData;return (u.cashier?'cashier':u.restocker?'restocker':u.isChild?'child':u.elder?'elder':'adult')+'#'+(people.indexOf(g)>=0?people.indexOf(g):'x'+extras.indexOf(g))+' st='+u.state+' clip='+u.clip+(u.phase?' ph='+u.phase:'')+(u.pushing?' cart':'')+(u.follow!=null?' follow':'');};
       const B=(g,n)=>g.getObjectByName('Bip01_'+n)||g.getObjectByName('Bip02_'+n),wp=o=>{const v=new T.Vector3();o.getWorldPosition(v);return v;};
       const push=(k,o)=>{if(R[k].length<400)R[k].push(o);};
-      for(let s=0;s<N;s++){window.__simT+=dt;const T_=window.__simT;stepPeople(dt,T_,true);extras.forEach(e=>{if(e.visible)poseAny(e,T_,dt,0);});if(GL()){window.KL_GLTF.update(dt);gltfHeads(dt);}tillPlace();
+      for(let s=0;s<N;s++){window.__simT+=dt;const T_=window.__simT;stepPeople(dt,T_,true);extras.forEach(e=>{if(e.visible)poseAny(e,T_,dt,0);});if(GL()){window.KL_GLTF.update(dt);gltfHeads(dt);vzProps(dt);}tillPlace();
         const all=people.concat(extras).filter(g=>g.visible);
         all.forEach(g=>{const u=g.userData,p=g.position;if(!isFinite(p.x)||!isFinite(p.z)){R.nan++;return;}if(u.culledFar){seen.delete(g);return;}
           let h=seen.get(g);if(!h){h={p:p.clone(),ry:g.rotation.y,hand:null,hv:null,hr:0,head:null,dv:null,drv:0,mv:0};seen.set(g,h);return;}
@@ -2240,7 +2391,7 @@ const space=(function(){
       const sum={};Object.keys(R).forEach(k=>sum[k]=Array.isArray(R[k])?R[k].length:R[k]);return {sum,R};};
 
     // debug: with the loop frozen, advance the people n fixed steps (a slow machine can still record every moment of a scene)
-    window.__step=(n,dt)=>{dt=dt||1/30;if(window.__simT==null)window.__simT=performance.now()/1000;for(let i=0;i<n;i++){window.__simT+=dt;stepPeople(dt,window.__simT,true);extras.forEach(e=>{if(e.visible)poseAny(e,window.__simT,dt,0);});if(GL()){window.KL_GLTF.update(dt);gltfHeads(dt);}tillPlace();}renderer.render(scene,camera);return window.__simT;};
+    window.__step=(n,dt)=>{dt=dt||1/30;if(window.__simT==null)window.__simT=performance.now()/1000;for(let i=0;i<n;i++){window.__simT+=dt;stepPeople(dt,window.__simT,true);extras.forEach(e=>{if(e.visible)poseAny(e,window.__simT,dt,0);});if(GL()){window.KL_GLTF.update(dt);gltfHeads(dt);vzProps(dt);}tillPlace();}renderer.render(scene,camera);return window.__simT;};
     window.__tillD=()=>S.tillD&&S.tillD.map(d=>({m:d.m,v:d.o.visible,p:d.o.position.toArray().map(x=>+x.toFixed(3)),palm:d.who?palmOf(d.who,d.side):null,fk:d.fk,tk:d.tk,from:d.from,to:d.to,plan:d.plan}));window.__till=()=>({cashier:S.cashier,q0:nav&&nav.queue&&nav.queue[0],basket:S.counterBasket&&S.counterBasket.position.toArray(),beep:S.beep&&S.beep.position.toArray(),a:S.counterItems&&S.counterItems.map(m=>m.userData.a),b:S.counterItems&&S.counterItems.map(m=>m.userData.b),arms:extras.concat(people).filter(g=>g.userData.gltfP).slice(0,3).map(g=>{const B=n=>g.getObjectByName('Bip01_'+n)||g.getObjectByName('Bip02_'+n);const s0=new T.Vector3(),e0=new T.Vector3(),w0=new T.Vector3();const u=B('R_UpperArm'),f=B('R_Forearm'),h=B('R_Hand');if(!u||!f||!h)return null;u.getWorldPosition(s0);f.getWorldPosition(e0);h.getWorldPosition(w0);return {l1:+s0.distanceTo(e0).toFixed(3),l2:+e0.distanceTo(w0).toFixed(3),sh:+s0.y.toFixed(2),cashier:!!g.userData.cashier,h:+(g.userData.k||1).toFixed(2)};})})
     window.__zf=()=>{const F=[],add=(id,a,s,p,r,src)=>F.push({id,a,s,p,r,src});
       ZB.forEach(b=>{for(let a=0;a<3;a++){const o=[0,1,2].filter(k=>k!==a),r=[b.mn[o[0]],b.mx[o[0]],b.mn[o[1]],b.mx[o[1]]];add(b.id,a,-1,b.mn[a],r,b.s);add(b.id,a,1,b.mx[a],r,b.s);}});

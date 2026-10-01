@@ -11,17 +11,17 @@
   var CLIPS=['walk','walkslow','idle','wait','look','phone','bag','talk','talk2','listen','phonetalk'];
   function fitHeight(o,h){o.updateMatrixWorld(true);var b=new THREE.Box3().setFromObject(o);var cur=b.max.y-b.min.y;if(!(cur>0))return 1;var s=h/cur;o.scale.setScalar(s);o.updateMatrixWorld(true);b=new THREE.Box3().setFromObject(o);var c=b.getCenter(new THREE.Vector3());o.position.set(-c.x,-b.min.y,-c.z);return s;}
   G.has=function(kind){return G.models.some(function(m){return !kind||m.tags.indexOf(kind)>=0;});};
-  /* profile {kind:'m'|'f'|'child'|'elderly'|'staff', height, avoid:[files]} → Group с userData {mixer, play(name,fade), setSpeed, kind, file} */
+  /* profile {kind:'m'|'f'|'child'|'elderly'|'staff', height, avoid:[files], file (this model only), fresh (a new clone, never a pooled body)} → Group с userData {mixer, play(name,fade), setSpeed, kind, file} */
   G.spawn=function(profile){profile=profile||{};if(!G.models.length||!G.anims)return null;
     var ok=function(m){var t=m.tags;if(!profile.kind)return t.indexOf('child')<0&&t.indexOf('staff')<0;if(profile.kind==='m'||profile.kind==='f')return t.indexOf(profile.kind)>=0&&t.indexOf('child')<0&&t.indexOf('staff')<0;return t.indexOf(profile.kind)>=0;};
-    var pool=G.models.filter(function(m){return ok(m)&&(!profile.avoid||profile.avoid.indexOf(m.file)<0);});
-    if(!pool.length)pool=G.models.filter(ok);if(!pool.length)return null;
+    var pool=profile.file?G.models.filter(function(m){return m.file===profile.file;}):G.models.filter(function(m){return ok(m)&&(!profile.avoid||profile.avoid.indexOf(m.file)<0);});
+    if(!pool.length&&!profile.file)pool=G.models.filter(ok);if(!pool.length)return null;
     /* най-рядко използваният първи */
     var ready=pool.filter(function(m){return G.pool[m.file]&&G.pool[m.file].length;}); /* a body already waiting in the pool beats a new clone */
     pool.sort(function(a,b){return a.used-b.used;});var src=ready.length?ready[Math.floor(Math.random()*ready.length)]:pool[Math.floor(Math.random()*Math.min(3,pool.length))];src.used++;
     var sex=src.tags.indexOf('f')>=0?'f':'m';
     /* a person who left the store gives their body to the next one of the same model: no clone, no new skeleton, no new GPU buffers */
-    var P=(G.pool[src.file]||[]).pop(),root,mixer,acts,scale,g=new THREE.Group();
+    var P=profile.fresh?null:(G.pool[src.file]||[]).pop(),root,mixer,acts,scale,g=new THREE.Group();
     if(P){root=P.root;mixer=P.mixer;acts=P.acts;var hh=profile.height||src.height,rt=hh/P.h;root.scale.multiplyScalar(rt);root.position.multiplyScalar(rt);scale=P.scale*rt;root.visible=true;g.add(root);G.poolN--;G.reused=(G.reused||0)+1;root.traverse(function(x){if(x.morphTargetInfluences)for(var j=0;j<x.morphTargetInfluences.length;j++)x.morphTargetInfluences[j]=0;});}
     else{root=THREE.SkeletonUtils.clone(src.scene);g.add(root);root.traverse(function(x){x.userData.kl0=1;if(x.isMesh){x.frustumCulled=false;x.castShadow=!!profile.shadow;x.receiveShadow=false;}});
       /* body, head and hair of one person share ONE skeleton (the clone gives each its own): one bone update and one bone texture upload per person per frame instead of three */
@@ -50,7 +50,7 @@
   /* a person leaves the scene: free what was made only for them (their skeleton's bone texture, the animation mixer's cache);
      models, geometry and materials are shared and stay */
   G.release=function(g){var i=G.instances.indexOf(g);if(i>=0)G.instances.splice(i,1);var K=g.userData.kl,mx=g.userData.mixer;
-    if(K&&G.poolN<14){/* back to the pool: whatever the scene hung on the bones (bag, phone…) comes off, the body waits for the next shopper */
+    if(K&&G.poolN<14&&!g.userData.noPool){/* back to the pool: whatever the scene hung on the bones (bag, phone…) comes off, the body waits for the next shopper */
       var extra=[];K.root.traverse(function(x){if(!x.userData.kl0)extra.push(x);});extra.forEach(function(x){if(x.parent)x.parent.remove(x);});
       mx.stopAllAction();g.remove(K.root);K.root.visible=true;(G.pool[K.file]=G.pool[K.file]||[]).push(K);G.poolN++;return;}
     var seen=[];g.traverse(function(x){if(x.isSkinnedMesh&&x.skeleton&&seen.indexOf(x.skeleton)<0){seen.push(x.skeleton);x.skeleton.dispose();}});
