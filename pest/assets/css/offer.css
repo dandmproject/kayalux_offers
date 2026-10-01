@@ -1121,15 +1121,15 @@ input[type=range]{height:28px;padding:6px 0;box-sizing:border-box}
   color-scheme:dark;
 }
 /* a faint film scanline over the night theme, as in the client's own page */
-:root[data-theme="dark"] body::after,:root[data-theme="bordo"] body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:57;background:repeating-linear-gradient(to bottom,rgba(255,255,255,.014) 0 1px,transparent 1px 3px)}
-:root[data-theme="dark"] .uv-wash,:root[data-theme="bordo"] .uv-wash{mix-blend-mode:screen;background:radial-gradient(120% 95% at 50% 42%,rgba(110,210,196,.34),rgba(80,150,190,.16) 60%,rgba(60,110,160,.06))}
+:root[data-theme="dark"] body::after,:root[data-theme="bordo"] body::after,:root[data-theme="forest"] body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:57;background:repeating-linear-gradient(to bottom,rgba(255,255,255,.014) 0 1px,transparent 1px 3px)}
+:root[data-theme="dark"] .uv-wash,:root[data-theme="bordo"] .uv-wash,:root[data-theme="forest"] .uv-wash{mix-blend-mode:screen;background:radial-gradient(120% 95% at 50% 42%,rgba(110,210,196,.34),rgba(80,150,190,.16) 60%,rgba(60,110,160,.06))}
 
 /* ===== логото на УНИЩОЖИТЕЛИ (оригиналното злато) ===== */
 .brand{gap:0}
 .brand .logo{height:34px;width:auto;display:block;filter:drop-shadow(0 1px 6px rgba(0,0,0,.35))}
 @media (max-width:900px){.brand .logo{height:28px}}
 @media (max-width:420px){.brand .logo{height:24px}}
-:root:not([data-theme="dark"]):not([data-theme="bordo"]) .brand .logo,:root:not([data-theme="dark"]):not([data-theme="bordo"]) .foot-logo{filter:brightness(.66) saturate(1.45) contrast(1.15) drop-shadow(0 .5px .5px rgba(60,45,10,.35))}
+:root:not([data-theme="dark"]):not([data-theme="bordo"]):not([data-theme="forest"]) .brand .logo,:root:not([data-theme="dark"]):not([data-theme="bordo"]):not([data-theme="forest"]) .foot-logo{filter:brightness(.66) saturate(1.45) contrast(1.15) drop-shadow(0 .5px .5px rgba(60,45,10,.35))}
 .paperlogo img{width:min(300px,70%);height:auto;filter:brightness(.66) saturate(1.45) contrast(1.15) drop-shadow(0 .5px .5px rgba(60,45,10,.3))}
 footer.foot .wrap{align-items:center}
 .foot-logo{height:26px;width:auto;opacity:.9}
@@ -1151,8 +1151,8 @@ footer.foot .wrap{align-items:center}
 @keyframes emLock{0%,40%{transform:scale(1.08);opacity:.25}55%{transform:scale(1);opacity:.9}75%,100%{transform:scale(1);opacity:.45}}
 .emblem{animation:emIn 2s .7s cubic-bezier(.2,.7,.2,1) both}
 @keyframes emIn{from{opacity:0;transform:translateY(-46%) scale(.94)}to{opacity:1;transform:translateY(-50%) scale(1)}}
-:root:not([data-theme="dark"]):not([data-theme="bordo"]) .emblem::after{display:none}
-:root:not([data-theme="dark"]):not([data-theme="bordo"]) .emblem .disc{box-shadow:0 30px 60px -24px rgba(60,45,10,.45),0 0 0 1px rgba(134,103,16,.25)}
+:root:not([data-theme="dark"]):not([data-theme="bordo"]):not([data-theme="forest"]) .emblem::after{display:none}
+:root:not([data-theme="dark"]):not([data-theme="bordo"]):not([data-theme="forest"]) .emblem .disc{box-shadow:0 30px 60px -24px rgba(60,45,10,.45),0 0 0 1px rgba(134,103,16,.25)}
 /* narrower screens: the emblem stands above the title, centred, smaller */
 @media (max-width:1279px){
   .emblem{position:relative;left:auto;top:auto;transform:none;align-self:center;width:clamp(150px,26vw,210px);margin:0 auto clamp(18px,3vw,30px);animation:emInS 1.6s .6s cubic-bezier(.2,.7,.2,1) both}
@@ -1235,3 +1235,16 @@ footer.foot .wrap{align-items:center}
   --paper:#FFFFFF; --paper-ink:#132119; --paper-soft:#37503F; --paper-line:#C8DACC;
   color-scheme:light;
 }
+
+/* Гора — тъмно горско зелено със злато: еко посланието в тъмен, кинематографичен вид; стои добре със златното лого */
+:root[data-theme="forest"]{
+  --ground:#0C1510; --surface:#121D16; --surface-2:#18261D; --line:#27392D;
+  --ink:#E9EFE6; --ink-soft:#B4C2B6; --ink-faint:#8A9B8D;
+  --gold:#D0AC58; --gold-soft:#A88C4E; --on-gold:#0C1510;
+  --ok:#8CC79A; --warn:#E08A6A;
+  --glow:rgba(208,172,88,.20); --glow-2:rgba(40,120,70,.10);
+  --stage-a:#111C15; --stage-b:#070C09; --vig:rgba(0,0,0,.6);
+  --paper:#FBFAF5; --paper-ink:#16201A; --paper-soft:#46564B; --paper-line:#D3DBCF;
+  color-scheme:dark;
+}
+:root[data-theme="forest"] .hero::before{background:radial-gradient(60% 55% at var(--gx,72%) var(--gy,64%),rgba(46,130,80,.20) 0,rgba(208,172,88,.06) 40%,transparent 70%)}
