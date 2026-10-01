@@ -397,8 +397,8 @@ header('Cache-Control: private, no-store, max-age=0');
         <div class="sbox" id="clientBox"><small>За клиента</small>
           <div class="pad" id="padWrap"><canvas id="pad" width="600" height="240" aria-label="Поле за подпис"></canvas><span class="padhint" id="padHint">Подпишете тук с пръст, стилус или мишка</span></div>
           <b>Татяна Попова</b><span>Верига „АВАНТИ“</span><span class="when" id="signedWhen"></span>
-          <div class="padbar"><button type="button" class="btn small" id="padUndo" disabled>Назад</button><button type="button" class="btn small" id="padClear">Изчисти</button><button type="button" class="btn small" id="padUpload">Качи подпис / печат</button><input type="file" id="padFile" accept="image/*" hidden><button type="button" class="btn small fill" id="padSign">Подпиши</button><button type="button" class="btn small" id="padEdit" hidden>Промени подписа</button><a class="btn small" id="padMail" hidden>Изпрати потвърждението</a></div>
-          <p class="padnote" id="padNote">Подпишете с пръст, стилус или мишка, или качете готова снимка на подпис и печат (JPG, PNG). След „Подпиши“ подписът се записва на това устройство и остава видим при следващо отваряне. За да стигне до нас, натиснете „Изпрати потвърждението“: отваря се готов имейл до unishtojiteli@gmail.com с датата.</p>
+          <div class="padbar"><button type="button" class="btn small" id="padClear">Изчисти</button><button type="button" class="btn small" id="padUpload">Качи подпис / печат</button><input type="file" id="padFile" accept="image/*" hidden><button type="button" class="btn small fill" id="padSign">Подпиши</button><button type="button" class="btn small" id="padEdit" hidden>Промени подписа</button><a class="btn small" id="padMail" hidden>Изпрати потвърждението</a></div>
+          <p class="padnote" id="padNote">Подпишете с пръст, стилус или мишка, или качете готова снимка на подпис и печат (JPG, PNG). За да приемете текущите параметри на офертата, след като положите подписа, кликнете „Подпиши“.</p>
         </div>
       </div>
     </div>
