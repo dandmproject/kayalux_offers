@@ -16,7 +16,7 @@ header('Cache-Control: private, no-store, max-age=0');
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/cormorant-garamond-cyrillic-400-italic.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-cyrillic-400-normal.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-cyrillic-500-normal.woff2">
-<link rel="stylesheet" href="assets/css/offer.min.css?v=f552ca85">
+<link rel="stylesheet" href="assets/css/offer.min.css?v=c5b43fbd">
 </head>
 <body>
 <div class="grain" aria-hidden="true"></div>
@@ -95,8 +95,8 @@ header('Cache-Control: private, no-store, max-age=0');
       <div class="figs">
         <div class="fig"><b class="num">48</b><span>обекта с общ ароматен подпис</span></div>
         <div class="fig"><b class="num">13</b><span>тестови обекта през юли и август</span></div>
-        <div class="fig"><b class="num">96&nbsp;ч</b><span>седмично работят системите в 38 от 48-те обекта</span></div>
-        <div class="fig"><b class="num">&lt;&nbsp;0,25&nbsp;€</b><span>на ден за обект е разликата за пълно работно време</span></div>
+        <div class="fig"><b class="num">96&nbsp;ч</b><span>средно работят дифузерните системи в 48 обекта</span></div>
+        <div class="fig"><b class="num"><small class="fig-pre">под</small>0,25&nbsp;€</b><span>на ден за обект е разликата за пълно работно време</span></div>
       </div>
     </div>
     <ol class="timeline" aria-label="Хронология">
@@ -260,7 +260,7 @@ header('Cache-Control: private, no-store, max-age=0');
         <p>В обектите с по-високи тавани поставихме модели с по-голям капацитет, за да е ароматът еднакво силен навсякъде.</p>
       </div>
       <div>
-        <blockquote class="quote">„Точният брой ароматни зони се потвърждава по време на монтажа и се описва поименно в протокол за поставяне.“<cite>Така беше записано в първоначалната ни оферта от 06.07.2026&nbsp;г. Настоящата актуализация е това потвърждение.</cite></blockquote>
+        <blockquote class="quote">„Точният брой ароматни зони се потвърждава по време на монтажа и се описва поименно в протокол за поставяне или в следващ месец при зареждане.“<cite>Така беше записано в първоначалната ни оферта от 06.07.2026&nbsp;г. Настоящата актуализация е това потвърждение.</cite></blockquote>
       </div>
     </div>
     <div class="models" id="models">
@@ -401,7 +401,7 @@ header('Cache-Control: private, no-store, max-age=0');
           <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Реакция до 48 часа при технически проблем; безплатна подмяна на системата при повреда и нормална експлоатация.</span></li>
         </ul></section>
         <section><h4>Фактуриране</h4><ul>
-          <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Една месечна фактура с разбивка по обекти или една месечна фактура с обща стойност по офертата.</span></li>
+          <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Една месечна фактура с разбивка по обекти или една месечна фактура с обща стойност по офертата – по ваш избор.</span></li>
         </ul></section>
       </div>
     </div>
