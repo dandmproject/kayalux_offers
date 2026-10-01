@@ -16,7 +16,7 @@ header('Cache-Control: private, no-store, max-age=0');
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/cormorant-garamond-cyrillic-400-italic.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-cyrillic-400-normal.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-cyrillic-500-normal.woff2">
-<link rel="stylesheet" href="assets/css/offer.min.css?v=5c6c2b9b">
+<link rel="stylesheet" href="assets/css/offer.min.css?v=f552ca85">
 </head>
 <body>
 <div class="grain" aria-hidden="true"></div>
@@ -27,7 +27,7 @@ header('Cache-Control: private, no-store, max-age=0');
       <svg viewBox="0 0 26 36" aria-hidden="true"><ellipse cx="13" cy="18" rx="12.2" ry="17.2" fill="none" stroke="var(--gold)" stroke-width="1"/><ellipse cx="13" cy="18" rx="10.4" ry="15.2" fill="var(--gold)"/><text x="11.4" y="17.6" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="12.5" fill="var(--ground)">K</text><text x="14.6" y="27.4" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="12.5" fill="var(--ground)">L</text></svg>
       <img class="bm" src="assets/img/logo-mark.png" alt="" width="36" height="48"><img class="bw" src="assets/img/logo-word.png" alt="KAYA LUX" width="106" height="20">
     </a>
-    <span class="doc">Търговска оферта <b>АВАНТИ</b></span>
+    <span class="doc"><span class="dl">Търговска </span>оферта <b>АВАНТИ</b></span>
     <ul class="chapters">
       <li><a href="#pilot"><i>I</i>Тестът</a></li>
       <li><a href="#aromat"><i>II</i>Ароматът</a></li>
@@ -39,9 +39,10 @@ header('Cache-Control: private, no-store, max-age=0');
       <li><a href="#reshenie"><i>VIII</i>Решение</a></li>
     </ul>
     <div class="nav-tools">
-      <div class="theme-menu"><button class="theme-btn" id="themeBtn" type="button" aria-label="Тема" aria-haspopup="true" aria-expanded="false"></button><div class="theme-pop" id="themePop" role="radiogroup" aria-label="Тема" hidden><button type="button" role="radio" data-t="dark" aria-checked="false"><i style="background:#0D0B09"></i>Нощ</button><button type="button" role="radio" data-t="light" aria-checked="false"><i style="background:#F2EEE6"></i>Ден</button><button type="button" role="radio" data-t="olive" aria-checked="false"><i style="background:#1A1F14;border-color:#D9E27C"></i>Маслина</button></div></div>
+      <div class="theme-menu"><button class="theme-btn" id="themeBtn" type="button" aria-label="Тема" aria-haspopup="true" aria-expanded="false"></button><div class="theme-pop" id="themePop" role="radiogroup" aria-label="Тема" hidden><button type="button" role="radio" data-t="dark" aria-checked="false"><i style="background:#0D0B09"></i>Нощ</button><button type="button" role="radio" data-t="light" aria-checked="false"><i style="background:#F2EEE6"></i>Ден</button><button type="button" role="radio" data-t="olive" aria-checked="false"><i style="background:#1A1F14;border-color:#D9E27C"></i>Маслина</button></div></div><button class="menu-btn" id="menuBtn" type="button" aria-label="Съдържание" aria-expanded="false" aria-controls="navSheet"><span></span><span></span><span></span></button>
     </div>
   </div>
+  <div class="nav-sheet" id="navSheet" hidden></div>
   <div class="progress" aria-hidden="true"></div>
 </nav>
 
@@ -492,7 +493,7 @@ header('Cache-Control: private, no-store, max-age=0');
 </footer>
 
 <script defer src="assets/js/three.min.js"></script>
-<script defer src="assets/js/app.min.js?v=9b29cf1c"></script>
+<script defer src="assets/js/app.min.js?v=d4a70743"></script>
 <script>/* моделите (~5 MB, кеширани) тръгват на заден план след зареждането на страницата или когато 3D схемата наближи */addEventListener('DOMContentLoaded',function(){var st=document.getElementById('stage');if(!st||!window.KL_GLTF)return;var go=function(){KL_GLTF.start();};addEventListener('load',function(){setTimeout(function(){(window.requestIdleCallback||function(f){f();})(go);},1500);});if('IntersectionObserver' in window){var io=new IntersectionObserver(function(en){if(en[0].isIntersecting){go();io.disconnect();}},{rootMargin:'1400px'});io.observe(st);}else go();});</script>
 <script>/* телефон: докато 3D схемата е на екрана, бутоните за контакт се отдръпват */(function(){var d=document.querySelector('.dock'),c=document.querySelector('.stage-col');if(!d||!c||!('IntersectionObserver' in window))return;new IntersectionObserver(function(e){d.classList.toggle('dim',e[0].isIntersecting);},{threshold:.25}).observe(c);})();</script>
 <script>/* локален сървър (tools/serve.py): след обновяване предлага презареждане; на хостинга /__version го няма и нищо не се показва */(function(){if(!document.querySelector('meta[name="kl-local"]'))return;var v=null;function chk(){fetch('/__version',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){if(!j||!j.sha)return;if(v===null){v=j.sha;return;}if(j.sha!==v&&!document.getElementById('klUpd')){var b=document.createElement('button');b.id='klUpd';b.type='button';b.textContent='Има нова версия на офертата · Обнови';b.onclick=function(){location.reload();};document.body.appendChild(b);}}).catch(function(){});}chk();setInterval(chk,60000);})();</script>

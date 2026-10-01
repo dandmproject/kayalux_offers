@@ -16,7 +16,7 @@ header('Cache-Control: private, no-store, max-age=0');
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/cormorant-garamond-cyrillic-400-italic.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-cyrillic-400-normal.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-cyrillic-500-normal.woff2">
-<link rel="stylesheet" href="assets/css/offer.min.css?v=21d4f469">
+<link rel="stylesheet" href="assets/css/offer.min.css?v=f1e4c673">
 </head>
 <body>
 <div class="grain" aria-hidden="true"></div>
@@ -24,7 +24,7 @@ header('Cache-Control: private, no-store, max-age=0');
 <nav class="nav" id="nav" aria-label="Глави на офертата">
   <div class="wrap">
     <a class="brand" href="#top" aria-label="УНИЩОЖИТЕЛИ, към началото"><img class="logo" src="assets/img/logo.png" alt="УНИЩОЖИТЕЛИ" width="1000" height="190"></a>
-    <span class="doc">Пест контрол <b>АВАНТИ</b></span>
+    <span class="doc"><span class="dl">Пест контрол </span><b>АВАНТИ</b></span>
     <ul class="chapters">
       <li><a href="#pismo"><i>I</i>Писмо</a></li>
       <li><a href="#tochki"><i>II</i>Точките</a></li>
@@ -36,9 +36,10 @@ header('Cache-Control: private, no-store, max-age=0');
       <li><a href="#reshenie"><i>VIII</i>Решение</a></li>
     </ul>
     <div class="nav-tools">
-      <div class="theme-menu"><button class="theme-btn" id="themeBtn" type="button" aria-label="Тема" aria-haspopup="true" aria-expanded="false"></button><div class="theme-pop" id="themePop" role="radiogroup" aria-label="Тема" hidden><button type="button" role="radio" data-t="paper" aria-checked="false"><i style="background:#F6F1E4;border-color:#C29A3F"></i>Ден<small>топла светла</small></button><button type="button" role="radio" data-t="clean" aria-checked="false"><i style="background:#F2F6F9;border-color:#1D5FA3"></i>Хигиена<small>синьо · HACCP</small></button><button type="button" role="radio" data-t="green" aria-checked="false"><i style="background:#EFF5F0;border-color:#17703F"></i>Еко<small>зелено · без отрови</small></button><button type="button" role="radio" data-t="olive" aria-checked="false"><i style="background:#F3F4EA;border-color:#6F7B14"></i>Маслина<small>маслинено · злато</small></button><button type="button" role="radio" data-t="gallery" aria-checked="false"><i style="background:#F4F5F6;border-color:#86681F"></i>Галерия<small>неутрална</small></button><button type="button" role="radio" data-t="dark" aria-checked="false"><i style="background:#14181C;border-color:#C9A24A"></i>Нощ<small>тъмносиньо</small></button><button type="button" role="radio" data-t="forest" aria-checked="false"><i style="background:#18261D;border-color:#D0AC58"></i>Гора<small>тъмно зелено · злато</small></button><button type="button" role="radio" data-t="bordo" aria-checked="false"><i style="background:#2B171B;border-color:#D6B062"></i>Емблема<small>бордо · злато</small></button></div></div>
+      <div class="theme-menu"><button class="theme-btn" id="themeBtn" type="button" aria-label="Тема" aria-haspopup="true" aria-expanded="false"></button><div class="theme-pop" id="themePop" role="radiogroup" aria-label="Тема" hidden><button type="button" role="radio" data-t="paper" aria-checked="false"><i style="background:#F6F1E4;border-color:#C29A3F"></i>Ден<small>топла светла</small></button><button type="button" role="radio" data-t="clean" aria-checked="false"><i style="background:#F2F6F9;border-color:#1D5FA3"></i>Хигиена<small>синьо · HACCP</small></button><button type="button" role="radio" data-t="green" aria-checked="false"><i style="background:#EFF5F0;border-color:#17703F"></i>Еко<small>зелено · без отрови</small></button><button type="button" role="radio" data-t="olive" aria-checked="false"><i style="background:#F3F4EA;border-color:#6F7B14"></i>Маслина<small>маслинено · злато</small></button><button type="button" role="radio" data-t="gallery" aria-checked="false"><i style="background:#F4F5F6;border-color:#86681F"></i>Галерия<small>неутрална</small></button><button type="button" role="radio" data-t="dark" aria-checked="false"><i style="background:#14181C;border-color:#C9A24A"></i>Нощ<small>тъмносиньо</small></button><button type="button" role="radio" data-t="forest" aria-checked="false"><i style="background:#18261D;border-color:#D0AC58"></i>Гора<small>тъмно зелено · злато</small></button><button type="button" role="radio" data-t="bordo" aria-checked="false"><i style="background:#2B171B;border-color:#D6B062"></i>Емблема<small>бордо · злато</small></button></div></div><button class="menu-btn" id="menuBtn" type="button" aria-label="Съдържание" aria-expanded="false" aria-controls="navSheet"><span></span><span></span><span></span></button>
     </div>
   </div>
+  <div class="nav-sheet" id="navSheet" hidden></div>
   <div class="progress" aria-hidden="true"></div>
 </nav>
 
@@ -413,7 +414,7 @@ header('Cache-Control: private, no-store, max-age=0');
 </footer>
 
 <script defer src="assets/js/three.min.js"></script>
-<script defer src="assets/js/app.min.js?v=d872d797"></script>
+<script defer src="assets/js/app.min.js?v=b24de6dd"></script>
 <script>/* моделите тръгват на заден план след зареждането или когато 3D схемата наближи */addEventListener('DOMContentLoaded',function(){var st=document.getElementById('stage');if(!st||!window.KL_GLTF)return;var go=function(){KL_GLTF.start();};addEventListener('load',function(){setTimeout(function(){(window.requestIdleCallback||function(f){f();})(go);},1500);});if('IntersectionObserver' in window){var io=new IntersectionObserver(function(en){if(en[0].isIntersecting){go();io.disconnect();}},{rootMargin:'1400px'});io.observe(st);}else go();});</script>
 <script>/* телефон: докато 3D схемата е на екрана, бутоните за контакт се отдръпват */(function(){var d=document.querySelector('.dock'),c=document.querySelector('.stage-col');if(!d||!c||!('IntersectionObserver' in window))return;new IntersectionObserver(function(e){d.classList.toggle('dim',e[0].isIntersecting);},{threshold:.25}).observe(c);})();</script>
 <script>/* локален сървър: след обновяване предлага презареждане */(function(){if(!document.querySelector('meta[name="kl-local"]'))return;var v=null;function chk(){fetch('/__version',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){if(!j||!j.sha)return;if(v===null){v=j.sha;return;}if(j.sha!==v&&!document.getElementById('klUpd')){var b=document.createElement('button');b.id='klUpd';b.type='button';b.textContent='Има нова версия на офертата · Обнови';b.onclick=function(){location.reload();};document.body.appendChild(b);}}).catch(function(){});}chk();setInterval(chk,60000);})();</script>

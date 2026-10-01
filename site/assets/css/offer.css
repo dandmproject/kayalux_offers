@@ -732,7 +732,7 @@ input[type=range]{height:28px;padding:6px 0;box-sizing:border-box}
 @media (max-width:760px){
   :root{--nav-h:56px}
   .doc-tag{display:none}
-  .theme-btn{width:44px;height:44px}
+  .theme-btn,.menu-btn{width:44px;height:44px}
   .hud-card span,.mode .sum span,.obj td .dev,.letterbox p.muted,.quote cite,.calc .work,.accord .by,.city-panel ul,.city-panel h4 small,.sig .who span,.valid-left,.credits .total small,.hero dl.credits .total small,.inv .lab,.pl-row span,.model .cnt small,footer.foot,#mailto{font-size:14px}
   .mode .rec,.obj .reg,.hud-card .tag{font-size:11.5px}
   .head .no span,.party small,.credits dt,.hero dl.credits dt,.field label,.field .lab,.mode .k,.sys-card dt,.incl h4,.notes .t,.letterbox header span,.sig .who small,.lines div,.summary thead th,.honest b,.mark{font-size:12px}
@@ -1119,3 +1119,24 @@ input[type=range]{height:28px;padding:6px 0;box-sizing:border-box}
 /* while the live 3D set is on screen, the fixed bar and the up-button above it drop their blur (solid instead) */
 .klive .nav,.klive .dbtn.up{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 .klive .nav{background:color-mix(in srgb,var(--ground) 96%,transparent)!important}.klive .dbtn.up{background:var(--ground)!important}
+
+/* the chapters menu below the width where the chapter bar no longer fits: a hamburger in the bar, a panel with all chapters under it */
+.menu-btn{display:none;width:36px;height:36px;border:1px solid var(--line);background:var(--surface);cursor:pointer;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--gold);padding:0}
+.menu-btn span{display:block;width:16px;height:1.5px;background:currentColor;border-radius:1px;transition:transform .22s ease,opacity .18s ease}
+.menu-btn[aria-expanded="true"] span:nth-child(1){transform:translateY(5.5px) rotate(45deg)}
+.menu-btn[aria-expanded="true"] span:nth-child(2){opacity:0}
+.menu-btn[aria-expanded="true"] span:nth-child(3){transform:translateY(-5.5px) rotate(-45deg)}
+.menu-btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+@media (max-width:1300px){.menu-btn{display:inline-flex}}
+.nav-sheet{position:absolute;left:0;right:0;top:100%;background:color-mix(in srgb,var(--ground) 97%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-top:1px solid var(--line);border-bottom:1px solid var(--line);box-shadow:0 18px 40px -18px rgba(0,0,0,.45);max-height:calc(100dvh - var(--nav-h) - env(safe-area-inset-top,0px));overflow:auto;overscroll-behavior:contain}
+.nav-sheet:not([hidden]){animation:sheetIn .2s ease-out}
+@keyframes sheetIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.nav-sheet ul{list-style:none;margin:0 auto;padding:8px max(16px,env(safe-area-inset-left,0px)) 14px;max-width:1100px;display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));column-gap:24px}
+.nav-sheet a{display:flex;align-items:baseline;gap:12px;min-height:46px;padding:12px 6px;color:var(--ink);text-decoration:none;font-size:15px;border-bottom:1px solid color-mix(in srgb,var(--line) 70%,transparent)}
+.nav-sheet a i{font-family:var(--display);font-style:italic;color:var(--gold);min-width:2.4em;font-size:16px}
+.nav-sheet a.on{color:var(--gold)}
+.nav-sheet a:hover,.nav-sheet a:focus-visible{background:color-mix(in srgb,var(--gold) 8%,transparent);outline:none}
+@media (min-width:1301px){.nav-sheet{display:none!important}}
+@media print{.menu-btn,.nav-sheet{display:none!important}}
+@media (max-width:760px){.menu-btn{width:44px;height:44px}} /* the same touch size as the theme button */
+@media (max-width:440px){.nav .doc .dl{display:none}.nav .wrap{gap:8px}} /* narrow phones: the bar keeps the brand, the offer and both buttons */

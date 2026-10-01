@@ -188,6 +188,18 @@ const logoImg=new Image();let logoMono=null;
   logoImg.addEventListener('load',()=>{if(reduce)draw(unit());});
 })();
 
+/* ---------- chapters menu (hamburger) when the chapter bar does not fit ---------- */
+(function(){const btn=$('#menuBtn'),sh=$('#navSheet'),ch=$('.chapters');if(!btn||!sh||!ch)return;sh.innerHTML='<ul>'+ch.innerHTML+'</ul>';
+  const set=o=>{sh.hidden=!o;btn.setAttribute('aria-expanded',String(o));btn.setAttribute('aria-label',o?'Затвори съдържанието':'Съдържание');
+    if(o){const tp=$('#themePop');if(tp&&!tp.hidden){tp.hidden=true;$('#themeBtn').setAttribute('aria-expanded','false');}const a=sh.querySelector('a.on')||sh.querySelector('a');if(a)a.focus({preventScroll:true});}};
+  btn.addEventListener('click',e=>{e.stopPropagation();set(sh.hidden);});
+  sh.addEventListener('click',e=>{if(e.target.closest('a'))set(false);});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!sh.hidden){set(false);btn.focus();}});
+  document.addEventListener('click',e=>{if(!sh.hidden&&!e.target.closest('#nav'))set(false);});
+  const mq=matchMedia('(min-width:1301px)');const big=()=>{if(mq.matches)set(false);};mq.addEventListener?mq.addEventListener('change',big):mq.addListener(big);
+  // the chapter being read is marked in the menu too
+  const sync=()=>{const on=ch.querySelector('a.on'),h=on&&on.getAttribute('href');sh.querySelectorAll('a').forEach(a=>a.classList.toggle('on',a.getAttribute('href')===h));};sync();
+  new MutationObserver(sync).observe(ch,{subtree:true,attributes:true,attributeFilter:['class']});})();
 /* ---------- the brand at the foot: the glint runs only while the footer is (nearly) on screen; paused, not restarted ---------- */
 (function(){const el=document.querySelector('.kl-marka');if(!el)return;el.classList.add('kl-spryano');if(!('IntersectionObserver' in window)){el.classList.remove('kl-spryano');return;}
   new IntersectionObserver(es=>es.forEach(e=>el.classList.toggle('kl-spryano',!e.isIntersecting)),{rootMargin:'120px 0px'}).observe(el);})();
@@ -1238,7 +1250,7 @@ const space=(function(){
           if(k>0&&!qOcc[k-1]&&!tillBusy){qOcc[k]=null;qOcc[k-1]=g;ud.slot=k-1;setPath(g,nav.route(gridDyn(g),[g.position.x,g.position.z],nav.queue[k-1]),T_);}
           // the place ahead was promised to someone still on the way from the far end of the shop: whoever is already here goes first
           else if(k>0&&qOcc[k-1]&&qOcc[k-1].userData.state==='walk'&&!qOcc[k-1].userData.pay){const o=qOcc[k-1],ou=o.userData,q0=nav.queue[k-1];
-            if(Math.hypot(o.position.x-q0[0],o.position.z-q0[1])>Math.hypot(g.position.x-q0[0],g.position.z-q0[1])+.4){qOcc[k-1]=g;qOcc[k]=o;ou.slot=k;ud.slot=k-1;setPath(o,nav.route(gridDyn(o),[o.position.x,o.position.z],nav.queue[k]),T_);setPath(g,nav.route(gridDyn(g),[g.position.x,g.position.z],q0),T_);}}
+            if(Math.hypot(o.position.x-q0[0],o.position.z-q0[1])>Math.max(2.5,Math.hypot(g.position.x-q0[0],g.position.z-q0[1])+.4)&&!(T_<(ou.swapT||0))&&!(T_<(ud.swapT||0))){qOcc[k-1]=g;qOcc[k]=o;ou.slot=k;ud.slot=k-1;ou.swapT=ud.swapT=T_+5;setPath(o,nav.route(gridDyn(o),[o.position.x,o.position.z],nav.queue[k]),T_);setPath(g,nav.route(gridDyn(g),[g.position.x,g.position.z],q0),T_);}}
           else if(k>0&&T_-ud.qT>PARAMS.renegeAfter*PARAMS.timeScale&&Math.random()<dt*.05){qOcc[k]=null;ud.legI=ud.visit.length-1;startLeg(g,T_);} // §5 reneging
           else if(k===0)checkout(g,T_,dt);}
         if(ud.stroller)strollerFollow(g,dt);
@@ -1639,7 +1651,7 @@ const space=(function(){
           for(const sd_ of [-1,1]){rail(x+sd_*.47,y+.01,zc,len,sd_>0?Math.PI/2:-Math.PI/2);for(const px of [x+sd_*.36,x+sd_*.19]){ // two rows deep, the front one at the rail: a stocked shelf, as in the shops
             if(zone==='spirits'){if(li===1||li===2){for(let z=zTop+.14;z<zBot-.12;z+=.14*dens)if(Math.random()>.03)put('carton',px,y+.015,z,.12,.22,.1,pick_(['#c8382e','#1b1917','#3a2410','#e0b23a','#5a1a22']));}else{for(let z=zTop+.12;z<zBot-.1;z+=.1*dens)if(Math.random()>.03)put('bottle',px,y+.015,z,.085,.3,.085,pick_(SPIRIT));}}
             else if(zone==='sweets'){if(li<2){for(let z=zTop+.12;z<zBot-.1;z+=.12*dens)if(Math.random()>.03){put('pack',px,y+.015,z,.1,.15,.06,pick_(SWEET));if(Math.random()<.6)put('pack',px,y+.165,z,.1,.15,.06,pick_(SWEET));}}else{for(let z=zTop+.14;z<zBot-.12;z+=.14*dens)if(Math.random()>.03)put('carton',px,y+.015,z,.12,.18,.09,pick_(BISC));}}
-            else{if(li<2){for(let z=zTop+.12;z<zBot-.1;z+=.11*dens)if(Math.random()>.03)put('carton',px,y+.015,z,.09,.2,.07,pick_(COFFEE));}else if(li===2){for(let z=zTop+.14;z<zBot-.12;z+=.1*dens)if(Math.random()>.03)put('bag',px+sd_*.05,y+.015,z,.05,.24,.14,pick_(CHIPS));}else{for(let z=zTop+.12;z<zBot-.1;z+=.12*dens)if(Math.random()>.03){put('pack',px,y+.015,z,.1,.08,.06,pick_(TEA));if(Math.random()<.7)put('pack',px,y+.095,z,.1,.08,.06,pick_(TEA));}}}}}});
+            else{if(li<2){for(let z=zTop+.12;z<zBot-.1;z+=.11*dens)if(Math.random()>.03)put('carton',px,y+.015,z,.09,.2,.07,pick_(COFFEE));}else if(li===2){for(let z=zTop+.14;z<zBot-.12;z+=.15*dens)if(Math.random()>.03)put('bag',px+sd_*.05,y+.015,z,.05,.24,.14,pick_(CHIPS));}else{for(let z=zTop+.12;z<zBot-.1;z+=.12*dens)if(Math.random()>.03){put('pack',px,y+.015,z,.1,.08,.06,pick_(TEA));if(Math.random()<.7)put('pack',px,y+.095,z,.1,.08,.06,pick_(TEA));}}}}}});
         if(!done[zone]){done[zone]=1;label(ZL[zone],x,1.95,zc+((gi%3)-1)*Math.min(2,len*.3));}});
       // promo end-caps (Coca-Cola, Milka) on the two gondolas nearest the till
       {const order=xs.map((x,i)=>[Math.abs(x-doorX),i]).filter(([,i])=>xs[i]>ckX+ckW/2+1.7).sort((a,b)=>a[0]-b[0]).slice(0,2);order.forEach(([,i],k)=>{const x=xs[i],pz=zBot+.35,red=k===0;blk(x,pz,.92,.52);cbox(.9,1.45,.5,red?'#d3232a':'#5b2d8e',x,.725+.02,pz);
@@ -1647,7 +1659,7 @@ const space=(function(){
           for(let i=0;i<20;i++){const cx=x-.36+(i%5)*.18,cz=pz-.18+((i/5)|0)*.12;if(red)put('bottle',cx,1.47,cz,.085,.3,.085,pick_(['#2a1a10','#dfe9ee','#f28c28']));else{put('pack',cx,1.47,cz,.1,.15,.06,pick_(['#5b2d8e','#6b3fa0','#e8e2d6']));if(i%2)put('pack',cx,1.62,cz,.1,.15,.06,pick_(['#5b2d8e','#6b3fa0']));}}});}
       {const rz0=Math.max(zTop+.15,store_?-hd+sd+.35:-hd+.3),rz1=Math.min(zBot-.3,rz0+4.5);coolers(1,rz0,rz1,null,[1,2]);
         // snack wall (chips) on the left wall between the coolers and the till
-        const sz0=lz0+(nl?nl*.74+.3:0),sz1=ckZ-1.3,sl=sz1-sz0;if(sl>1.2&&A>=60){blk(-hw+.24,(sz0+sz1)/2,.5,sl);for(let z=sz0+.5;z<sz1-.4;z+=1)face(-hw+.48,z,1,0,'snack');box(.42,1.8,sl,M.oak,-hw+.22,.9,(sz0+sz1)/2);for(let lv=0;lv<5;lv++){box(.4,.02,sl,M.oak,-hw+.24,.05+lv*.34,(sz0+sz1)/2,false);rail(-hw+.44,.07+lv*.34,(sz0+sz1)/2,sl,Math.PI/2);for(let z=sz0+.08;z<sz1-.08;z+=.11*dens){put('bag',-hw+.46,.07+lv*.34,z,.05,.24,.14,pick_(CHIPS));put('bag',-hw+.32,.07+lv*.34,z+.05,.05,.24,.14,pick_(CHIPS));}}
+        const sz0=lz0+(nl?nl*.74+.3:0),sz1=ckZ-1.3,sl=sz1-sz0;if(sl>1.2&&A>=60){blk(-hw+.24,(sz0+sz1)/2,.5,sl);for(let z=sz0+.5;z<sz1-.4;z+=1)face(-hw+.48,z,1,0,'snack');box(.42,1.8,sl,M.oak,-hw+.22,.9,(sz0+sz1)/2);for(let lv=0;lv<5;lv++){box(.4,.02,sl,M.oak,-hw+.24,.05+lv*.34,(sz0+sz1)/2,false);rail(-hw+.44,.07+lv*.34,(sz0+sz1)/2,sl,Math.PI/2);for(let z=sz0+.08;z<sz1-.08;z+=.15*dens){put('bag',-hw+.46,.07+lv*.34,z,.05,.24,.14,pick_(CHIPS));put('bag',-hw+.32,.07+lv*.34,z+.075,.05,.24,.14,pick_(CHIPS));}}
           if(!done.sweets)label('Сладки · снаксове',-hw+.5,2.05,(sz0+sz1)/2);const po=new T.Mesh(new T.PlaneGeometry(.7,1.0),M.poster);po.rotation.y=Math.PI/2;po.position.set(-hw+.02,2.4,(sz0+sz1)/2);room.add(po);}}
       // step down to the wine corner: ramp with a white edge stripe and stainless handrails at each aisle crossing
       const aisles=[];if(xs.length){for(let i=0;i<xs.length-1;i++)aisles.push((xs[i]+xs[i+1])/2);if(xs[0]-1.1>-hw+.3)aisles.unshift(xs[0]-1.15);if(xs[xs.length-1]+1.1<hw-.3)aisles.push(xs[xs.length-1]+1.15);}
