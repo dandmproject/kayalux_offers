@@ -772,7 +772,7 @@ input[type=range]{height:28px;padding:6px 0;box-sizing:border-box}
   .det{grid-template-columns:1fr}
   /* map: readable text, chips to tap */
   .mapbox .cities{display:flex}
-  .map .city text{font-size:22px}.map .city text.c{font-size:20px}.map .city text.s{font-size:18px}.map .base{font-size:15px;letter-spacing:.1em}.map .sea{font-size:26px}
+  .map .city text{font-size:19px}.map .city text.c{font-size:20px}.map .city text.s{display:none}.map .base{font-size:15px;letter-spacing:.1em}.map .sea{font-size:26px}
   .map .city circle.d{r:20px}.map .city circle.h{r:28px}
   /* chart */
   .chartbox{background:linear-gradient(270deg,var(--surface),transparent 28px) right/28px 100% no-repeat local,radial-gradient(farthest-side at 100% 50%,rgba(0,0,0,.4),transparent) right/12px 100% no-repeat scroll}
@@ -1161,3 +1161,5 @@ footer.foot{overflow:hidden} /* the glint across the footer mark never widens th
 /* the full label „Търговска оферта за професионална ароматизация“ only where the bar has the room for it; elsewhere the short one */
 .nav .doc .dl2{display:none}
 @media (min-width:860px) and (max-width:1300px){.nav .doc .dl2{display:inline}}
+
+/* phones: the map keeps the city names and counts; who services each city is in the chips and the card under it (the second lines overlapped) */

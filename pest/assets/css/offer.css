@@ -763,7 +763,7 @@ input[type=range]{height:28px;padding:6px 0;box-sizing:border-box}
   .det{grid-template-columns:1fr}
   /* map: readable text, chips to tap */
   .mapbox .cities{display:flex}
-  .map .city text{font-size:22px}.map .city text.c{font-size:20px}.map .city text.s{font-size:18px}.map .base{font-size:15px;letter-spacing:.1em}.map .sea{font-size:26px}
+  .map .city text{font-size:19px}.map .city text.c{font-size:20px}.map .city text.s{display:none}.map .base{font-size:15px;letter-spacing:.1em}.map .sea{font-size:26px}
   .map .city circle.d{r:20px}.map .city circle.h{r:28px}
   /* chart */
   .chartbox{background:linear-gradient(270deg,var(--surface),transparent 28px) right/28px 100% no-repeat local,radial-gradient(farthest-side at 100% 50%,rgba(0,0,0,.4),transparent) right/12px 100% no-repeat scroll}
@@ -1342,3 +1342,5 @@ footer.foot{overflow:hidden} /* the glint moving over the letters never widens t
 @media (max-width:360px){.party strong{font-size:1.45rem}.summary{font-size:13.5px}.summary th,.summary td{padding-left:6px;padding-right:6px}.summary th:first-child,.summary td:first-child{padding-left:0}.summary th:last-child,.summary td:last-child{padding-right:0}.summary tfoot td{font-size:1.2rem}}
 @media (max-width:520px){.nav .doc .dl{display:none}.nav .doc .av-logo{margin-left:0}} /* 441–520 px: the logo alone, the bar keeps its buttons on screen */
 @media (max-width:360px){.obj tfoot tr.tot3{column-gap:6px;padding-right:6px}.obj tfoot tr.tot3 td.cs,.obj tfoot tr.tot3 td#tPts{font-size:1.05rem}.obj tfoot tr.tot3 td#tPts::before{font-size:11px}} /* 320 px: the monthly totals fit the card */
+
+/* phones: the map keeps the city names and counts; who services each city is in the chips and the card under it (the second lines overlapped) */

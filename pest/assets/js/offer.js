@@ -33,15 +33,15 @@ const MODES={std:{name:'Дезинсекция и дератизация'},full:
 
 /* ---------- theme ---------- */
 const themeSubs=[];
-const THEMES={paper:'Ден',dark:'Нощ',olive:'Маслина',green:'Еко',clean:'Хигиена',bordo:'Емблема',forest:'Гора',gallery:'Галерия'}; // Ден is the default; Нощ and Емблема are the dark ones
-function effTheme(){const t=root.getAttribute('data-theme');return THEMES[t]?t:'paper';}
+const THEMES={paper:'Ден',dark:'Нощ',olive:'Маслина',green:'Еко',clean:'Хигиена',bordo:'Емблема',forest:'Гора',gallery:'Галерия'}; // Емблема is the default; Нощ and Емблема are the dark ones
+function effTheme(){const t=root.getAttribute('data-theme');return THEMES[t]?t:'bordo';}
 const isDark=()=>{const t=effTheme();return t==='dark'||t==='bordo'||t==='forest';};
 const SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg>';
 const MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>';
 const themeBtn=$('#themeBtn');
 const PAL_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18c1.4 0 2-.9 2-1.8 0-.9-.6-1.2-.6-2 0-1 .8-1.7 1.9-1.7H17a4 4 0 0 0 4-4c0-4.7-4-8.5-9-8.5z"/><circle cx="7.5" cy="11" r="1.1" fill="currentColor"/><circle cx="10.5" cy="7" r="1.1" fill="currentColor"/><circle cx="15" cy="7.5" r="1.1" fill="currentColor"/></svg>';
 function paintThemeBtn(){const t=effTheme();themeBtn.innerHTML=PAL_ICON;themeBtn.title='Тема: '+THEMES[t];$$('#themePop [data-t]').forEach(b=>b.setAttribute('aria-checked',String(b.dataset.t===t)));}
-const THEME_KEY='unishtojiteli-offer-theme-2'; // its own key: the scent offer on the same server keeps its own theme
+const THEME_KEY='unishtojiteli-offer-theme-3'; // its own key: the scent offer on the same server keeps its own theme
 function applyTheme(t){root.setAttribute('data-theme',t);store.set(THEME_KEY,t);paintThemeBtn();themeSubs.forEach(f=>f());}
 const saved=store.get(THEME_KEY);if(THEMES[saved])root.setAttribute('data-theme',saved);
 const themePop=$('#themePop');themeBtn.addEventListener('click',()=>{themePop.hidden=!themePop.hidden;themeBtn.setAttribute('aria-expanded',String(!themePop.hidden));});
