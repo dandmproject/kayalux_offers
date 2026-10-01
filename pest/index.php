@@ -19,7 +19,7 @@ header('Cache-Control: private, no-store, max-age=0');
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/cormorant-garamond-cyrillic-400-italic.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-cyrillic-400-normal.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-cyrillic-500-normal.woff2">
-<link rel="stylesheet" href="assets/css/offer.min.css?v=5e2356f1">
+<link rel="stylesheet" href="assets/css/offer.min.css?v=7bfcb3a5">
 </head>
 <body>
 <div class="grain" aria-hidden="true"></div>
@@ -137,7 +137,7 @@ header('Cache-Control: private, no-store, max-age=0');
             <button type="button" data-view="plan" aria-pressed="false">План</button>
             <button type="button" data-view="door" aria-pressed="false">От входа</button>
             <button type="button" data-view="walk" aria-pressed="false">С клиент</button>
-            <button type="button" data-view="ddd" aria-pressed="false" title="Камерата следва Венци от „УНИЩОЖИТЕЛИ“: къде ходи и какво прави">Последвай дезинфектора</button>
+            <button type="button" data-view="ddd" class="follow-ddd" aria-pressed="false" title="Последвай дезинфектора: камерата следва Венци от „УНИЩОЖИТЕЛИ“ – къде ходи и какво прави"><svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true"><circle cx="10" cy="5" r="2.6" fill="currentColor"/><path d="M5.5 18v-5.2c0-2.4 2-4.3 4.5-4.3s4.5 1.9 4.5 4.3V18" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>Последвай Венци</button>
             <button type="button" data-zoom="-1" aria-label="Приближи">+</button>
             <button type="button" data-zoom="1" aria-label="Отдалечи">−</button>
           </div>
