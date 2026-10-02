@@ -1517,7 +1517,7 @@ const space=(function(){
       const bag=vzBone(B('Pelvis'),new T.Mesh(VZ.geo.bag,M.vc2),new T.Vector3(.2,pv.y-.02,.02),new T.Quaternion().setFromEuler(_zE.set(0,Math.PI/2,0)));const dec=new T.Mesh(VZ.geo.decal,VZ.mat.decal);dec.position.set(0,0,.037);dec.scale.setScalar(.8);bag.add(dec);
       const lad=new T.Group(),lf=new T.Mesh(VZ.geo.front,M.vc2),lr=new T.Mesh(VZ.geo.rear,M.vc2);lf.castShadow=lr.castShadow=true;lad.add(lf,lr);
       const btl=new T.Mesh(VZ.geo.bottle,M.vc2);btl.visible=false;const ph=new T.Mesh(VZ.geo.phone,M.vc2);ph.visible=false;room.add(lad,btl,ph);
-      const tag=document.createElement('div');tag.className='vztag';tag.innerHTML='<b>Венци</b><i>KAYA LUX · сервиз</i>';tag.hidden=true;ovl.appendChild(tag);const tagV=new T.Vector3();overlay.push({el:tag,v:tagV,kind:'vz'});
+      const tag=document.createElement('div');tag.className='vztag';tag.innerHTML='<b>Оператор</b><i>KAYA LUX · сервиз</i>';tag.hidden=true;ovl.appendChild(tag);const tagV=new T.Vector3();overlay.push({el:tag,v:tagV,kind:'vz'});
       ud.dz={tag,tagV,bag,lad,lf,lr,btl,ph,ladTh:0,ladOn:false,ladP:[0,0,0],ladYaw:0,lift:0,holdB:null,phOn:false,q:[],task:null,ph_:'away',t:0,until:T_+rnd(2,6)};
       g.visible=false;ud.state='away';g.position.set(nav.entry[0],0,nav.entry[1]);room.add(g);people.push(g);VZ.g=g;return true;}
     function vzClear(){if(VZ.g){(VZ.g.userData.ownMats||[]).forEach(m=>m.dispose());}VZ.g=null;}

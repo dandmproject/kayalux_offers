@@ -428,10 +428,10 @@ const space=(function(){
     const model='Неотровна дератизационна точка: леплива плоскост в затворена еко кутия с капак, неподвижно закрепена на пода.';
     const base={model},pts=A>100?3:2;
     const check='Състоянието на лепливата плоскост, следи от гризачи, целостта на кутията и номерирания стикер. Резултатът се вписва в протокола.';
-    const P1={...base,title:'Точка при входа',zone:'До входната врата',why:'Входната врата е основният път за проникване на гризачи от улицата, а входът и касата са с най-голям поток. Точка №1 пази първата линия.',where:'На пода в ъгъла до входа, до стената, встрани от пътя на клиентите.',check,at:'FD',f:0};
-    const P2={...base,title:'Точка във вътрешната част',zone:'Зад хладилните витрини',why:'Топлината и кабелните канали зад хладилните витрини привличат гризачи и са скрити от погледа: типична рискова зона в магазин за храни.',where:'На пода в ъгъла между хладилните витрини и стената или стелажа.',check,at:'FL',f:.05};
-    const P3={...base,title:'Точка в задната част',zone:'Заден вход / към склада',why:'Задният вход и зоната за доставки са с най-висок риск. Ако обектът няма заден вход, третата точка се поставя зад хладилните витрини.',where:'В ъгъла към склада или задния вход, на пода до стената.',check,at:'FB',f:-.1};
-    return pts===2?[P1,{...P3,title:'Точка в задната част',zone:'Задна част на залата',why:'Покрива далечната половина на залата и зоната към склада, докъдето рискът от входа не стига.'}]:[P1,P2,P3];
+    const P1={...base,title:'Дератизационна точка при входа',zone:'До входната врата',why:'Входната врата е основният път за проникване на гризачи от улицата, а входът и касата са с най-голям поток. Дератизационна точка №1 пази първата линия.',where:'На пода в ъгъла до входа, до стената, встрани от пътя на клиентите.',check,at:'FD',f:0};
+    const P2={...base,title:'Дератизационна точка във вътрешната част',zone:'Зад хладилните витрини',why:'Топлината и кабелните канали зад хладилните витрини привличат гризачи и са скрити от погледа: типична рискова зона в магазин за храни.',where:'На пода в ъгъла между хладилните витрини и стената или стелажа.',check,at:'FL',f:.05};
+    const P3={...base,title:'Дератизационна точка в задната част',zone:'Заден вход / към склада',why:'Задният вход и зоната за доставки са с най-висок риск. Ако обектът няма заден вход, третата дератизационна точка се поставя зад хладилните витрини.',where:'В ъгъла към склада или задния вход, на пода до стената.',check,at:'FB',f:-.1};
+    return pts===2?[P1,{...P3,title:'Дератизационна точка в задната част',zone:'Задна част на залата',why:'Покрива далечната половина на залата и зоната към склада, докъдето рискът от входа не стига.'}]:[P1,P2,P3];
   }
   function schedText(){
     const h=HRS,wk=((h.wd.full[1]-h.wd.full[0])*6+(h.sun.full[1]-h.sun.full[0]))/60;
@@ -1500,12 +1500,11 @@ const space=(function(){
         clip:mergeColored([[new T.BoxGeometry(.22,.30,.008),'#5a3a22'],[at(new T.BoxGeometry(.19,.25,.002),0,-.015,.005),'#f4f2ec'],[at(new T.BoxGeometry(.09,.03,.014),0,.14,.004),'#b8b8b8'],...[0,1,2,3,4,5].map(i=>[at(new T.BoxGeometry(.15,.004,.001),0,.07-i*.035,.0066),'#7b8aa0'])]),
         handB:new T.PlaneGeometry(.19,.14)};
       Object.values(VZ.geo).forEach(g=>GEOSET.add(g));VZ.bU=M.boardUsed.clone();VZ.bU.side=T.DoubleSide;VZ.bN=M.boardNew.clone();VZ.bN.side=T.DoubleSide;M.vz_bU=VZ.bU;M.vz_bN=VZ.bN;
-      // the decal on the tank's back: the emblem and the name, as on his van and his badge
-      const c=document.createElement('canvas');c.width=256;c.height=256;const x=c.getContext('2d');const em=new Image();const draw=()=>{x.clearRect(0,0,256,256);if(em.complete&&em.naturalWidth)x.drawImage(em,48,14,160,160);x.fillStyle='#ffffff';x.font='800 27px Inter, Arial, sans-serif';x.textAlign='center';x.fillText('УНИЩОЖИТЕЛИ',128,214);x.font='600 17px Inter, Arial, sans-serif';x.fillText('ДДД · 0897 555 751',128,240);};
-      const tt=new T.CanvasTexture(c);tt.encoding=T.sRGBEncoding;em.onload=()=>{draw();tt.needsUpdate=true;};em.src='assets/img/emblem.png';draw();
-      VZ.mat={decal:new T.MeshStandardMaterial({map:tt,transparent:true,roughness:.4,depthWrite:false}),hose:new T.MeshStandardMaterial({color:0x111214,roughness:.5}),gel:new T.MeshStandardMaterial({color:0xc8861e,roughness:.2,metalness:0}),mist:new T.SpriteMaterial({map:spr,color:0xf2f6f8,transparent:true,opacity:0,depthWrite:false})};
+      // the decal on the tank's back: the round emblem, as on the offer's front page
+      const tt=new T.TextureLoader().load('assets/img/emblem-ring.jpg');tt.encoding=T.sRGBEncoding;tt.anisotropy=4;
+      VZ.mat={decal:new T.MeshStandardMaterial({map:tt,roughness:.4}),hose:new T.MeshStandardMaterial({color:0x111214,roughness:.5}),gel:new T.MeshStandardMaterial({color:0xc8861e,roughness:.2,metalness:0}),mist:new T.SpriteMaterial({map:spr,color:0xf2f6f8,transparent:true,opacity:0,depthWrite:false})};
       Object.values(VZ.mat).forEach(m=>{M['vz_'+m.uuid.slice(0,6)]=m;}); /* kept across store switches (clearRoom frees only what a store made) */
-      VZ.geo.decal=new T.PlaneGeometry(.2,.2).rotateY(Math.PI);GEOSET.add(VZ.geo.decal);}
+      VZ.geo.decal=new T.CircleGeometry(.105,40).rotateY(Math.PI);GEOSET.add(VZ.geo.decal);}
     // a prop fixed to a bone at the model's rest pose: given where it sits in the world now, find its place in the bone's frame
     function vzBone(b,obj,wp,wq){b.updateMatrixWorld(true);_zM.compose(wp,wq||_zQ.set(0,0,0,1),_zS.set(1,1,1));_zM2.copy(b.matrixWorld).invert().multiply(_zM);_zM2.decompose(obj.position,obj.quaternion,obj.scale);b.add(obj);return obj;}
     function vzSpawn(T_){const G=GL();if(!G||!nav||!nav.entry||VZ.texN<2)return false;
@@ -1516,8 +1515,8 @@ const space=(function(){
       g.position.set(0,0,0);g.rotation.set(0,0,0);g.updateMatrixWorld(true);const B=n=>g.getObjectByName('Bip01_'+n),P=n=>B(n).getWorldPosition(new T.Vector3());
       const s2=P('Spine2'),nk=P('Neck'),ns=P('MNose'),ul=P('MUpperLip');
       // backpack sprayer on the back, its lance holder on the right side, the hose outlet at the bottom
-      const tank=vzBone(B('Spine2'),new T.Mesh(VZ.geo.tank,M.vc2),new T.Vector3(0,s2.y-.03,s2.z-.2));tank.castShadow=true;
-      const dec=new T.Mesh(VZ.geo.decal,VZ.mat.decal);dec.position.set(0,.02,-.082);tank.add(dec);
+      const tank=vzBone(B('Spine2'),new T.Mesh(VZ.geo.tank,M.vc2),new T.Vector3(0,s2.y-.02,s2.z-.18));tank.scale.multiplyScalar(.8);tank.castShadow=true; /* a 12-litre sprayer: a fifth smaller than before */
+      const dec=new T.Mesh(VZ.geo.decal,VZ.mat.decal);dec.position.set(0,.02,-.0815);tank.add(dec);
       const stow=new T.Object3D();stow.position.set(-.18,.1,.0);stow.quaternion.setFromEuler(_zE.set(Math.PI/2-.08,0,0));tank.add(stow); /* the lance hangs nozzle down in its holder on the tank's right side */
       const outlet=new T.Object3D();outlet.position.set(-.1,-.26,0);tank.add(outlet);const pump=new T.Object3D();pump.position.set(.175,-.2,.34);tank.add(pump);
       vzBone(B('Neck'),new T.Mesh(VZ.geo.hood,M.vc2),new T.Vector3(0,nk.y-.03,nk.z-.05));
@@ -1526,7 +1525,7 @@ const space=(function(){
       const sg=[];for(const sd of [-1,1]){const pts=[[.1,nk.y-.08,s2.z-.13],[.105,nk.y-.025,nk.z-.02],[.108,nk.y-.07,fz(nk.y-.07,.108)+.006],[.115,s2.y,fz(s2.y,.115)+.008],[.13,s2.y-.15,fz(s2.y-.15,.13)+.008],[.16,s2.y-.23,fz(s2.y-.23,.16)-.02]].map(q=>new T.Vector3(sd*q[0],q[1],q[2]));sg.push([new T.TubeGeometry(new T.CatmullRomCurve3(pts),18,.011,4).scale(1,1,.55),'#151617']);}
       {const yc=s2.y+.035,zc=fz(yc,.0)+.01;sg.push([new T.BoxGeometry(.23,.022,.008).translate(0,yc,zc),'#151617'],[new T.BoxGeometry(.035,.03,.014).translate(0,yc,zc+.004),'#2b2b2b']);}
       const straps=vzBone(B('Spine2'),new T.Mesh(mergeColored(sg),M.vc2),new T.Vector3(0,0,0));ud.ownGeo=[straps.geometry];
-      const kase=new T.Mesh(VZ.geo.kase,M.vc2);kase.castShadow=true;const clip=new T.Mesh(VZ.geo.clip,M.vc2);clip.visible=false;const handB=new T.Mesh(VZ.geo.handB,VZ.bU);handB.visible=false;room.add(kase,clip,handB);const tag=document.createElement('div');tag.className='vztag';tag.innerHTML='<b>Венци</b><i>„УНИЩОЖИТЕЛИ“ · ДДД</i>';tag.hidden=true;ovl.appendChild(tag);const tagV=new T.Vector3();overlay.push({el:tag,v:tagV,kind:'vz'}); /* his name over his head, so everyone knows it is him */
+      const kase=new T.Mesh(VZ.geo.kase,M.vc2);kase.castShadow=true;const clip=new T.Mesh(VZ.geo.clip,M.vc2);clip.visible=false;const handB=new T.Mesh(VZ.geo.handB,VZ.bU);handB.visible=false;room.add(kase,clip,handB);const tag=document.createElement('div');tag.className='vztag';tag.innerHTML='<b>Дезинфектор</b><i>„УНИЩОЖИТЕЛИ“ · ДДД</i>';tag.hidden=true;ovl.appendChild(tag);const tagV=new T.Vector3();overlay.push({el:tag,v:tagV,kind:'vz'}); /* his name over his head, so everyone knows it is him */
       // the half-mask: on the face while spraying, hanging on the chest otherwise
       const mFace=vzBone(B('Head'),new T.Object3D(),new T.Vector3(0,(ns.y+ul.y)/2-.004,ns.z+.012));
       const mNeck=vzBone(B('Spine2'),new T.Object3D(),new T.Vector3(0,nk.y-.17,s2.z+.15),new T.Quaternion().setFromEuler(_zE.set(1.0,0,0)));
@@ -1552,13 +1551,13 @@ const space=(function(){
       const gel=[];{const dx=S.door.x,dw=S.door.w;for(const s of [-1,1]){const jx=dx+s*(dw/2+.03),sx=dx+s*(dw/2-.2);if(vzFree(sx,hd-.7,.2)&&vzWalk(sx,hd-.7))gel.push({kind:'gel',stand:[sx,hd-.7],face:Math.atan2(jx-sx,(hd-.05)-(hd-.7)),pts:[1.15,.85,.55,.3,.06].map(y=>[jx-s*.012,y,hd-.05])});}}
       if(S.hasStore){const cx=hw-S.sw/2,zf=-hd+S.sd+.09;for(const s of [-1,1]){const jx=cx+s*.47,sx=cx+s*.2;if(vzFree(sx,zf+.7,.2)&&vzWalk(sx,zf+.7))gel.push({kind:'gel',stand:[sx,zf+.7],face:Math.atan2(jx-sx,zf-(zf+.7)),pts:[1.1,.8,.5,.25,.06].map(y=>[jx,y,zf])});}}
       (S.coolR||[]).forEach(c=>{const side=c[0]<0?1:-1,xf=c[0]+side*.38;for(const zz of [c[1]-.03,c[2]+.03]){const sx=xf+side*.5,sz=zz+(zz<c[1]?-.25:.25);if(vzFree(sx,sz,.2)&&vzWalk(sx,sz))gel.push({kind:'gel',stand:[sx,sz],face:Math.atan2(xf-sx,zz-sz),pts:[[xf-side*.02,.05,zz],[xf+side*.04,.03,zz],[xf+side*.1,.03,zz]]});}});
-      gel.sort(()=>Math.random()-.5);gel.slice(0,3).forEach(t=>q.push(t));
+      gel.sort(()=>Math.random()-.5);gel.slice(0,8).forEach(t=>q.push(t)); /* every gel point of the store: a visit takes several minutes, as a real one does */
       // spraying: a run along a free wall, the wall on his right, ~2.4 m, 0.75 m out from it; back and side walls only, never by the till
       const runs=[],walls=[[[-hw,0],[1,0]],[[hw,0],[-1,0]],[[0,-hd],[0,1]],[[0,hd],[0,-1]]];const ck=S.cashier||[0,hd];
       for(const [L,off,cR,eMin] of [[2.4,.75,3.2,3],[1.8,.65,2.6,1],[1.4,.6,2.2,0]]){if(runs.length)break;walls.forEach(([w0,n])=>{const tx=-n[1],tz=n[0],span=n[0]?hd:hw;for(let s=-span+.6;s+L<span-.6;s+=.4){const a=n[0]?[w0[0]+n[0]*off,s]:[s,w0[1]+n[1]*off],b=[a[0]+(n[0]?0:L),a[1]+(n[0]?L:0)];let ok=true,expo=0,smp=0;
         for(let k=0;k<=8;k++){const px=a[0]+(b[0]-a[0])*k/8,pz=a[1]+(b[1]-a[1])*k/8;if(!vzFree(px,pz,.2)||!vzWalk(px,pz)||(S.wine&&Math.abs(pz-S.zW)<1)||Math.hypot(px-ck[0],pz-ck[1])<cR||Math.hypot(px-S.door.x,pz-hd)<2.2){ok=false;break;}smp++;if(vzFree(px-n[0]*(off-.16),pz-n[1]*(off-.16),.08))expo++;}
         if(ok&&expo>=eMin){const r=[a,b];const rx=b[0]-a[0],rz=b[1]-a[1],rgt=[-rz,rx];if(rgt[0]*(-n[0])+rgt[1]*(-n[1])<0)r.reverse();runs.push({kind:'spray',a:r[0],b:r[1],n});}}});}
-      runs.sort(()=>Math.random()-.5);const pickR=[];runs.forEach(r=>{if(pickR.length<2&&pickR.every(o=>Math.hypot(o.a[0]-r.a[0],o.a[1]-r.a[1])>2.5))pickR.push(r);});pickR.forEach(r=>q.push(r));
+      runs.sort(()=>Math.random()-.5);const pickR=[];runs.forEach(r=>{if(pickR.length<3&&pickR.every(o=>Math.hypot(o.a[0]-r.a[0],o.a[1]-r.a[1])>2.5))pickR.push(r);});pickR.forEach(r=>q.push(r));
       // nearest first from the door
       const out=[];let cur=[S.door.x,hd];while(q.length){let bi=0,bd=1e9;q.forEach((t,i)=>{const p=t.stand||t.a,d=Math.hypot(p[0]-cur[0],p[1]-cur[1]);if(d<bd){bd=d;bi=i;}});const t=q.splice(bi,1)[0];out.push(t);cur=t.stand||t.b;}return out;}
     // who is near him (for the spray: anyone ahead within ~3 m, or anyone at all within 1.6 m, stops it)
@@ -1581,7 +1580,7 @@ const space=(function(){
       if(dz.ph==='go'){ud.blend=Math.min(1,ud.blend+dt*2);vzWatch(g,dt,T_,()=>{const t_=dz.task;return t_.kind==='exit'?nav.exit:(t_.stand||t_.a);},()=>{dz.ph='next';});if(dz.ph==='go'&&advance(g,ud.sp*ud.blend*dt,dt)){dz.wTry=0;dz.skipN=0;ud.state='ddd';dz.t=0;const tk=dz.task;dz.ph=tk.kind==='exit'?'gone':tk.kind==='spray'?'maskOn':tk.near&&Math.hypot(tk.near[0]-tk.stand[0],tk.near[1]-tk.stand[1])>.08?'stepIn':'work';}else v=ud.vNow!=null?ud.vNow:ud.sp*ud.blend;}
       if(dz.ph==='stepIn'||dz.ph==='stepOut'){const tk=dz.task,to=dz.ph==='stepIn'?tk.near:tk.stand,dx=to[0]-g.position.x,dz_=to[1]-g.position.z,L=Math.hypot(dx,dz_);
         if(L<.04){g.position.x=to[0];g.position.z=to[1];dz.t=0;dz.ph=dz.ph==='stepIn'?'work':'next';}else{const sp=Math.min(.5,L/Math.max(dt,1e-3)*.9);faceTo(Math.atan2(dx,dz_),6);g.position.x+=dx/L*sp*dt;g.position.z+=dz_/L*sp*dt;v=sp;}} /* the last step into the gap and back out, straight */
-      if(dz.ph==='gone'){g.visible=false;dz.ph='away';dz.until=T_+rnd(18,30);ud.state='away';}
+      if(dz.ph==='gone'){g.visible=false;dz.ph='away';dz.until=T_+rnd(6,10);ud.state='away';}
       const t=dz.task,tt=dz.t;
       // the tool case: put down on his left as he crouches, picked up again before he stands
       const caseDown=(tDown,tUp)=>{const cs=hp(.12,-.45,0);if(tt<tDown){R[0]={p:[cs[0],.3,cs[2]],w:clamp((tt-(tDown-.5))/.3,0,1)};}else if(tt<tUp){if(!dz.caseOn){dz.caseOn=true;dz.caseP=[cs[0],.27,cs[2]];}}else{dz.caseOn=false;}if(tt>tUp-.5&&tt<tUp+.3)R[0]={p:[dz.caseP[0],dz.caseP[1]+.03,dz.caseP[2]],w:clamp((tt-(tUp-.5))/.3,0,1)*clamp((tUp+.3-tt)/.3,0,1)};};
@@ -1901,26 +1900,15 @@ const space=(function(){
       M.boardUsed=M.boardUsed||new T.MeshStandardMaterial({map:boardTex(true),roughness:.35});M.boardNew=M.boardNew||new T.MeshStandardMaterial({map:boardTex(false),roughness:.3});
       // the real УНИЩОЖИТЕЛИ sticker (from the client's photo): black gloss, the gold logo, red „⊠ ОТРОВНА ⊠ / КОНТРОЛНА ТОЧКА“,
       // a cream circle where the point's number is written in marker, the gold phone line
-      const SL=S.stickerLogo||(S.stickerLogo=Object.assign(new Image(),{src:'assets/img/logo.png'}));
+      const SL=S.stickerLogo||(S.stickerLogo=Object.assign(new Image(),{src:'assets/img/emblem-ring.jpg'}));
+      // the sticker on the lid: no small print (it could not be read at this size) – the round УНИЩОЖИТЕЛИ emblem, as on the offer's front page,
+      // on black gloss in a thin gold frame
       const drawSticker=(g,w,h,n)=>{
         g.clearRect(0,0,w,h);
-        g.fillStyle='#e9e6dc';g.fillRect(0,0,w,h);                                   // the thin pale paper edge around the print
-        const m=w*.018,bg=g.createLinearGradient(0,0,w,h);bg.addColorStop(0,'#1c1c1e');bg.addColorStop(.45,'#0d0d0f');bg.addColorStop(1,'#141416');
-        g.fillStyle=bg;g.fillRect(m,m,w-2*m,h-2*m);
-        const sh=g.createLinearGradient(0,0,w*.7,h*.7);sh.addColorStop(0,'rgba(255,255,255,.10)');sh.addColorStop(.35,'rgba(255,255,255,.02)');sh.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=sh;g.fillRect(m,m,w-2*m,h-2*m); // gloss
-        if(SL.complete&&SL.naturalWidth){const lw=w*.74,lh=lw*SL.naturalHeight/SL.naturalWidth;g.drawImage(SL,(w-lw)/2,h*.1,lw,lh);}
-        const red='#e3262c';g.fillStyle=red;g.textAlign='center';g.textBaseline='middle';
-        g.font='800 '+Math.round(w*.092)+'px Inter, Arial, sans-serif';const y1=h*.415,t1='ОТРОВНА';g.fillText(t1,w/2,y1);
-        const tw=g.measureText(t1).width,bx=w*.062;                                  // the two little boxed crosses either side
-        for(const x of [w/2-tw/2-bx*1.6,w/2+tw/2+bx*.6]){g.fillStyle=red;g.fillRect(x,y1-bx/2,bx,bx);g.strokeStyle='#1a0a0a';g.lineWidth=w*.008;g.beginPath();g.moveTo(x+bx*.28,y1-bx*.22);g.lineTo(x+bx*.72,y1+bx*.22);g.moveTo(x+bx*.72,y1-bx*.22);g.lineTo(x+bx*.28,y1+bx*.22);g.stroke();}
-        g.fillStyle=red;g.font='800 '+Math.round(w*.083)+'px Inter, Arial, sans-serif';g.fillText('КОНТРОЛНА ТОЧКА',w/2,h*.515);
-        const cy=h*.69,r=w*.13,cg=g.createRadialGradient(w/2-r*.3,cy-r*.3,r*.1,w/2,cy,r);cg.addColorStop(0,'#f6f2df');cg.addColorStop(1,'#e6dfc2');
-        g.fillStyle=cg;g.beginPath();g.arc(w/2,cy,r,0,6.283);g.fill();
-        g.save();g.translate(w/2,cy+r*.04);g.rotate(-.08);g.fillStyle='#16233f';g.font='italic 700 '+Math.round(r*1.25)+'px "Cormorant Garamond", Georgia, serif';g.fillText(String(n),0,0);g.restore(); // the number, written in marker
-        const gold=g.createLinearGradient(0,h*.84,0,h*.93);gold.addColorStop(0,'#f3d27a');gold.addColorStop(.5,'#c9962f');gold.addColorStop(1,'#f0cc6e');
-        const py=h*.885,ic=w*.042;g.strokeStyle=gold;g.lineWidth=w*.007;g.beginPath();g.arc(w*.3,py,ic,0,6.283);g.stroke();
-        g.fillStyle=gold;g.font='600 '+Math.round(ic*1.15)+'px Inter, Arial, sans-serif';g.fillText('✆',w*.3,py+ic*.06);
-        g.font='italic 600 '+Math.round(w*.062)+'px Inter, Arial, sans-serif';g.textAlign='left';g.fillText('0897 555 751',w*.36,py+1);
+        const bg=g.createLinearGradient(0,0,w,h);bg.addColorStop(0,'#1c1c1e');bg.addColorStop(.45,'#0d0d0f');bg.addColorStop(1,'#141416');g.fillStyle=bg;g.fillRect(0,0,w,h);
+        const gold=g.createLinearGradient(0,0,w,h);gold.addColorStop(0,'#f3d27a');gold.addColorStop(.5,'#c9962f');gold.addColorStop(1,'#f0cc6e');g.strokeStyle=gold;g.lineWidth=w*.022;g.strokeRect(w*.04,h*.04,w*.92,h*.92);
+        if(SL.complete&&SL.naturalWidth){const r=w*.4;g.save();g.beginPath();g.arc(w/2,h/2,r,0,6.283);g.clip();g.drawImage(SL,w/2-r,h/2-r,2*r,2*r);g.restore();}
+        const sh=g.createLinearGradient(0,0,w*.7,h*.7);sh.addColorStop(0,'rgba(255,255,255,.12)');sh.addColorStop(.35,'rgba(255,255,255,.02)');sh.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=sh;g.fillRect(0,0,w,h); // gloss
       };
       const stickerTex=n=>{const c=document.createElement('canvas');c.width=c.height=TIER===0?256:512;const g=c.getContext('2d');drawSticker(g,c.width,c.height,n);
         const t=new T.CanvasTexture(c);t.encoding=T.sRGBEncoding;t.anisotropy=8;
@@ -1992,7 +1980,7 @@ const space=(function(){
         const Rr=Math.min(2.0,1.2+A/900);const wm=new T.MeshBasicMaterial({color:0x6f7b14,transparent:true,opacity:0,depthWrite:false,side:T.DoubleSide});wm.userData.own=true;
         const wave=new T.Mesh(new T.RingGeometry(Rr-.06,Rr,48),wm);wave.rotation.x=-Math.PI/2;wave.position.set(p[0],.02,p[2]);wave.visible=false;room.add(wave);
         const light={intensity:0};
-        const pin=document.createElement('button');pin.type='button';pin.className='pin';pin.innerHTML='<b>'+(i+1)+'</b><i>Точка '+(i+1)+'</i>';pin.setAttribute('aria-label','Дератизационна точка '+(i+1)+' ('+(u.title||'')+'): '+u.zone);
+        const pin=document.createElement('button');pin.type='button';pin.className='pin';pin.innerHTML='<b>'+(i+1)+'</b><i>Дератизационна точка '+(i+1)+'</i>';pin.setAttribute('aria-label','Дератизационна точка '+(i+1)+' ('+(u.title||'')+'): '+u.zone);
         pin.addEventListener('click',e=>{e.stopPropagation();pick(i);focusUnit(i);});ovl.appendChild(pin);
         overlay.push({el:pin,v:new T.Vector3(o[0],o[1]+.02,o[2]),kind:'pin'});
         S.units.push({jet,p,d,o,info:u,led,light,plume,wave,seal,R:Rr,ph:i/U.length,pin,PL:false,hinge,bh,bd,board});
