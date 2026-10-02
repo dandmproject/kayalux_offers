@@ -1542,23 +1542,34 @@ const space=(function(){
     function vzClear(){if(VZ.g){(VZ.g.userData.ownMats||[]).forEach(m=>m.dispose());(VZ.g.userData.ownGeo||[]).forEach(g_=>g_.dispose());const dz=VZ.g.userData.dz;if(dz)dz.hose.geometry.dispose();}VZ.g=null;if(VZ.gel){VZ.gel.count=0;VZ.gelN=0;}}
     // where is open floor (for him to stand) / a free wall (to spray its skirting)
     const vzFree=(x,z,r)=>x>-S.hw+r&&x<S.hw-r&&z>-S.hd+r&&z<S.hd-r&&!OBS.some(o=>x+r>o[0]&&x-r<o[1]&&z+r>o[2]&&z-r<o[3]);
+    const vzWalk=(x,z)=>{if(!nav)return true;const c=nav.toCell(x,z);return nav.free(nav.G35,c[0],c[1]);}; // a spot the crowd's routes can reach and leave (fixtures +35 cm)
     function vzPlan(){const q=[],hw=S.hw,hd=S.hd;
-      (S.units||[]).forEach((u,i)=>{let ok=false;for(const dd of [.6,.72,.5,.85])for(const lt of [0,.22,-.22,.38,-.38,.55,-.55]){if(ok)break;const sx=u.p[0]+u.d[0]*dd-u.d[2]*lt,sz=u.p[2]+u.d[2]*dd+u.d[0]*lt;if(vzFree(sx,sz,.16)){ok=true;q.push({kind:'box',u:i,stand:[sx,sz],face:Math.atan2(u.p[0]-sx,u.p[2]-sz)});}}}); /* in front of the box; in a tight corner a step to the side of it */
-      const gel=[];{const dx=S.door.x,dw=S.door.w;for(const s of [-1,1]){const jx=dx+s*(dw/2+.03),sx=dx+s*(dw/2-.2);if(vzFree(sx,hd-.7,.2))gel.push({kind:'gel',stand:[sx,hd-.7],face:Math.atan2(jx-sx,(hd-.05)-(hd-.7)),pts:[1.15,.85,.55,.3,.06].map(y=>[jx-s*.012,y,hd-.05])});}}
-      if(S.hasStore){const cx=hw-S.sw/2,zf=-hd+S.sd+.09;for(const s of [-1,1]){const jx=cx+s*.47,sx=cx+s*.2;if(vzFree(sx,zf+.7,.2))gel.push({kind:'gel',stand:[sx,zf+.7],face:Math.atan2(jx-sx,zf-(zf+.7)),pts:[1.1,.8,.5,.25,.06].map(y=>[jx,y,zf])});}}
-      (S.coolR||[]).forEach(c=>{const side=c[0]<0?1:-1,xf=c[0]+side*.38;for(const zz of [c[1]-.03,c[2]+.03]){const sx=xf+side*.5,sz=zz+(zz<c[1]?-.25:.25);if(vzFree(sx,sz,.2))gel.push({kind:'gel',stand:[sx,sz],face:Math.atan2(xf-sx,zz-sz),pts:[[xf-side*.02,.05,zz],[xf+side*.04,.03,zz],[xf+side*.1,.03,zz]]});}});
+      (S.units||[]).forEach((u,i)=>{let near=null;for(const dd of [.6,.72,.5,.85])for(const lt of [0,.22,-.22,.38,-.38,.55,-.55]){if(near)break;const sx=u.p[0]+u.d[0]*dd-u.d[2]*lt,sz=u.p[2]+u.d[2]*dd+u.d[0]*lt;if(vzFree(sx,sz,.16))near=[sx,sz];} /* in front of the box; in a tight corner a step to the side of it */
+        if(!near)return;let st=vzWalk(near[0],near[1])?near:null;
+        // in a narrow gap: he walks to the nearest spot the routes reach, then steps straight in (and back out after)
+        for(let k=.2;k<=2.6&&!st;k+=.2)for(const lt of [0,.3,-.3,.6,-.6,.9,-.9,1.2,-1.2]){const x=near[0]+u.d[0]*k-u.d[2]*lt,z=near[1]+u.d[2]*k+u.d[0]*lt;if(!vzFree(x,z,.18)||!vzWalk(x,z))continue;let clear=true;for(let f=.08;f<1;f+=.08)if(!vzFree(x+(near[0]-x)*f,z+(near[1]-z)*f,.11)){clear=false;break;}if(clear){st=[x,z];break;}}
+        if(st)q.push({kind:'box',u:i,stand:st,near,face:Math.atan2(u.p[0]-near[0],u.p[2]-near[1])});});
+      const gel=[];{const dx=S.door.x,dw=S.door.w;for(const s of [-1,1]){const jx=dx+s*(dw/2+.03),sx=dx+s*(dw/2-.2);if(vzFree(sx,hd-.7,.2)&&vzWalk(sx,hd-.7))gel.push({kind:'gel',stand:[sx,hd-.7],face:Math.atan2(jx-sx,(hd-.05)-(hd-.7)),pts:[1.15,.85,.55,.3,.06].map(y=>[jx-s*.012,y,hd-.05])});}}
+      if(S.hasStore){const cx=hw-S.sw/2,zf=-hd+S.sd+.09;for(const s of [-1,1]){const jx=cx+s*.47,sx=cx+s*.2;if(vzFree(sx,zf+.7,.2)&&vzWalk(sx,zf+.7))gel.push({kind:'gel',stand:[sx,zf+.7],face:Math.atan2(jx-sx,zf-(zf+.7)),pts:[1.1,.8,.5,.25,.06].map(y=>[jx,y,zf])});}}
+      (S.coolR||[]).forEach(c=>{const side=c[0]<0?1:-1,xf=c[0]+side*.38;for(const zz of [c[1]-.03,c[2]+.03]){const sx=xf+side*.5,sz=zz+(zz<c[1]?-.25:.25);if(vzFree(sx,sz,.2)&&vzWalk(sx,sz))gel.push({kind:'gel',stand:[sx,sz],face:Math.atan2(xf-sx,zz-sz),pts:[[xf-side*.02,.05,zz],[xf+side*.04,.03,zz],[xf+side*.1,.03,zz]]});}});
       gel.sort(()=>Math.random()-.5);gel.slice(0,3).forEach(t=>q.push(t));
       // spraying: a run along a free wall, the wall on his right, ~2.4 m, 0.75 m out from it; back and side walls only, never by the till
       const runs=[],walls=[[[-hw,0],[1,0]],[[hw,0],[-1,0]],[[0,-hd],[0,1]],[[0,hd],[0,-1]]];const ck=S.cashier||[0,hd];
       for(const [L,off,cR,eMin] of [[2.4,.75,3.2,3],[1.8,.65,2.6,1],[1.4,.6,2.2,0]]){if(runs.length)break;walls.forEach(([w0,n])=>{const tx=-n[1],tz=n[0],span=n[0]?hd:hw;for(let s=-span+.6;s+L<span-.6;s+=.4){const a=n[0]?[w0[0]+n[0]*off,s]:[s,w0[1]+n[1]*off],b=[a[0]+(n[0]?0:L),a[1]+(n[0]?L:0)];let ok=true,expo=0,smp=0;
-        for(let k=0;k<=8;k++){const px=a[0]+(b[0]-a[0])*k/8,pz=a[1]+(b[1]-a[1])*k/8;if(!vzFree(px,pz,.2)||(S.wine&&Math.abs(pz-S.zW)<1)||Math.hypot(px-ck[0],pz-ck[1])<cR||Math.hypot(px-S.door.x,pz-hd)<2.2){ok=false;break;}smp++;if(vzFree(px-n[0]*(off-.16),pz-n[1]*(off-.16),.08))expo++;}
+        for(let k=0;k<=8;k++){const px=a[0]+(b[0]-a[0])*k/8,pz=a[1]+(b[1]-a[1])*k/8;if(!vzFree(px,pz,.2)||!vzWalk(px,pz)||(S.wine&&Math.abs(pz-S.zW)<1)||Math.hypot(px-ck[0],pz-ck[1])<cR||Math.hypot(px-S.door.x,pz-hd)<2.2){ok=false;break;}smp++;if(vzFree(px-n[0]*(off-.16),pz-n[1]*(off-.16),.08))expo++;}
         if(ok&&expo>=eMin){const r=[a,b];const rx=b[0]-a[0],rz=b[1]-a[1],rgt=[-rz,rx];if(rgt[0]*(-n[0])+rgt[1]*(-n[1])<0)r.reverse();runs.push({kind:'spray',a:r[0],b:r[1],n});}}});}
       runs.sort(()=>Math.random()-.5);const pickR=[];runs.forEach(r=>{if(pickR.length<2&&pickR.every(o=>Math.hypot(o.a[0]-r.a[0],o.a[1]-r.a[1])>2.5))pickR.push(r);});pickR.forEach(r=>q.push(r));
       // nearest first from the door
       const out=[];let cur=[S.door.x,hd];while(q.length){let bi=0,bd=1e9;q.forEach((t,i)=>{const p=t.stand||t.a,d=Math.hypot(p[0]-cur[0],p[1]-cur[1]);if(d<bd){bd=d;bi=i;}});const t=q.splice(bi,1)[0];out.push(t);cur=t.stand||t.b;}return out;}
     // who is near him (for the spray: anyone ahead within ~3 m, or anyone at all within 1.6 m, stops it)
     function vzUnsafe(g,dir){const x=g.position.x,z=g.position.z;return people.concat(extras).some(o=>{if(o===g||!o.visible||o.userData.cashier)return false;const ox=o.position.x-x,oz=o.position.z-z,L=Math.hypot(ox,oz);if(L<1.6)return true;if(L>3.2)return false;return (ox*dir.x+oz*dir.z)/L>.15;});}
-    function vzGo(g,to,T_){setPath(g,nav.route(gridDyn(g),[g.position.x,g.position.z],to),T_);}
+    // a route; from a spot the routes count as blocked (pushed by the crowd, a corner) it starts at the nearest walkable point
+    function vzNearWalk(x,z,r0){for(let r=r0||.25;r<=2;r+=.25)for(let k=0;k<12;k++){const a=k/12*Math.PI*2,px=x+Math.cos(a)*r,pz=z+Math.sin(a)*r;if(vzWalk(px,pz)&&vzFree(px,pz,.2))return [px,pz];}return null;}
+    function vzGo(g,to,T_){const x=g.position.x,z=g.position.z;let P=nav.route(gridDyn(g),[x,z],to);if(!P||!vzWalk(x,z)){const w=vzNearWalk(x,z);if(w){const P2=nav.route(gridDyn(g),w,to);if(P2)P=[[x,z]].concat(P2);}}setPath(g,P,T_);if(!P)g.userData.dz.noRoute=(g.userData.dz.noRoute||0)+1;}
+    // a watchdog on his walks: no headway for 5 s (customers in the way, a route that ends in a dead corner) → a fresh route round them;
+    // after three tries that point is left for the next visit and he goes on (he never stands in one place for long)
+    function vzWatch(g,dt,T_,target,skip){const dz=g.userData.dz,ud=g.userData,x=g.position.x,z=g.position.z;if(dz.wx==null||Math.hypot(x-dz.wx,z-dz.wz)>.25){dz.wx=x;dz.wz=z;dz.wT=0;return;}dz.wT+=dt;
+      if(dz.wT>4){dz.wT=0;dz.wTry=(dz.wTry||0)+1;ud.replanned=ud.rerouted=ud.blkRe=false;ud.stuckT=ud.waitAcc=0;if(dz.wTry===2){/* give way: a step aside to a free spot, then on */const w=vzNearWalk(x,z,.9);if(w){setPath(g,[[x,z],w].concat(nav.route(gridDyn(g),w,target())||[]),T_);return;}}if(dz.wTry>4){dz.wTry=0;dz.skipN=(dz.skipN||0)+1;if(dz.skipN>2){dz.skipN=0;dz.q=[];dz.task={kind:'exit',exit:true};dz.ph='gone';}else skip();}else vzGo(g,target(),T_);}}
     function vzStep(g,dt,T_,open){const ud=g.userData,dz=ud.dz;dz.t+=dt;
       const faceTo=(a,k)=>{ud.ang=angStep(ud.ang||0,a,k||5,dt,2.4);g.rotation.y=ud.ang;};
       const ease=(cur,tg,r)=>cur+(tg-cur)*(1-Math.exp(-dt*r));
@@ -1567,7 +1578,9 @@ const space=(function(){
       const hp=(f,r,y)=>[px+fwd.x*f+rgt.x*r,y*k,pz+fwd.z*f+rgt.z*r]; /* a point in his own frame: f ahead, r to his right, y up */
       if(dz.ph==='away'){g.visible=false;if(T_>dz.until&&!doorBusy(g)){VZ.vn=(VZ.vn||0)+1;const all=vzPlan(),spr=all.filter(t=>t.kind==='spray');dz.kind=spr.length&&VZ.vn%2===0?'spray':'service';dz.q=dz.kind==='spray'?spr:all.filter(t=>t.kind!=='spray');dz.caseOn=false;if(window.__vzOnly){dz.q=all.filter(t=>t.kind===window.__vzOnly);dz.kind=window.__vzOnly==='spray'?'spray':'service';}g.position.set(nav.entry[0],0,nav.entry[1]);ud.ang=Math.PI;g.rotation.y=ud.ang;g.visible=true;ud.blend=0;dz.task=null;dz.ph='next';dz.t=0;}}
       if(dz.ph==='next'){dz.task=dz.q.shift()||{kind:'exit'};const t=dz.task;dz.t=0;dz.ph='go';vzGo(g,t.kind==='exit'?nav.exit:(t.stand||t.a),T_);}
-      if(dz.ph==='go'){ud.blend=Math.min(1,ud.blend+dt*2);if(advance(g,ud.sp*ud.blend*dt,dt)){ud.state='ddd';dz.t=0;dz.ph=dz.task.kind==='exit'?'gone':dz.task.kind==='spray'?'maskOn':'work';}else v=ud.vNow!=null?ud.vNow:ud.sp*ud.blend;}
+      if(dz.ph==='go'){ud.blend=Math.min(1,ud.blend+dt*2);vzWatch(g,dt,T_,()=>{const t_=dz.task;return t_.kind==='exit'?nav.exit:(t_.stand||t_.a);},()=>{dz.ph='next';});if(dz.ph==='go'&&advance(g,ud.sp*ud.blend*dt,dt)){dz.wTry=0;dz.skipN=0;ud.state='ddd';dz.t=0;const tk=dz.task;dz.ph=tk.kind==='exit'?'gone':tk.kind==='spray'?'maskOn':tk.near&&Math.hypot(tk.near[0]-tk.stand[0],tk.near[1]-tk.stand[1])>.08?'stepIn':'work';}else v=ud.vNow!=null?ud.vNow:ud.sp*ud.blend;}
+      if(dz.ph==='stepIn'||dz.ph==='stepOut'){const tk=dz.task,to=dz.ph==='stepIn'?tk.near:tk.stand,dx=to[0]-g.position.x,dz_=to[1]-g.position.z,L=Math.hypot(dx,dz_);
+        if(L<.04){g.position.x=to[0];g.position.z=to[1];dz.t=0;dz.ph=dz.ph==='stepIn'?'work':'next';}else{const sp=Math.min(.5,L/Math.max(dt,1e-3)*.9);faceTo(Math.atan2(dx,dz_),6);g.position.x+=dx/L*sp*dt;g.position.z+=dz_/L*sp*dt;v=sp;}} /* the last step into the gap and back out, straight */
       if(dz.ph==='gone'){g.visible=false;dz.ph='away';dz.until=T_+rnd(18,30);ud.state='away';}
       const t=dz.task,tt=dz.t;
       // the tool case: put down on his left as he crouches, picked up again before he stands
@@ -1589,7 +1602,7 @@ const space=(function(){
           if(tt>5.4&&!dz.put){dz.put=true;dz.holdB=null;u.board.material=M.boardNew;u.board.visible=true;}  // laid into the box
           dz.clipOn=tt>6.6&&tt<8.7;if(dz.clipOn){const cp=hp(.3,-.05,.72);R[0]={p:cp,w:win(6.6,8.7,.3)};const wr=Math.sin(tt*9)*.025,wl=((tt*1.3)%1)*.05;R[1]={p:[cp[0]+rgt.x*(.03+wr)+fwd.x*.01,cp[1]+.06-wl,cp[2]+rgt.z*(.03+wr)+fwd.z*.01],w:win(6.7,8.6,.3)};}
           lookP=dz.clipOn?[px+fwd.x*.3,pz+fwd.z*.3]:[u.p[0],u.p[2]];}
-        if(tt>10.4){dz.ph='next';dz.took=dz.put=false;dz.holdB=null;dz.clipOn=false;if(u&&u.board)u.board.visible=true;}}
+        if(tt>10.4){const tk=dz.task;dz.ph=tk.near&&Math.hypot(tk.near[0]-tk.stand[0],tk.near[1]-tk.stand[1])>.08?'stepOut':'next';dz.t=0;dz.took=dz.put=false;dz.holdB=null;dz.clipOn=false;if(u&&u.board)u.board.visible=true;}}
       if(dz.ph==='work'&&t.kind==='gel'){faceTo(t.face);const per=1.5,t0=1.5,n=t.pts.length,tEnd=t0+per*n;caseDown(.6,tEnd+.95);
         dz.gunOn=tt>1.1&&tt<tEnd+.35;if(tt>.7&&tt<1.2)R[1]={p:[dz.caseP[0],dz.caseP[1]+.04,dz.caseP[2]],w:win(.7,1.2,.2)};      // the bait gun out of the case
         if(tt>=t0-.3&&tt<tEnd){const i=Math.min(n-1,Math.floor(Math.max(0,tt-t0)/per)),f=(Math.max(0,tt-t0)%per)/per,p=t.pts[i];sqTarget=clamp((1.05-p[1])/.9,0,1);
@@ -2335,7 +2348,7 @@ const space=(function(){
               if(!VZ.pick)VZ.pick=new T.Vector3(px-fx*1.4,2.3,pz-fz*1.4);} /* the front three-quarter first, then the side, then over his shoulder from above */
             want=VZ.pick.clone();
             tg=new T.Vector3((px+lp[0])/2,.55,(pz+lp[1])/2);}
-          if(!want){for(let d=2.8;d>=1.1&&!want;d-=.2){const x=px-fx*d-fz*.45,z=pz-fz*d+fx*.45;if(cell(x,z))want=new T.Vector3(x,1.65,z);}if(!want)want=new T.Vector3(px-fx*1.2,1.8,pz-fz*1.2);tg=tg||new T.Vector3(px+fx*1.6,1.0,pz+fz*1.6);}}
+          if(!want){/* walking: the camera circles round to his back at a limited turn rate (never cuts in front of him when he turns) */VZ.camYaw=(walkSnap||VZ.camYaw==null)?a:angStep(VZ.camYaw,a,4,dt,3.2);const bx=Math.sin(VZ.camYaw),bz=Math.cos(VZ.camYaw);let dA=Math.abs(((a-VZ.camYaw+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI);const lift_=.7*clamp((dA-.9)/1.4,0,1); /* mid-turn: from higher up, over him */for(let d=2.8;d>=1.1&&!want;d-=.2){const x=px-bx*d-bz*.4,z=pz-bz*d+bx*.4;if(cell(x,z))want=new T.Vector3(x,1.65+lift_,z);}if(!want)want=new T.Vector3(px-bx*1.1,2.1,pz-bz*1.1);tg=new T.Vector3(px+bx*1.6,1.05,pz+bz*1.6);}else VZ.camYaw=Math.atan2(px-camera.position.x,pz-camera.position.z);}
         else{want=new T.Vector3(S.door.x-.9,1.9,S.hd+1.9);tg=new T.Vector3(S.door.x,1.0,S.hd-2.2);}
         VZ.camT=VZ.camT||tg.clone();const k_=walkSnap?1:Math.min(1,dt*2.2);camera.position.lerp(want,k_);VZ.camT.lerp(tg,walkSnap?1:Math.min(1,dt*3));walkSnap=false;camera.lookAt(VZ.camT);}
       const _t1=DIAG?performance.now():0;

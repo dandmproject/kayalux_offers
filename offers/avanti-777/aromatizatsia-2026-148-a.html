@@ -2022,11 +2022,18 @@ const space=(function(){
       g.visible=false;ud.state='away';g.position.set(nav.entry[0],0,nav.entry[1]);room.add(g);people.push(g);VZ.g=g;return true;}
     function vzClear(){if(VZ.g){(VZ.g.userData.ownMats||[]).forEach(m=>m.dispose());}VZ.g=null;}
     const vzFree=(x,z,r)=>x>-S.hw+r&&x<S.hw-r&&z>-S.hd+r&&z<S.hd-r&&!OBS.some(o=>x+r>o[0]&&x-r<o[1]&&z+r>o[2]&&z-r<o[3]);
+    const vzWalk=(x,z)=>{if(!nav)return true;const c=nav.toCell(x,z);return nav.free(nav.G35,c[0],c[1]);}; // a spot the crowd's routes can reach and leave (fixtures +35 cm)
     // one stop per diffuser: the ladder under it (or a little to the side when a fixture stands below), nearest first from the door
     function vzPlan(){const q=[];(S.units||[]).forEach((u,i)=>{const d=u.d,tx=-d[2],tz=d[0];let ok=false;for(const off of [.42,.6,.8,1.0])for(const lt of [0,.35,-.35,.6,-.6]){if(ok)break;const fx=u.p[0]+d[0]*off+tx*lt,fz=u.p[2]+d[2]*off+tz*lt,sx=fx+d[0]*.45,sz=fz+d[2]*.45;
-        if(vzFree(fx,fz,.26)&&vzFree(sx,sz,.2)&&!(S.wine&&Math.abs(fz-S.zW)<.8)){ok=true;q.push({u:i,F:[fx,fz],stand:[sx,sz],off,face:Math.atan2(-d[0],-d[2]),k:clamp(Math.round((u.p[1]-1.5)/.3)+(off>.5?1:0),1,3)});}}}); /* a fixture under the diffuser: the ladder in front of it, he leans over */
+        if(vzFree(fx,fz,.26)&&vzFree(sx,sz,.2)&&vzWalk(sx,sz)&&!(S.wine&&Math.abs(fz-S.zW)<.8)){ok=true;q.push({u:i,F:[fx,fz],stand:[sx,sz],off,face:Math.atan2(-d[0],-d[2]),k:clamp(Math.round((u.p[1]-1.5)/.3)+(off>.5?1:0),1,3)});}}}); /* a fixture under the diffuser: the ladder in front of it, he leans over */
       const out=[];let cur=[S.door.x,S.hd];while(q.length){let bi=0,bd=1e9;q.forEach((t,i)=>{const d=Math.hypot(t.stand[0]-cur[0],t.stand[1]-cur[1]);if(d<bd){bd=d;bi=i;}});const t=q.splice(bi,1)[0];out.push(t);cur=t.stand;}return out;}
-    function vzGo(g,to,T_){setPath(g,nav.route(gridDyn(g),[g.position.x,g.position.z],to),T_);}
+    // a route; from a spot the routes count as blocked (pushed by the crowd, a corner) it starts at the nearest walkable point
+    function vzNearWalk(x,z,r0){for(let r=r0||.25;r<=2;r+=.25)for(let k=0;k<12;k++){const a=k/12*Math.PI*2,px=x+Math.cos(a)*r,pz=z+Math.sin(a)*r;if(vzWalk(px,pz)&&vzFree(px,pz,.2))return [px,pz];}return null;}
+    function vzGo(g,to,T_){const x=g.position.x,z=g.position.z;let P=nav.route(gridDyn(g),[x,z],to);if(!P||!vzWalk(x,z)){const w=vzNearWalk(x,z);if(w){const P2=nav.route(gridDyn(g),w,to);if(P2)P=[[x,z]].concat(P2);}}setPath(g,P,T_);if(!P)g.userData.dz.noRoute=(g.userData.dz.noRoute||0)+1;}
+    // a watchdog on his walks: no headway for 5 s (customers in the way, a route that ends in a dead corner) → a fresh route round them;
+    // after three tries that point is left for the next visit and he goes on (he never stands in one place for long)
+    function vzWatch(g,dt,T_,target,skip){const dz=g.userData.dz,ud=g.userData,x=g.position.x,z=g.position.z;if(dz.wx==null||Math.hypot(x-dz.wx,z-dz.wz)>.25){dz.wx=x;dz.wz=z;dz.wT=0;return;}dz.wT+=dt;
+      if(dz.wT>4){dz.wT=0;dz.wTry=(dz.wTry||0)+1;ud.replanned=ud.rerouted=ud.blkRe=false;ud.stuckT=ud.waitAcc=0;if(dz.wTry===2){/* give way: a step aside to a free spot, then on */const w=vzNearWalk(x,z,.9);if(w){setPath(g,[[x,z],w].concat(nav.route(gridDyn(g),w,target())||[]),T_);return;}}if(dz.wTry>4){dz.wTry=0;dz.skipN=(dz.skipN||0)+1;if(dz.skipN>2){dz.skipN=0;dz.q=[];dz.task={kind:'exit',exit:true};dz.ph_='gone';}else skip();}else vzGo(g,target(),T_);}}
     function vzStep(g,dt,T_,open){const ud=g.userData,dz=ud.dz;dz.t+=dt;
       const faceTo=(a,k)=>{ud.ang=angStep(ud.ang||0,a,k||5,dt,2.4);g.rotation.y=ud.ang;};
       let v=0,lookP=null,clip=null;const R=[null,null];ud.ikReq=R;dz.holdB=null;dz.phOn=false;
@@ -2034,7 +2041,7 @@ const space=(function(){
       let tt=dz.t;const win=(t0,t1,f)=>tt>=t0&&tt<t1?Math.min(1,(tt-t0)/(f||.3),(t1-tt)/(f||.3)):0,ramp=(t0,t1)=>clamp((tt-t0)/(t1-t0),0,1);
       if(dz.ph_==='away'){g.visible=false;if(T_>dz.until&&!doorBusy(g)){dz.q=vzPlan();g.position.set(nav.entry[0],0,nav.entry[1]);ud.ang=Math.PI;g.rotation.y=ud.ang;g.visible=true;ud.blend=0;dz.task=null;dz.ph_='next';dz.t=0;dz.ladOn=false;dz.ladTh=0;}}
       if(dz.ph_==='next'){dz.task=dz.q.shift()||{exit:true};dz.t=0;dz.ph_='go';vzGo(g,dz.task.exit?nav.exit:dz.task.stand,T_);}
-      if(dz.ph_==='go'){ud.blend=Math.min(1,ud.blend+dt*2);if(advance(g,ud.sp*ud.blend*dt,dt)){ud.state='ddd';dz.t=0;dz.ph_=dz.task.exit?'gone':'work';}else v=ud.vNow!=null?ud.vNow:ud.sp*ud.blend;}
+      if(dz.ph_==='go'){ud.blend=Math.min(1,ud.blend+dt*2);vzWatch(g,dt,T_,()=>{const t_=dz.task;return t_.exit?nav.exit:t_.stand;},()=>{dz.ph_='next';});if(dz.ph_==='go'&&advance(g,ud.sp*ud.blend*dt,dt)){dz.wTry=0;dz.skipN=0;ud.state='ddd';dz.t=0;dz.ph_=dz.task.exit?'gone':'work';}else v=ud.vNow!=null?ud.vNow:ud.sp*ud.blend;}
       if(dz.ph_==='gone'){g.visible=false;dz.ph_='away';dz.until=T_+rnd(18,30);ud.state='away';}
       tt=dz.t;const t=dz.task; /* read after arriving: the walk's time must not count as work done */
       if(dz.ph_==='work'&&t&&!t.exit){const u=S.units[t.u],d=u.d,k=t.k,top=.3*k,F=t.F;faceTo(t.face);
@@ -2674,7 +2681,7 @@ const space=(function(){
               const af=dz.task.face;for(const [an_,yy] of [[1.75,1.6],[-1.75,1.6],[2.3,1.7],[-2.3,1.7],[3.14,1.7]]){for(let d=3.2;d>=2.0&&!VZ.pick;d-=.2){ /* from the side first (his working direction, not mid-turn): the ladder and the diffuser both in view */const an=af+an_,x=px+Math.sin(an)*d,z=pz+Math.cos(an)*d;if(!cell(x,z))continue;const c=new T.Vector3(x,yy,z);if(seen(c,tu)&&seen(c,th))VZ.pick=c;}if(VZ.pick)break;}
               if(!VZ.pick)VZ.pick=new T.Vector3(px-Math.sin(af)*2.4,2.0,pz-Math.cos(af)*2.4);}
             want=VZ.pick.clone();tg=new T.Vector3((px+u.p[0])/2,(.9+(dz.lift||0)+u.p[1])/2-.15,(pz+u.p[2])/2);}
-          if(!want){for(let d=2.8;d>=1.1&&!want;d-=.2){const x=px-fx*d-fz*.45,z=pz-fz*d+fx*.45;if(cell(x,z))want=new T.Vector3(x,1.7,z);}if(!want)want=new T.Vector3(px-fx*1.2,1.8,pz-fz*1.2);tg=new T.Vector3(px+fx*1.6,1.1,pz+fz*1.6);}}
+          if(!want){/* walking: the camera circles round to his back at a limited turn rate (never cuts in front of him when he turns) */VZ.camYaw=(walkSnap||VZ.camYaw==null)?a:angStep(VZ.camYaw,a,4,dt,3.2);const bx=Math.sin(VZ.camYaw),bz=Math.cos(VZ.camYaw);let dA=Math.abs(((a-VZ.camYaw+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI);const lift_=.7*clamp((dA-.9)/1.4,0,1); /* mid-turn: from higher up, over him */for(let d=2.8;d>=1.1&&!want;d-=.2){const x=px-bx*d-bz*.4,z=pz-bz*d+bx*.4;if(cell(x,z))want=new T.Vector3(x,1.7+lift_,z);}if(!want)want=new T.Vector3(px-bx*1.1,2.1,pz-bz*1.1);tg=new T.Vector3(px+bx*1.6,1.05,pz+bz*1.6);}else VZ.camYaw=Math.atan2(px-camera.position.x,pz-camera.position.z);}
         else{want=new T.Vector3(S.door.x-.9,1.9,S.hd+1.9);tg=new T.Vector3(S.door.x,1.0,S.hd-2.2);}
         VZ.camT=VZ.camT||tg.clone();camera.position.lerp(want,walkSnap?1:Math.min(1,dt*2.2));VZ.camT.lerp(tg,walkSnap?1:Math.min(1,dt*3));walkSnap=false;camera.lookAt(VZ.camT);}
       const _t1=DIAG?performance.now():0;
