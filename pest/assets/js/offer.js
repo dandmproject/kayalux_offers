@@ -42,6 +42,8 @@ const themeBtn=$('#themeBtn');
 const PAL_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18c1.4 0 2-.9 2-1.8 0-.9-.6-1.2-.6-2 0-1 .8-1.7 1.9-1.7H17a4 4 0 0 0 4-4c0-4.7-4-8.5-9-8.5z"/><circle cx="7.5" cy="11" r="1.1" fill="currentColor"/><circle cx="10.5" cy="7" r="1.1" fill="currentColor"/><circle cx="15" cy="7.5" r="1.1" fill="currentColor"/></svg>';
 function paintThemeBtn(){const t=effTheme();themeBtn.innerHTML=PAL_ICON;themeBtn.title='Тема: '+THEMES[t];$$('#themePop [data-t]').forEach(b=>b.setAttribute('aria-checked',String(b.dataset.t===t)));}
 const THEME_KEY='unishtojiteli-offer-theme-3'; // its own key: the scent offer on the same server keeps its own theme
+// the service cards: „Прочети още“ opens the description under the title, „Скрий“ closes it
+document.querySelectorAll('.svc2-rm').forEach(b=>b.addEventListener('click',()=>{const c=b.closest('.svc2'),o=!c.classList.contains('open');c.classList.toggle('open',o);b.setAttribute('aria-expanded',String(o));b.querySelector('span').textContent=o?'Скрий':'Прочети още';}));
 function applyTheme(t){root.setAttribute('data-theme',t);store.set(THEME_KEY,t);paintThemeBtn();themeSubs.forEach(f=>f());}
 const saved=store.get(THEME_KEY);if(THEMES[saved])root.setAttribute('data-theme',saved);
 const themePop=$('#themePop');themeBtn.addEventListener('click',()=>{themePop.hidden=!themePop.hidden;themeBtn.setAttribute('aria-expanded',String(!themePop.hidden));});
@@ -1133,6 +1135,7 @@ const space=(function(){
     // a circle (the body, r) against every registered fixture rectangle
     const circleFree=(x,z,r)=>OBS.every(q=>{const cx=Math.max(q[0],Math.min(x,q[1])),cz=Math.max(q[2],Math.min(z,q[3]));return Math.hypot(x-cx,z-cz)>=r;});
     function checkout(g,T_,dt){const ud=g.userData,cs=extras.find(x=>x.userData.cashier),T=S.tl;dt=Math.min(dt||1/30,.1);
+      if(!ud.pay&&VZ.atTill)return; /* the pest controller is handing over his documents at the till: the next customer waits */
       if(!ud.pay){if(people.some(o=>o!==g&&o.visible&&o.userData.state==='walk'&&o.userData.follow==null&&Math.hypot(o.position.x-(T.E+.33),o.position.z-g.position.z)<.7)&&(ud.coW=(ud.coW||0)+dt)<1.5)return; /* the last customer is still stepping away (at most 3 s) */ud.pay=tillPlan(g,T_);}
       const pl=ud.pay;
       // FinalApproach: the grid stops a body ~0.54 m from the counter; the last step is taken off the grid, in small slow steps,
@@ -1232,7 +1235,7 @@ const space=(function(){
       people.forEach((g,i)=>{const ud=g.userData;if(ud.ddd){vzStep(g,dt,T_,open);return;}if(!open){g.visible=false;if(ud.stroller)ud.stroller.visible=false;return;}
         if(ud.follow!=null){followParent(g,dt,T_);return;}
         if(ud.state==null)navStart(g,T_,i);
-        if(ud.state==='away'){g.visible=false;if(ud.stroller)ud.stroller.visible=false;if(T_>ud.until){if(doorBusy(g))ud.until=T_+rnd(.8,1.6);else if(ud.isChild){restyle(g);navEnter(g,T_);}else navEnter(regen(i),T_);}return;}
+        if(ud.state==='away'){g.visible=false;if(ud.stroller)ud.stroller.visible=false;if(VZ.quiet&&T_>ud.until)ud.until=T_+1; /* the shop empties for the pest controller's handover */if(T_>ud.until){if(doorBusy(g))ud.until=T_+rnd(.8,1.6);else if(ud.isChild){restyle(g);navEnter(g,T_);}else navEnter(regen(i),T_);}return;}
         g.visible=true;if(ud.stroller)ud.stroller.visible=true;
         if(ud.state==='enter'){ud.blend=Math.max(0,ud.blend-dt*3);if(T_>ud.until)startLeg(g,T_);}
         else if(ud.state==='walk'){ud.blend=Math.min(1,ud.blend+dt*2);
@@ -1498,7 +1501,8 @@ const space=(function(){
         // his tool case (gel, glue boards, gloves, the protocol): carried by the handle, set down beside him while he works
         kase:mergeColored([[roundedBox(.36,.24,.12,.025).translate(0,-.15,0),'#2b2d31'],[at(new T.BoxGeometry(.37,.018,.125),0,-.07,0),'#f0a81c'],...[-1,1].map(s_=>[at(new T.BoxGeometry(.03,.035,.13),s_*.1,-.045,0),'#c9c9c9']),[at(new T.BoxGeometry(.13,.018,.03),0,-.005,0),BL],...[-1,1].map(s_=>[at(new T.BoxGeometry(.015,.03,.025),s_*.06,-.02,0),BL])]),
         clip:mergeColored([[new T.BoxGeometry(.22,.30,.008),'#5a3a22'],[at(new T.BoxGeometry(.19,.25,.002),0,-.015,.005),'#f4f2ec'],[at(new T.BoxGeometry(.09,.03,.014),0,.14,.004),'#b8b8b8'],...[0,1,2,3,4,5].map(i=>[at(new T.BoxGeometry(.15,.004,.001),0,.07-i*.035,.0066),'#7b8aa0'])]),
-        handB:new T.PlaneGeometry(.19,.14)};
+        handB:new T.PlaneGeometry(.19,.14),
+        docs:mergeColored([[new T.BoxGeometry(.23,.31,.012),'#f4f2ec'],[at(new T.BoxGeometry(.232,.05,.013),0,.12,0),'#c9962f'],[at(new T.BoxGeometry(.15,.004,.0135),0,.03,0),'#9aa3b2'],[at(new T.BoxGeometry(.15,.004,.0135),0,-.01,0),'#9aa3b2'],[at(new T.BoxGeometry(.11,.004,.0135),0,-.05,0),'#9aa3b2']])};
       Object.values(VZ.geo).forEach(g=>GEOSET.add(g));VZ.bU=M.boardUsed.clone();VZ.bU.side=T.DoubleSide;VZ.bN=M.boardNew.clone();VZ.bN.side=T.DoubleSide;M.vz_bU=VZ.bU;M.vz_bN=VZ.bN;
       // the decal on the tank's back: the round emblem, as on the offer's front page
       const tt=new T.TextureLoader().load('assets/img/emblem-ring.jpg');tt.encoding=T.sRGBEncoding;tt.anisotropy=4;
@@ -1525,7 +1529,7 @@ const space=(function(){
       const sg=[];for(const sd of [-1,1]){const pts=[[.1,nk.y-.08,s2.z-.13],[.105,nk.y-.025,nk.z-.02],[.108,nk.y-.07,fz(nk.y-.07,.108)+.006],[.115,s2.y,fz(s2.y,.115)+.008],[.13,s2.y-.15,fz(s2.y-.15,.13)+.008],[.16,s2.y-.23,fz(s2.y-.23,.16)-.02]].map(q=>new T.Vector3(sd*q[0],q[1],q[2]));sg.push([new T.TubeGeometry(new T.CatmullRomCurve3(pts),18,.011,4).scale(1,1,.55),'#151617']);}
       {const yc=s2.y+.035,zc=fz(yc,.0)+.01;sg.push([new T.BoxGeometry(.23,.022,.008).translate(0,yc,zc),'#151617'],[new T.BoxGeometry(.035,.03,.014).translate(0,yc,zc+.004),'#2b2b2b']);}
       const straps=vzBone(B('Spine2'),new T.Mesh(mergeColored(sg),M.vc2),new T.Vector3(0,0,0));ud.ownGeo=[straps.geometry];
-      const kase=new T.Mesh(VZ.geo.kase,M.vc2);kase.castShadow=true;const clip=new T.Mesh(VZ.geo.clip,M.vc2);clip.visible=false;const handB=new T.Mesh(VZ.geo.handB,VZ.bU);handB.visible=false;room.add(kase,clip,handB);const tag=document.createElement('div');tag.className='vztag';tag.innerHTML='<b>Дезинфектор</b><i>„УНИЩОЖИТЕЛИ“ · ДДД</i>';tag.hidden=true;ovl.appendChild(tag);const tagV=new T.Vector3();overlay.push({el:tag,v:tagV,kind:'vz'}); /* his name over his head, so everyone knows it is him */
+      const kase=new T.Mesh(VZ.geo.kase,M.vc2);kase.castShadow=true;const clip=new T.Mesh(VZ.geo.clip,M.vc2);clip.visible=false;const handB=new T.Mesh(VZ.geo.handB,VZ.bU);handB.visible=false;const docs=new T.Mesh(VZ.geo.docs,M.vc2);docs.visible=false;room.add(kase,clip,handB,docs);const tag=document.createElement('div');tag.className='vztag';tag.innerHTML='<b>Дезинфектор</b><i>„УНИЩОЖИТЕЛИ“ · ДДД</i>';tag.hidden=true;ovl.appendChild(tag);const tagV=new T.Vector3();overlay.push({el:tag,v:tagV,kind:'vz'}); /* his name over his head, so everyone knows it is him */
       // the half-mask: on the face while spraying, hanging on the chest otherwise
       const mFace=vzBone(B('Head'),new T.Object3D(),new T.Vector3(0,(ns.y+ul.y)/2-.004,ns.z+.012));
       const mNeck=vzBone(B('Spine2'),new T.Object3D(),new T.Vector3(0,nk.y-.17,s2.z+.15),new T.Quaternion().setFromEuler(_zE.set(1.0,0,0)));
@@ -1536,7 +1540,7 @@ const space=(function(){
       if(!VZ.gel){VZ.gel=new T.InstancedMesh(VZ.geo.dot,VZ.mat.gel,90);VZ.gel.count=0;VZ.gelN=0;}if(!VZ.gel.parent)room.add(VZ.gel);
       if(!VZ.mist.length)for(let i=0;i<28;i++){const s_=new T.Sprite(VZ.mat.mist.clone());s_.visible=false;s_.userData={t:9,v:new T.Vector3()};VZ.mist.push(s_);}VZ.mist.forEach(s_=>{room.add(s_);s_.visible=false;s_.userData.t=9;});
       const legs=['L','R'].map(s=>[B(s+'_Thigh'),B(s+'_Calf'),B(s+'_Foot')]);poseBones(g);ud.pB=ud.pB.concat(...legs.map(l=>l.slice(0,3))).filter(Boolean);
-      ud.dz={tag,tagV,tank,straps,kase,clip,handB,caseOn:false,caseP:[0,0,0],holdB:null,clipOn:false,kind:'service',stow,outlet,pump,mFace,mNeck,mask,lance,gun,hose,HN,HR,legs,maskT:0,maskW:0,lanceT:0,lanceW:0,ldir:new T.Vector3(0,-.5,.8).normalize(),sq:0,sqT:0,q:[],task:null,ph:'away',t:0,until:T_+rnd(2,6),spraying:false,emit:0,pumpT:0};
+      ud.dz={tag,tagV,tank,straps,kase,clip,handB,docs,docsAt:null,caseOn:false,caseP:[0,0,0],holdB:null,clipOn:false,kind:'service',stow,outlet,pump,mFace,mNeck,mask,lance,gun,hose,HN,HR,legs,maskT:0,maskW:0,lanceT:0,lanceW:0,ldir:new T.Vector3(0,-.5,.8).normalize(),sq:0,sqT:0,q:[],task:null,ph:'away',t:0,until:T_+rnd(2,6),spraying:false,emit:0,pumpT:0};
       g.visible=false;ud.state='away';g.position.set(nav.entry[0],0,nav.entry[1]);room.add(g);people.push(g);VZ.g=g;return true;}
     function vzClear(){if(VZ.g){(VZ.g.userData.ownMats||[]).forEach(m=>m.dispose());(VZ.g.userData.ownGeo||[]).forEach(g_=>g_.dispose());const dz=VZ.g.userData.dz;if(dz)dz.hose.geometry.dispose();}VZ.g=null;if(VZ.gel){VZ.gel.count=0;VZ.gelN=0;}}
     // where is open floor (for him to stand) / a free wall (to spray its skirting)
@@ -1575,16 +1579,33 @@ const space=(function(){
       let v=0,lookP=null;const R=[null,null];ud.ikReq=R;dz.gunOn=false;dz.spraying=false;let sqTarget=0,lanceMode=dz.task&&dz.task.kind==='spray'&&dz.ph!=='go'&&dz.ph!=='maskOn'?1:0,maskOn=0,lanceHold=dz.lanceT>.5;
       const fwd=_zA.set(Math.sin(ud.ang||0),0,Math.cos(ud.ang||0)),rgt=_zB.set(-fwd.z,0,fwd.x),k=ud.k||1,px=g.position.x,pz=g.position.z;
       const hp=(f,r,y)=>[px+fwd.x*f+rgt.x*r,y*k,pz+fwd.z*f+rgt.z*r]; /* a point in his own frame: f ahead, r to his right, y up */
-      if(dz.ph==='away'){g.visible=false;if(T_>dz.until&&!doorBusy(g)){VZ.vn=(VZ.vn||0)+1;const all=vzPlan(),spr=all.filter(t=>t.kind==='spray');dz.kind=spr.length&&VZ.vn%2===0?'spray':'service';dz.q=dz.kind==='spray'?spr:all.filter(t=>t.kind!=='spray');dz.caseOn=false;if(window.__vzOnly){dz.q=all.filter(t=>t.kind===window.__vzOnly);dz.kind=window.__vzOnly==='spray'?'spray':'service';}g.position.set(nav.entry[0],0,nav.entry[1]);ud.ang=Math.PI;g.rotation.y=ud.ang;g.visible=true;ud.blend=0;dz.task=null;dz.ph='next';dz.t=0;}}
-      if(dz.ph==='next'){dz.task=dz.q.shift()||{kind:'exit'};const t=dz.task;dz.t=0;dz.ph='go';vzGo(g,t.kind==='exit'?nav.exit:(t.stand||t.a),T_);}
-      if(dz.ph==='go'){ud.blend=Math.min(1,ud.blend+dt*2);vzWatch(g,dt,T_,()=>{const t_=dz.task;return t_.kind==='exit'?nav.exit:(t_.stand||t_.a);},()=>{dz.ph='next';});if(dz.ph==='go'&&advance(g,ud.sp*ud.blend*dt,dt)){dz.wTry=0;dz.skipN=0;ud.state='ddd';dz.t=0;const tk=dz.task;dz.ph=tk.kind==='exit'?'gone':tk.kind==='spray'?'maskOn':tk.near&&Math.hypot(tk.near[0]-tk.stand[0],tk.near[1]-tk.stand[1])>.08?'stepIn':'work';}else v=ud.vNow!=null?ud.vNow:ud.sp*ud.blend;}
+      if(dz.ph==='away'){g.visible=false;if(T_>dz.until&&!doorBusy(g)){VZ.vn=(VZ.vn||0)+1;const all=vzPlan(),spr=all.filter(t=>t.kind==='spray');dz.kind=spr.length&&VZ.vn%2===0?'spray':'service';dz.q=dz.kind==='spray'?spr:all.filter(t=>t.kind!=='spray');dz.caseOn=false;if(window.__vzOnly){dz.q=all.filter(t=>t.kind===window.__vzOnly);if(window.__vzN)dz.q=dz.q.slice(0,window.__vzN);dz.kind=window.__vzOnly==='spray'?'spray':'service';}g.position.set(nav.entry[0],0,nav.entry[1]);ud.ang=Math.PI;g.rotation.y=ud.ang;g.visible=true;ud.blend=0;dz.task=null;dz.ph='next';dz.t=0;}}
+      if(dz.ph==='next'){let nt=dz.q.shift();
+        if(!nt&&!dz.handed&&S.tl&&extras.some(e=>e.userData.cashier)){const tl=S.tl;let d0=[tl.E+.33,(tl.H[2]+.2+tl.basket[2])/2];if(!vzWalk(d0[0],d0[1])){const w=vzNearWalk(d0[0],d0[1],.15);if(w)d0=w;}nt={kind:'hand',stand:d0};}
+        dz.task=nt||{kind:'exit'};const t=dz.task;dz.t=0;dz.ph='go';
+        if(dz.q.length<=2&&t.kind!=='exit'&&!VZ.quiet){VZ.quiet=true; /* the last job: the shop empties a little, so he can hand over the documents at a free till */
+          people.forEach(o=>{const u=o.userData;if(u.ddd||!u.visit||u.follow!=null)return;const keep=u.visit.slice(0,u.legI+1),rest=u.visit.slice(u.legI+1).filter(l=>l.kind!=='browse');u.visit=keep.concat(rest);if(u.state==='browse')u.until=Math.min(u.until,T_+rnd(1,4));});}
+        vzGo(g,t.kind==='exit'?nav.exit:(t.stand||t.a),T_);}
+      if(dz.ph==='go'&&dz.task&&dz.task.kind==='hand'){const st=dz.task.stand,busy=qOcc.some(q=>q)||people.some(o=>o!==g&&o.visible&&!o.userData.ddd&&(o.userData.pay||Math.hypot(o.position.x-st[0],o.position.z-st[1])<1.4)); /* the till is his only when the line is empty and nobody stands at it */
+        if(busy&&Math.hypot(st[0]-px,st[1]-pz)<2.2){ud.state='ddd';dz.wT=0;dz.waitT=(dz.waitT||0)+dt;faceTo(Math.atan2(st[0]-px,st[1]-pz),3);dz.clipOn=true;const cp=hp(.3,-.05,.95);R[0]={p:cp,w:1};lookP=[px+fwd.x*.3,pz+fwd.z*.3]; /* a customer is paying: he waits a step back, reading through his protocol */
+          dz.waiting=dz.waitT<90;}else if(dz.waiting){dz.waiting=false;dz.waitT=0;dz.clipOn=false;ud.state='walk';}}
+      if(dz.ph==='go'&&!dz.waiting){ud.blend=Math.min(1,ud.blend+dt*2);vzWatch(g,dt,T_,()=>{const t_=dz.task;return t_.kind==='exit'?nav.exit:(t_.stand||t_.a);},()=>{dz.ph='next';});if(dz.ph==='go'&&advance(g,ud.sp*ud.blend*dt,dt)){dz.wTry=0;dz.skipN=0;ud.state='ddd';dz.t=0;const tk=dz.task;dz.ph=tk.kind==='exit'?'gone':tk.kind==='hand'?'hand':tk.kind==='spray'?'maskOn':tk.near&&Math.hypot(tk.near[0]-tk.stand[0],tk.near[1]-tk.stand[1])>.08?'stepIn':'work';}else v=ud.vNow!=null?ud.vNow:ud.sp*ud.blend;}
       if(dz.ph==='stepIn'||dz.ph==='stepOut'){const tk=dz.task,to=dz.ph==='stepIn'?tk.near:tk.stand,dx=to[0]-g.position.x,dz_=to[1]-g.position.z,L=Math.hypot(dx,dz_);
         if(L<.04){g.position.x=to[0];g.position.z=to[1];dz.t=0;dz.ph=dz.ph==='stepIn'?'work':'next';}else{const sp=Math.min(.5,L/Math.max(dt,1e-3)*.9);faceTo(Math.atan2(dx,dz_),6);g.position.x+=dx/L*sp*dt;g.position.z+=dz_/L*sp*dt;v=sp;}} /* the last step into the gap and back out, straight */
-      if(dz.ph==='gone'){g.visible=false;dz.ph='away';dz.until=T_+rnd(6,10);ud.state='away';}
+      if(dz.ph==='gone'){g.visible=false;dz.ph='away';dz.until=T_+rnd(6,10);ud.state='away';dz.handed=false;VZ.quiet=false;VZ.atTill=false;dz.docs.visible=false;}
       const t=dz.task,tt=dz.t;
       // the tool case: put down on his left as he crouches, picked up again before he stands
       const caseDown=(tDown,tUp)=>{const cs=hp(.12,-.45,0);if(tt<tDown){R[0]={p:[cs[0],.3,cs[2]],w:clamp((tt-(tDown-.5))/.3,0,1)};}else if(tt<tUp){if(!dz.caseOn){dz.caseOn=true;dz.caseP=[cs[0],.27,cs[2]];}}else{dz.caseOn=false;}if(tt>tUp-.5&&tt<tUp+.3)R[0]={p:[dz.caseP[0],dz.caseP[1]+.03,dz.caseP[2]],w:clamp((tt-(tUp-.5))/.3,0,1)*clamp((tUp+.3-tt)/.3,0,1)};};
       const ramp=(t0,t1)=>clamp((tt-t0)/(t1-t0),0,1),win=(t0,t1,f)=>tt>=t0&&tt<t1?Math.min(1,(tt-t0)/(f||.3),(t1-tt)/(f||.3)):0;
+      if(dz.ph==='hand'){const cs=extras.find(e=>e.userData.cashier),cu=cs&&cs.userData;VZ.atTill=true;
+        if(!cs){dz.ph='next';dz.handed=true;}else{const cx=cs.position.x,cz=cs.position.z,mid=[(px+cx)/2,1.2,(pz+cz)/2];faceTo(Math.atan2(cx-px,cz-pz),4);cu.lookAtP=[px,pz];
+          const win2=(t0,t1,f)=>tt>=t0&&tt<t1?Math.min(1,(tt-t0)/(f||.3),(t1-tt)/(f||.3)):0,cr=[null,null];
+          dz.clipOn=tt<1.6;if(dz.clipOn){const cp=hp(.3,-.05,.95);R[0]={p:cp,w:win2(0,1.6,.25)};}                                    // the protocol out of his case
+          dz.docsAt=tt<1.2?null:tt<3.4?'him':tt<8.6?'her':null;
+          if(tt>=1.2&&tt<3.6)R[1]={p:tt<2.3?hp(.32,.12,1.05):mid,w:win2(1.2,3.6,.3)};                                            // held out across the counter
+          if(tt>=2.4&&tt<9.2){const tl=S.tl,rd=tt<3.6?mid:tt<8.0?[cx+(px-cx)*.3,1.18,cz+(pz-cz)*.3]:tl.drawer;cr[1]={p:rd,w:win2(2.4,9.2,.3)};if(tt>3.6&&tt<8)cr[0]={p:[rd[0]-.12*(pz-cz),rd[1]-.02,rd[2]+.12*(px-cx)],w:win2(3.6,8,.3)};} // she takes it, leafs through it, puts it in the drawer
+          cu.ikReq=cr;cu.talking=tt>5.2&&tt<7.2;cu.smile=tt>3.4&&tt<10;dz.talk=(tt>3.6&&tt<5.2)||(tt>7.2&&tt<8.8)||(tt>9.6&&tt<10.6);lookP=tt>3.6&&tt<8?[cx,cz]:[cx,cz];
+          if(tt>11){cu.ikReq=null;cu.talking=false;cu.smile=false;cu.lookAtP=null;dz.handed=true;VZ.atTill=false;dz.docsAt=null;dz.talk=false;dz.ph='next';dz.t=0;}}}
       if(dz.ph==='work'&&t.kind==='box'){const u=S.units[t.u];faceTo(t.face);const hgB=u&&u.hinge;sqTarget=tt<9.6?1:0;caseDown(.7,9.2);
         // the full service of a point: lid up, the used glue board out and looked at, into the case, a new board in, lid down, a note in the protocol
         const open_=tt<1.4?0:tt<2.1?(tt-1.4)/.7:tt<5.7?1:tt<6.4?1-(tt-5.7)/.7:0;
@@ -1623,8 +1644,9 @@ const space=(function(){
       dz.maskT=maskOn;dz.sqT=sqTarget;ud.lookAtP=lookP;if(dz.kind==='service')ud.tillGrip=[dz.caseOn&&!R[0]?0:1,dz.gunOn||dz.holdB?1:0]; /* the case's handle in his left hand; the gun or a board in the right */
       // the body: walking clip while he moves, standing otherwise; a squat is the legs bending under him (gltfHeads → vzPose)
       dz.sq=ease(dz.sq,dz.sqT,3.2);ud.sqD=dz.sq*.4*k;
-      if(g.visible){if(v>.04){ud.play(v<.6?'walkslow':'walk',.3);ud.setSpeed(v);}else ud.play('idle',.4);}
-      if(ud.state!=='walk'&&dz.ph!=='go'&&dz.ph!=='away')ud.state='ddd';}
+      if(g.visible){if(v>.04){ud.play(v<.6?'walkslow':'walk',.3);ud.setSpeed(v);}else ud.play(dz.talk?'talk':'idle',.4);}
+      if(dz.docsAt==='him')ud.tillGrip=[ud.tillGrip?ud.tillGrip[0]:0,1];
+      if(ud.state!=='walk'&&(dz.ph!=='go'||dz.waiting)&&dz.ph!=='away')ud.state='ddd';}
     window.__vz=()=>{const g=VZ.g;if(!g)return {none:true,texN:VZ.texN,models:(window.KL_GLTF&&KL_GLTF.models||[]).map(m=>m.file).join(',')};const d=g.userData.dz;return {ph:d.ph,task:d.task&&d.task.kind,t:+d.t.toFixed(1),x:+g.position.x.toFixed(2),z:+g.position.z.toFixed(2),ang:+(g.userData.ang||0).toFixed(2),vis:g.visible,q:d.q.length,sq:+d.sq.toFixed(2),spray:d.spraying,mask:d.maskT,lance:d.lanceT,st:g.userData.state,clip:g.userData.clip};};
     window.__vzPlan=()=>vzPlan().map(t=>t.kind+(t.kind==='box'?t.u:'')+' '+JSON.stringify((t.stand||t.a).map(v=>+v.toFixed(2))));
     window.__vzSkip=()=>{const g=VZ.g;if(g){const d=g.userData.dz;d.until=0;}};
@@ -1645,6 +1667,7 @@ const space=(function(){
     function vzWork(g){const ud=g.userData,dz=ud.dz,t=dz&&dz.task,hd=ud.headB;if(!t||!hd)return null;hd.getWorldPosition(_zS);const H=[_zS.x,_zS.y-.12,_zS.z],px=g.position.x,pz=g.position.z;
       if(t.kind==='box'){const u=S.units[t.u];return u?{key:t,W:[u.p[0],.12,u.p[2]],H,face:t.face,D:[2.3,2.0,2.7],h:1.55}:null;}
       if(t.kind==='gel'){let x=0,y=0,z=0;t.pts.forEach(p=>{x+=p[0];y+=p[1];z+=p[2];});const n=t.pts.length;return {key:t,W:[x/n,y/n,z/n],H,face:t.face,D:[2.3,2.0,2.7],h:clamp(y/n+.95,1.45,2.0)};}
+      if(t.kind==='hand'){const cs=extras.find(e=>e.userData.cashier);if(!cs||dz.ph!=='hand')return null;const cx=cs.position.x,cz=cs.position.z;return {key:t,W:[(px+cx)/2,1.2,(pz+cz)/2],H,face:Math.atan2(cx-px,cz-pz),D:[2.2,1.9,2.6],h:1.65,mix:.2};}
       if(t.kind==='spray'){const L=Math.hypot(t.b[0]-t.a[0],t.b[1]-t.a[1])||1,dx=(t.b[0]-t.a[0])/L,dy=(t.b[1]-t.a[1])/L;return {key:t,W:[px+dx*.75-t.n[0]*.62,.1,pz+dy*.75-t.n[1]*.62],H,face:Math.atan2(dx,dy),D:[2.5,2.1,2.9],h:1.6};}
       return null;}
     function vzWorld(o){o.updateMatrixWorld(true);o.getWorldPosition(_zD);return [_zD.x,_zD.y,_zD.z];}
@@ -1676,6 +1699,7 @@ const space=(function(){
         else{const lp=palmOf(g,0);if(lp){dz.kase.position.set(lp[0],Math.max(.27,lp[1]-.01),lp[2]);dz.kase.rotation.set(0,(ud.ang||0)+Math.PI/2,0);}}}
       const hd=ud.headB;if(hd){hd.getWorldPosition(_zS);dz.tagV.set(_zS.x,_zS.y+.36,_zS.z);}
       dz.clip.visible=!!dz.clipOn;if(dz.clipOn){const lp=palmOf(g,0);if(lp&&hd){dz.clip.position.set(lp[0],lp[1]+.08,lp[2]);dz.clip.lookAt(_zS);}}
+      {const cs=dz.docsAt==='her'?extras.find(e=>e.userData.cashier):null,who=dz.docsAt==='him'?g:cs,pp=who?palmOf(who,1):null;dz.docs.visible=!!pp;if(pp){const hh=who.userData.headB;dz.docs.position.set(pp[0],pp[1]+.02,pp[2]);if(hh){hh.getWorldPosition(_zC);dz.docs.lookAt(_zC);dz.docs.rotateX(-.9);}if(cs)cs.userData.tillGrip=[0,1];}}
       dz.handB.visible=!!dz.holdB;if(dz.holdB){dz.handB.material=dz.holdB==='used'?VZ.bU:VZ.bN;const rp=palmOf(g,1);if(rp&&hd){dz.handB.position.set(rp[0],rp[1]+.03,rp[2]);dz.handB.lookAt(_zS);}}
       if(!spr){[dz.lance,dz.hose].forEach(o=>o.visible=false);VZ.mist.forEach(s_=>{if(s_.userData.t>=1.2)s_.visible=false;});return;}
       // hose: outlet → down → up to the lance's back end, a cubic curve with its own sag

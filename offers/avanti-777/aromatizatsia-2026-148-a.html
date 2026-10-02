@@ -2045,7 +2045,7 @@ const space=(function(){
       if(dz.ph_==='gone'){g.visible=false;dz.ph_='away';dz.until=T_+rnd(18,30);ud.state='away';}
       tt=dz.t;const t=dz.task; /* read after arriving: the walk's time must not count as work done */
       if(dz.ph_==='work'&&t&&!t.exit){const u=S.units[t.u],d=u.d,k=t.k,top=.3*k,F=t.F;faceTo(t.face);
-        const tUp=1.4+.55*k,tDn=tUp+7.4,tEnd=tDn+.55*k+1.2;
+        const tUp=1.4+.55*k,tDn=tUp+7.4,tEnd=tDn+.55*k+3.6;u.vzBusy=tt>.3&&tt<tDn+.55*k+.4?performance.now()/1000+.3:0; /* no puff while he is at it */
         // the ladder: set down and opened (0.4–1.3 s), folded and picked up at the end
         if(tt>.4&&tt<tEnd-.5){if(!dz.ladOn){dz.ladOn=true;dz.ladP=[F[0],0,F[1]];dz.ladYaw=Math.atan2(d[0],d[2]);}dz.ladTh=.22*Math.min(ramp(.5,1.3),1-ramp(tEnd-1.1,tEnd-.6));}else dz.ladOn=false;
         if(tt<1.3)R[1]={p:[F[0],1.1,F[1]],w:win(.2,1.3,.3)};
@@ -2056,16 +2056,17 @@ const space=(function(){
         const rail=s=>[F[0]+(-d[2])*s*.21,(1.1+lift*.6),F[1]+d[0]*s*.21];
         if((tt>=1.4&&tt<tUp+.3)||(tt>=tDn-.2&&tt<tDn+.55*k+.2)){R[0]={p:rail(1),w:.9};R[1]={p:rail(-1),w:.9};}
         // at the top: open the diffuser, the empty bottle out into the bag, a full one in, close, the phone, one test puff
-        const w0=tUp+.2,uo=u.o,uf=[u.p[0]+d[0]*.12,u.p[1],u.p[2]+d[2]*.12],hip=hp_=>[px+rgt.x*(hp_?-.2:.2),.95+lift,pz+rgt.z*(hp_?-.2:.2)];
-        dz.open=tt<w0+.4?0:tt<w0+1?(tt-w0-.4)/.6:tt<w0+4.2?1:tt<w0+4.8?1-(tt-w0-4.2)/.6:0;
-        if(tt>=w0&&tt<w0+1.1){const w=win(w0,w0+1.1,.3);R[0]={p:[uf[0]-d[2]*.1,uf[1]-.05,uf[2]+d[0]*.1],w};R[1]={p:[uf[0]+d[2]*.1,uf[1]-.05,uf[2]-d[0]*.1],w};}
+        const w0=tUp+.2,uo=u.o,uf=[u.p[0]+d[0]*(u.bd||.07)*.5,u.p[1]-(u.bh||.26)*.05,u.p[2]+d[2]*(u.bd||.07)*.5],ue=[u.p[0]+d[0]*((u.bd||.07)+.01)+d[2]*(u.bh?.06:.06),u.p[1],u.p[2]+d[2]*((u.bd||.07)+.01)-d[0]*.06],hip=hp_=>[px+rgt.x*(hp_?-.2:.2),.95+lift,pz+rgt.z*(hp_?-.2:.2)];
+        dz.open=tt<w0+.4?0:tt<w0+1?(tt-w0-.4)/.6:tt<w0+4.2?1:tt<w0+4.8?1-(tt-w0-4.2)/.6:0;if(u.bottle)u.bottle.visible=!(tt>w0+1.5&&tt<w0+3.3); /* the empty bottle comes out of the unit, the full one goes in */
+        if(tt>=w0&&tt<w0+1.1){const w=win(w0,w0+1.1,.3);R[1]={p:ue,w};R[0]={p:[uf[0]-d[2]*.08,uf[1]-.06,uf[2]+d[0]*.08],w:w*.8};} /* the cover's edge drawn open, the other hand steadies the unit */
         if(tt>=w0+1.1&&tt<w0+2.4){R[1]={p:tt<w0+1.6?uf:hip(0),w:win(w0+1.1,w0+2.4,.25)};if(tt>w0+1.5&&tt<w0+2.25)dz.holdB='old';}          // the empty bottle out, into the bag
         if(tt>=w0+2.2&&tt<w0+3.6){R[0]={p:tt<w0+2.7?hip(1):uf,w:win(w0+2.2,w0+3.6,.25)};if(tt>w0+2.6&&tt<w0+3.3)dz.holdB='newL';}         // a full one from the bag, in
-        if(tt>=w0+3.9&&tt<w0+4.9){const w=win(w0+3.9,w0+4.9,.3);R[0]={p:[uf[0]-d[2]*.1,uf[1]-.05,uf[2]+d[0]*.1],w};R[1]={p:[uf[0]+d[2]*.1,uf[1]-.05,uf[2]-d[0]*.1],w};}
-        if(tt>=w0+5&&tt<tDn-.3){dz.phOn=true;R[1]={p:[px+fwd.x*.3+rgt.x*.08,1.25+lift,pz+fwd.z*.3+rgt.z*.08],w:win(w0+5,tDn-.3,.3)};if(!dz.puffed&&tt>w0+5.9){dz.puffed=true;u.vzPuff=T_+2.6;}}
-        ud.leanBoost=tt>=tUp&&tt<tDn?clamp((t.off-.42)*.7,0,.32):0;dz.u=u;lookP=tt>=w0+5&&tt<w0+5.8?[px+fwd.x*.3,pz+fwd.z*.3]:[u.p[0],u.p[2]];
+        if(tt>=w0+3.9&&tt<w0+4.9){const w=win(w0+3.9,w0+4.9,.3);R[1]={p:ue,w};} /* the cover pushed shut */
+        if(tt>=w0+5&&tt<tDn-.3){dz.phOn=true;R[1]={p:[px+fwd.x*.3+rgt.x*.08,1.25+lift,pz+fwd.z*.3+rgt.z*.08],w:win(w0+5,tDn-.3,.3)};}
+        if(!dz.puffed&&tt>tDn+.55*k+.5){dz.puffed=true;u.vzPuff=T_+2.6;} /* the test puff once he is down and a step back from it */
+        ud.leanBoost=tt>=tUp&&tt<tDn?clamp((t.off-.42)*.7,0,.32):0;dz.u=u;lookP=tt>=w0+5&&tt<tDn-.3?[px+fwd.x*.3,pz+fwd.z*.3]:[u.p[0],u.p[2]];
         if(tt>=tEnd-.6&&tt<tEnd)R[1]={p:[F[0],1.1,F[1]],w:win(tEnd-.6,tEnd,.2)};
-        if(tt>tEnd){dz.ph_='next';dz.puffed=false;dz.lift=0;dz.open=0;ud.leanBoost=0;}}
+        if(tt>tEnd){dz.ph_='next';dz.puffed=false;dz.lift=0;dz.open=0;ud.leanBoost=0;if(u.bottle)u.bottle.visible=true;u.vzBusy=0;}}
       if(dz.ph_!=='work'){dz.lift=0;dz.open=0;}
       ud.lookAtP=lookP;ud.tillGrip=[dz.holdB==='newL'||R[0]?1:0,dz.holdB==='old'||dz.phOn||!dz.ladOn||R[1]?1:0];
       if(!dz.ladOn&&dz.ph_!=='away'&&!R[1])R[1]={p:[px+rgt.x*.24+fwd.x*.05,.92,pz+rgt.z*.24+fwd.z*.05],w:.85}; // carrying the folded ladder at his right side
@@ -2094,8 +2095,8 @@ const space=(function(){
       dz.lf.rotation.x=-dz.ladTh;dz.lr.rotation.x=dz.ladTh;const hy=1.25*Math.cos(dz.ladTh);
       if(dz.ladOn){dz.lad.position.set(dz.ladP[0],hy,dz.ladP[2]);dz.lad.rotation.set(0,dz.ladYaw,0);}
       else{const rp=palmOf(g,1);if(rp){const a=ud.ang||0;dz.lad.position.set(rp[0],Math.max(1.3,rp[1]+.55),rp[2]);dz.lad.rotation.set(0,a+Math.PI/2,0);}}
-      // the unit opens on its bottom edge
-      if(dz.u&&dz.u.grp){const G_=dz.u.grp,u=dz.u,a=-.32*tE(dz.open||0);G_.rotation.order='YXZ';G_.rotation.x=a;const bh=u.bh||.26,yy=-bh/2;const dy=yy-(yy*Math.cos(a)),dzz=-(yy*Math.sin(a));G_.position.set(u.p[0]+u.d[0]*dzz,u.p[1]+dy,u.p[2]+u.d[2]*dzz);}
+      // the unit's cover swings open on its left edge, the bottle inside shows
+      if(dz.u&&dz.u.cover){dz.u.cover.rotation.y=-1.75*tE(dz.open||0);}
       dz.btl.visible=!!dz.holdB;if(dz.holdB){const pp=palmOf(g,dz.holdB==='newL'?0:1);if(pp){dz.btl.position.set(pp[0],pp[1]-.05,pp[2]);dz.btl.rotation.set(0,0,0);}}
       dz.ph.visible=!!dz.phOn;if(dz.phOn&&hd){const pp=palmOf(g,1);if(pp){dz.ph.position.set(pp[0],pp[1]+.02,pp[2]);dz.ph.lookAt(_zS);}}}
     window.__vz=()=>{const g=VZ.g;if(!g)return {none:true,texN:VZ.texN};const d=g.userData.dz;return {ph:d.ph_,u:d.task&&d.task.u,t:+d.t.toFixed(1),x:+g.position.x.toFixed(2),y:+g.position.y.toFixed(2),z:+g.position.z.toFixed(2),ang:+(g.userData.ang||0).toFixed(2),vis:g.visible,q:d.q.length,lift:+(d.lift||0).toFixed(2),lad:d.ladOn,st:g.userData.state,clip:g.userData.clip};};
@@ -2336,7 +2337,7 @@ const space=(function(){
           const disp=new T.Mesh(new T.PlaneGeometry(.1,.055),M.plDisp);disp.position.set(-.01,-bh*.22,bd+.012);
           led=new T.Group();const dot=new T.Mesh(new T.CircleGeometry(.006,10),M.led);dot.position.set(bw*.36,-bh*.2,bd+.012);led.add(dot);
           const glow=new T.Sprite(new T.SpriteMaterial({map:spr,color:0xffffff,transparent:true,opacity:.7,depthWrite:false}));glow.position.set(0,bh/2+.06,bd*.55);glow.scale.set(.2,.1,1);led.add(glow);
-          g.add(frame,front,noz,disp,led);
+          var cover=new T.Group();cover.position.set(-bw/2,0,0);[frame,front,noz,disp,led].forEach(o=>{o.position.x+=bw/2;cover.add(o);});g.add(cover);
         }else{
           bw=.19;bh=.26;bd=.07;const shell=white?M.unitW:M.unit;
           const body=new T.Mesh(mergeGeos([roundedBox(bw,bh,bd,.035).translate(0,0,bd/2),new T.CylinderGeometry(.012,.012,.03,8).rotateX(Math.PI/2).translate(bw*.3,bh*.38,bd+.008)]),shell);body.castShadow=true;
@@ -2345,8 +2346,12 @@ const space=(function(){
           led=new T.Group();led.add(new T.Mesh(mergeColored([[new T.SphereGeometry(.008,6,5).translate(-bw*.34,bh*.22,bd+.006),'#ffc766'],[new T.SphereGeometry(.008,6,5).translate(-bw*.34,bh*.12,bd+.006),'#4fb8d0']]),M.ledDot));
           const oval=new T.Mesh(new T.CircleGeometry(.028,14),M.led);oval.scale.set(1,1.45,1);oval.position.set(0,bh*.05,bd+.003);led.add(oval);
           const glow=new T.Sprite(new T.SpriteMaterial({map:spr,color:0xffffff,transparent:true,opacity:.7,depthWrite:false}));glow.position.set(bw*.3,bh*.38,bd+.03);glow.scale.set(.16,.1,1);led.add(glow);
-          g.add(body,grille,badge,led);
+          var cover=new T.Group();cover.position.set(-bw/2,0,0);[body,grille,badge,led].forEach(o=>{o.position.x+=bw/2;cover.add(o);});g.add(cover);
         }
+        // inside, behind the cover (seen only when it is open): the back plate, the pump block and the aroma oil bottle
+        const inner=new T.Mesh(mergeColored([[new T.BoxGeometry(bw-.02,bh-.02,.008).translate(0,0,.006),'#1e1f22'],[new T.BoxGeometry(bw*.5,bh*.16,bd*.5).translate(0,bh*.33,bd*.32),'#2c2d31'],[new T.CylinderGeometry(.005,.005,bh*.18,6).translate(0,bh*.17,bd*.45),'#c9a656']]),M.vc2);
+        const bottle=new T.Mesh(mergeColored([[new T.CylinderGeometry(bw*.16,bw*.17,bh*.36,14).translate(0,-bh*.08,0),'#7a4a12'],[new T.CylinderGeometry(bw*.08,bw*.13,bh*.06,12).translate(0,bh*.13,0),'#7a4a12'],[new T.CylinderGeometry(bw*.08,bw*.08,bh*.05,12).translate(0,bh*.18,0),'#141416'],[new T.CylinderGeometry(bw*.172,bw*.172,bh*.07,14).translate(0,-bh*.1,0),'#c9a656']]),M.vc2);bottle.position.set(0,-bh*.05,bd*.5);
+        g.add(inner,bottle);
         room.add(g);
         // no visible cables: the wiring runs hidden in the wall / door frame
         const plume=new T.Sprite(new T.SpriteMaterial({map:spr,color:0xffe2a8,transparent:true,opacity:.5,depthWrite:false,blending:T.AdditiveBlending}));const o=PL?[p[0]+d[0]*.09,p[1]+bh/2+.04,p[2]+d[2]*.09]:[p[0]+d[0]*.1-(d[2]?d[2]*bw*.3:0),p[1]+bh*.38,p[2]+d[2]*.1+(d[0]?d[0]*bw*.3:0)];plume.position.set(o[0]+d[0]*.25,o[1]+.3,o[2]+d[2]*.25);plume.scale.set(.5,.7,1);room.add(plume);
@@ -2357,7 +2362,7 @@ const space=(function(){
         const pin=document.createElement('button');pin.type='button';pin.className='pin';pin.innerHTML='<b>'+(i+1)+'</b><i>Дифузер '+(i+1)+'</i>';pin.setAttribute('aria-label','Дифузер '+(i+1)+' ('+(u.title||'')+'): '+u.zone);
         pin.addEventListener('click',e=>{e.stopPropagation();pick(i);focusUnit(i);});ovl.appendChild(pin);
         overlay.push({el:pin,v:new T.Vector3(p[0]+d[0]*.1,p[1]+bh/2+.1,p[2]+d[2]*.1),kind:'pin'});
-        S.units.push({jet,p,d,o,info:u,led,light,plume,wave,R:Rr,ph:i/U.length,pin,PL,grp:g,bh});pin.classList.toggle('pl',PL);
+        S.units.push({jet,p,d,o,info:u,led,light,plume,wave,R:Rr,ph:i/U.length,pin,PL,grp:g,bh,bd,cover,bottle});pin.classList.toggle('pl',PL);
       });
       flush();
       S.ceil=room.children.filter(o=>o.material===M.vcC||o.material===M.ledC||o.material===M.grille||o===S.ceilPlane);
@@ -2710,7 +2715,7 @@ const space=(function(){
       M.led.color.setScalar(.3+.7*clamp((lightK-.45)/.55,0,1));if(S.lights)S.lights.forEach(l=>{l.intensity=.22*lightK;});if(S.coolLight)S.coolLight.intensity=.3*(.4+.6*lightK);
       if(S.sign){const sm=open?M.signOpen:M.signClosed;if(S.sign.material!==sm){S.sign.material=sm;S.sign2.material=sm;}}
       extras.forEach(e=>{if(!e.userData.restocker)e.visible=open;if(e.visible&&!window.__frz)poseAny(e,now/1000,dt,0);});const _t2=DIAG?performance.now():0;if(GL()&&!window.__frz){window.KL_GLTF.update(dt);gltfHeads(dt);vzProps(dt);}if(!window.__frz)tillPlace();const _t3=DIAG?performance.now():0;
-      const tt=now/1000;S.units.forEach(u=>{const cyc=(tt/PUFF_T+u.ph)%1;let pk=on&&cyc<PUFF_ON/PUFF_T?Math.sin(Math.PI*cyc*PUFF_T/PUFF_ON):0;if(u.vzPuff&&u.vzPuff>tt)pk=Math.max(pk,Math.sin(Math.PI*clamp(1-(u.vzPuff-tt)/2.6,0,1))); /* the test puff after a refill */u.act=pk>0; // puff … rest … puff
+      const tt=now/1000;S.units.forEach(u=>{const cyc=(tt/PUFF_T+u.ph)%1;let pk=on&&cyc<PUFF_ON/PUFF_T?Math.sin(Math.PI*cyc*PUFF_T/PUFF_ON):0;if(u.vzBusy&&u.vzBusy>performance.now()/1000)pk=0; /* never into the face of the man refilling it */if(u.vzPuff&&u.vzPuff>tt)pk=Math.max(pk,Math.sin(Math.PI*clamp(1-(u.vzPuff-tt)/2.6,0,1))); /* the test puff after a refill */u.act=pk>0; // puff … rest … puff
         if(u.jet){const vis=pk>.02,o=u.o,up=u.PL?1:0,dx=u.d[0]*(1-.55*up),dz=u.d[2]*(1-.55*up);u.jet.forEach((js,k)=>{js.visible=vis;if(!vis)return;const ph=(tt*.85+k/6)%1;
           js.position.set(o[0]+dx*(.04+.7*ph),o[1]+.02+(.08+.5*up)*ph+.18*ph*ph,o[2]+dz*(.04+.7*ph));const sc=.06+.46*ph;js.scale.set(sc,sc,1);js.material.opacity=pk*.8*Math.sin(Math.PI*Math.min(1,ph*1.4))*(1-.45*ph);});} // mist streaming out while it sprays
         u.plume.visible=pk>.02;if(u.plume.visible){const q=cyc*PUFF_T/PUFF_ON,up=u.PL?1:0,out=.06+.3*q,o=u.o;u.plume.position.set(o[0]+u.d[0]*out,o[1]+.04+(.12+.1*up)*q,o[2]+u.d[2]*out);const sc=.16+.34*q;u.plume.scale.set(sc*(1.1+.3*up),sc*1.35,1);u.plume.material.opacity=.55*pk*(1-.35*q);}

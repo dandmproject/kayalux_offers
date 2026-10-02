@@ -1354,3 +1354,14 @@ footer.foot{overflow:hidden} /* the glint moving over the letters never widens t
 .views .follow-ddd svg{flex:none}
 .views .follow-ddd[aria-pressed="true"]{background:var(--gold);color:var(--on-gold)!important}
 @media (max-width:560px){.stage-bar .views [data-view="ddd"]{grid-column:1/-1;order:9}.stage-bar .views [data-zoom]{order:8}}
+/* the service cards: the title and the price stay; the description opens under „Прочети още“ */
+.svc2-rm{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;margin:0 0 4px;padding:0 0 3px;border:0;border-bottom:1px solid color-mix(in srgb,var(--gold) 55%,transparent);background:none;color:var(--gold);font:600 12px/1.2 var(--body);letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
+.svc2-rm svg{width:11px;height:11px;transition:transform .3s}
+.svc2-rm:hover{border-bottom-color:var(--gold)}
+.svc2.open .svc2-rm svg{transform:rotate(180deg)}
+.svc2-more{display:grid;grid-template-rows:0fr;transition:grid-template-rows .35s ease}
+.svc2-more>div{overflow:hidden;min-height:0}
+.svc2-more>div>:first-child{margin-top:12px}
+.svc2.open .svc2-more{grid-template-rows:1fr}
+@media print{.svc2-more{grid-template-rows:1fr}.svc2-rm{display:none}}
+.svc2-grid{align-items:start} /* an opened card does not stretch its neighbours */
