@@ -2124,7 +2124,7 @@ const space=(function(){
 
     // subtitles under the 3D scene: what he is doing right now and why (shown while you follow him, or while he is on screen nearby)
     function vzSubShow(g,cap){let el=VZ.sub;if(!el){el=VZ.sub=document.createElement('div');el.className='vzsub';el.setAttribute('aria-live','polite');el.innerHTML='<b></b><span></span>';stage.appendChild(el);}
-      let show=!!(g&&g.visible);if(show&&view.name!=='ddd'){const hd=g.userData.headB;if(hd){hd.getWorldPosition(_zC);const dist=_zC.distanceTo(camera.position);_zC.project(camera);show=dist<9&&_zC.z<1&&Math.abs(_zC.x)<.95&&Math.abs(_zC.y)<.95;}else show=false;}
+      let show=!!(g&&g.visible)&&view.name==='ddd'; /* his subtitles belong to following him; in every other view the store's own labels speak */
       VZ.subVis=show;const now=performance.now()/1000,cur=VZ.subShown;
       if(!show){if(cur){el.classList.remove('on');VZ.subShown=null;}return;}
       if(cur&&now-cur.at<cur.min)return;                                                    // the line on screen stays until it has been read
@@ -2788,6 +2788,7 @@ const space=(function(){
       {const top=view.name==='plan'||(view.name==='tour'&&!!tour.top);if(!top)autoLayers(false);} // leaving the top view by any path (a diffuser number, a store switch…) switches them off
       helpFrame();tipFrame(w,h);
       overlay.forEach(o=>{if(o.kind==='pin'&&HR&&!o.off&&o.sx>HR[0]-20&&o.sx<HR[2]+20&&o.sy>HR[1]-20&&o.sy<HR[3]+20)o.off=true;});
+      {const FOL=view.name==='ddd';overlay.forEach(o=>{if(FOL?(o.kind==='pin'||o.kind==='lbl'):o.kind==='vz')o.off=true;});} // one voice at a time: following him shows only his name and subtitles, any other view only the numbers and labels of the store
       overlay.forEach(o=>{if(o.vis!==!o.off){o.vis=!o.off;o.el.style.visibility=o.off?'hidden':'visible';}if(!o.off){const tf='translate('+o.sx.toFixed(1)+'px,'+o.sy.toFixed(1)+'px)'+(o.kind==='lbl'?' translate(-50%,-50%)':' translate(-50%,-100%)');if(o.tf!==tf){o.tf=tf;o.el.style.transform=tf;}}}); // DOM written only when something changed
       const pT1=performance.now();if(window.__camLock){const c_=window.__camLock;camera.position.set(c_.p[0],c_.p[1],c_.p[2]);camera.lookAt(c_.t[0],c_.t[1],c_.t[2]);}renderer.render(scene,camera);if(DIAG){const e=performance.now();DG.seg=[_t1-pT0,_t2-_t1,_t3-_t2,_t4-_t3,pT1-_t4,e-pT1,e-pT0];}if(window.__prof){const P=window.__prof;P.js+=pT1-pT0;if(pT1-pT0>(P.max||0))P.max=pT1-pT0;(P.h=P.h||[]).push(+(pT1-pT0).toFixed(1));P.gl+=performance.now()-pT1;P.n++;}if(window.__perf){window.__perf.frames=(window.__perf.frames||0)+1;if(!window.__perf.first)window.__perf.first=performance.now();}
       if(!raf)raf=requestAnimationFrame(frame); // exactly one loop: a kick() during this frame (a tour key, a click) has already scheduled the next one
