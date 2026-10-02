@@ -1529,7 +1529,8 @@ const space=(function(){
       const sg=[];for(const sd of [-1,1]){const pts=[[.1,nk.y-.08,s2.z-.13],[.105,nk.y-.025,nk.z-.02],[.108,nk.y-.07,fz(nk.y-.07,.108)+.006],[.115,s2.y,fz(s2.y,.115)+.008],[.13,s2.y-.15,fz(s2.y-.15,.13)+.008],[.16,s2.y-.23,fz(s2.y-.23,.16)-.02]].map(q=>new T.Vector3(sd*q[0],q[1],q[2]));sg.push([new T.TubeGeometry(new T.CatmullRomCurve3(pts),18,.011,4).scale(1,1,.55),'#151617']);}
       {const yc=s2.y+.035,zc=fz(yc,.0)+.01;sg.push([new T.BoxGeometry(.23,.022,.008).translate(0,yc,zc),'#151617'],[new T.BoxGeometry(.035,.03,.014).translate(0,yc,zc+.004),'#2b2b2b']);}
       const straps=vzBone(B('Spine2'),new T.Mesh(mergeColored(sg),M.vc2),new T.Vector3(0,0,0));ud.ownGeo=[straps.geometry];
-      const kase=new T.Mesh(VZ.geo.kase,M.vc2);kase.castShadow=true;const clip=new T.Mesh(VZ.geo.clip,M.vc2);clip.visible=false;const handB=new T.Mesh(VZ.geo.handB,VZ.bU);handB.visible=false;const docs=new T.Mesh(VZ.geo.docs,M.vc2);docs.visible=false;room.add(kase,clip,handB,docs);const tag=document.createElement('div');tag.className='vztag';tag.innerHTML='<b>Дезинфектор</b><i>„УНИЩОЖИТЕЛИ“ · ДДД</i>';tag.hidden=true;ovl.appendChild(tag);const tagV=new T.Vector3();overlay.push({el:tag,v:tagV,kind:'vz'}); /* his name over his head, so everyone knows it is him */
+      const kase=new T.Mesh(VZ.geo.kase,M.vc2);kase.castShadow=true;const clip=new T.Mesh(VZ.geo.clip,M.vc2);clip.visible=false;const handB=new T.Mesh(VZ.geo.handB,VZ.bU);handB.visible=false;if(!VZ.protoM){const c=document.createElement('canvas');c.width=256;c.height=344;const x=c.getContext('2d');x.fillStyle='#f6f4ee';x.fillRect(0,0,256,344);x.fillStyle='#c9962f';x.fillRect(0,0,256,40);x.fillStyle='#1d1d1f';x.font='800 26px Inter, Arial';x.textAlign='center';x.fillText('ПРОТОКОЛ',128,86);x.font='600 13px Inter, Arial';x.fillText('за извършена ДДД обработка',128,108);x.fillStyle='#8a93a3';for(let i=0;i<9;i++)x.fillRect(28,136+i*18,200-(i%3)*30,3);x.fillStyle='#1d1d1f';x.font='600 11px Inter, Arial';x.textAlign='left';x.fillText('Изпълнител',28,314);x.fillText('Възложител',150,314);x.fillRect(28,296,80,1.5);x.fillRect(150,296,80,1.5);const t_=new T.CanvasTexture(c);t_.encoding=T.sRGBEncoding;t_.anisotropy=4;VZ.protoM=new T.MeshStandardMaterial({map:t_,roughness:.75,side:T.DoubleSide});M.vz_proto=VZ.protoM;VZ.geo.sheet=new T.PlaneGeometry(.21,.29);GEOSET.add(VZ.geo.sheet);VZ.geo.pen=new T.CylinderGeometry(.004,.004,.14,6).rotateX(Math.PI/2);GEOSET.add(VZ.geo.pen);}
+      const docs=new T.Group();{const back=new T.Mesh(VZ.geo.docs,M.vc2),front=new T.Mesh(VZ.geo.sheet,VZ.protoM);front.position.z=.0075;docs.add(back,front);}docs.visible=false;const copy=new T.Mesh(VZ.geo.sheet,VZ.protoM);copy.visible=false;const pen=new T.Mesh(VZ.geo.pen,M.vc2);pen.visible=false;room.add(kase,clip,handB,docs,copy,pen);const tag=document.createElement('div');tag.className='vztag';tag.innerHTML='<b>Дезинфектор</b><i>„УНИЩОЖИТЕЛИ“ · ДДД</i>';tag.hidden=true;ovl.appendChild(tag);const tagV=new T.Vector3();overlay.push({el:tag,v:tagV,kind:'vz'}); /* his name over his head, so everyone knows it is him */
       // the half-mask: on the face while spraying, hanging on the chest otherwise
       const mFace=vzBone(B('Head'),new T.Object3D(),new T.Vector3(0,(ns.y+ul.y)/2-.004,ns.z+.012));
       const mNeck=vzBone(B('Spine2'),new T.Object3D(),new T.Vector3(0,nk.y-.17,s2.z+.15),new T.Quaternion().setFromEuler(_zE.set(1.0,0,0)));
@@ -1540,7 +1541,7 @@ const space=(function(){
       if(!VZ.gel){VZ.gel=new T.InstancedMesh(VZ.geo.dot,VZ.mat.gel,90);VZ.gel.count=0;VZ.gelN=0;}if(!VZ.gel.parent)room.add(VZ.gel);
       if(!VZ.mist.length)for(let i=0;i<28;i++){const s_=new T.Sprite(VZ.mat.mist.clone());s_.visible=false;s_.userData={t:9,v:new T.Vector3()};VZ.mist.push(s_);}VZ.mist.forEach(s_=>{room.add(s_);s_.visible=false;s_.userData.t=9;});
       const legs=['L','R'].map(s=>[B(s+'_Thigh'),B(s+'_Calf'),B(s+'_Foot')]);poseBones(g);ud.pB=ud.pB.concat(...legs.map(l=>l.slice(0,3))).filter(Boolean);
-      ud.dz={tag,tagV,tank,straps,kase,clip,handB,docs,docsAt:null,caseOn:false,caseP:[0,0,0],holdB:null,clipOn:false,kind:'service',stow,outlet,pump,mFace,mNeck,mask,lance,gun,hose,HN,HR,legs,maskT:0,maskW:0,lanceT:0,lanceW:0,ldir:new T.Vector3(0,-.5,.8).normalize(),sq:0,sqT:0,q:[],task:null,ph:'away',t:0,until:T_+rnd(2,6),spraying:false,emit:0,pumpT:0};
+      ud.dz={tag,tagV,tank,straps,kase,clip,handB,docs,copy,pen,docsAt:null,copyAt:null,caseOn:false,caseP:[0,0,0],holdB:null,clipOn:false,kind:'service',stow,outlet,pump,mFace,mNeck,mask,lance,gun,hose,HN,HR,legs,maskT:0,maskW:0,lanceT:0,lanceW:0,ldir:new T.Vector3(0,-.5,.8).normalize(),sq:0,sqT:0,q:[],task:null,ph:'away',t:0,until:T_+rnd(2,6),spraying:false,emit:0,pumpT:0};
       g.visible=false;ud.state='away';g.position.set(nav.entry[0],0,nav.entry[1]);room.add(g);people.push(g);VZ.g=g;return true;}
     function vzClear(){if(VZ.g){(VZ.g.userData.ownMats||[]).forEach(m=>m.dispose());(VZ.g.userData.ownGeo||[]).forEach(g_=>g_.dispose());const dz=VZ.g.userData.dz;if(dz)dz.hose.geometry.dispose();}VZ.g=null;if(VZ.gel){VZ.gel.count=0;VZ.gelN=0;}}
     // where is open floor (for him to stand) / a free wall (to spray its skirting)
@@ -1597,15 +1598,28 @@ const space=(function(){
       // the tool case: put down on his left as he crouches, picked up again before he stands
       const caseDown=(tDown,tUp)=>{const cs=hp(.12,-.45,0);if(tt<tDown){R[0]={p:[cs[0],.3,cs[2]],w:clamp((tt-(tDown-.5))/.3,0,1)};}else if(tt<tUp){if(!dz.caseOn){dz.caseOn=true;dz.caseP=[cs[0],.27,cs[2]];}}else{dz.caseOn=false;}if(tt>tUp-.5&&tt<tUp+.3)R[0]={p:[dz.caseP[0],dz.caseP[1]+.03,dz.caseP[2]],w:clamp((tt-(tUp-.5))/.3,0,1)*clamp((tUp+.3-tt)/.3,0,1)};};
       const ramp=(t0,t1)=>clamp((tt-t0)/(t1-t0),0,1),win=(t0,t1,f)=>tt>=t0&&tt<t1?Math.min(1,(tt-t0)/(f||.3),(t1-tt)/(f||.3)):0;
+      // the handover, as it goes in a real shop: he puts the protocol on the counter facing her and points through it, she reads it and
+      // signs it, keeps her copy in the drawer and gives him the signed one, which goes into his case; a few words, and he leaves
       if(dz.ph==='hand'){const cs=extras.find(e=>e.userData.cashier),cu=cs&&cs.userData;VZ.atTill=true;
-        if(!cs){dz.ph='next';dz.handed=true;}else{const cx=cs.position.x,cz=cs.position.z,mid=[(px+cx)/2,1.2,(pz+cz)/2];faceTo(Math.atan2(cx-px,cz-pz),4);cu.lookAtP=[px,pz];
-          const win2=(t0,t1,f)=>tt>=t0&&tt<t1?Math.min(1,(tt-t0)/(f||.3),(t1-tt)/(f||.3)):0,cr=[null,null];
-          dz.clipOn=tt<1.6;if(dz.clipOn){const cp=hp(.3,-.05,.95);R[0]={p:cp,w:win2(0,1.6,.25)};}                                    // the protocol out of his case
-          dz.docsAt=tt<1.2?null:tt<3.4?'him':tt<8.6?'her':null;
-          if(tt>=1.2&&tt<3.6)R[1]={p:tt<2.3?hp(.32,.12,1.05):mid,w:win2(1.2,3.6,.3)};                                            // held out across the counter
-          if(tt>=2.4&&tt<9.2){const tl=S.tl,rd=tt<3.6?mid:tt<8.0?[cx+(px-cx)*.3,1.18,cz+(pz-cz)*.3]:tl.drawer;cr[1]={p:rd,w:win2(2.4,9.2,.3)};if(tt>3.6&&tt<8)cr[0]={p:[rd[0]-.12*(pz-cz),rd[1]-.02,rd[2]+.12*(px-cx)],w:win2(3.6,8,.3)};} // she takes it, leafs through it, puts it in the drawer
-          cu.ikReq=cr;cu.talking=tt>5.2&&tt<7.2;cu.smile=tt>3.4&&tt<10;dz.talk=(tt>3.6&&tt<5.2)||(tt>7.2&&tt<8.8)||(tt>9.6&&tt<10.6);lookP=tt>3.6&&tt<8?[cx,cz]:[cx,cz];
-          if(tt>11){cu.ikReq=null;cu.talking=false;cu.smile=false;cu.lookAtP=null;dz.handed=true;VZ.atTill=false;dz.docsAt=null;dz.talk=false;dz.ph='next';dz.t=0;}}}
+        if(!cs){dz.ph='next';dz.handed=true;}else{const tl=S.tl,cx=cs.position.x,cz=cs.position.z,C=[tl.E-.14,1.048,tl.a[0][1]-.02];dz.counterP=C;dz.toHer=Math.atan2(cx-C[0],cz-C[2]);
+          faceTo(Math.atan2(C[0]-px,C[2]-pz),4);const win2=(t0,t1,f)=>tt>=t0&&tt<t1?Math.min(1,(tt-t0)/(f||.3),(t1-tt)/(f||.3)):0,cr=[null,null],sC=(dx,dy,dz_)=>[C[0]+dx,C[1]+dy,C[2]+dz_];
+          {const h_=tt<15?'<b>Дезинфектор</b><i>предава протокола</i>':'<b>Дезинфектор</b><i>„УНИЩОЖИТЕЛИ“ · ДДД</i>';if(dz.tagH!==h_){dz.tagH=h_;dz.tag.innerHTML=h_;}}
+          // his part
+          dz.docsAt=tt<.8?null:tt<2.2?'him':tt<12.2?'counter':tt<13.4?'her':null;
+          if(tt<1.1)R[1]={p:[dz.caseP[0]||px,1.0,dz.caseP[2]||pz],w:win2(0,1.1,.3)};                                   // the protocol out of his case
+          if(tt>=.8&&tt<2.5)R[1]={p:tt<1.6?hp(.32,.1,1.05):sC(0,.07,0),w:win2(.8,2.5,.3)};                              // laid on the counter, turned to her
+          if(tt>=2.6&&tt<4.4){const k_=Math.sin((tt-2.6)*3)*.05;R[1]={p:sC(.03,.08,k_),w:win2(2.6,4.4,.3)};}              // points through it while he explains
+          dz.copyAt=tt<10.4?null:tt<11.4?'counter':tt<12.8?'him':null;
+          if(tt>=10.9&&tt<13.1)R[1]={p:tt<11.6?sC(.08,.02,.08):hp(.25,.18,.95),w:win2(10.9,13.1,.3)};                    // takes his signed copy, into the case
+          dz.talk=(tt>2.6&&tt<4.4)||(tt>13.4&&tt<14.6);
+          // hers: reading, signing, the drawer
+          if(tt>=4.6&&tt<6.4){cr[0]={p:sC(-.06,.07,-.07),w:win2(4.6,6.4,.3)};}                                              // her hand on the sheet while she reads
+          dz.penOn=tt>=6.6&&tt<9.8;if(tt>=6.4&&tt<10){const sx=Math.sin(tt*14)*.025,sz=((tt-6.8)%1)*.04;cr[1]={p:sC(.02+sx,.085,-.08+sz),w:win2(6.4,10,.35)};} /* the wrist above the sheet: the pen reaches down to it, the hand never sinks into the counter */ // signs it
+          if(tt>=9.9&&tt<10.6)cr[1]={p:sC(.06,.07,.03),w:win2(9.9,10.6,.2)};                                              // slides his copy over
+          if(tt>=11.8&&tt<13.6)cr[1]={p:tt<12.4?sC(0,.03,0):tl.drawer,w:win2(11.8,13.6,.3)};                              // her copy into the drawer
+          cu.ikReq=cr;cu.lookAtP=tt>4.4&&tt<10.2?[C[0],C[2]]:[px,pz];cu.talking=tt>10.2&&tt<11.4||tt>14.6&&tt<15.6;cu.smile=tt>1&&tt<16;cu.leanBoost=tt>4.4&&tt<10.2?.12:0;
+          lookP=tt>2.4&&tt<4.6||tt>10.6&&tt<11.8?[C[0],C[2]]:[cx,cz];
+          if(tt>16){cu.ikReq=null;cu.talking=false;cu.smile=false;cu.lookAtP=null;cu.leanBoost=0;dz.handed=true;VZ.atTill=false;dz.docsAt=dz.copyAt=null;dz.penOn=false;dz.talk=false;dz.ph='next';dz.t=0;dz.tagH='<b>Дезинфектор</b><i>„УНИЩОЖИТЕЛИ“ · ДДД</i>';dz.tag.innerHTML=dz.tagH;}}}
       if(dz.ph==='work'&&t.kind==='box'){const u=S.units[t.u];faceTo(t.face);const hgB=u&&u.hinge;sqTarget=tt<9.6?1:0;caseDown(.7,9.2);
         // the full service of a point: lid up, the used glue board out and looked at, into the case, a new board in, lid down, a note in the protocol
         const open_=tt<1.4?0:tt<2.1?(tt-1.4)/.7:tt<5.7?1:tt<6.4?1-(tt-5.7)/.7:0;
@@ -1620,7 +1634,7 @@ const space=(function(){
           if(tt>4.2&&dz.holdB==='used')dz.holdB=null;                                                       // into the waste bag in the case
           if(tt>4.55&&tt<5.4&&!dz.holdB&&!dz.put)dz.holdB='new';                                             // a fresh board from the case
           if(tt>5.4&&!dz.put){dz.put=true;dz.holdB=null;u.board.material=M.boardNew;u.board.visible=true;}  // laid into the box
-          dz.clipOn=tt>6.6&&tt<8.7;if(dz.clipOn){const cp=hp(.3,-.05,.72);R[0]={p:cp,w:win(6.6,8.7,.3)};const wr=Math.sin(tt*9)*.025,wl=((tt*1.3)%1)*.05;R[1]={p:[cp[0]+rgt.x*(.03+wr)+fwd.x*.01,cp[1]+.06-wl,cp[2]+rgt.z*(.03+wr)+fwd.z*.01],w:win(6.7,8.6,.3)};}
+          dz.clipOn=tt>6.6&&tt<8.7;if(dz.clipOn){const cp=hp(.3,-.05,.72);R[0]={p:cp,w:win(6.6,8.7,.3)};const cc=[cp[0]+fwd.x*.075,cp[1]+.08,cp[2]+fwd.z*.075],tw=Math.sin(tt*9)*.025,tl=((tt*1.3)%1)*.05; /* the pen hand stays in front of the sheet (the side turned to his face), never through the board */R[1]={p:[cc[0]-fwd.x*.06+rgt.x*(.07+tw),cc[1]+.05-tl,cc[2]-fwd.z*.06+rgt.z*(.07+tw)],w:win(6.7,8.6,.3)};}
           lookP=dz.clipOn?[px+fwd.x*.3,pz+fwd.z*.3]:[u.p[0],u.p[2]];}
         if(tt>10.4){const tk=dz.task;dz.ph=tk.near&&Math.hypot(tk.near[0]-tk.stand[0],tk.near[1]-tk.stand[1])>.08?'stepOut':'next';dz.t=0;dz.took=dz.put=false;dz.holdB=null;dz.clipOn=false;if(u&&u.board)u.board.visible=true;}}
       if(dz.ph==='work'&&t.kind==='gel'){faceTo(t.face);const per=1.5,t0=1.5,n=t.pts.length,tEnd=t0+per*n;caseDown(.6,tEnd+.95);
@@ -1667,7 +1681,7 @@ const space=(function(){
     function vzWork(g){const ud=g.userData,dz=ud.dz,t=dz&&dz.task,hd=ud.headB;if(!t||!hd)return null;hd.getWorldPosition(_zS);const H=[_zS.x,_zS.y-.12,_zS.z],px=g.position.x,pz=g.position.z;
       if(t.kind==='box'){const u=S.units[t.u];return u?{key:t,W:[u.p[0],.12,u.p[2]],H,face:t.face,D:[2.3,2.0,2.7],h:1.55}:null;}
       if(t.kind==='gel'){let x=0,y=0,z=0;t.pts.forEach(p=>{x+=p[0];y+=p[1];z+=p[2];});const n=t.pts.length;return {key:t,W:[x/n,y/n,z/n],H,face:t.face,D:[2.3,2.0,2.7],h:clamp(y/n+.95,1.45,2.0)};}
-      if(t.kind==='hand'){const cs=extras.find(e=>e.userData.cashier);if(!cs||dz.ph!=='hand')return null;const cx=cs.position.x,cz=cs.position.z;return {key:t,W:[(px+cx)/2,1.2,(pz+cz)/2],H,face:Math.atan2(cx-px,cz-pz),D:[2.2,1.9,2.6],h:1.65,mix:.2};}
+      if(t.kind==='hand'){const cs=extras.find(e=>e.userData.cashier);if(!cs||dz.ph!=='hand'||!dz.counterP)return null;const C=dz.counterP;return {key:t,W:[C[0],1.1,C[2]],H,face:Math.atan2(C[0]-px,C[2]-pz),D:[2.0,1.7,2.4],h:1.75,mix:.15};}
       if(t.kind==='spray'){const L=Math.hypot(t.b[0]-t.a[0],t.b[1]-t.a[1])||1,dx=(t.b[0]-t.a[0])/L,dy=(t.b[1]-t.a[1])/L;return {key:t,W:[px+dx*.75-t.n[0]*.62,.1,pz+dy*.75-t.n[1]*.62],H,face:Math.atan2(dx,dy),D:[2.5,2.1,2.9],h:1.6};}
       return null;}
     function vzWorld(o){o.updateMatrixWorld(true);o.getWorldPosition(_zD);return [_zD.x,_zD.y,_zD.z];}
@@ -1699,7 +1713,13 @@ const space=(function(){
         else{const lp=palmOf(g,0);if(lp){dz.kase.position.set(lp[0],Math.max(.27,lp[1]-.01),lp[2]);dz.kase.rotation.set(0,(ud.ang||0)+Math.PI/2,0);}}}
       const hd=ud.headB;if(hd){hd.getWorldPosition(_zS);dz.tagV.set(_zS.x,_zS.y+.36,_zS.z);}
       dz.clip.visible=!!dz.clipOn;if(dz.clipOn){const lp=palmOf(g,0);if(lp&&hd){dz.clip.position.set(lp[0],lp[1]+.08,lp[2]);dz.clip.lookAt(_zS);}}
-      {const cs=dz.docsAt==='her'?extras.find(e=>e.userData.cashier):null,who=dz.docsAt==='him'?g:cs,pp=who?palmOf(who,1):null;dz.docs.visible=!!pp;if(pp){const hh=who.userData.headB;dz.docs.position.set(pp[0],pp[1]+.02,pp[2]);if(hh){hh.getWorldPosition(_zC);dz.docs.lookAt(_zC);dz.docs.rotateX(-.9);}if(cs)cs.userData.tillGrip=[0,1];}}
+      {const cs=extras.find(e=>e.userData.cashier),C=dz.counterP;
+        const inHand=(o,who,side)=>{const pp=who?palmOf(who,side):null;o.visible=!!pp;if(pp){const hh=who.userData.headB;o.position.set(pp[0],pp[1]+.02,pp[2]);if(hh){hh.getWorldPosition(_zC);o.lookAt(_zC);o.rotateX(-.9);}}};
+        const flat=(o,dx,dz_,yaw)=>{o.visible=true;o.position.set(C[0]+dx,C[1]+.002,C[2]+dz_);o.rotation.set(-Math.PI/2,0,0);o.rotateOnWorldAxis(_zD.set(0,1,0),yaw);};
+        if(dz.docsAt==='him')inHand(dz.docs,g,1);else if(dz.docsAt==='her')inHand(dz.docs,cs,1);else if(dz.docsAt==='counter'&&C)flat(dz.docs,0,0,(dz.toHer||0)+Math.PI);else dz.docs.visible=false;
+        if(dz.copyAt==='counter'&&C)flat(dz.copy,.08,.08,(dz.toHer||0));else if(dz.copyAt==='him')inHand(dz.copy,g,1);else dz.copy.visible=false;
+        if(dz.penOn&&cs){const pp=palmOf(cs,1);dz.pen.visible=!!pp;if(pp){dz.pen.position.set(pp[0],pp[1]+.01,pp[2]);dz.pen.rotation.set(.9,dz.toHer||0,0);}}else dz.pen.visible=false;
+        if(cs&&(dz.docsAt==='her'||dz.penOn))cs.userData.tillGrip=[0,1];}
       dz.handB.visible=!!dz.holdB;if(dz.holdB){dz.handB.material=dz.holdB==='used'?VZ.bU:VZ.bN;const rp=palmOf(g,1);if(rp&&hd){dz.handB.position.set(rp[0],rp[1]+.03,rp[2]);dz.handB.lookAt(_zS);}}
       if(!spr){[dz.lance,dz.hose].forEach(o=>o.visible=false);VZ.mist.forEach(s_=>{if(s_.userData.t>=1.2)s_.visible=false;});return;}
       // hose: outlet → down → up to the lance's back end, a cubic curve with its own sag
