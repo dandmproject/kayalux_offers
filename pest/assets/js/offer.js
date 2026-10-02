@@ -1599,7 +1599,7 @@ const space=(function(){
       if(dz.ph==='go'&&!dz.waiting){ud.blend=Math.min(1,ud.blend+dt*2);vzWatch(g,dt,T_,()=>{const t_=dz.task;return t_.kind==='exit'?nav.exit:(t_.stand||t_.a);},()=>{dz.ph='next';});if(dz.ph==='go'&&advance(g,ud.sp*ud.blend*dt,dt)){dz.wTry=0;dz.skipN=0;ud.state='ddd';dz.t=0;const tk=dz.task;dz.ph=tk.kind==='exit'?'gone':tk.kind==='hand'?'hand':tk.kind==='spray'?'maskOn':tk.near&&Math.hypot(tk.near[0]-tk.stand[0],tk.near[1]-tk.stand[1])>.08?'stepIn':'work';}else v=ud.vNow!=null?ud.vNow:ud.sp*ud.blend;}
       if(dz.ph==='stepIn'||dz.ph==='stepOut'){const tk=dz.task,to=dz.ph==='stepIn'?tk.near:tk.stand,dx=to[0]-g.position.x,dz_=to[1]-g.position.z,L=Math.hypot(dx,dz_);
         if(L<.04){g.position.x=to[0];g.position.z=to[1];dz.t=0;dz.ph=dz.ph==='stepIn'?'work':'next';}else{const sp=Math.min(.5,L/Math.max(dt,1e-3)*.9);faceTo(Math.atan2(dx,dz_),6);g.position.x+=dx/L*sp*dt;g.position.z+=dz_/L*sp*dt;v=sp;}} /* the last step into the gap and back out, straight */
-      if(dz.ph==='gone'){g.visible=false;dz.ph='away';dz.until=T_+rnd(6,10);ud.state='away';dz.handed=false;VZ.quiet=false;VZ.atTill=false;dz.docs.visible=false;}
+      if(dz.ph==='gone'){g.visible=false;dz.ph='away';dz.until=T_+rnd(600,660); /* the next visit is a different day: someone watching sees him again only after about ten minutes */ud.state='away';dz.handed=false;VZ.quiet=false;VZ.atTill=false;dz.docs.visible=false;}
       const t=dz.task,tt=dz.t;
       // the tool case: put down on his left as he crouches, picked up again before he stands
       const caseDown=(tDown,tUp)=>{const cs=hp(.12,-.45,0);if(tt<tDown){R[0]={p:[cs[0],.3,cs[2]],w:clamp((tt-(tDown-.5))/.3,0,1)};}else if(tt<tUp){if(!dz.caseOn){dz.caseOn=true;dz.caseP=[cs[0],.27,cs[2]];}}else{dz.caseOn=false;}if(tt>tUp-.5&&tt<tUp+.3)R[0]={p:[dz.caseP[0],dz.caseP[1]+.03,dz.caseP[2]],w:clamp((tt-(tUp-.5))/.3,0,1)*clamp((tUp+.3-tt)/.3,0,1)};};
@@ -1622,7 +1622,9 @@ const space=(function(){
           if(tt>=4.6&&tt<6.4){cr[0]={p:sC(-.06,.07,-.07),w:win2(4.6,6.4,.3)};}                                              // her hand on the sheet while she reads
           dz.penOn=tt>=6.6&&tt<9.8;if(tt>=6.4&&tt<10){const sx=Math.sin(tt*14)*.025,sz=((tt-6.8)%1)*.04;cr[1]={p:sC(.02+sx,.085,-.08+sz),w:win2(6.4,10,.35)};} /* the wrist above the sheet: the pen reaches down to it, the hand never sinks into the counter */ // signs it
           if(tt>=9.9&&tt<10.6)cr[1]={p:sC(.06,.07,.03),w:win2(9.9,10.6,.2)};                                              // slides his copy over
-          if(tt>=11.8&&tt<13.6)cr[1]={p:tt<12.4?sC(0,.03,0):tl.drawer,w:win2(11.8,13.6,.3)};                              // her copy into the drawer
+          // her copy slides flat off the counter into the drawer under her hand; the sheet follows that path, never her palm, so it cannot swing up to her chest
+          {const u_=tE(clamp((tt-12.2)/1.2,0,1)),c0=sC(0,0,0),D_=tl.drawer;dz.herP=[c0[0]+(D_[0]-c0[0])*u_,c0[1]+(D_[1]-c0[1])*u_+Math.sin(Math.PI*u_)*.04,c0[2]+(D_[2]-c0[2])*u_];}
+          if(tt>=11.8&&tt<13.6)cr[1]={p:[dz.herP[0],dz.herP[1]+.03,dz.herP[2]],w:win2(11.8,13.6,.3)};                     // her copy into the drawer
           cu.ikReq=cr;cu.lookAtP=tt>4.4&&tt<10.2?[C[0],C[2]]:[px,pz];cu.talking=tt>10.2&&tt<11.4||tt>14.6&&tt<15.6;cu.smile=tt>1&&tt<16;cu.leanBoost=tt>4.4&&tt<10.2?.12:0;
           lookP=tt>2.4&&tt<4.6||tt>10.6&&tt<11.8?[C[0],C[2]]:[cx,cz];
           if(tt>16){cu.ikReq=null;cu.talking=false;cu.smile=false;cu.lookAtP=null;cu.leanBoost=0;dz.handed=true;VZ.atTill=false;dz.docsAt=dz.copyAt=null;dz.penOn=false;dz.talk=false;dz.ph='next';dz.t=0;dz.tagH='<b>Дезинфектор</b><i>„УНИЩОЖИТЕЛИ“ · ДДД</i>';dz.tag.innerHTML=dz.tagH;}}}
@@ -1749,7 +1751,7 @@ const space=(function(){
       {const cs=extras.find(e=>e.userData.cashier),C=dz.counterP;
         const inHand=(o,who,side)=>{const pp=who?palmOf(who,side):null;o.visible=!!pp;if(pp){const hh=who.userData.headB;o.position.set(pp[0],pp[1]+.02,pp[2]);if(hh){hh.getWorldPosition(_zC);o.lookAt(_zC);o.rotateX(-.9);}}};
         const flat=(o,dx,dz_,yaw)=>{o.visible=true;o.position.set(C[0]+dx,C[1]+.002,C[2]+dz_);o.rotation.set(-Math.PI/2,0,0);o.rotateOnWorldAxis(_zD.set(0,1,0),yaw);};
-        if(dz.docsAt==='him')inHand(dz.docs,g,1);else if(dz.docsAt==='her')inHand(dz.docs,cs,1);else if(dz.docsAt==='counter'&&C)flat(dz.docs,0,0,(dz.toHer||0)+Math.PI);else dz.docs.visible=false;
+        if(dz.docsAt==='him')inHand(dz.docs,g,1);else if(dz.docsAt==='her'&&dz.herP){const P_=dz.herP;dz.docs.visible=true;dz.docs.position.set(P_[0],P_[1]+.002,P_[2]);dz.docs.rotation.set(-Math.PI/2,0,0);dz.docs.rotateOnWorldAxis(_zD.set(0,1,0),(dz.toHer||0)+Math.PI);}else if(dz.docsAt==='counter'&&C)flat(dz.docs,0,0,(dz.toHer||0)+Math.PI);else dz.docs.visible=false;
         if(dz.copyAt==='counter'&&C)flat(dz.copy,.08,.08,(dz.toHer||0));else if(dz.copyAt==='him')inHand(dz.copy,g,1);else dz.copy.visible=false;
         if(dz.penOn&&cs){const pp=palmOf(cs,1);dz.pen.visible=!!pp;if(pp){dz.pen.position.set(pp[0],pp[1]+.01,pp[2]);dz.pen.rotation.set(.9,dz.toHer||0,0);}}else dz.pen.visible=false;
         if(cs&&(dz.docsAt==='her'||dz.penOn))cs.userData.tillGrip=[0,1];}

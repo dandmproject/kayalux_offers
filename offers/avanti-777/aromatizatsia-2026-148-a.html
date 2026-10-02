@@ -2053,7 +2053,7 @@ const space=(function(){
       if(dz.ph_==='away'){g.visible=false;if(T_>dz.until&&!doorBusy(g)){dz.q=vzPlan();g.position.set(nav.entry[0],0,nav.entry[1]);ud.ang=Math.PI;g.rotation.y=ud.ang;g.visible=true;ud.blend=0;dz.task=null;dz.ph_='next';dz.t=0;dz.ladOn=false;dz.ladTh=0;}}
       if(dz.ph_==='next'){dz.task=dz.q.shift()||{exit:true};dz.t=0;dz.ph_='go';vzGo(g,dz.task.exit?nav.exit:dz.task.stand,T_);}
       if(dz.ph_==='go'){ud.blend=Math.min(1,ud.blend+dt*2);vzWatch(g,dt,T_,()=>{const t_=dz.task;return t_.exit?nav.exit:t_.stand;},()=>{dz.ph_='next';});if(dz.ph_==='go'&&advance(g,ud.sp*ud.blend*dt,dt)){dz.wTry=0;dz.skipN=0;ud.state='ddd';dz.t=0;dz.ph_=dz.task.exit?'gone':'work';}else v=ud.vNow!=null?ud.vNow:ud.sp*ud.blend;}
-      if(dz.ph_==='gone'){g.visible=false;dz.ph_='away';dz.until=T_+rnd(18,30);ud.state='away';}
+      if(dz.ph_==='gone'){g.visible=false;dz.ph_='away';dz.until=T_+rnd(600,660); /* the next visit is a different day: someone watching sees him again only after about ten minutes */ud.state='away';}
       tt=dz.t;const t=dz.task; /* read after arriving: the walk's time must not count as work done */
       // refilling a diffuser, as it is done in real life: the step ladder opened slowly and tested; climbed facing it, one foot onto the
       // step, the weight over it, the other foot after, the hands moving up the rails in turn; at the top one hand always on the ladder
