@@ -1571,6 +1571,22 @@ const space=(function(){
       if(!dz.ladOn&&dz.ph_!=='away'&&!R[1])R[1]={p:[px+rgt.x*.24+fwd.x*.05,.92,pz+rgt.z*.24+fwd.z*.05],w:.85}; // carrying the folded ladder at his right side
       if(g.visible){if(v>.04){ud.play(v<.6?'walkslow':'walk',.3);ud.setSpeed(v);}else if(clip){ud.play(clip,.25);ud.setSpeed(.35);}else ud.play('idle',.4);}
       if(ud.state!=='walk'&&dz.ph_!=='go'&&dz.ph_!=='away')ud.state='ddd';}
+
+    // the camera while he works: it looks at the WORK (the box, the gel points, the stretch of skirting he sprays, the diffuser) and at him,
+    // from a three-quarter angle on the room side (never from straight behind him); a spot that is open floor and sees both, kept for the
+    // whole task (it moves along with him while he sprays) and looked for again only if a fixture or a person comes between
+    function vzWorkCam(wk,cell,dt){const W=new T.Vector3(wk.W[0],wk.W[1],wk.W[2]),Hh=new T.Vector3(wk.H[0],wk.H[1],wk.H[2]);let ox=Hh.x-W.x,oz=Hh.z-W.z,L=Math.hypot(ox,oz);if(L<.15){ox=-Math.sin(wk.face||0);oz=-Math.cos(wk.face||0);L=1;}ox/=L;oz/=L;
+      const pose=p=>{const c=Math.cos(p.th),s=Math.sin(p.th),rx=ox*c-oz*s,rz=ox*s+oz*c;return new T.Vector3(W.x+rx*p.d,p.h,W.z+rz*p.d);};
+      const rc=VZ.rc||(VZ.rc=new T.Raycaster()),LM=losMeshes(),seen=(c,t)=>{const d_=t.clone().sub(c),len=d_.length();if(len<.05)return true;rc.set(c,d_.normalize());rc.far=len-.12;return !rc.intersectObjects(LM,false).length;};
+      const Mh=W.clone().lerp(Hh,.5),Wt=W.clone().add(_zC.set(0,.1,0)),ok=p=>{const c=pose(p);return cell(c.x,c.z)&&(seen(c,W)||seen(c,Wt))&&seen(c,Hh)&&seen(c,Mh);}; /* the work, his head and his hands in between */
+      VZ.wkT=(VZ.wkT||0)+dt;let again=VZ.wkFor!==wk.key||!VZ.wkP;if(!again&&VZ.wkT>.8){VZ.wkT=0;again=!ok(VZ.wkP);}
+      if(again){VZ.wkFor=wk.key;VZ.wkP=null;for(const dh of [0,.55,1.1])for(const th of [1.3,-1.3,1.05,-1.05,1.55,-1.55,.8,-.8,1.85,-1.85]){ /* from the side: his profile, his hands and the work in one frame; over a fixture: the same from higher up */if(VZ.wkP)break;for(const d of wk.D){const p={th,d,h:wk.h+dh};if(ok(p)){VZ.wkP=p;break;}}}
+        if(!VZ.wkP){/* the work is wedged in behind a fixture: over his shoulder from up near the ceiling, looking down at his hands */const hw=Math.hypot(Hh.x-W.x,Hh.z-W.z),top=Math.max(wk.h+.6,(S.H||3)-.3);
+          for(const th of [0,.35,-.35,.7,-.7]){if(VZ.wkP)break;for(const d of [hw+.6,hw+.9,hw+.35]){const p={th,d,h:top};const c=pose(p);if(cell(c.x,c.z)&&(seen(c,W)||seen(c,Wt))){VZ.wkP=p;break;}}}
+          if(!VZ.wkP)VZ.wkP={th:0,d:hw+.6,h:top};}}
+      return [pose(VZ.wkP),W.clone().lerp(Hh,wk.mix==null?.4:wk.mix)];}
+    function vzWork(g){const ud=g.userData,dz=ud.dz,t=dz&&dz.task,hd=ud.headB;if(!t||t.exit||dz.ph_!=='work'||!hd)return null;const u=S.units[t.u];if(!u)return null;hd.getWorldPosition(_zS);
+      return {key:t,W:[u.p[0],u.p[1],u.p[2]],H:[_zS.x,_zS.y-.1,_zS.z],face:t.face,D:[2.7,2.3,3.1],h:clamp(u.p[1]-.4,1.6,2.2),mix:.4};}
     // the props each frame
     function vzProps(dt){const g=VZ.g;if(!g)return;const ud=g.userData,dz=ud.dz;if(!dz)return;const vis=g.visible;dz.tag.hidden=!vis;dz.lad.visible=vis;dz.bag.visible=true;
       if(!vis){dz.btl.visible=dz.ph.visible=false;return;}g.updateMatrixWorld(true);const hd=ud.headB;if(hd){hd.getWorldPosition(_zS);dz.tagV.set(_zS.x,_zS.y+.36,_zS.z);}
@@ -2175,12 +2191,7 @@ const space=(function(){
       // „Последвай Венци“: behind him while he walks; while he works, a spot that sees him and the diffuser; the entrance while he is out
       if(view.name==='ddd'){const g=VZ.g,cell=(x,z)=>{if(!nav)return true;const c=nav.toCell(x,z);return z<S.hd-.35&&Math.abs(x)<S.hw-.3&&nav.free(nav.G0,c[0],c[1]);};let want=null,tg=null;
         if(g&&g.visible){const ud=g.userData,a=ud.ang||0,fx=Math.sin(a),fz=Math.cos(a),px=g.position.x,pz=g.position.z,dz=ud.dz;
-          if(ud.state==='ddd'&&dz.task&&dz.u!==undefined){const u=S.units[dz.task.u];
-            if(VZ.pickFor!==dz.task||!VZ.pick){VZ.pickFor=dz.task;VZ.pick=null;const rc=VZ.rc||(VZ.rc=new T.Raycaster()),L=losMeshes(),seen=(c,t)=>{const d_=t.clone().sub(c),len=d_.length();rc.set(c,d_.normalize());rc.far=len-.2;return !rc.intersectObjects(L,false).length;};
-              const tu=new T.Vector3(u.p[0],u.p[1],u.p[2]),th=new T.Vector3(px,.6,pz);
-              const af=dz.task.face;for(const [an_,yy] of [[1.75,1.6],[-1.75,1.6],[2.3,1.7],[-2.3,1.7],[3.14,1.7]]){for(let d=3.2;d>=2.0&&!VZ.pick;d-=.2){ /* from the side first (his working direction, not mid-turn): the ladder and the diffuser both in view */const an=af+an_,x=px+Math.sin(an)*d,z=pz+Math.cos(an)*d;if(!cell(x,z))continue;const c=new T.Vector3(x,yy,z);if(seen(c,tu)&&seen(c,th))VZ.pick=c;}if(VZ.pick)break;}
-              if(!VZ.pick)VZ.pick=new T.Vector3(px-Math.sin(af)*2.4,2.0,pz-Math.cos(af)*2.4);}
-            want=VZ.pick.clone();tg=new T.Vector3((px+u.p[0])/2,(.9+(dz.lift||0)+u.p[1])/2-.15,(pz+u.p[2])/2);}
+          if(ud.state==='ddd'){const wk=vzWork(g);if(wk){const r_=vzWorkCam(wk,cell,dt);want=r_[0];tg=r_[1];}}
           if(!want){/* walking: the camera circles round to his back at a limited turn rate (never cuts in front of him when he turns) */VZ.camYaw=(walkSnap||VZ.camYaw==null)?a:angStep(VZ.camYaw,a,4,dt,3.2);const bx=Math.sin(VZ.camYaw),bz=Math.cos(VZ.camYaw);let dA=Math.abs(((a-VZ.camYaw+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI);const lift_=.7*clamp((dA-.9)/1.4,0,1); /* mid-turn: from higher up, over him */for(let d=2.8;d>=1.1&&!want;d-=.2){const x=px-bx*d-bz*.4,z=pz-bz*d+bx*.4;if(cell(x,z))want=new T.Vector3(x,1.7+lift_,z);}if(!want)want=new T.Vector3(px-bx*1.1,2.1,pz-bz*1.1);tg=new T.Vector3(px+bx*1.6,1.05,pz+bz*1.6);}else VZ.camYaw=Math.atan2(px-camera.position.x,pz-camera.position.z);}
         else{want=new T.Vector3(S.door.x-.9,1.9,S.hd+1.9);tg=new T.Vector3(S.door.x,1.0,S.hd-2.2);}
         VZ.camT=VZ.camT||tg.clone();camera.position.lerp(want,walkSnap?1:Math.min(1,dt*2.2));VZ.camT.lerp(tg,walkSnap?1:Math.min(1,dt*3));walkSnap=false;camera.lookAt(VZ.camT);}

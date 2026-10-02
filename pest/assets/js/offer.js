@@ -1628,6 +1628,25 @@ const space=(function(){
     window.__vz=()=>{const g=VZ.g;if(!g)return {none:true,texN:VZ.texN,models:(window.KL_GLTF&&KL_GLTF.models||[]).map(m=>m.file).join(',')};const d=g.userData.dz;return {ph:d.ph,task:d.task&&d.task.kind,t:+d.t.toFixed(1),x:+g.position.x.toFixed(2),z:+g.position.z.toFixed(2),ang:+(g.userData.ang||0).toFixed(2),vis:g.visible,q:d.q.length,sq:+d.sq.toFixed(2),spray:d.spraying,mask:d.maskT,lance:d.lanceT,st:g.userData.state,clip:g.userData.clip};};
     window.__vzPlan=()=>vzPlan().map(t=>t.kind+(t.kind==='box'?t.u:'')+' '+JSON.stringify((t.stand||t.a).map(v=>+v.toFixed(2))));
     window.__vzSkip=()=>{const g=VZ.g;if(g){const d=g.userData.dz;d.until=0;}};
+
+    // the camera while he works: it looks at the WORK (the box, the gel points, the stretch of skirting he sprays, the diffuser) and at him,
+    // from a three-quarter angle on the room side (never from straight behind him); a spot that is open floor and sees both, kept for the
+    // whole task (it moves along with him while he sprays) and looked for again only if a fixture or a person comes between
+    function vzWorkCam(wk,cell,dt){const W=new T.Vector3(wk.W[0],wk.W[1],wk.W[2]),Hh=new T.Vector3(wk.H[0],wk.H[1],wk.H[2]);let ox=Hh.x-W.x,oz=Hh.z-W.z,L=Math.hypot(ox,oz);if(L<.15){ox=-Math.sin(wk.face||0);oz=-Math.cos(wk.face||0);L=1;}ox/=L;oz/=L;
+      const pose=p=>{const c=Math.cos(p.th),s=Math.sin(p.th),rx=ox*c-oz*s,rz=ox*s+oz*c;return new T.Vector3(W.x+rx*p.d,p.h,W.z+rz*p.d);};
+      const rc=VZ.rc||(VZ.rc=new T.Raycaster()),LM=losMeshes(),seen=(c,t)=>{const d_=t.clone().sub(c),len=d_.length();if(len<.05)return true;rc.set(c,d_.normalize());rc.far=len-.12;return !rc.intersectObjects(LM,false).length;};
+      const Mh=W.clone().lerp(Hh,.5),Wt=W.clone().add(_zC.set(0,.1,0)),ok=p=>{const c=pose(p);return cell(c.x,c.z)&&(seen(c,W)||seen(c,Wt))&&seen(c,Hh)&&seen(c,Mh);}; /* the work, his head and his hands in between */
+      VZ.wkT=(VZ.wkT||0)+dt;let again=VZ.wkFor!==wk.key||!VZ.wkP;if(!again&&VZ.wkT>.8){VZ.wkT=0;again=!ok(VZ.wkP);}
+      if(again){VZ.wkFor=wk.key;VZ.wkP=null;for(const dh of [0,.55,1.1])for(const th of [1.3,-1.3,1.05,-1.05,1.55,-1.55,.8,-.8,1.85,-1.85]){ /* from the side: his profile, his hands and the work in one frame; over a fixture: the same from higher up */if(VZ.wkP)break;for(const d of wk.D){const p={th,d,h:wk.h+dh};if(ok(p)){VZ.wkP=p;break;}}}
+        if(!VZ.wkP){/* the work is wedged in behind a fixture: over his shoulder from up near the ceiling, looking down at his hands */const hw=Math.hypot(Hh.x-W.x,Hh.z-W.z),top=Math.max(wk.h+.6,(S.H||3)-.3);
+          for(const th of [0,.35,-.35,.7,-.7]){if(VZ.wkP)break;for(const d of [hw+.6,hw+.9,hw+.35]){const p={th,d,h:top};const c=pose(p);if(cell(c.x,c.z)&&(seen(c,W)||seen(c,Wt))){VZ.wkP=p;break;}}}
+          if(!VZ.wkP)VZ.wkP={th:0,d:hw+.6,h:top};}}
+      return [pose(VZ.wkP),W.clone().lerp(Hh,wk.mix==null?.4:wk.mix)];}
+    function vzWork(g){const ud=g.userData,dz=ud.dz,t=dz&&dz.task,hd=ud.headB;if(!t||!hd)return null;hd.getWorldPosition(_zS);const H=[_zS.x,_zS.y-.12,_zS.z],px=g.position.x,pz=g.position.z;
+      if(t.kind==='box'){const u=S.units[t.u];return u?{key:t,W:[u.p[0],.12,u.p[2]],H,face:t.face,D:[2.3,2.0,2.7],h:1.55}:null;}
+      if(t.kind==='gel'){let x=0,y=0,z=0;t.pts.forEach(p=>{x+=p[0];y+=p[1];z+=p[2];});const n=t.pts.length;return {key:t,W:[x/n,y/n,z/n],H,face:t.face,D:[2.3,2.0,2.7],h:clamp(y/n+.95,1.45,2.0)};}
+      if(t.kind==='spray'){const L=Math.hypot(t.b[0]-t.a[0],t.b[1]-t.a[1])||1,dx=(t.b[0]-t.a[0])/L,dy=(t.b[1]-t.a[1])/L;return {key:t,W:[px+dx*.75-t.n[0]*.62,.1,pz+dy*.75-t.n[1]*.62],H,face:Math.atan2(dx,dy),D:[2.5,2.1,2.9],h:1.6};}
+      return null;}
     function vzWorld(o){o.updateMatrixWorld(true);o.getWorldPosition(_zD);return [_zD.x,_zD.y,_zD.z];}
     function vzDot(x,y,z){const G_=VZ.gel;if(!G_)return;const i=VZ.gelN%G_.instanceMatrix.count;_zM.makeTranslation(x,Math.max(.004,y),z);G_.setMatrixAt(i,_zM);VZ.gelN++;G_.count=Math.min(VZ.gelN,G_.instanceMatrix.count);G_.instanceMatrix.needsUpdate=true;}
     // legs: the hips go down, both feet stay where they stood (thigh–calf–foot solved like the arms, the knees forward), the chest leans
@@ -2328,14 +2347,7 @@ const space=(function(){
       // the entrance while he is out (he is back in a few seconds)
       if(view.name==='ddd'){const g=VZ.g,cell=(x,z)=>{if(!nav)return true;const c=nav.toCell(x,z);return z<S.hd-.35&&Math.abs(x)<S.hw-.3&&nav.free(nav.G0,c[0],c[1]);};let want=null,tg=null;
         if(g&&g.visible){const ud=g.userData,a=ud.ang||0,fx=Math.sin(a),fz=Math.cos(a),px=g.position.x,pz=g.position.z;
-          if(ud.state==='ddd'){const lp=ud.lookAtP||[px+fx,pz+fz],dz=ud.dz;
-            // chosen once per task: the first spot that is free floor AND sees his hands and the work (nothing standing in between)
-            if(VZ.pickFor!==dz.task||!VZ.pick){VZ.pickFor=dz.task;VZ.pick=null;const rc=VZ.rc||(VZ.rc=new T.Raycaster()),L=losMeshes(),seen=(c,t)=>{const d_=t.clone().sub(c),len=d_.length();rc.set(c,d_.normalize());rc.far=len-.15;return !rc.intersectObjects(L,false).length;};
-              const tw=new T.Vector3((px+lp[0])/2,.4,(pz+lp[1])/2),th=new T.Vector3(px,1.0,pz);
-              for(const [an_,yy] of [[.95,1.5],[-.95,1.5],[1.6,1.7],[-1.6,1.7],[2.3,2.0],[-2.3,2.0],[0,2.2]]){for(let d=2.4;d>=1.1&&!VZ.pick;d-=.2){const an=a+an_,x=px+Math.sin(an)*d,z=pz+Math.cos(an)*d;if(!cell(x,z))continue;const c=new T.Vector3(x,yy,z);if(seen(c,tw)&&seen(c,th))VZ.pick=c;}if(VZ.pick)break;}
-              if(!VZ.pick)VZ.pick=new T.Vector3(px-fx*1.4,2.3,pz-fz*1.4);} /* the front three-quarter first, then the side, then over his shoulder from above */
-            want=VZ.pick.clone();
-            tg=new T.Vector3((px+lp[0])/2,.55,(pz+lp[1])/2);}
+          if(ud.state==='ddd'){const wk=vzWork(g);if(wk){const r_=vzWorkCam(wk,cell,dt);want=r_[0];tg=r_[1];}}
           if(!want){/* walking: the camera circles round to his back at a limited turn rate (never cuts in front of him when he turns) */VZ.camYaw=(walkSnap||VZ.camYaw==null)?a:angStep(VZ.camYaw,a,4,dt,3.2);const bx=Math.sin(VZ.camYaw),bz=Math.cos(VZ.camYaw);let dA=Math.abs(((a-VZ.camYaw+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI);const lift_=.7*clamp((dA-.9)/1.4,0,1); /* mid-turn: from higher up, over him */for(let d=2.8;d>=1.1&&!want;d-=.2){const x=px-bx*d-bz*.4,z=pz-bz*d+bx*.4;if(cell(x,z))want=new T.Vector3(x,1.65+lift_,z);}if(!want)want=new T.Vector3(px-bx*1.1,2.1,pz-bz*1.1);tg=new T.Vector3(px+bx*1.6,1.05,pz+bz*1.6);}else VZ.camYaw=Math.atan2(px-camera.position.x,pz-camera.position.z);}
         else{want=new T.Vector3(S.door.x-.9,1.9,S.hd+1.9);tg=new T.Vector3(S.door.x,1.0,S.hd-2.2);}
         VZ.camT=VZ.camT||tg.clone();const k_=walkSnap?1:Math.min(1,dt*2.2);camera.position.lerp(want,k_);VZ.camT.lerp(tg,walkSnap?1:Math.min(1,dt*3));walkSnap=false;camera.lookAt(VZ.camT);}
