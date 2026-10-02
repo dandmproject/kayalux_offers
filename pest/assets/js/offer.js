@@ -1543,7 +1543,7 @@ const space=(function(){
       const legs=['L','R'].map(s=>[B(s+'_Thigh'),B(s+'_Calf'),B(s+'_Foot')]);poseBones(g);ud.pB=ud.pB.concat(...legs.map(l=>l.slice(0,3))).filter(Boolean);
       ud.dz={tag,tagV,tank,straps,kase,clip,handB,docs,copy,pen,docsAt:null,copyAt:null,caseOn:false,caseP:[0,0,0],holdB:null,clipOn:false,kind:'service',stow,outlet,pump,mFace,mNeck,mask,lance,gun,hose,HN,HR,legs,maskT:0,maskW:0,lanceT:0,lanceW:0,ldir:new T.Vector3(0,-.5,.8).normalize(),sq:0,sqT:0,q:[],task:null,ph:'away',t:0,until:T_+rnd(2,6),spraying:false,emit:0,pumpT:0};
       g.visible=false;ud.state='away';g.position.set(nav.entry[0],0,nav.entry[1]);room.add(g);people.push(g);VZ.g=g;return true;}
-    function vzClear(){if(VZ.sub){VZ.sub.classList.remove('on');VZ.subK='';}if(VZ.g){(VZ.g.userData.ownMats||[]).forEach(m=>m.dispose());(VZ.g.userData.ownGeo||[]).forEach(g_=>g_.dispose());const dz=VZ.g.userData.dz;if(dz)dz.hose.geometry.dispose();}VZ.g=null;if(VZ.gel){VZ.gel.count=0;VZ.gelN=0;}}
+    function vzClear(){if(VZ.sub){VZ.sub.classList.remove('on');VZ.subShown=null;}if(VZ.g){(VZ.g.userData.ownMats||[]).forEach(m=>m.dispose());(VZ.g.userData.ownGeo||[]).forEach(g_=>g_.dispose());const dz=VZ.g.userData.dz;if(dz)dz.hose.geometry.dispose();}VZ.g=null;if(VZ.gel){VZ.gel.count=0;VZ.gelN=0;}}
     // where is open floor (for him to stand) / a free wall (to spray its skirting)
     const vzFree=(x,z,r)=>x>-S.hw+r&&x<S.hw-r&&z>-S.hd+r&&z<S.hd-r&&!OBS.some(o=>x+r>o[0]&&x-r<o[1]&&z+r>o[2]&&z-r<o[3]);
     const vzWalk=(x,z)=>{if(!nav)return true;const c=nav.toCell(x,z);return nav.free(nav.G35,c[0],c[1]);}; // a spot the crowd's routes can reach and leave (fixtures +35 cm)
@@ -1574,7 +1574,7 @@ const space=(function(){
     // after three tries that point is left for the next visit and he goes on (he never stands in one place for long)
     function vzWatch(g,dt,T_,target,skip){const dz=g.userData.dz,ud=g.userData,x=g.position.x,z=g.position.z;if(dz.wx==null||Math.hypot(x-dz.wx,z-dz.wz)>.25){dz.wx=x;dz.wz=z;dz.wT=0;return;}dz.wT+=dt;
       if(dz.wT>4){dz.wT=0;dz.wTry=(dz.wTry||0)+1;ud.replanned=ud.rerouted=ud.blkRe=false;ud.stuckT=ud.waitAcc=0;if(dz.wTry===2){/* give way: a step aside to a free spot, then on */const w=vzNearWalk(x,z,.9);if(w){setPath(g,[[x,z],w].concat(nav.route(gridDyn(g),w,target())||[]),T_);return;}}if(dz.wTry>4){dz.wTry=0;dz.skipN=(dz.skipN||0)+1;if(dz.skipN>2){dz.skipN=0;dz.q=[];dz.task={kind:'exit',exit:true};dz.ph='gone';}else skip();}else vzGo(g,target(),T_);}}
-    function vzStep(g,dt,T_,open){const ud=g.userData,dz=ud.dz;dz.t+=dt;
+    function vzStep(g,dt,T_,open){const ud=g.userData,dz=ud.dz;vzTick(g,dz,dt);
       const faceTo=(a,k)=>{ud.ang=angStep(ud.ang||0,a,k||5,dt,2.4);g.rotation.y=ud.ang;};
       const ease=(cur,tg,r)=>cur+(tg-cur)*(1-Math.exp(-dt*r));
       let v=0,lookP=null;const R=[null,null];ud.ikReq=R;dz.gunOn=false;dz.spraying=false;let sqTarget=0,lanceMode=dz.task&&dz.task.kind==='spray'&&dz.ph!=='go'&&dz.ph!=='maskOn'?1:0,maskOn=0,lanceHold=dz.lanceT>.5;
@@ -1693,27 +1693,29 @@ const space=(function(){
 
     // subtitles under the 3D scene: what he is doing right now and why (shown while you follow him, or while he is on screen nearby)
     function vzSubShow(g,cap){let el=VZ.sub;if(!el){el=VZ.sub=document.createElement('div');el.className='vzsub';el.setAttribute('aria-live','polite');el.innerHTML='<b></b><span></span>';stage.appendChild(el);}
-      let show=!!(cap&&g&&g.visible);if(show&&view.name!=='ddd'){const hd=g.userData.headB;if(hd){hd.getWorldPosition(_zC);const dist=_zC.distanceTo(camera.position);_zC.project(camera);show=dist<9&&_zC.z<1&&Math.abs(_zC.x)<.95&&Math.abs(_zC.y)<.95;}else show=false;}
-      const key=show?cap[0]+'|'+cap[1]:'';if(key!==VZ.subK){VZ.subK=key;if(show){el.firstChild.textContent=cap[0];el.lastChild.textContent=cap[1];}el.classList.toggle('on',show);}}
+      let show=!!(g&&g.visible);if(show&&view.name!=='ddd'){const hd=g.userData.headB;if(hd){hd.getWorldPosition(_zC);const dist=_zC.distanceTo(camera.position);_zC.project(camera);show=dist<9&&_zC.z<1&&Math.abs(_zC.x)<.95&&Math.abs(_zC.y)<.95;}else show=false;}
+      VZ.subVis=show;const now=performance.now()/1000,cur=VZ.subShown;
+      if(!show){if(cur){el.classList.remove('on');VZ.subShown=null;}return;}
+      if(cur&&now-cur.at<cur.min)return;                                                    // the line on screen stays until it has been read
+      if(!cap){if(cur){el.classList.remove('on');VZ.subShown=null;}return;}
+      const key=cap[0]+'|'+cap[1];if(cur&&cur.key===key)return;
+      const n=(cap[0]+' '+cap[1]).length;VZ.subShown={key,at:now,min:Math.min(8,Math.max(3,1.2+n/14))}; /* reading time: about 14 letters a second, 3 to 8 s */
+      el.firstChild.textContent=cap[0];el.lastChild.textContent=cap[1];el.classList.add('on');el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');}
+    // his work waits for the subtitle: while it is on screen, the next step starts only once the current line has been read (he holds
+    // the moment, as someone checking his work does); nobody watching, he works at his own pace
+    function vzTick(g,dz,dt){const sh=VZ.subShown;if(VZ.subVis&&sh&&performance.now()/1000-sh.at<sh.min){const t0=dz.t;dz.t+=dt;const c=vzCaption(g),k=c?c[0]+'|'+c[1]:'';dz.t=t0;
+        if(k&&k!==sh.key&&(dz.gateT=(dz.gateT||0)+dt)<7)return;}dz.gateT=0;dz.t+=dt;}
     function vzCaption(g){const dz=g.userData.dz;if(!dz)return null;const t=dz.task,tt=dz.t,ph=dz.ph;if(!t||ph==='away'||ph==='gone')return null;
       const n=t.u!=null?' №'+(t.u+1):'';
-      if(t.kind==='hand'){if(ph==='toWait')return ['Отстъпва встрани от касата','Не застава сред клиентите, докато плащат.'];if(ph==='wait')return ['Попълва протокола','Докато касата обслужва клиент, довършва документацията встрани.'];
-        if(ph==='go')return ['Отива към касата','Обработката е приключила. Следва предаване на протокола.'];
-        if(tt<4.4)return ['Предава протокола за извършената обработка','В него са описани проверените дератизационни точки, обработките и използваните препарати.'];
-        if(tt<10.2)return ['Служителят проверява и подписва протокола','С подписа си обектът потвърждава извършената обработка.'];
-        return ['Едно копие остава в обекта, едно е за фирмата','Протоколите се пазят и се показват при проверка от РЗИ и БАБХ.'];}
-      if(ph==='go'){if(t.kind==='box')return ['Отива към дератизационна точка'+n,'Всяка точка от картосхемата се проверява при всяко посещение.'];if(t.kind==='gel')return ['Отива към следващата зона за гел','Гелът се нанася там, където хлебарките търсят укритие: процепи, ъгли и рамки.'];if(t.kind==='spray')return ['Отива към стената за обработка','Пръска се покрай перваза, далеч от касата и от стоката.'];return null;}
-      if(t.kind==='box'){if(ph==='stepIn')return ['Приближава дератизационна точка'+n,'Кутията е в ъгъл, встрани от пътя на клиентите.'];
-        if(tt<2.2)return ['Отваря капака на кутията','Кутиите са затворени, за да не ги докосват клиенти и служители.'];
-        if(tt<4.3)return ['Проверява лепливата плоскост','Уловените гризачи и следите показват дали в зоната има активност.'];
-        if(tt<6.6)return ['Поставя нова леплива плоскост','Използваната се прибира в плик. Плоскостите са неотровни и безопасни за обекта.'];
-        if(tt<9)return ['Вписва резултата в протокола','Записът за всяка точка се изисква от Наредба № 1.'];
-        return ['Затваря кутията и продължава','Номерът на стикера съвпада с номера в картосхемата.'];}
-      if(t.kind==='gel')return ['Нанася гел срещу хлебарки','Капка гел в процепите около рамки и в ъглите. Без пръскане и без миризма.'];
-      if(t.kind==='spray'){if(ph==='maskOn')return ['Слага защитна маска','Преди работа с препарати специалистът се предпазва.'];
-        if(ph==='spray'&&dz.holdT>0)return ['Спира и изчаква','Никога не се пръска, когато наблизо има хора.'];
-        if(ph==='spray')return ['Пръска покрай перваза','Препаратът се нанася ниско, по пътя на насекомите, далеч от стоката.'];
-        return ['Прибира пръскачката','Обработката на тази зона е завършена.'];}
+      if(t.kind==='hand'){if(ph==='wait')return ['Попълва протокола','Описва извършените обработки в обекта.'];if(ph!=='hand')return null;
+        if(tt<10.2)return ['Предава протокола','Служителят от обекта го проверява и подписва.'];
+        return ['Протоколът е подписан','Копие остава в обекта, копие е за фирмата.'];}
+      if(t.kind==='box'&&ph==='work'){if(tt<2.2)return ['Проверка на дератизационна точка'+n,'Отваря кутията с лепливата плоскост.'];
+        if(tt<4.3)return ['Проверява лепливата плоскост','Отчита дали има гризачи или следи от тях.'];
+        if(tt<6.6)return ['Подменя лепливата плоскост','Използваната се прибира, поставя се нова неотровна плоскост.'];
+        return ['Вписва резултата в протокола','Отчетът за всяка точка е част от документацията на обекта.'];}
+      if(t.kind==='gel'&&ph==='work')return ['Нанася гел срещу хлебарки','Гелът се поставя в процепи и ъгли, където се крият насекомите.'];
+      if(t.kind==='spray'&&ph==='spray'){if(dz.holdT>0)return ['Изчаква клиента да мине','Не се пръска, когато наблизо има хора.'];return ['Пръска срещу пълзящи насекоми','Препаратът се нанася по перваза, по пътя на насекомите.'];}
       return null;}
     function vzWorld(o){o.updateMatrixWorld(true);o.getWorldPosition(_zD);return [_zD.x,_zD.y,_zD.z];}
     function vzDot(x,y,z){const G_=VZ.gel;if(!G_)return;const i=VZ.gelN%G_.instanceMatrix.count;_zM.makeTranslation(x,Math.max(.004,y),z);G_.setMatrixAt(i,_zM);VZ.gelN++;G_.count=Math.min(VZ.gelN,G_.instanceMatrix.count);G_.instanceMatrix.needsUpdate=true;}

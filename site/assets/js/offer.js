@@ -1531,7 +1531,7 @@ const space=(function(){
       ft.getWorldQuaternion(_zQ2);hinge(th,ca,_Ed);hinge(ca,ft,_Wd);ft.parent.getWorldQuaternion(_zQ).invert();ft.quaternion.copy(_zQ.multiply(_zQ2));ft.updateMatrixWorld(true);}
     // on the ladder each foot is placed on its step (or the floor) by the leg IK, the body leaning a little into the ladder
     function vzPose(g,dt){const dz=g.userData.dz;if(!dz||!dz.feet)return;dz.legs.forEach((l,i)=>{const f=dz.feet[i];if(l[2]&&f)vzLeg(g,l,_zA.set(f[0],f[1],f[2]).clone());});if(dz.leanL)leanTo(g,dz.leanL);}
-    function vzClear(){if(VZ.sub){VZ.sub.classList.remove('on');VZ.subK='';}if(VZ.g){(VZ.g.userData.ownMats||[]).forEach(m=>m.dispose());}VZ.g=null;}
+    function vzClear(){if(VZ.sub){VZ.sub.classList.remove('on');VZ.subShown=null;}if(VZ.g){(VZ.g.userData.ownMats||[]).forEach(m=>m.dispose());}VZ.g=null;}
     const vzFree=(x,z,r)=>x>-S.hw+r&&x<S.hw-r&&z>-S.hd+r&&z<S.hd-r&&!OBS.some(o=>x+r>o[0]&&x-r<o[1]&&z+r>o[2]&&z-r<o[3]);
     const vzWalk=(x,z)=>{if(!nav)return true;const c=nav.toCell(x,z);return nav.free(nav.G35,c[0],c[1]);}; // a spot the crowd's routes can reach and leave (fixtures +35 cm)
     // one stop per diffuser: the ladder under it (or a little to the side when a fixture stands below), nearest first from the door
@@ -1545,7 +1545,7 @@ const space=(function(){
     // after three tries that point is left for the next visit and he goes on (he never stands in one place for long)
     function vzWatch(g,dt,T_,target,skip){const dz=g.userData.dz,ud=g.userData,x=g.position.x,z=g.position.z;if(dz.wx==null||Math.hypot(x-dz.wx,z-dz.wz)>.25){dz.wx=x;dz.wz=z;dz.wT=0;return;}dz.wT+=dt;
       if(dz.wT>4){dz.wT=0;dz.wTry=(dz.wTry||0)+1;ud.replanned=ud.rerouted=ud.blkRe=false;ud.stuckT=ud.waitAcc=0;if(dz.wTry===2){/* give way: a step aside to a free spot, then on */const w=vzNearWalk(x,z,.9);if(w){setPath(g,[[x,z],w].concat(nav.route(gridDyn(g),w,target())||[]),T_);return;}}if(dz.wTry>4){dz.wTry=0;dz.skipN=(dz.skipN||0)+1;if(dz.skipN>2){dz.skipN=0;dz.q=[];dz.task={kind:'exit',exit:true};dz.ph_='gone';}else skip();}else vzGo(g,target(),T_);}}
-    function vzStep(g,dt,T_,open){const ud=g.userData,dz=ud.dz;dz.t+=dt;
+    function vzStep(g,dt,T_,open){const ud=g.userData,dz=ud.dz;vzTick(g,dz,dt);
       const faceTo=(a,k)=>{ud.ang=angStep(ud.ang||0,a,k||5,dt,2.4);g.rotation.y=ud.ang;};
       let v=0,lookP=null,clip=null;const R=[null,null];ud.ikReq=R;dz.holdB=null;dz.phOn=false;
       const fwd=_zA.set(Math.sin(ud.ang||0),0,Math.cos(ud.ang||0)),rgt=_zB.set(-fwd.z,0,fwd.x),px=g.position.x,pz=g.position.z;
@@ -1624,20 +1624,25 @@ const space=(function(){
 
     // subtitles under the 3D scene: what he is doing right now and why (shown while you follow him, or while he is on screen nearby)
     function vzSubShow(g,cap){let el=VZ.sub;if(!el){el=VZ.sub=document.createElement('div');el.className='vzsub';el.setAttribute('aria-live','polite');el.innerHTML='<b></b><span></span>';stage.appendChild(el);}
-      let show=!!(cap&&g&&g.visible);if(show&&view.name!=='ddd'){const hd=g.userData.headB;if(hd){hd.getWorldPosition(_zC);const dist=_zC.distanceTo(camera.position);_zC.project(camera);show=dist<9&&_zC.z<1&&Math.abs(_zC.x)<.95&&Math.abs(_zC.y)<.95;}else show=false;}
-      const key=show?cap[0]+'|'+cap[1]:'';if(key!==VZ.subK){VZ.subK=key;if(show){el.firstChild.textContent=cap[0];el.lastChild.textContent=cap[1];}el.classList.toggle('on',show);}}
-    function vzCaption(g){const dz=g.userData.dz;if(!dz)return null;const t=dz.task,tt=dz.t,ph=dz.ph_;if(!t||t.exit||ph==='away'||ph==='gone')return null;
-      const n=' №'+(t.u+1);if(ph==='go')return ['Отива към дифузер'+n,'Всеки дифузер се зарежда на място, по график.'];if(ph!=='work')return null;
+      let show=!!(g&&g.visible);if(show&&view.name!=='ddd'){const hd=g.userData.headB;if(hd){hd.getWorldPosition(_zC);const dist=_zC.distanceTo(camera.position);_zC.project(camera);show=dist<9&&_zC.z<1&&Math.abs(_zC.x)<.95&&Math.abs(_zC.y)<.95;}else show=false;}
+      VZ.subVis=show;const now=performance.now()/1000,cur=VZ.subShown;
+      if(!show){if(cur){el.classList.remove('on');VZ.subShown=null;}return;}
+      if(cur&&now-cur.at<cur.min)return;                                                    // the line on screen stays until it has been read
+      if(!cap){if(cur){el.classList.remove('on');VZ.subShown=null;}return;}
+      const key=cap[0]+'|'+cap[1];if(cur&&cur.key===key)return;
+      const n=(cap[0]+' '+cap[1]).length;VZ.subShown={key,at:now,min:Math.min(8,Math.max(3,1.2+n/14))}; /* reading time: about 14 letters a second, 3 to 8 s */
+      el.firstChild.textContent=cap[0];el.lastChild.textContent=cap[1];el.classList.add('on');el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');}
+    // his work waits for the subtitle: while it is on screen, the next step starts only once the current line has been read (he holds
+    // the moment, as someone checking his work does); nobody watching, he works at his own pace
+    function vzTick(g,dz,dt){const sh=VZ.subShown;if(VZ.subVis&&sh&&performance.now()/1000-sh.at<sh.min){const t0=dz.t;dz.t+=dt;const c=vzCaption(g),k=c?c[0]+'|'+c[1]:'';dz.t=t0;
+        if(k&&k!==sh.key&&(dz.gateT=(dz.gateT||0)+dt)<7)return;}dz.gateT=0;dz.t+=dt;}
+    function vzCaption(g){const dz=g.userData.dz;if(!dz)return null;const t=dz.task,tt=dz.t,ph=dz.ph_;if(!t||t.exit||ph!=='work')return null;
       const k=t.k,SU=1.5,SD=1.7,c0=3.0,tUp=c0+SU*k,w0=tUp+.6,tDn=w0+10.4,tFl=tDn+SD*k,tOff=tFl+.8,tFold=tOff+3.0;
-      if(tt<c0)return ['Разпъва и проверява стълбата','Преди качване стълбата се отваря докрай и се проверява за стабилност.'];
-      if(tt<tUp)return ['Качва се стъпало по стъпало','С лице към стълбата и с три точки опора. Най-горното стъпало не се използва.'];
-      if(tt<w0+2.6)return ['Отваря капака на дифузера','Капакът се отваря внимателно, без да се натоварва стойката.'];
-      if(tt<w0+6.8)return ['Сменя бутилката с ароматно масло','Празната се прибира в чантата, пълната се поставя докрай, без разливане.'];
-      if(tt<w0+8.8)return ['Затваря капака','Дифузерът е затворен преди проверката на графика.'];
-      if(tt<tDn)return ['Проверява графика по Bluetooth','Дифузерът работи по работното време на обекта. Настройката се проверява след всяко зареждане.'];
-      if(tt<tFl)return ['Слиза внимателно','Отново с лице към стълбата, стъпало по стъпало.'];
-      if(tt<tFold)return ['Пробно пръскане','Едва след като е слязъл: дифузерът никога не пръска към човек на стълбата.'];
-      return ['Сгъва стълбата','Стълбата не остава в залата без надзор.'];}
+      if(tt>=w0&&tt<w0+2.6)return ['Зареждане на дифузер №'+(t.u+1),'Отваря капака на дифузера.'];
+      if(tt>=w0+2.6&&tt<w0+8.8)return ['Сменя бутилката с ароматно масло','Празната бутилка се заменя с пълна.'];
+      if(tt>=w0+8.8&&tt<tDn)return ['Проверява графика на дифузера','Работното време се сверява с графика на обекта.'];
+      if(tt>=tFl&&tt<tFold)return ['Пробно пръскане','Проверка, че дифузерът работи след зареждането.'];
+      return null;}
     // the props each frame
     function vzProps(dt){const g=VZ.g;if(!g)return;const ud=g.userData,dz=ud.dz;if(!dz)return;vzSubShow(g,vzCaption(g));const vis=g.visible;dz.tag.hidden=!vis;dz.lad.visible=vis;dz.bag.visible=true;
       if(!vis){dz.btl.visible=dz.ph.visible=false;return;}g.updateMatrixWorld(true);const hd=ud.headB;if(hd){hd.getWorldPosition(_zS);dz.tagV.set(_zS.x,_zS.y+.36,_zS.z);}
