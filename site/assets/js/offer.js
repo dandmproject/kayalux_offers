@@ -1531,7 +1531,7 @@ const space=(function(){
       ft.getWorldQuaternion(_zQ2);hinge(th,ca,_Ed);hinge(ca,ft,_Wd);ft.parent.getWorldQuaternion(_zQ).invert();ft.quaternion.copy(_zQ.multiply(_zQ2));ft.updateMatrixWorld(true);}
     // on the ladder each foot is placed on its step (or the floor) by the leg IK, the body leaning a little into the ladder
     function vzPose(g,dt){const dz=g.userData.dz;if(!dz||!dz.feet)return;dz.legs.forEach((l,i)=>{const f=dz.feet[i];if(l[2]&&f)vzLeg(g,l,_zA.set(f[0],f[1],f[2]).clone());});if(dz.leanL)leanTo(g,dz.leanL);}
-    function vzClear(){if(VZ.g){(VZ.g.userData.ownMats||[]).forEach(m=>m.dispose());}VZ.g=null;}
+    function vzClear(){if(VZ.sub){VZ.sub.classList.remove('on');VZ.subK='';}if(VZ.g){(VZ.g.userData.ownMats||[]).forEach(m=>m.dispose());}VZ.g=null;}
     const vzFree=(x,z,r)=>x>-S.hw+r&&x<S.hw-r&&z>-S.hd+r&&z<S.hd-r&&!OBS.some(o=>x+r>o[0]&&x-r<o[1]&&z+r>o[2]&&z-r<o[3]);
     const vzWalk=(x,z)=>{if(!nav)return true;const c=nav.toCell(x,z);return nav.free(nav.G35,c[0],c[1]);}; // a spot the crowd's routes can reach and leave (fixtures +35 cm)
     // one stop per diffuser: the ladder under it (or a little to the side when a fixture stands below), nearest first from the door
@@ -1621,8 +1621,25 @@ const space=(function(){
       return [pose(VZ.wkP),W.clone().lerp(Hh,wk.mix==null?.4:wk.mix)];}
     function vzWork(g){const ud=g.userData,dz=ud.dz,t=dz&&dz.task,hd=ud.headB;if(!t||t.exit||dz.ph_!=='work'||!hd)return null;const u=S.units[t.u];if(!u)return null;hd.getWorldPosition(_zS);
       return {key:t,W:[u.p[0],u.p[1],u.p[2]],H:[_zS.x,_zS.y-.1,_zS.z],face:t.face,D:[2.7,2.3,3.1],h:clamp(u.p[1]-.4,1.6,2.2),mix:.4};}
+
+    // subtitles under the 3D scene: what he is doing right now and why (shown while you follow him, or while he is on screen nearby)
+    function vzSubShow(g,cap){let el=VZ.sub;if(!el){el=VZ.sub=document.createElement('div');el.className='vzsub';el.setAttribute('aria-live','polite');el.innerHTML='<b></b><span></span>';stage.appendChild(el);}
+      let show=!!(cap&&g&&g.visible);if(show&&view.name!=='ddd'){const hd=g.userData.headB;if(hd){hd.getWorldPosition(_zC);const dist=_zC.distanceTo(camera.position);_zC.project(camera);show=dist<9&&_zC.z<1&&Math.abs(_zC.x)<.95&&Math.abs(_zC.y)<.95;}else show=false;}
+      const key=show?cap[0]+'|'+cap[1]:'';if(key!==VZ.subK){VZ.subK=key;if(show){el.firstChild.textContent=cap[0];el.lastChild.textContent=cap[1];}el.classList.toggle('on',show);}}
+    function vzCaption(g){const dz=g.userData.dz;if(!dz)return null;const t=dz.task,tt=dz.t,ph=dz.ph_;if(!t||t.exit||ph==='away'||ph==='gone')return null;
+      const n=' №'+(t.u+1);if(ph==='go')return ['Отива към дифузер'+n,'Всеки дифузер се зарежда на място, по график.'];if(ph!=='work')return null;
+      const k=t.k,SU=1.5,SD=1.7,c0=3.0,tUp=c0+SU*k,w0=tUp+.6,tDn=w0+10.4,tFl=tDn+SD*k,tOff=tFl+.8,tFold=tOff+3.0;
+      if(tt<c0)return ['Разпъва и проверява стълбата','Преди качване стълбата се отваря докрай и се проверява за стабилност.'];
+      if(tt<tUp)return ['Качва се стъпало по стъпало','С лице към стълбата и с три точки опора. Най-горното стъпало не се използва.'];
+      if(tt<w0+2.6)return ['Отваря капака на дифузера','Капакът се отваря внимателно, без да се натоварва стойката.'];
+      if(tt<w0+6.8)return ['Сменя бутилката с ароматно масло','Празната се прибира в чантата, пълната се поставя докрай, без разливане.'];
+      if(tt<w0+8.8)return ['Затваря капака','Дифузерът е затворен преди проверката на графика.'];
+      if(tt<tDn)return ['Проверява графика по Bluetooth','Дифузерът работи по работното време на обекта. Настройката се проверява след всяко зареждане.'];
+      if(tt<tFl)return ['Слиза внимателно','Отново с лице към стълбата, стъпало по стъпало.'];
+      if(tt<tFold)return ['Пробно пръскане','Едва след като е слязъл: дифузерът никога не пръска към човек на стълбата.'];
+      return ['Сгъва стълбата','Стълбата не остава в залата без надзор.'];}
     // the props each frame
-    function vzProps(dt){const g=VZ.g;if(!g)return;const ud=g.userData,dz=ud.dz;if(!dz)return;const vis=g.visible;dz.tag.hidden=!vis;dz.lad.visible=vis;dz.bag.visible=true;
+    function vzProps(dt){const g=VZ.g;if(!g)return;const ud=g.userData,dz=ud.dz;if(!dz)return;vzSubShow(g,vzCaption(g));const vis=g.visible;dz.tag.hidden=!vis;dz.lad.visible=vis;dz.bag.visible=true;
       if(!vis){dz.btl.visible=dz.ph.visible=false;return;}g.updateMatrixWorld(true);const hd=ud.headB;if(hd){hd.getWorldPosition(_zS);dz.tagV.set(_zS.x,_zS.y+.36,_zS.z);}
       // the ladder: open on the floor under the diffuser, or folded in his right hand
       dz.lf.rotation.x=-dz.ladTh;dz.lr.rotation.x=dz.ladTh;const hy=1.6*Math.cos(dz.ladTh);

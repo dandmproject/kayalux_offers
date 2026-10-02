@@ -1520,7 +1520,7 @@ const space=(function(){
       const s2=P('Spine2'),nk=P('Neck'),ns=P('MNose'),ul=P('MUpperLip');
       // backpack sprayer on the back, its lance holder on the right side, the hose outlet at the bottom
       const tank=vzBone(B('Spine2'),new T.Mesh(VZ.geo.tank,M.vc2),new T.Vector3(0,s2.y-.02,s2.z-.18));tank.scale.multiplyScalar(.8);tank.castShadow=true; /* a 12-litre sprayer: a fifth smaller than before */
-      const dec=new T.Mesh(VZ.geo.decal,VZ.mat.decal);dec.position.set(0,.02,-.0815);tank.add(dec);
+      const dec=new T.Mesh(VZ.geo.decal,VZ.mat.decal);dec.position.set(0,.02,-.1125);tank.add(dec); /* on the tank's outer face (the rounded edge stands 3 cm proud of the box) */
       const stow=new T.Object3D();stow.position.set(-.18,.1,.0);stow.quaternion.setFromEuler(_zE.set(Math.PI/2-.08,0,0));tank.add(stow); /* the lance hangs nozzle down in its holder on the tank's right side */
       const outlet=new T.Object3D();outlet.position.set(-.1,-.26,0);tank.add(outlet);const pump=new T.Object3D();pump.position.set(.175,-.2,.34);tank.add(pump);
       vzBone(B('Neck'),new T.Mesh(VZ.geo.hood,M.vc2),new T.Vector3(0,nk.y-.03,nk.z-.05));
@@ -1543,7 +1543,7 @@ const space=(function(){
       const legs=['L','R'].map(s=>[B(s+'_Thigh'),B(s+'_Calf'),B(s+'_Foot')]);poseBones(g);ud.pB=ud.pB.concat(...legs.map(l=>l.slice(0,3))).filter(Boolean);
       ud.dz={tag,tagV,tank,straps,kase,clip,handB,docs,copy,pen,docsAt:null,copyAt:null,caseOn:false,caseP:[0,0,0],holdB:null,clipOn:false,kind:'service',stow,outlet,pump,mFace,mNeck,mask,lance,gun,hose,HN,HR,legs,maskT:0,maskW:0,lanceT:0,lanceW:0,ldir:new T.Vector3(0,-.5,.8).normalize(),sq:0,sqT:0,q:[],task:null,ph:'away',t:0,until:T_+rnd(2,6),spraying:false,emit:0,pumpT:0};
       g.visible=false;ud.state='away';g.position.set(nav.entry[0],0,nav.entry[1]);room.add(g);people.push(g);VZ.g=g;return true;}
-    function vzClear(){if(VZ.g){(VZ.g.userData.ownMats||[]).forEach(m=>m.dispose());(VZ.g.userData.ownGeo||[]).forEach(g_=>g_.dispose());const dz=VZ.g.userData.dz;if(dz)dz.hose.geometry.dispose();}VZ.g=null;if(VZ.gel){VZ.gel.count=0;VZ.gelN=0;}}
+    function vzClear(){if(VZ.sub){VZ.sub.classList.remove('on');VZ.subK='';}if(VZ.g){(VZ.g.userData.ownMats||[]).forEach(m=>m.dispose());(VZ.g.userData.ownGeo||[]).forEach(g_=>g_.dispose());const dz=VZ.g.userData.dz;if(dz)dz.hose.geometry.dispose();}VZ.g=null;if(VZ.gel){VZ.gel.count=0;VZ.gelN=0;}}
     // where is open floor (for him to stand) / a free wall (to spray its skirting)
     const vzFree=(x,z,r)=>x>-S.hw+r&&x<S.hw-r&&z>-S.hd+r&&z<S.hd-r&&!OBS.some(o=>x+r>o[0]&&x-r<o[1]&&z+r>o[2]&&z-r<o[3]);
     const vzWalk=(x,z)=>{if(!nav)return true;const c=nav.toCell(x,z);return nav.free(nav.G35,c[0],c[1]);}; // a spot the crowd's routes can reach and leave (fixtures +35 cm)
@@ -1582,14 +1582,20 @@ const space=(function(){
       const hp=(f,r,y)=>[px+fwd.x*f+rgt.x*r,y*k,pz+fwd.z*f+rgt.z*r]; /* a point in his own frame: f ahead, r to his right, y up */
       if(dz.ph==='away'){g.visible=false;if(T_>dz.until&&!doorBusy(g)){VZ.vn=(VZ.vn||0)+1;const all=vzPlan(),spr=all.filter(t=>t.kind==='spray');dz.kind=spr.length&&VZ.vn%2===0?'spray':'service';dz.q=dz.kind==='spray'?spr:all.filter(t=>t.kind!=='spray');dz.caseOn=false;if(window.__vzOnly){dz.q=all.filter(t=>t.kind===window.__vzOnly);if(window.__vzN)dz.q=dz.q.slice(0,window.__vzN);dz.kind=window.__vzOnly==='spray'?'spray':'service';}g.position.set(nav.entry[0],0,nav.entry[1]);ud.ang=Math.PI;g.rotation.y=ud.ang;g.visible=true;ud.blend=0;dz.task=null;dz.ph='next';dz.t=0;}}
       if(dz.ph==='next'){let nt=dz.q.shift();
-        if(!nt&&!dz.handed&&S.tl&&extras.some(e=>e.userData.cashier)){const tl=S.tl;let d0=[tl.E+.33,(tl.H[2]+.2+tl.basket[2])/2];if(!vzWalk(d0[0],d0[1])){const w=vzNearWalk(d0[0],d0[1],.15);if(w)d0=w;}nt={kind:'hand',stand:d0};}
+        if(!nt&&!dz.handed&&S.tl&&extras.some(e=>e.userData.cashier)){const tl=S.tl;let d0=[tl.E+.33,(tl.H[2]+.2+tl.basket[2])/2];if(!vzWalk(d0[0],d0[1])){const w=vzNearWalk(d0[0],d0[1],.15);if(w)d0=w;}nt={kind:'hand',stand:d0};VZ.atTill=true;} /* from now on the till finishes the customer it is serving and then waits for him: no one new is called */
         dz.task=nt||{kind:'exit'};const t=dz.task;dz.t=0;dz.ph='go';
         if(dz.q.length<=2&&t.kind!=='exit'&&!VZ.quiet){VZ.quiet=true; /* the last job: the shop empties a little, so he can hand over the documents at a free till */
           people.forEach(o=>{const u=o.userData;if(u.ddd||!u.visit||u.follow!=null)return;const keep=u.visit.slice(0,u.legI+1),rest=u.visit.slice(u.legI+1).filter(l=>l.kind!=='browse');u.visit=keep.concat(rest);if(u.state==='browse')u.until=Math.min(u.until,T_+rnd(1,4));});}
         vzGo(g,t.kind==='exit'?nav.exit:(t.stand||t.a),T_);}
-      if(dz.ph==='go'&&dz.task&&dz.task.kind==='hand'){const st=dz.task.stand,busy=qOcc.some(q=>q)||people.some(o=>o!==g&&o.visible&&!o.userData.ddd&&(o.userData.pay||Math.hypot(o.position.x-st[0],o.position.z-st[1])<1.4)); /* the till is his only when the line is empty and nobody stands at it */
-        if(busy&&Math.hypot(st[0]-px,st[1]-pz)<2.2){ud.state='ddd';dz.wT=0;dz.waitT=(dz.waitT||0)+dt;faceTo(Math.atan2(st[0]-px,st[1]-pz),3);dz.clipOn=true;const cp=hp(.3,-.05,.95);R[0]={p:cp,w:1};lookP=[px+fwd.x*.3,pz+fwd.z*.3]; /* a customer is paying: he waits a step back, reading through his protocol */
-          dz.waiting=dz.waitT<90;}else if(dz.waiting){dz.waiting=false;dz.waitT=0;dz.clipOn=false;ud.state='walk';}}
+      // the till is busy: he does not stand among the customers; he steps aside to a free spot and fills in the protocol there, and goes to
+      // the till as soon as nobody is paying (the line then waits behind him)
+      if(dz.task&&dz.task.kind==='hand'&&(dz.ph==='go'||dz.ph==='toWait'||dz.ph==='wait')){const st=dz.task.stand,busy=people.some(o=>o!==g&&o.visible&&!o.userData.ddd&&(o.userData.pay||(o.userData.state!=='queue'&&Math.hypot(o.position.x-st[0],o.position.z-st[1])<.8)));dz.waiting=false;
+        if(busy&&dz.ph==='go'&&T_>(dz.noWait||0)&&Math.hypot(st[0]-px,st[1]-pz)<3.2){let best=null,bs=-1e9;
+          for(let r=1.8;r<=2.6;r+=.4)for(let k_=0;k_<16;k_++){const a_=k_/16*6.283,x=st[0]+Math.cos(a_)*r,z=st[1]+Math.sin(a_)*r;if(!vzWalk(x,z)||!vzFree(x,z,.3))continue;let m=9;(nav.queue||[]).forEach(q=>{m=Math.min(m,Math.hypot(q[0]-x,q[1]-z));});people.forEach(o=>{if(o!==g&&o.visible)m=Math.min(m,Math.hypot(o.position.x-x,o.position.z-z)+.4);});if(m<1)continue;const sc=Math.min(m,2)-.6*Math.hypot(x-px,z-pz); /* clear of the line, and on his side: no walk across the shop */if(sc>bs){bs=sc;best=[x,z];}}
+          if(best){dz.ph='toWait';vzGo(g,best,T_);}}
+        if(dz.ph==='toWait'){ud.blend=Math.min(1,ud.blend+dt*2);if(!busy){dz.ph='go';vzGo(g,st,T_);}else if(advance(g,ud.sp*ud.blend*dt,dt)){dz.ph='wait';dz.waitT=0;}else v=ud.vNow!=null?ud.vNow:ud.sp*ud.blend;}
+        if(dz.ph==='wait'){ud.state='ddd';dz.waitT+=dt;faceTo(Math.atan2(st[0]-px,st[1]-pz),3);dz.clipOn=true;const cp=hp(.3,-.05,.95);R[0]={p:cp,w:1};const cc=[cp[0]+fwd.x*.075,cp[1]+.08,cp[2]+fwd.z*.075],tw=Math.sin(dz.waitT*9)*.025,tl=((dz.waitT*1.3)%1)*.05;R[1]={p:[cc[0]-fwd.x*.06+rgt.x*(.07+tw),cc[1]+.05-tl,cc[2]-fwd.z*.06+rgt.z*(.07+tw)],w:1};lookP=[px+fwd.x*.3,pz+fwd.z*.3];
+          if(!busy||dz.waitT>25){dz.noWait=T_+6;dz.ph='go';dz.clipOn=false;ud.state='walk';vzGo(g,st,T_);}}}
       if(dz.ph==='go'&&!dz.waiting){ud.blend=Math.min(1,ud.blend+dt*2);vzWatch(g,dt,T_,()=>{const t_=dz.task;return t_.kind==='exit'?nav.exit:(t_.stand||t_.a);},()=>{dz.ph='next';});if(dz.ph==='go'&&advance(g,ud.sp*ud.blend*dt,dt)){dz.wTry=0;dz.skipN=0;ud.state='ddd';dz.t=0;const tk=dz.task;dz.ph=tk.kind==='exit'?'gone':tk.kind==='hand'?'hand':tk.kind==='spray'?'maskOn':tk.near&&Math.hypot(tk.near[0]-tk.stand[0],tk.near[1]-tk.stand[1])>.08?'stepIn':'work';}else v=ud.vNow!=null?ud.vNow:ud.sp*ud.blend;}
       if(dz.ph==='stepIn'||dz.ph==='stepOut'){const tk=dz.task,to=dz.ph==='stepIn'?tk.near:tk.stand,dx=to[0]-g.position.x,dz_=to[1]-g.position.z,L=Math.hypot(dx,dz_);
         if(L<.04){g.position.x=to[0];g.position.z=to[1];dz.t=0;dz.ph=dz.ph==='stepIn'?'work':'next';}else{const sp=Math.min(.5,L/Math.max(dt,1e-3)*.9);faceTo(Math.atan2(dx,dz_),6);g.position.x+=dx/L*sp*dt;g.position.z+=dz_/L*sp*dt;v=sp;}} /* the last step into the gap and back out, straight */
@@ -1660,7 +1666,7 @@ const space=(function(){
       dz.sq=ease(dz.sq,dz.sqT,3.2);ud.sqD=dz.sq*.4*k;
       if(g.visible){if(v>.04){ud.play(v<.6?'walkslow':'walk',.3);ud.setSpeed(v);}else ud.play(dz.talk?'talk':'idle',.4);}
       if(dz.docsAt==='him')ud.tillGrip=[ud.tillGrip?ud.tillGrip[0]:0,1];
-      if(ud.state!=='walk'&&(dz.ph!=='go'||dz.waiting)&&dz.ph!=='away')ud.state='ddd';}
+      if(ud.state!=='walk'&&dz.ph!=='go'&&dz.ph!=='toWait'&&dz.ph!=='away')ud.state='ddd';}
     window.__vz=()=>{const g=VZ.g;if(!g)return {none:true,texN:VZ.texN,models:(window.KL_GLTF&&KL_GLTF.models||[]).map(m=>m.file).join(',')};const d=g.userData.dz;return {ph:d.ph,task:d.task&&d.task.kind,t:+d.t.toFixed(1),x:+g.position.x.toFixed(2),z:+g.position.z.toFixed(2),ang:+(g.userData.ang||0).toFixed(2),vis:g.visible,q:d.q.length,sq:+d.sq.toFixed(2),spray:d.spraying,mask:d.maskT,lance:d.lanceT,st:g.userData.state,clip:g.userData.clip};};
     window.__vzPlan=()=>vzPlan().map(t=>t.kind+(t.kind==='box'?t.u:'')+' '+JSON.stringify((t.stand||t.a).map(v=>+v.toFixed(2))));
     window.__vzSkip=()=>{const g=VZ.g;if(g){const d=g.userData.dz;d.until=0;}};
@@ -1684,6 +1690,31 @@ const space=(function(){
       if(t.kind==='hand'){const cs=extras.find(e=>e.userData.cashier);if(!cs||dz.ph!=='hand'||!dz.counterP)return null;const C=dz.counterP;return {key:t,W:[C[0],1.1,C[2]],H,face:Math.atan2(C[0]-px,C[2]-pz),D:[2.0,1.7,2.4],h:1.75,mix:.15};}
       if(t.kind==='spray'){const L=Math.hypot(t.b[0]-t.a[0],t.b[1]-t.a[1])||1,dx=(t.b[0]-t.a[0])/L,dy=(t.b[1]-t.a[1])/L;return {key:t,W:[px+dx*.75-t.n[0]*.62,.1,pz+dy*.75-t.n[1]*.62],H,face:Math.atan2(dx,dy),D:[2.5,2.1,2.9],h:1.6};}
       return null;}
+
+    // subtitles under the 3D scene: what he is doing right now and why (shown while you follow him, or while he is on screen nearby)
+    function vzSubShow(g,cap){let el=VZ.sub;if(!el){el=VZ.sub=document.createElement('div');el.className='vzsub';el.setAttribute('aria-live','polite');el.innerHTML='<b></b><span></span>';stage.appendChild(el);}
+      let show=!!(cap&&g&&g.visible);if(show&&view.name!=='ddd'){const hd=g.userData.headB;if(hd){hd.getWorldPosition(_zC);const dist=_zC.distanceTo(camera.position);_zC.project(camera);show=dist<9&&_zC.z<1&&Math.abs(_zC.x)<.95&&Math.abs(_zC.y)<.95;}else show=false;}
+      const key=show?cap[0]+'|'+cap[1]:'';if(key!==VZ.subK){VZ.subK=key;if(show){el.firstChild.textContent=cap[0];el.lastChild.textContent=cap[1];}el.classList.toggle('on',show);}}
+    function vzCaption(g){const dz=g.userData.dz;if(!dz)return null;const t=dz.task,tt=dz.t,ph=dz.ph;if(!t||ph==='away'||ph==='gone')return null;
+      const n=t.u!=null?' №'+(t.u+1):'';
+      if(t.kind==='hand'){if(ph==='toWait')return ['Отстъпва встрани от касата','Не застава сред клиентите, докато плащат.'];if(ph==='wait')return ['Попълва протокола','Докато касата обслужва клиент, довършва документацията встрани.'];
+        if(ph==='go')return ['Отива към касата','Обработката е приключила. Следва предаване на протокола.'];
+        if(tt<4.4)return ['Предава протокола за извършената обработка','В него са описани проверените дератизационни точки, обработките и използваните препарати.'];
+        if(tt<10.2)return ['Служителят проверява и подписва протокола','С подписа си обектът потвърждава извършената обработка.'];
+        return ['Едно копие остава в обекта, едно е за фирмата','Протоколите се пазят и се показват при проверка от РЗИ и БАБХ.'];}
+      if(ph==='go'){if(t.kind==='box')return ['Отива към дератизационна точка'+n,'Всяка точка от картосхемата се проверява при всяко посещение.'];if(t.kind==='gel')return ['Отива към следващата зона за гел','Гелът се нанася там, където хлебарките търсят укритие: процепи, ъгли и рамки.'];if(t.kind==='spray')return ['Отива към стената за обработка','Пръска се покрай перваза, далеч от касата и от стоката.'];return null;}
+      if(t.kind==='box'){if(ph==='stepIn')return ['Приближава дератизационна точка'+n,'Кутията е в ъгъл, встрани от пътя на клиентите.'];
+        if(tt<2.2)return ['Отваря капака на кутията','Кутиите са затворени, за да не ги докосват клиенти и служители.'];
+        if(tt<4.3)return ['Проверява лепливата плоскост','Уловените гризачи и следите показват дали в зоната има активност.'];
+        if(tt<6.6)return ['Поставя нова леплива плоскост','Използваната се прибира в плик. Плоскостите са неотровни и безопасни за обекта.'];
+        if(tt<9)return ['Вписва резултата в протокола','Записът за всяка точка се изисква от Наредба № 1.'];
+        return ['Затваря кутията и продължава','Номерът на стикера съвпада с номера в картосхемата.'];}
+      if(t.kind==='gel')return ['Нанася гел срещу хлебарки','Капка гел в процепите около рамки и в ъглите. Без пръскане и без миризма.'];
+      if(t.kind==='spray'){if(ph==='maskOn')return ['Слага защитна маска','Преди работа с препарати специалистът се предпазва.'];
+        if(ph==='spray'&&dz.holdT>0)return ['Спира и изчаква','Никога не се пръска, когато наблизо има хора.'];
+        if(ph==='spray')return ['Пръска покрай перваза','Препаратът се нанася ниско, по пътя на насекомите, далеч от стоката.'];
+        return ['Прибира пръскачката','Обработката на тази зона е завършена.'];}
+      return null;}
     function vzWorld(o){o.updateMatrixWorld(true);o.getWorldPosition(_zD);return [_zD.x,_zD.y,_zD.z];}
     function vzDot(x,y,z){const G_=VZ.gel;if(!G_)return;const i=VZ.gelN%G_.instanceMatrix.count;_zM.makeTranslation(x,Math.max(.004,y),z);G_.setMatrixAt(i,_zM);VZ.gelN++;G_.count=Math.min(VZ.gelN,G_.instanceMatrix.count);G_.instanceMatrix.needsUpdate=true;}
     // legs: the hips go down, both feet stay where they stood (thigh–calf–foot solved like the arms, the knees forward), the chest leans
@@ -1699,7 +1730,7 @@ const space=(function(){
       if(s>.004){dz.legs.forEach(l=>{if(!l[2])return;l[2].getWorldPosition(_zC);_zC.y+=s;vzLeg(g,l,_zC);});leanTo(g,dz.sq*.5);}}
     // props each frame: the mask between chest and face, the lance in the hand or in its holder, the gel gun, the hose, the mist
     function vzSetW(o,p,q){o.position.copy(p);if(q)o.quaternion.copy(q);}
-    function vzProps(dt){const g=VZ.g;if(!g)return;const ud=g.userData,dz=ud.dz;if(!dz)return;const vis=g.visible,spr=dz.kind==='spray';dz.mask.visible=vis;dz.lance.visible=dz.hose.visible=vis&&spr;dz.tank.visible=dz.straps.visible=spr;dz.kase.visible=vis&&!spr;
+    function vzProps(dt){const g=VZ.g;if(!g)return;const ud=g.userData,dz=ud.dz;if(!dz)return;vzSubShow(g,vzCaption(g));const vis=g.visible,spr=dz.kind==='spray';dz.mask.visible=vis;dz.lance.visible=dz.hose.visible=vis&&spr;dz.tank.visible=dz.straps.visible=spr;dz.kase.visible=vis&&!spr;
       dz.tag.hidden=!vis;if(!vis){VZ.mist.forEach(s_=>s_.visible=false);dz.gun.visible=dz.clip.visible=dz.handB.visible=false;return;}
       g.updateMatrixWorld(true);dz.maskW+=(dz.maskT-dz.maskW)*(1-Math.exp(-dt*5));const mw=tE(dz.maskW);
       dz.mNeck.getWorldPosition(_zA);dz.mFace.getWorldPosition(_zB);dz.mNeck.getWorldQuaternion(_zQ);dz.mFace.getWorldQuaternion(_zQ2);_zA.lerp(_zB,mw);_zQ.slerp(_zQ2,mw);vzSetW(dz.mask,_zA,_zQ);
@@ -2420,7 +2451,7 @@ const space=(function(){
         const zc=$('#lyCover').checked;
         S.units.forEach((u,ui)=>{u.act=false;
           const reached=uvOn&&up>1.0+ui*0.9; // the sweep lights the boxes one after another
-          if(u.seal){const tgt=(reached||u._sealed)?0.92:0;if(reached)u._sealed=true;u.seal.material.opacity+=(tgt-u.seal.material.opacity)*Math.min(1,dt*4);u.seal.visible=u.seal.material.opacity>.02;}
+          if(u.seal){const tgt=(reached||u._sealed)?0.92:0;if(reached)u._sealed=true;u.seal.material.opacity+=(tgt-u.seal.material.opacity)*Math.min(1,dt*4);u.seal.visible=false /* the seal's text could not be read at that size: no seal over the boxes */;}
           const ringOn=zc||uvOn;u.wave.visible=ringOn;const puls=uvOn?(reached?.85:.25)+.3*Math.sin(now/220+ui):.45+.12*Math.sin(now/600+u.ph*6.28);u.wave.material.opacity=ringOn?puls:0;
           u.wave.material.color.set(uvOn?'#7fd0c4':'#6f7b14');});
         if(S.paths){S.paths.visible=uvOn||$('#lyFlow').checked;const m=S.paths.material;m.map.offset.x-=dt*(uvOn?2.2:0.7);m.color.set(uvOn?'#8fe0d0':'#8a9a24');m.opacity=uvOn?Math.min(1,.5+wash):1;}
