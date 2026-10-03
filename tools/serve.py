@@ -179,7 +179,8 @@ def update(quiet=False):
         return False
     try:
         sha = latest_sha()
-        if sha == current_version():
+        # same version but an offer folder is missing (an older copy of this script did not download it): fetch again
+        if sha == current_version() and all(os.path.isfile(os.path.join(BASE, d, 'index.php')) for d in ('site', 'pest')):
             return False
         print('Има нова версия на офертата, изтеглям я...', flush=True)
         blob = _get('https://codeload.github.com/%s/zip/%s' % (REPO, sha), timeout=180)
