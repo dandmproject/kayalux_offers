@@ -1,0 +1,7 @@
+# само sign.php е достъпен, само с POST
+<Files "schema.sql">
+  Require all denied
+</Files>
+<LimitExcept POST>
+  Require all denied
+</LimitExcept>

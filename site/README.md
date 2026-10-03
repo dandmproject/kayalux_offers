@@ -5,9 +5,10 @@
 ```
 index.php            страницата (без PHP логика; .php е за да не се кешира и да не се листва)
 assets/css/offer.css стилове (шрифтовете са в assets/fonts)
-assets/js/           three.min.js, GLTFLoader.js, SkeletonUtils.js, people-gltf.js, offer.js
+assets/js/           three.min.js + app.min.js (GLTFLoader, SkeletonUtils, meshopt_decoder, people-gltf, offer – свити с tools/minify.mjs)
+assets/css/offer.min.css  стиловете, свити (изходникът е offer.css)
 assets/img/          лого, подпис, снимки на устройствата
-assets/models/       32 реалистични човешки модела (GLB) + rb-anims.glb + manifest.json
+assets/models/       19 реалистични човешки модела (GLB, свити с gltfpack) + rb-anims.glb + manifest.json
 api/sign.php         приема подписа (JSON с PNG), записва в MySQL и праща имейл
 api/schema.sql       таблицата за подписите
 .htaccess            защита: без индексиране, без листване, само с линк
@@ -22,12 +23,16 @@ robots.txt
 
 Без база и без попълнен `sign.php` всичко останало работи; подписът тогава се пази само на устройството на клиента и се изпраща с бутона „Изпрати потвърждението“ (готов имейл).
 
-## Локално на твоя компютър (за преглед, без cPanel)
-В папката `site/`:
-- с PHP: `php -S localhost:8080` → http://localhost:8080/
-- или с Python: `python3 -m http.server 8080` → http://localhost:8080/index.php
+## Локално на твоя компютър
+Двоен клик на `START-WINDOWS.bat` (Windows) или `START-MAC.command` (Mac) в корена на проекта. Скриптът пуска `tools/serve.py` на първия свободен порт от **5340** нагоре и отваря браузъра. Сървърът компресира текста (gzip) и кешира моделите, шрифтовете и снимките за година, така че второто отваряне идва от кеша. Адресът за телефон в същата Wi-Fi мрежа се изписва в прозореца. Друг порт: `python3 tools/serve.py 5400`.
 
-(Подписът към `api/sign.php` работи само с PHP + MySQL; локално с Python бутонът „Подпиши“ пази подписа на устройството.)
+(Подписът към `api/sign.php` работи само с PHP + MySQL; локално бутонът „Подпиши“ пази подписа на устройството.)
 
 ## Тегло
-Общо ~26 MB, от които ~23 MB са човешките модели. Те се зареждат на заден план едва когато 3D схемата наближи екрана и се кешират от браузъра. Ако хостингът е бавен, махни редове от `assets/models/manifest.json` (12–15 модела стигат).
+Страницата без моделите е около 0,7 MB (компресирана). Моделите са общо около 2,2 MB (19 човека по ~100 KB + анимации 0,4 MB), свити с `tools/rocketbox/pack.sh` (gltfpack, meshopt). Те тръгват на заден план след зареждането на страницата и се кешират; докато пристигнат, в схемата се движат опростени фигури, които се подменят една по една, без да спира картината.
+
+## След промяна в offer.js / offer.css
+`cd tools && npm i && node minify.mjs` – пресглобява app.min.js и offer.min.css и сменя ?v= в index.php, за да не остане старото в кеша на браузъра.
+
+## Самостоятелен файл
+`python3 tools/build_single.py` сглобява `offers/avanti-777/aromatizatsia-2026-148-a.html` от тази папка (всичко вградено, без реалните модели).

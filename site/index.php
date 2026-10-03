@@ -9,15 +9,17 @@ header('Cache-Control: private, no-store, max-age=0');
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Търговска оферта за АВАНТИ</title>
+<title>Търговска оферта за професионална ароматизация · АВАНТИ</title>
+<link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/img/icon-192.png">
+<link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
 <meta name="referrer" content="no-referrer">
-<link rel="preload" as="image" href="assets/img/logo.jpg">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/cormorant-garamond-cyrillic-500-normal.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/cormorant-garamond-cyrillic-400-italic.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-cyrillic-400-normal.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-cyrillic-500-normal.woff2">
-<link rel="stylesheet" href="assets/css/offer.css">
+<link rel="stylesheet" href="assets/css/offer.min.css?v=bc430744">
 </head>
 <body>
 <div class="grain" aria-hidden="true"></div>
@@ -26,10 +28,11 @@ header('Cache-Control: private, no-store, max-age=0');
   <div class="wrap">
     <a class="brand" href="#top" aria-label="KAYA LUX, към началото">
       <svg viewBox="0 0 26 36" aria-hidden="true"><ellipse cx="13" cy="18" rx="12.2" ry="17.2" fill="none" stroke="var(--gold)" stroke-width="1"/><ellipse cx="13" cy="18" rx="10.4" ry="15.2" fill="var(--gold)"/><text x="11.4" y="17.6" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="12.5" fill="var(--ground)">K</text><text x="14.6" y="27.4" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="12.5" fill="var(--ground)">L</text></svg>
-      <img class="bm" id="navMono" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="" width="22" height="30"><img class="bw" id="navWord" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="KAYA LUX" width="80" height="15">
+      <img class="bm" src="assets/img/logo-mark.png" alt="" width="36" height="48"><img class="bw" src="assets/img/logo-word.png" alt="KAYA LUX" width="106" height="20">
     </a>
+    <span class="doc"><span class="dl">Търговска оферта<span class="dl2"> за професионална ароматизация</span> </span><img class="av-logo" src="assets/img/avanti-logo.svg" alt="АВАНТИ" width="999" height="288"></span>
     <ul class="chapters">
-      <li><a href="#pilot"><i>I</i>Пилотът</a></li>
+      <li><a href="#pilot"><i>I</i>Тестът</a></li>
       <li><a href="#aromat"><i>II</i>Ароматът</a></li>
       <li><a href="#grafik"><i>III</i>Графикът</a></li>
       <li><a href="#prostranstvo"><i>IV</i>Разположение</a></li>
@@ -39,11 +42,10 @@ header('Cache-Control: private, no-store, max-age=0');
       <li><a href="#reshenie"><i>VIII</i>Решение</a></li>
     </ul>
     <div class="nav-tools">
-      <span class="doc">Оферта №&nbsp;2026-148-А · само за адресата</span>
-      <button type="button" class="pdf-btn" id="pdfBtn" title="Запази като PDF"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 13h6M9 17h6"/></svg><span>PDF</span></button>
-      <div class="theme-menu"><button class="theme-btn" id="themeBtn" type="button" aria-label="Тема" aria-haspopup="true" aria-expanded="false"></button><div class="theme-pop" id="themePop" role="radiogroup" aria-label="Тема" hidden><button type="button" role="radio" data-t="dark" aria-checked="false"><i style="background:#0D0B09"></i>Нощ</button><button type="button" role="radio" data-t="light" aria-checked="false"><i style="background:#F2EEE6"></i>Ден</button><button type="button" role="radio" data-t="olive" aria-checked="false"><i style="background:#1A1F14;border-color:#D9E27C"></i>Маслина</button></div></div>
+      <div class="theme-menu"><button class="theme-btn" id="themeBtn" type="button" aria-label="Тема" aria-haspopup="true" aria-expanded="false"></button><div class="theme-pop" id="themePop" role="radiogroup" aria-label="Тема" hidden><button type="button" role="radio" data-t="dark" aria-checked="false"><i style="background:#0D0B09"></i>Нощ</button><button type="button" role="radio" data-t="light" aria-checked="false"><i style="background:#F2EEE6"></i>Ден</button><button type="button" role="radio" data-t="olive" aria-checked="false"><i style="background:#1A1F14;border-color:#D9E27C"></i>Маслина</button></div></div><button class="menu-btn" id="menuBtn" type="button" aria-label="Съдържание" aria-expanded="false" aria-controls="navSheet"><span></span><span></span><span></span></button>
     </div>
   </div>
+  <div class="nav-sheet" id="navSheet" hidden></div>
   <div class="progress" aria-hidden="true"></div>
 </nav>
 
@@ -51,21 +53,19 @@ header('Cache-Control: private, no-store, max-age=0');
 <div class="vignette" aria-hidden="true"></div>
 <header class="hero" id="top">
   <div class="wrap hero-in">
-    <div class="logo-stage" id="logoStage"><img class="brand-logo" id="heroLogo" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="KAYA LUX · Лукс, който се усеща" width="775" height="562"><i class="sheen" aria-hidden="true"></i></div>
-    <div class="mark rise d1">Търговска оферта за АВАНТИ <b>№&nbsp;2026-148-А</b> · актуализирана · <span style="white-space:nowrap">28.09.2026&nbsp;г.</span></div>
-    <div class="offer-word rise d1" role="heading" aria-level="1">ОФЕРТА<em>за професионална ароматизация на 48-те търговски обекта на&nbsp;веригата&nbsp;„АВАНТИ“</em></div>
+    <div class="mark rise d1">Търговска оферта за АВАНТИ <b>№&nbsp;2026-148-А</b> · актуализирана · <span style="white-space:nowrap">01.10.2026&nbsp;г.</span></div>
+    <div class="offer-word rise d1" role="heading" aria-level="1"><span class="shine">ОФЕРТА</span><em>за професионална ароматизация на 48-те търговски обекта на&nbsp;веригата&nbsp;„АВАНТИ“</em></div>
     <h1 class="rise d2" aria-level="2" role="heading">Един аромат. <em>Четиридесет и осем</em> обекта.</h1>
-    <p class="lead rise d3">Окончателни и обосновани цени, изготвени по реалните данни от пилотния период и от монтажа.</p>
-    <div class="tech rise d3"><span>Премиум нано-дифузия от последно поколение</span><span>Bluetooth управление</span><span>100% чисти парфюмни масла, без разреждане с вода и без нагряване</span><span>Сега: Tobacco Vanille · от декември: Toffee, избран от екипите</span></div>
-    <div class="cta rise d4"><a class="btn fill" href="#reshenie">Изберете режим</a><a class="btn" href="#prostranstvo">Разположението в 3D</a></div>
+    <p class="lead rise d3">Окончателни и обосновани цени, изготвени по реалните данни от тестовия период и от монтажа.</p>
+    <div class="tech rise d3"><span>Премиум нано-дифузия от последно поколение</span><span>Bluetooth управление</span><span>100% чисти парфюмни масла, без разреждане с вода и без нагряване</span><span>Сега: Tobacco Vanille · за декември: Toffee</span></div>
   </div>
   <div class="wrap">
     <dl class="credits rise d4" aria-label="Данни за офертата">
       <div><dt>До</dt><dd>Верига „АВАНТИ“, 48&nbsp;обекта</dd></div>
       <div><dt>На вниманието на</dt><dd>г-жа Татяна Попова</dd></div>
-      <div><dt>Дата</dt><dd>28.09.2026&nbsp;г.</dd></div>
-      <div><dt>Валидност</dt><dd>15&nbsp;дни, до&nbsp;13.10.2026&nbsp;г.<br><span class="valid-left" id="validLeft">остават 15&nbsp;дни</span></dd></div>
-      <div><dt>Месечно, без ДДС</dt><dd><span class="total num"><span data-bind="total">1&nbsp;701,00&nbsp;€</span><small data-bind="modeLabel">Пълно работно време, за 48 обекта</small></span>
+      <div><dt>Дата</dt><dd>01.10.2026&nbsp;г.</dd></div>
+      <div><dt>Валидност</dt><dd>15&nbsp;дни, до&nbsp;16.10.2026&nbsp;г.<br><span class="valid-left" id="validLeft">остават 15&nbsp;дни</span></dd></div>
+      <div><dt>Месечно, без ДДС</dt><dd><span class="total num"><span data-bind="total">1&nbsp;665,00&nbsp;€</span><small data-bind="modeLabel">Пълно работно време, за 48 обекта</small></span>
         <div class="seg" role="radiogroup" aria-label="Режим на работа" data-mode-group>
           <button type="button" role="radio" data-mode="std" aria-checked="false">Стандартен</button>
           <button type="button" role="radio" data-mode="full" aria-checked="true">Пълно работно време</button>
@@ -77,7 +77,7 @@ header('Cache-Control: private, no-store, max-age=0');
 
 <main>
 
-<!-- I · Пилотът -->
+<!-- I · Тестът -->
 <section class="reel" id="pilot">
   <div class="wrap">
     <div class="parties">
@@ -85,28 +85,28 @@ header('Cache-Control: private, no-store, max-age=0');
       <div class="party"><small>Изготвена от</small><strong>KAYA LUX</strong><div>търговска марка на „Унищожители“ ЕООД<br>Венцислав Великов, управител<br>www.kayalux.bg · scent@kayalux.bg</div><span class="tel"><a class="tbtn" href="tel:+359999999883" aria-label="Обади се"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15 15 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.58 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.58 3.6a1 1 0 0 1-.25 1z" fill="currentColor"/></svg>0999 999 883</a><a class="tbtn viber" href="viber://chat?number=%2B359999999883" aria-label="Пиши по Viber"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.5 2 3 5.2 3 10.2c0 2.6 1 4.8 2.8 6.3v3.9l3.4-1.9c.9.2 1.8.3 2.8.3 5.5 0 9-3.2 9-8.4S17.5 2 12 2zm3.8 11.5c-.3.7-1.5 1.3-2.1 1.3-.6.1-1 .3-3.4-.7-2.9-1.2-4.7-4.2-4.9-4.4-.1-.2-1.1-1.5-1.1-2.9s.7-2.1 1-2.4c.3-.3.6-.3.8-.3h.6c.2 0 .4 0 .7.5l.9 2.2c.1.2.1.4 0 .6l-.4.6-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.4 1.8 2.2 1.2 1.1 2.2 1.4 2.5 1.6.3.2.5.1.7-.1l.9-1.1c.2-.3.4-.2.7-.1l2 .9c.3.1.5.2.6.3 0 .3 0 .8-.3 1.3z" fill="currentColor"/></svg>Viber</a></span></div>
     </div>
     <div class="head">
-      <div class="no"><b>I</b><span>Пилотът</span></div>
+      <div class="no"><b>I</b><span>Тестът</span></div>
       <div><h2>Защо актуализираме офертата</h2></div>
     </div>
     <div class="letter-grid">
       <div class="prose">
         <div class="salute">Уважаема г-жо Попова,</div>
-        <p>Тази оферта заменя първоначалната ни оферта от 06.07.2026&nbsp;г. През юли и август 2026&nbsp;г. обслужвахме 13 пилотни обекта: 5 в София и 8 във Варна, Бургас и Велико Търново. През септември монтирахме системите и в останалите обекти. Сега ароматизацията работи във всички 48 обекта на веригата.</p>
+        <p>Тази оферта заменя първоначалната ни оферта от 06.07.2026&nbsp;г. През юли и август 2026&nbsp;г. обслужвахме 13 тестови обекта: 5 в София и 8 във Варна, Бургас и Велико Търново. През септември монтирахме системите и в останалите обекти. Сега ароматизацията работи във всички 48 обекта на веригата.</p>
         <p>Първоначалната оферта беше изготвена предварително. Сега имаме реални данни за работното време на обектите, за разположението на системите и за сервиза. Затова Ви изпращаме окончателни и обосновани цени.</p>
-        <p class="note"><b>Фактуриране.</b> Окончателните цени се прилагат от фактурата за месец септември 2026&nbsp;г. Фактурите за пилотните обекти за юли и август 2026&nbsp;г. остават по цените от първоначалната оферта. За тези два месеца няма да доплащате разлика.</p>
+        <p class="note"><b>Фактуриране.</b> Окончателните цени се прилагат от фактурата за месец септември 2026&nbsp;г. Фактурите за тестовите обекти за юли и август 2026&nbsp;г. остават по цените от първоначалната оферта. За тези два месеца няма да доплащате разлика.</p>
       </div>
       <div class="figs">
         <div class="fig"><b class="num">48</b><span>обекта с общ ароматен подпис</span></div>
-        <div class="fig"><b class="num">13</b><span>пилотни обекта през юли и август</span></div>
-        <div class="fig"><b class="num">96&nbsp;ч</b><span>седмично работят системите в 38 от 48-те обекта</span></div>
-        <div class="fig"><b class="num">&lt;&nbsp;0,25&nbsp;€</b><span>на ден за обект е разликата за пълно работно време</span></div>
+        <div class="fig"><b class="num">13</b><span>тестови обекта през юли и август</span></div>
+        <div class="fig"><b class="num">96&nbsp;ч</b><span>средно работят дифузерните системи в 48 обекта</span></div>
+        <div class="fig"><b class="num"><small class="fig-pre">под</small>0,25&nbsp;€</b><span>на ден за обект е разликата за пълно работно време</span></div>
       </div>
     </div>
     <ol class="timeline" aria-label="Хронология">
       <li><div class="when">06.07.2026</div><div class="what">Първоначална оферта</div><div class="why">Изготвена предварително, преди да имаме реални данни.</div></li>
-      <li><div class="when">юли – август</div><div class="what">Пилот в 13 обекта</div><div class="why">5 в София и 8 във Варна, Бургас и Велико Търново.</div></li>
+      <li><div class="when">юли–август</div><div class="what">Тест в 13 обекта</div><div class="why">5 в София и 8 във Варна, Бургас и Велико Търново.</div></li>
       <li><div class="when">септември</div><div class="what">Монтаж в останалите обекти</div><div class="why">Ароматизацията работи във всички 48 обекта.</div></li>
-      <li class="now"><div class="when">28.09.2026</div><div class="what">Тази актуализация</div><div class="why">Окончателни цени от фактурата за септември 2026&nbsp;г.</div></li>
+      <li class="now"><div class="when">01.10.2026</div><div class="what">Тази актуализация</div><div class="why">Окончателни цени от фактурата за септември 2026&nbsp;г.</div></li>
     </ol>
   </div>
 </section>
@@ -120,7 +120,7 @@ header('Cache-Control: private, no-store, max-age=0');
     </div>
     <div class="scent-grid">
       <div class="prose">
-        <p style="font-size:1.12rem">Всички 48 обекта вече имат общ ароматен подпис. Ароматът беше избран единодушно от служителите на 13-те пилотни обекта, които ежедневно работят с него и най-добре усещат как го възприемат клиентите.</p>
+        <p style="font-size:1.12rem">Всички 48 обекта вече имат общ ароматен подпис. Ароматът беше избран единодушно от служителите на 13-те тестови обекта, които ежедневно работят с него и най-добре усещат как го възприемат клиентите.</p>
         <p>Той е вдъхновен от Tom Ford Tobacco Vanille. Това е топла и елегантна композиция с нотки на тютюнев лист, ванилия, какао и сушени плодове.</p>
       </div>
       <div class="accord">
@@ -133,7 +133,7 @@ header('Cache-Control: private, no-store, max-age=0');
           <li><i class="drop" style="background:radial-gradient(circle at 35% 35%,#8a5a3c,#4a2a18 60%,#24130a)"></i><span class="n">Какао</span><span class="t">сърце</span></li>
           <li><i class="drop" style="background:radial-gradient(circle at 35% 35%,#a8545f,#6b2732 60%,#3a121a)"></i><span class="n">Сушени плодове</span><span class="t">база</span></li>
         </ul>
-        <div class="mark" style="margin-top:22px;padding-top:16px;border-top:1px solid var(--line)">Избор на екипите · от декември 2026</div>
+        <div class="mark" style="margin-top:22px;padding-top:16px;border-top:1px solid var(--line)">Предложение за декември 2026</div>
         <div class="name" style="margin-top:10px"><em>Toffee</em></div>
         <div class="by">мляко, карамел и коледно настроение · топъл гурме аромат за зимния сезон</div>
         <ul class="notes">
@@ -162,7 +162,7 @@ header('Cache-Control: private, no-store, max-age=0');
           <li>Зареждаме го едновременно във всички 48 обекта.</li>
         </ol>
         <p class="note" id="seasonText" aria-live="polite">Tobacco Vanille е топъл аромат и е подходящ за есенно-зимния сезон. Затова той е първият сезонен аромат на веригата. Ако някой аромат стане любим на клиентите и екипите, той може да се връща всяка година в същия сезон и да стане разпознаваем символ на АВАНТИ.</p>
-        <p class="note"><b>Следващото тримесечие.</b> За сезона, започващ от декември 2026&nbsp;г., служителите вече избраха аромата <strong>Toffee</strong>: мляко, карамел и коледно настроение. Той ще бъде зареден едновременно във всички 48 обекта в началото на декември.</p>
+        <p class="note"><b>Следващото тримесечие.</b> За сезона, започващ от декември 2026&nbsp;г., с голяма част от служителите се насочваме към аромата <strong>Toffee</strong>: мляко, карамел и коледно настроение. В случай че голяма част от персонала се спре на него, той ще бъде зареден едновременно във всички 48 обекта при посещението на обектите през декември.</p>
       </div>
     </div>
   </div>
@@ -176,30 +176,13 @@ header('Cache-Control: private, no-store, max-age=0');
       <div><h2>Работно време на системите</h2><p class="lead">Първоначалната калкулация беше направена при работа на системите 12 часа на ден, или 84 часа седмично. Сега всяка система следва работното време на своя обект.</p></div>
     </div>
 
-    <div class="sched-top">
-      <div class="legend">
-        <span><i class="lg-full"></i>Пълно работно време</span>
-        <span><i class="lg-std"></i>Първоначална калкулация, 12 ч на ден</span>
-        <span><i class="lg-open"></i>Работно време на обекта</span>
-      </div>
-      <div class="field" style="min-width:min(100%,360px)"><label class="lab" for="schedStore">Обект</label><select id="schedStore" class="select"></select></div>
-    </div>
-    <div class="chartbox" id="chartbox">
-      <svg class="chart" id="chart" viewBox="0 0 760 344" role="img" aria-labelledby="chartT"><title id="chartT">Седмичен график на ароматизацията спрямо първоначалната калкулация от 12 часа на ден</title></svg>
-      <div class="tip" id="tip" hidden></div>
-    </div>
-    <div class="hours3">
-      <div><b class="num">84 ч</b><span>седмично по първоначалната калкулация: 12 ч × 7&nbsp;дни</span></div>
-      <div><b class="num" id="hStore">…</b><span id="hStoreT">…</span></div>
-      <div><b class="num" id="hChain">…</b><span id="hChainT">…</span></div>
-    </div>
 
     <div class="cols2">
       <p>Настроихме графиците на системите по работното време на обектите, което ни предоставихте. <strong>Всяка система се включва 10 минути преди отварянето на обекта и се изключва 10 минути преди затварянето.</strong> Така ароматът е наличен още при влизането на първите клиенти.</p>
-      <p>Графиците са по работното време на всеки обект от предоставения ни списък. 38 обекта работят от понеделник до събота 07:00–21:00 и в неделя 08:00–20:00: системите им работят 96 часа седмично, около 14% повече от заложеното. 4 обекта работят до 22:00 ч.: при тях увеличението е до 24%. Останалите 6 обекта са с отделни графици. Изберете обект над графика, за да видите точния му график; той ще бъде описан и в Приложение №&nbsp;1.</p>
+      <p>Графиците са по работното време на всеки обект от предоставения ни списък. 38 обекта работят от понеделник до събота 07:00–21:00 и в неделя 08:00–20:00: системите им работят 96 часа седмично, около 14% повече от заложеното. 4 обекта работят до 22:00 ч.: при тях увеличението е до 24%. Останалите 6 обекта са с отделни графици. Точният график на всеки обект ще бъде описан в Приложение №&nbsp;1.</p>
       <p><strong>Ароматното масло е най-големият разход в услугата.</strong> Разходът му расте с часовете работа и с обема на помещенията. Затова при по-дълъг работен режим се изразходва повече масло.</p>
     </div>
-    <div class="live"><i aria-hidden="true"></i><p><b>Текущо състояние.</b> В момента всички 48 системи работят в режим „Пълно работно време“ по графика на съответния обект. Точният график на всеки обект се вижда в графика по-горе и в часовника под 3D схемата в глава IV.</p></div>
+    <div class="live"><i aria-hidden="true"></i><p><b>Текущо състояние.</b> В момента всички 48 системи работят в режим „Пълно работно време“ по графика на съответния обект.</p></div>
   </div>
 </section>
 
@@ -212,35 +195,48 @@ header('Cache-Control: private, no-store, max-age=0');
     </div>
 
     <div class="set">
-      <div class="stage" id="stage">
-        <div class="sky" aria-hidden="true"></div>
-        <div id="ovl" aria-hidden="false"></div>
-        <div class="stage-hud">
-          <div class="hud-card" id="hud"><b>Обект</b><span>…</span></div>
+      <div class="stage-col">
+        <div class="stage-pick"><span class="stage-title">3D визуализация на обект от веригата</span></div>
+        <div class="stage-bar">
           <div class="views" role="group" aria-label="Изглед">
-            <button type="button" data-view="persp" aria-pressed="true">Перспектива</button>
+            <button type="button" data-view="tour" aria-pressed="true">Обиколка</button>
+            <button type="button" data-view="persp" aria-pressed="false">Перспектива</button>
             <button type="button" data-view="plan" aria-pressed="false">План</button>
             <button type="button" data-view="door" aria-pressed="false">От входа</button>
             <button type="button" data-view="walk" aria-pressed="false">С клиент</button>
+            <button type="button" data-view="ddd" class="follow-ddd" aria-pressed="false" title="Последвай оператора: камерата следва оператора на KAYA LUX, докато зарежда дифузерите"><svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true"><circle cx="10" cy="5" r="2.6" fill="currentColor"/><path d="M5.5 18v-5.2c0-2.4 2-4.3 4.5-4.3s4.5 1.9 4.5 4.3V18" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>Последвай оператора</button>
             <button type="button" data-zoom="-1" aria-label="Приближи">+</button>
             <button type="button" data-zoom="1" aria-label="Отдалечи">−</button>
           </div>
-        </div>
-        <div class="stage-foot">
           <div class="layers">
             <label class="toggle"><input type="checkbox" id="lyCover">Покритие</label>
             <label class="toggle"><input type="checkbox" id="lyFlow" checked>Поток клиенти</label>
-            <label class="toggle"><input type="checkbox" id="lyLabels" checked>Надписи</label>
+            <label class="toggle"><input type="checkbox" id="lyLabels">Надписи</label>
           </div>
-          <span class="hint">Плъзнете, за да завъртите · колелце или два пръста за мащаб · мрежата на пода е 1 × 1 м</span>
         </div>
-        <div class="stage-fallback" id="stageFallback" hidden><p>3D изгледът не можа да се зареди в този браузър.<br>Описанието на системите вдясно важи и без него.</p></div>
+        <div class="stage" id="stage">
+          <div class="sky" aria-hidden="true"></div>
+          <div id="ovl" aria-hidden="false"></div>
+          <div class="stage-note" id="stageNote" aria-live="polite"></div>
+          <div class="stage-chip" aria-hidden="true"><svg viewBox="0 0 24 24" width="13" height="13"><path d="M12 3a9 9 0 1 0 9 9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M21 3v6h-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>3D · <span class="h-mouse">въртете и приближавайте</span><span class="h-touch">управлявайте с пръсти</span></div>
+          <div class="stage-help" id="stageHelp" role="note">
+            <span class="sh-ico" aria-hidden="true"><svg viewBox="0 0 48 32" width="44" height="30"><path class="sh-arr" d="M6 16h36M6 16l5-5M6 16l5 5M42 16l-5-5M42 16l-5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><g class="sh-hand"><circle cx="24" cy="16" r="5.5" fill="currentColor" opacity=".9"/><circle cx="24" cy="16" r="9.5" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".45"/></g></svg></span>
+            <span class="sh-txt"><b>Можете да управлявате сами</b><i class="h-mouse">Плъзнете с мишката, за да завъртите · скролерът приближава · кликнете номер на дифузер</i><i class="h-touch">Плъзнете с пръст за въртене · с два пръста приближавате и завъртате · докоснете номер на дифузер</i></span>
+          </div>
+          <div class="stage-load" id="stageLoad" role="progressbar" aria-label="Зареждане на 3D схемата" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="sl-in"><b>Зареждаме 3D схемата на магазина</b><div class="sl-bar"><i></i></div><span class="sl-pct">0%</span></div></div>
+          <div class="stage-fallback" id="stageFallback" hidden><p>3D изгледът не можа да се зареди в този браузър.<br>Описанието на системите вдясно важи и без него.</p></div>
+        </div>
+        <div class="stage-under">
+          <div class="hud-pick"><label for="storeSel">Изберете обект</label><select id="storeSel" class="select" aria-label="Изберете обект от веригата"></select></div>
+          <div class="hud-card" id="hud"><span>…</span></div>
+          <span class="hint"><span class="h-mouse">Плъзнете с мишката, за да завъртите · скролерът приближава</span><span class="h-touch">Един пръст встрани: въртене и наклон · два пръста: щипване за приближаване, завъртане на 360°, плъзгане за местене · двойно докосване: презентацията</span> · мрежата на пода е 1 × 1 м</span>
+        </div>
+        <div class="stage-notes">
+          <p class="honest"><b>Как е построена схемата</b>Моделът, броят и цветът на системите са реалните за избрания обект. Помещението е построено по реалната му квадратура, но планът и обзавеждането са типични за веригата (алкохол, цигари, солети, бонбони, чипс, млечни продукти), не заснети от обекта. Точните места ще бъдат описани в Приложение №&nbsp;1.</p>
+          <div class="legend3"><span><i class="b"></i>дифузер, черен корпус</span><span><i class="w"></i>дифузер, бял корпус</span><span>цветът на дифузера е избран според интериора на обекта · около 80% черни, 20% бели · Prime Lux: черно стъкло и рамка в цвят шампанско</span></div>
+        </div>
       </div>
       <div class="panel">
-        <div class="field">
-          <label for="storeSel">Обект от веригата</label>
-          <select id="storeSel" class="select"></select>
-        </div>
         <div class="field">
           <label class="lab" for="ceilRange">Височина на тавана: <output id="ceilOut" class="num" style="color:var(--gold)">3,0 м</output></label>
           <input type="range" id="ceilRange" min="2.8" max="3.4" step="0.1" value="3" style="width:100%;accent-color:var(--gold);margin:0">
@@ -259,26 +255,7 @@ header('Cache-Control: private, no-store, max-age=0');
             <dt>Работи</dt><dd id="scRun">…</dd>
           </dl>
         </div>
-        <p class="honest"><b>Как е построена схемата</b>Моделът, броят и цветът на системите са реалните за избрания обект. Помещението е построено по реалната му квадратура, но планът и обзавеждането са типични за веригата (алкохол, цигари, солети, бонбони, чипс, млечни продукти), не заснети от обекта. Точните места ще бъдат описани в Приложение №&nbsp;1.</p>
-        <div class="legend3"><span><i class="b"></i>черен корпус</span><span><i class="w"></i>бял корпус</span><span>цветът е избран според интериора на обекта · около 80% черни, 20% бели</span></div>
       </div>
-    </div>
-    <div class="clock">
-      <button class="play" id="play" type="button" aria-label="Пусни един работен ден"></button>
-      <div>
-        <div class="time num" id="clockTime" aria-live="off">11:00</div>
-        <div class="seg" role="group" aria-label="Ден" id="daySeg" style="margin-top:8px">
-          <button type="button" data-d="wd" aria-pressed="true">Пон – Съб</button>
-          <button type="button" data-d="sun" aria-pressed="false">Неделя</button>
-        </div>
-      </div>
-      <div class="track">
-        <label class="sr" for="clockRange">Час от деня</label>
-        <input type="range" id="clockRange" min="360" max="1380" step="5" value="660">
-        <div class="lane" id="lane" aria-hidden="true"><i class="o"></i><i class="s"></i></div>
-        <div class="ticks" aria-hidden="true"><span>06</span><span>09</span><span>12</span><span>15</span><span>18</span><span>21</span><span>23</span></div>
-      </div>
-      <div class="status" id="clockStatus" aria-live="polite"><i></i><div></div></div>
     </div>
 
     <div class="cols2">
@@ -287,16 +264,15 @@ header('Cache-Control: private, no-store, max-age=0');
         <p>В обектите с по-високи тавани поставихме модели с по-голям капацитет, за да е ароматът еднакво силен навсякъде.</p>
       </div>
       <div>
-        <blockquote class="quote">„Точният брой ароматни зони се потвърждава по време на монтажа и се описва поименно в протокол за поставяне.“<cite>Така беше записано в първоначалната ни оферта от 06.07.2026&nbsp;г. Настоящата актуализация е това потвърждение.</cite></blockquote>
+        <blockquote class="quote">„Точният брой ароматни зони се потвърждава по време на монтажа и се описва поименно в протокол за поставяне или в следващ месец при зареждане.“<cite>Така беше записано в първоначалната ни оферта от 06.07.2026&nbsp;г. Настоящата актуализация е това потвърждение.</cite></blockquote>
       </div>
     </div>
     <div class="models" id="models">
       <div class="model"><img class="devimg" src="assets/img/plug-n-go.jpg" alt="Plug’n Go, черен корпус" width="560" height="560">
-        <div><h4>Plug’n Go</h4><p>Компактна система за стена или над входната врата. Работи от контакт, с Bluetooth настройка на графика. Черен или бял корпус според интериора.</p><div class="cnt num" id="cntPG">0 <small>системи в 40 обекта</small></div></div></div>
-      <div class="model"><img class="devimg" src="assets/img/prime-lux.jpg" alt="Prime Lux, бял корпус" width="560" height="560">
-        <div><h4>Prime Lux</h4><p>По-мощна система с голямо покритие. Една Prime Lux замества няколко Plug’n Go в по-големите обекти. Черен или бял корпус.</p><div class="cnt num" id="cntPL">0 <small>системи в 8 обекта</small></div><div class="pl-row"><span>Варна · 3 обекта</span><span>Бургас · 2 обекта</span><span>Велико Търново · 2 обекта</span></div></div></div>
+        <div><h4>Plug’n Go</h4><p>Компактна система за стена или над входната врата. Работи от контакт, с Bluetooth настройка на графика. Черен или бял корпус според интериора.</p><div class="cnt num" id="cntPG">82 <small>системи в 40 обекта</small></div></div></div>
+      <div class="model"><img class="devimg" src="assets/img/prime-lux.jpg" alt="Prime Lux, черно стъкло и рамка в цвят шампанско" width="560" height="560">
+        <div><h4>Prime Lux</h4><p>По-мощна система с голямо покритие. Една Prime Lux замества няколко Plug’n Go в по-големите обекти. Визия на дифузерната система: черно стъкло и рамка в цвят шампанско.</p><div class="cnt num" id="cntPL">8 <small>системи в 8 обекта</small></div><div class="pl-row"><span>Варна · 3 обекта</span><span>Бургас · 3 обекта</span><span>Велико Търново · 2 обекта</span></div></div></div>
     </div>
-    <div class="flat"><b>Цената е една за обект</b><span class="muted">и не зависи от броя и модела на поставените системи.</span></div>
   </div>
 </section>
 
@@ -311,7 +287,7 @@ header('Cache-Control: private, no-store, max-age=0');
       <div>
         <div class="prose">
           <p>Веригата има 40 обекта в София и 8 във Варна, Бургас и Велико Търново. Всички 48 се обслужват по един и същ стандарт: редовно зареждане, поддръжка, мониторинг и реакция до 48 часа при технически проблем.</p>
-          <p>Обектите в София се обслужват от екипа ни в София. За обектите във Варна, Бургас и Велико Търново пътуват сервизни екипи от София и от Варна. През пилотния период през юли и август опознахме маршрутите и работното време на всеки обект.</p>
+          <p>Обектите в София се обслужват от екипа ни в София. За обектите във Варна, Бургас и Велико Търново пътуват сервизни екипи от София и от Варна. По време на тестовия период през юли и август опознахме маршрутите и работното време на всеки обект.</p>
           <p>Транспортът, монтажът и сервизът са включени в цената на всеки обект, еднакво за София и за страната. Няма отделни такси или пътни разходи.</p>
         </div>
         <div class="facts">
@@ -336,19 +312,6 @@ header('Cache-Control: private, no-store, max-age=0');
       <div><h2>Два режима на работа и цена</h2><p class="lead">Цената за всеки обект се определя според площта му, както в първоначалната оферта. Транспортът, монтажът и сервизът са включени.</p></div>
     </div>
 
-    <div class="formula">
-      <div>
-        <div class="mark">Цена за обект, стандартен режим</div>
-        <div class="eq num">10,75&nbsp;€ <em>+</em> 0,15&nbsp;€ × м²</div>
-        <p class="muted" style="margin-top:12px;font-size:14.5px">Базова такса 10,75&nbsp;€ плюс 0,15&nbsp;€ на кв. м, закръглено до 0,25&nbsp;€. Така са изчислени всички цени в таблицата за стандартен режим.</p>
-      </div>
-      <div class="calc">
-        <div class="row"><label for="areaRange">Площ на обекта</label><output id="calcArea" class="num" style="font-size:1.4rem">140&nbsp;м²</output></div>
-        <input type="range" id="areaRange" min="20" max="350" step="1" value="140">
-        <div class="row"><span>Стандартен режим, на месец</span><output id="calcStd" class="num">31,00&nbsp;€</output></div>
-        <div class="work num" id="calcWork">10,75&nbsp;€ + 0,15&nbsp;€ × 140&nbsp;м² = 31,75&nbsp;€</div>
-      </div>
-    </div>
 
     <div class="modes" role="radiogroup" aria-label="Режим на работа" data-mode-group>
       <div class="mode" role="radio" data-mode="std" aria-checked="false">
@@ -356,7 +319,7 @@ header('Cache-Control: private, no-store, max-age=0');
         <span class="k">Стандартен режим</span>
         <h3>До 12 часа на ден</h3>
         <p>Например 8:00–20:00 ч. Абонаментните цени остават както в първоначалната оферта.</p>
-        <span class="sum"><b class="num">1&nbsp;447,00&nbsp;€</b><span>на месец за 48 обекта, без ДДС</span></span>
+        <span class="sum"><b class="num">1&nbsp;410,00&nbsp;€</b><span>на месец за 48 обекта, без ДДС</span></span>
       </div>
       <div class="mode" role="radio" data-mode="full" aria-checked="true">
         <span class="rec">Препоръчваме</span>
@@ -365,7 +328,7 @@ header('Cache-Control: private, no-store, max-age=0');
         <h3>От отварянето до затварянето на обекта</h3>
         <p>В този режим системите работят в момента. Препоръчваме го, защото клиентите усещат аромата през целия работен ден, от първия до последния час.</p>
         <p>Цената в този режим включва и допълнителното ароматно масло за удължените часове. Тя е съобразена с големината на обекта, защото в по-голямо помещение се изразходва повече масло за всеки допълнителен час. Разликата спрямо стандартния режим е под 25 евроцента на ден за обект.</p>
-        <span class="sum"><b class="num">1&nbsp;701,00&nbsp;€</b><span>на месец за 48 обекта, без ДДС</span></span>
+        <span class="sum"><b class="num">1&nbsp;665,00&nbsp;€</b><span>на месец за 48 обекта, без ДДС</span></span>
       </div>
     </div>
 
@@ -374,13 +337,13 @@ header('Cache-Control: private, no-store, max-age=0');
       <caption>Обобщение (месечно, без ДДС)</caption>
       <thead><tr><th scope="col"><span class="sr">Позиция</span></th><th scope="col" class="cs">Стандартен режим</th><th scope="col" class="cf">Пълно работно време</th></tr></thead>
       <tbody>
-        <tr><td>Абонамент за 48 обекта</td><td class="cs">1&nbsp;447,00&nbsp;€</td><td class="cf">1&nbsp;701,00&nbsp;€</td></tr>
+        <tr><td>Абонамент за 48 обекта</td><td class="cs">1&nbsp;410,00&nbsp;€</td><td class="cf">1&nbsp;665,00&nbsp;€</td></tr>
         <tr><td>Транспорт, монтаж, сервиз, ароматно масло</td><td class="cs">включени</td><td class="cf">включени</td></tr>
       </tbody>
-      <tfoot><tr><td>Общо на месец</td><td class="cs">1&nbsp;447,00&nbsp;€</td><td class="cf">1&nbsp;701,00&nbsp;€</td></tr></tfoot>
+      <tfoot><tr><td>Общо на месец</td><td class="cs">1&nbsp;410,00&nbsp;€</td><td class="cf">1&nbsp;665,00&nbsp;€</td></tr></tfoot>
     </table>
     </div>
-    <p class="diffline">Разликата между двата режима е 254,00&nbsp;€ месечно за цялата верига, или около 0,18&nbsp;€ на ден за обект.</p>
+    <p class="diffline">Разликата между двата режима е 255,00&nbsp;€ месечно за цялата верига, или около 0,18&nbsp;€ на ден за обект.</p>
 
     <div class="controls" role="group" aria-label="Филтър на обектите">
       <h3>Месечни цени по обекти <span class="muted" style="font-family:var(--body);font-size:.95rem;font-weight:400">(в евро, без ДДС)</span></h3>
@@ -403,12 +366,11 @@ header('Cache-Control: private, no-store, max-age=0');
           <th scope="col" class="r cf" data-k="full"><button type="button">Пълно работно време, €</button></th>
         </tr></thead>
         <tbody id="rows"></tbody>
-        <tfoot><tr class="tot3"><td colspan="4" id="tLabel">Общо на месец, 48 обекта, без ДДС</td><td class="r cs" id="tStd">1&nbsp;447,00&nbsp;€</td><td class="r cf" id="tFull">1&nbsp;701,00&nbsp;€</td></tr></tfoot>
+        <tfoot><tr class="tot3"><td colspan="4" id="tLabel">Общо на месец, 48 обекта, без ДДС</td><td class="r cs" id="tStd">1&nbsp;410,00&nbsp;€</td><td class="r cf" id="tFull">1&nbsp;665,00&nbsp;€</td></tr></tfoot>
       </table>
     </div>
     <div class="fine">
-      <p>Натиснете ред, за да видите изчислението за обекта и да го отворите в 3D.</p>
-      <p>Окончателните цени се прилагат от фактурата за месец септември 2026&nbsp;г. Фактурите за пилотните обекти за юли и август 2026&nbsp;г. остават без промяна.</p>
+      <p>Окончателните цени се прилагат от фактурата за месец септември 2026&nbsp;г. Фактурите за тестовите обекти за юли и август 2026&nbsp;г. остават без промяна.</p>
     </div>
   </div>
 </section>
@@ -443,22 +405,11 @@ header('Cache-Control: private, no-store, max-age=0');
           <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Реакция до 48 часа при технически проблем; безплатна подмяна на системата при повреда и нормална експлоатация.</span></li>
         </ul></section>
         <section><h4>Фактуриране</h4><ul>
-          <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Една месечна фактура с разбивка по обекти или една месечна фактура с обща стойност по офертата.</span></li>
+          <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5l4.2 4.2L17 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Една месечна фактура с разбивка по обекти или една месечна фактура с обща стойност по офертата, по ваш избор.</span></li>
         </ul></section>
       </div>
     </div>
 
-    <div class="energy">
-      <div class="prose">
-        <h3>Консумация на електроенергия</h3>
-        <p>Повечето системи са свързани към електрическата мрежа на обектите. Всяка система консумира от 0,5 до 0,8&nbsp;W и само докато работи. Това е под 0,4&nbsp;kWh на месец за система, или под 0,10&nbsp;€ месечно. На практика това не се отразява на сметката за ток. Останалите системи работят автономно на батерии.</p>
-      </div>
-      <div class="tiles">
-        <div><b class="num">0,5–0,8&nbsp;W</b><span>на система, само докато работи</span></div>
-        <div><b class="num">&lt;&nbsp;0,4&nbsp;kWh</b><span>на месец за система</span></div>
-        <div><b class="num">&lt;&nbsp;0,10&nbsp;€</b><span>на месец за ток на система</span></div>
-      </div>
-    </div>
   </div>
 </section>
 
@@ -484,29 +435,23 @@ header('Cache-Control: private, no-store, max-age=0');
             <span class="k">Пълно работно време</span>
             <h3>Без промени</h3>
             <p>Системите продължават да работят по сегашния график, без промени.</p>
-            <span class="sum"><b class="num">1&nbsp;701,00&nbsp;€</b><span>на месец, без ДДС</span></span>
+            <span class="sum"><b class="num">1&nbsp;665,00&nbsp;€</b><span>на месец, без ДДС</span></span>
           </div>
           <div class="mode" role="radio" data-mode="std" aria-checked="false">
             <span class="radio" aria-hidden="true"></span>
             <span class="k">Стандартен режим (до 12 часа на ден)</span>
             <h3>Пренастройка при следваща обиколка</h3>
             <p>Системите се управляват по Bluetooth, затова пренастройката на графиците се извършва на място в обектите, при следваща наша обиколка. Пренастройката е изцяло наш ангажимент и не се заплаща допълнително.</p>
-            <span class="sum"><b class="num">1&nbsp;447,00&nbsp;€</b><span>на месец, без ДДС</span></span>
+            <span class="sum"><b class="num">1&nbsp;410,00&nbsp;€</b><span>на месец, без ДДС</span></span>
           </div>
-        </div>
-        <p class="fine">* Фактурата за месец септември 2026&nbsp;г. ще бъде издадена по цените на режима, който изберете.</p>
-        <div class="inv" role="group" aria-label="Вид на месечната фактура" id="invSeg">
-          <span class="lab">Месечна фактура:</span>
-          <button type="button" class="chip" data-inv="split" aria-pressed="true">с разбивка по обекти</button>
-          <button type="button" class="chip" data-inv="total" aria-pressed="false">с обща стойност</button>
         </div>
       </div>
     </div>
 
     <h3 class="h3-gap">Срокове след Вашето потвърждение</h3>
     <ol class="deadlines">
-      <li><b>Договор</b><div class="when">в рамките на 15 до 30&nbsp;дни</div><p>Ще Ви го изпратим в този срок.</p></li>
-      <li><b>Приложение №&nbsp;1</b><div class="when">в рамките на 15 до 30&nbsp;дни</div><p>Преди това ще посетим всички обекти и ще заредим системите. За всеки обект ще опишем модела и броя на системите, захранването, серийните номера и графика на работа.</p></li>
+      <li><b>Договор</b><div class="when">в рамките на 30&nbsp;дни</div><p>Ще Ви го изпратим в този срок.</p></li>
+      <li><b>Приложение №&nbsp;1</b><div class="when">в рамките на 30&nbsp;дни</div><p>Преди това ще посетим всички обекти и ще заредим системите. За всеки обект ще опишем модела и броя на системите, захранването, серийните номера и графика на работа.</p></li>
     </ol>
   </div>
 </section>
@@ -516,7 +461,7 @@ header('Cache-Control: private, no-store, max-age=0');
     <div class="paper">
       <img class="plogo" id="paperLogo" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="KAYA LUX · Лукс, който се усеща" width="775" height="562">
       <h2>Благодарим Ви за доверието и за ползотворното партньорство!</h2>
-      <p class="thanks">Оферта №&nbsp;2026-148-А (актуализирана)&nbsp;· 28.09.2026&nbsp;г.&nbsp;· валидна 15&nbsp;дни</p>
+      <p class="thanks">Оферта №&nbsp;2026-148-А (актуализирана)&nbsp;· 01.10.2026&nbsp;г.&nbsp;· валидна 15&nbsp;дни</p>
       <div class="sig">
         <div class="who">
           <small>С уважение,</small>
@@ -531,12 +476,12 @@ header('Cache-Control: private, no-store, max-age=0');
         </div>
       </div>
       <div class="signs">
-        <div class="sbox done"><small>За доставчика</small><img src="assets/img/signature.png" alt="Подпис на Венцислав Великов" width="200" height="110"><b>Венцислав Великов</b><span>Управител, „Унищожители“ ЕООД (KAYA LUX)</span><span class="when">28.09.2026&nbsp;г.</span></div>
+        <div class="sbox done"><small>За доставчика</small><img src="assets/img/signature.png" alt="Подпис на Венцислав Великов" width="200" height="110"><b>Венцислав Великов</b><span>Управител, „Унищожители“ ЕООД (KAYA LUX)</span><span class="when">01.10.2026&nbsp;г.</span></div>
         <div class="sbox" id="clientBox"><small>За клиента</small>
           <div class="pad" id="padWrap"><canvas id="pad" width="600" height="240" aria-label="Поле за подпис"></canvas><span class="padhint" id="padHint">Подпишете тук с пръст, стилус или мишка</span></div>
           <b>Татяна Попова</b><span>Верига „АВАНТИ“</span><span class="when" id="signedWhen"></span>
-          <div class="padbar"><button type="button" class="btn small" id="padUndo" disabled>Назад</button><button type="button" class="btn small" id="padClear">Изчисти</button><button type="button" class="btn small" id="padUpload">Качи подпис / печат</button><input type="file" id="padFile" accept="image/*" hidden><button type="button" class="btn small fill" id="padSign">Подпиши</button><button type="button" class="btn small" id="padEdit" hidden>Промени подписа</button><a class="btn small" id="padMail" hidden>Изпрати потвърждението</a></div>
-          <p class="padnote" id="padNote">Подпишете с пръст, стилус или мишка, или качете готова снимка на подпис и печат (JPG, PNG). След „Подпиши“ подписът се записва на това устройство и остава видим при следващо отваряне. За да стигне до нас, натиснете „Изпрати потвърждението“: отваря се готов имейл до scent@kayalux.bg с избрания режим и датата.</p>
+          <div class="padbar"><button type="button" class="btn small" id="padClear">Изчисти</button><button type="button" class="btn small" id="padUpload">Качи подпис / печат</button><input type="file" id="padFile" accept="image/*" hidden><button type="button" class="btn small fill" id="padSign">Подпиши</button><button type="button" class="btn small" id="padEdit" hidden>Промени подписа</button><a class="btn small" id="padMail" hidden>Изпрати потвърждението</a></div>
+          <p class="padnote" id="padNote">Подпишете с пръст, стилус или мишка, или качете готова снимка на подпис и печат (JPG, PNG). За да приемете текущите параметри на офертата, след като положите подписа, кликнете „Подпиши“.</p>
         </div>
       </div>
     </div>
@@ -545,16 +490,16 @@ header('Cache-Control: private, no-store, max-age=0');
 
 </main>
 
-<div class="dock" aria-label="Бърз контакт"><a class="dbtn" href="tel:+359999999883"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15 15 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.58 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.58 3.6a1 1 0 0 1-.25 1z" fill="currentColor"/></svg><span>Обади се</span></a><a class="dbtn viber" href="viber://chat?number=%2B359999999883"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.5 2 3 5.2 3 10.2c0 2.6 1 4.8 2.8 6.3v3.9l3.4-1.9c.9.2 1.8.3 2.8.3 5.5 0 9-3.2 9-8.4S17.5 2 12 2zm3.8 11.5c-.3.7-1.5 1.3-2.1 1.3-.6.1-1 .3-3.4-.7-2.9-1.2-4.7-4.2-4.9-4.4-.1-.2-1.1-1.5-1.1-2.9s.7-2.1 1-2.4c.3-.3.6-.3.8-.3h.6c.2 0 .4 0 .7.5l.9 2.2c.1.2.1.4 0 .6l-.4.6-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.4 1.8 2.2 1.2 1.1 2.2 1.4 2.5 1.6.3.2.5.1.7-.1l.9-1.1c.2-.3.4-.2.7-.1l2 .9c.3.1.5.2.6.3 0 .3 0 .8-.3 1.3z" fill="currentColor"/></svg><span>Viber</span></a></div>
+<div class="dock" aria-label="Бърз контакт"><a class="dbtn up" href="#top" id="toTop" aria-label="Към началото на офертата" title="Нагоре"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a><a class="dbtn" href="tel:+359999999883" aria-label="Обади се: 0999 999 883" title="0999 999 883"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15 15 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.58 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.58 3.6a1 1 0 0 1-.25 1z" fill="currentColor"/></svg><span>Обади се</span></a><a class="dbtn viber" href="viber://chat?number=%2B359999999883" aria-label="Пиши по Viber" title="Viber"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.5 2 3 5.2 3 10.2c0 2.6 1 4.8 2.8 6.3v3.9l3.4-1.9c.9.2 1.8.3 2.8.3 5.5 0 9-3.2 9-8.4S17.5 2 12 2zm3.8 11.5c-.3.7-1.5 1.3-2.1 1.3-.6.1-1 .3-3.4-.7-2.9-1.2-4.7-4.2-4.9-4.4-.1-.2-1.1-1.5-1.1-2.9s.7-2.1 1-2.4c.3-.3.6-.3.8-.3h.6c.2 0 .4 0 .7.5l.9 2.2c.1.2.1.4 0 .6l-.4.6-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.4 1.8 2.2 1.2 1.1 2.2 1.4 2.5 1.6.3.2.5.1.7-.1l.9-1.1c.2-.3.4-.2.7-.1l2 .9c.3.1.5.2.6.3 0 .3 0 .8-.3 1.3z" fill="currentColor"/></svg><span>Viber</span></a></div>
 <footer class="foot">
-  <div class="wrap"><span>KAYA LUX · www.kayalux.bg · scent@kayalux.bg · <a href="tel:+359999999883">0999 999 883</a> · <a href="viber://chat?number=%2B359999999883">Viber</a></span><span>Оферта №&nbsp;2026-148-А (актуализирана) · 28.09.2026&nbsp;г.</span></div>
+  <div class="wrap kl-marka-dno"><div class="kl-marka-prava"><span>KAYA LUX · www.kayalux.bg · scent@kayalux.bg · <a href="tel:+359999999883">0999 999 883</a> · <a href="viber://chat?number=%2B359999999883">Viber</a></span><span>Оферта №&nbsp;2026-148-А (актуализирана) · 01.10.2026&nbsp;г.</span></div>
+    <div class="kl-marka" aria-hidden="true"><div class="kl-marka-ramka"><div class="kl-marka-bukvi"></div><div class="kl-marka-blyasak"><span class="kl-marka-luch" data-k="1"></span><span class="kl-marka-luch" data-k="2"></span></div></div></div></div>
 </footer>
 
 <script defer src="assets/js/three.min.js"></script>
-<script defer src="assets/js/GLTFLoader.js"></script>
-<script defer src="assets/js/SkeletonUtils.js"></script>
-<script defer src="assets/js/people-gltf.js"></script>
-<script defer src="assets/js/offer.js"></script>
-<script>/* моделите тръгват, когато 3D схемата наближи екрана */addEventListener('DOMContentLoaded',function(){var st=document.getElementById('stage');if(!st||!window.KL_GLTF)return;if('IntersectionObserver' in window){var io=new IntersectionObserver(function(en){if(en[0].isIntersecting){KL_GLTF.start();io.disconnect();}},{rootMargin:'900px'});io.observe(st);}else KL_GLTF.start();});</script>
+<script defer src="assets/js/app.min.js?v=7af29833"></script>
+<script>/* моделите (~5 MB, кеширани) тръгват на заден план след зареждането на страницата или когато 3D схемата наближи */addEventListener('DOMContentLoaded',function(){var st=document.getElementById('stage');if(!st||!window.KL_GLTF)return;var go=function(){KL_GLTF.start();};addEventListener('load',function(){setTimeout(function(){(window.requestIdleCallback||function(f){f();})(go);},1500);});if('IntersectionObserver' in window){var io=new IntersectionObserver(function(en){if(en[0].isIntersecting){go();io.disconnect();}},{rootMargin:'1400px'});io.observe(st);}else go();});</script>
+<script>/* телефон: докато 3D схемата е на екрана, бутоните за контакт се отдръпват */(function(){var d=document.querySelector('.dock'),c=document.querySelector('.stage-col');if(!d||!c||!('IntersectionObserver' in window))return;new IntersectionObserver(function(e){d.classList.toggle('dim',e[0].isIntersecting);},{threshold:.25}).observe(c);})();</script>
+<script>/* локален сървър (tools/serve.py): след обновяване предлага презареждане; на хостинга /__version го няма и нищо не се показва */(function(){if(!document.querySelector('meta[name="kl-local"]'))return;var v=null;function chk(){fetch('/__version',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){if(!j||!j.sha)return;if(v===null){v=j.sha;return;}if(j.sha!==v&&!document.getElementById('klUpd')){var b=document.createElement('button');b.id='klUpd';b.type='button';b.textContent='Има нова версия на офертата · Обнови';b.onclick=function(){location.reload();};document.body.appendChild(b);}}).catch(function(){});}chk();setInterval(chk,60000);})();</script>
 </body>
 </html>
