@@ -212,6 +212,7 @@ def update(quiet=False):
 
 
 def updater_loop():
+    update()  # the first check runs while the site is already open, so a slow download never keeps the page from loading
     while True:
         time.sleep(180)
         update(quiet=True)
@@ -298,9 +299,6 @@ def lan_ip():
 
 def main():
     auto = '--no-update' not in sys.argv
-    if auto:
-        update()
-        threading.Thread(target=updater_loop, daemon=True).start()
     nums = [a for a in sys.argv[1:] if a.isdigit()]
     want = int(nums[0]) if nums else 5340
     port = want if take_over(want) else free_port(want)
@@ -317,6 +315,8 @@ def main():
     if ip:
         print('  от телефон (същата Wi-Fi):  http://%s:%d/' % (ip, port))
     print('Затвори прозореца, за да спреш сайта.')
+    if auto:
+        threading.Thread(target=updater_loop, daemon=True).start()
     if '--no-browser' not in sys.argv:
         threading.Timer(.8, lambda: webbrowser.open(url)).start()
     try:
