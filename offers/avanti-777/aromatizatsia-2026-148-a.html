@@ -1906,7 +1906,7 @@ const space=(function(){
           else if(S.tl)ud.faceAng=Math.atan2(S.tl.E-.4-g.position.x,S.tl.H[2]-g.position.z); // head of the line or being served: square up to the counter
           ud.ang=angStep(ud.ang,ud.faceAng,4,dt,2.6);g.rotation.y=ud.ang;
           if(k===0&&!ud.pay&&!ud.room){const me_=people.indexOf(g),fo=people.find(o=>o!==g&&o.visible&&o.userData.follow!=null&&o.userData.follow!==me_&&Math.hypot(o.position.x-g.position.x,o.position.z-g.position.z)<.6);
-            if(fo){const ux=g.position.x-fo.position.x,uz=g.position.z-fo.position.z,L_=Math.hypot(ux,uz)||1;for(const d_ of [.35,.5,.65]){const tx=g.position.x+ux/L_*d_,tz=g.position.z+uz/L_*d_,[ci,cj]=nav.toCell(tx,tz);if(nav.free(nav.G0,ci,cj)&&circleFree(tx,tz,.2)&&!people.some(o=>o!==g&&o!==fo&&o.visible&&Math.hypot(o.position.x-tx,o.position.z-tz)<.45)){ud.room={w:fo,home:[g.position.x,g.position.z],to:[tx,tz],ph:0,t:0,stay:true};break;}}}} // the one paying has a child or a companion beside: the next in line keeps a step back
+            if(fo){let best=null;for(const d_ of [.35,.5,.65,.8])for(let a_=0;a_<6.28;a_+=.52){const tx=g.position.x+Math.sin(a_)*d_,tz=g.position.z+Math.cos(a_)*d_,[ci,cj]=nav.toCell(tx,tz);if(!nav.free(nav.G0,ci,cj)||!circleFree(tx,tz,.2))continue;let m_=9;people.forEach(o=>{if(o!==g&&o.visible)m_=Math.min(m_,Math.hypot(o.position.x-tx,o.position.z-tz));});if(m_<.55)continue;const c=-m_+d_*.6;if(!best||c<best[2])best=[tx,tz,c];}if(best)ud.room={w:fo,home:[g.position.x,g.position.z],to:[best[0],best[1]],ph:0,t:0,stay:true};}} // the one paying has a child or a companion beside: the next in line keeps a step back
           let tillBusy=k===1&&people.some(o=>o!==g&&o.visible&&o.userData.state==='walk'&&!(o.userData.visit&&o.userData.visit[o.userData.legI]&&o.userData.visit[o.userData.legI].kind==='queue')&&Math.hypot(o.position.x-nav.queue[0][0],o.position.z-nav.queue[0][1])<.7);ud.tbT=tillBusy?(ud.tbT||0)+dt:0;if(ud.tbT>1.5)tillBusy=false; // the one just served walks off first (never more than 3 s)
           if(k>0&&!qOcc[k-1]&&!tillBusy){qOcc[k]=null;qOcc[k-1]=g;ud.slot=k-1;setPath(g,nav.route(gridDyn(g),[g.position.x,g.position.z],nav.queue[k-1]),T_);}
           // the place ahead was promised to someone still on the way from the far end of the shop: whoever is already here goes first
@@ -2253,6 +2253,20 @@ const space=(function(){
       const out=[];let cur=[S.door.x,S.hd];while(q.length){let bi=0,bd=1e9;q.forEach((t,i)=>{const d=Math.hypot(t.stand[0]-cur[0],t.stand[1]-cur[1]);if(d<bd){bd=d;bi=i;}});const t=q.splice(bi,1)[0];out.push(t);cur=t.stand;}return out;}
     // a route; from a spot the routes count as blocked (pushed by the crowd, a corner) it starts at the nearest walkable point
     function vzNearWalk(x,z,r0){for(let r=r0||.25;r<=2;r+=.25)for(let k=0;k<12;k++){const a=k/12*Math.PI*2,px=x+Math.cos(a)*r,pz=z+Math.sin(a)*r;if(vzWalk(px,pz)&&vzFree(px,pz,.2))return [px,pz];}return null;}
+    // the specialist weighs the situation as he goes, not a fixed list: of the jobs left, the next is the one that is near, has no
+    // customers at the spot and nobody looking at that shelf right now (a busy spot is left for later, and he comes back to it); on the
+    // way he keeps an eye on it and turns to another job if someone settles there; at the spot he does not set up (ladder, box, gel)
+    // while a customer stands close: he waits a few seconds, and if they stay, leaves it for later
+    function vzCrowd(p,r){let n=0;for(const o of people)if(o.visible&&!o.userData.ddd&&Math.hypot(o.position.x-p[0],o.position.z-p[1])<r)n++;return n;}
+    function vzBrowsing(p,r){return people.some(o=>o.visible&&!o.userData.ddd&&o.userData.state==='browse'&&Math.hypot(o.position.x-p[0],o.position.z-p[1])<r);}
+    function vzPick(g,q){if(!q.length)return -1;const x=g.position.x,z=g.position.z;let bi=0,bs=-1e9;
+      q.forEach((t,i)=>{const p=t.stand||t.a;if(!p)return;const sc=-Math.hypot(p[0]-x,p[1]-z)*.6-vzCrowd(p,1.3)*2.5-(vzBrowsing(p,1)?4:0)-(t.later||0)*1.2+(i===0?.9:0);if(sc>bs){bs=sc;bi=i;}});return bi;}
+    function vzRethink(g,dt,T_,go){const dz=g.userData.dz,t=dz.task;if(!t||!t.stand||t.kind==='hand'||t.kind==='exit'||t.exit||!dz.q.length)return false;dz.rT=(dz.rT||0)+dt;if(dz.rT<1)return false;dz.rT=0;
+      const p=t.stand,d=Math.hypot(p[0]-g.position.x,p[1]-g.position.z);if(d<1.2||!vzBrowsing(p,.9))return false;
+      t.later=(t.later||0)+1;if(t.later<4)dz.q.push(t);dz.decided=T_;go();return true;}
+    function vzHoldFor(g,dt,sp,setNext,look){const dz=g.userData.dz;const nb=people.find(o=>o.visible&&!o.userData.ddd&&Math.hypot(o.position.x-sp[0],o.position.z-sp[1])<.85);
+      if(!nb){dz.wc=0;dz.waitCust=false;return false;}dz.wc=(dz.wc||0)+dt;dz.t=0;dz.waitCust=true;look([nb.position.x,nb.position.z]);
+      if(dz.wc>6){dz.wc=0;dz.waitCust=false;const t=dz.task;t.later=(t.later||0)+1;if(t.later<4)dz.q.push(t);setNext();}return true;}
     function vzGo(g,to,T_){const x=g.position.x,z=g.position.z;let P=nav.route(gridDyn(g),[x,z],to);if(!P||!vzWalk(x,z)){const w=vzNearWalk(x,z);if(w){const P2=nav.route(gridDyn(g),w,to);if(P2)P=[[x,z]].concat(P2);}}setPath(g,P,T_);if(!P)g.userData.dz.noRoute=(g.userData.dz.noRoute||0)+1;}
     // a watchdog on his walks: no headway for 5 s (customers in the way, a route that ends in a dead corner) → a fresh route round them;
     // after three tries that point is left for the next visit and he goes on (he never stands in one place for long)
@@ -2264,7 +2278,8 @@ const space=(function(){
       const fwd=_zA.set(Math.sin(ud.ang||0),0,Math.cos(ud.ang||0)),rgt=_zB.set(-fwd.z,0,fwd.x),px=g.position.x,pz=g.position.z;
       let tt=dz.t;const win=(t0,t1,f)=>tt>=t0&&tt<t1?Math.min(1,(tt-t0)/(f||.3),(t1-tt)/(f||.3)):0,ramp=(t0,t1)=>clamp((tt-t0)/(t1-t0),0,1);
       if(dz.ph_==='away'){g.visible=false;if(T_>dz.until&&!doorBusy(g)){dz.q=vzPlan();g.position.set(nav.entry[0],0,nav.entry[1]);ud.ang=Math.PI;g.rotation.y=ud.ang;g.visible=true;ud.blend=0;dz.task=null;dz.ph_='next';dz.t=0;dz.ladOn=false;dz.ladTh=0;}}
-      if(dz.ph_==='next'){dz.task=dz.q.shift()||{exit:true};dz.t=0;dz.ph_='go';vzGo(g,dz.task.exit?nav.exit:dz.task.stand,T_);}
+      if(dz.ph_==='next'){const pi_=vzPick(g,dz.q);dz.task=(pi_>=0?dz.q.splice(pi_,1)[0]:null)||{exit:true};dz.t=0;dz.ph_='go';vzGo(g,dz.task.exit?nav.exit:dz.task.stand,T_);}
+      if(dz.ph_==='go'&&vzRethink(g,dt,T_,()=>{dz.ph_='next';})){}
       if(dz.ph_==='go'){ud.blend=Math.min(1,ud.blend+dt*2);vzWatch(g,dt,T_,()=>{const t_=dz.task;return t_.exit?nav.exit:t_.stand;},()=>{dz.ph_='next';});if(dz.ph_==='go'&&advance(g,ud.sp*ud.blend*dt,dt)){dz.wTry=0;dz.skipN=0;ud.state='ddd';dz.t=0;dz.ph_=dz.task.exit?'gone':'work';}else v=ud.vNow!=null?ud.vNow:ud.sp*ud.blend;}
       if(dz.ph_==='gone'){g.visible=false;dz.ph_='away';dz.until=T_+rnd(600,660); /* the next visit is a different day: someone watching sees him again only after about ten minutes */ud.state='away';}
       tt=dz.t;const t=dz.task; /* read after arriving: the walk's time must not count as work done */
@@ -2272,7 +2287,8 @@ const space=(function(){
       // step, the weight over it, the other foot after, the hands moving up the rails in turn; at the top one hand always on the ladder
       // (three points of contact), the other opens the cover gently, takes the empty bottle out into the bag, a full one from the bag in,
       // closes the cover; a check on the phone; down the same way, facing the ladder, slower; the test puff once he stands on the floor
-      if(dz.ph_==='work'&&t&&!t.exit){const u=S.units[t.u],d=u.d,dd=t.A||d,k=t.k,F=t.F,th=.22,LL=t.LL||1.6,ct=Math.cos(th),tt_=Math.tan(th),hy=LL*ct; /* dd: the ladder's own axis (facing the wall, or side-on along it) */
+      if(dz.ph_==='work'&&t&&!t.exit&&dz.t<.45&&vzHoldFor(g,dt,t.F||t.stand,()=>{dz.ph_='next';},q=>{lookP=q;})){}
+      else if(dz.ph_==='work'&&t&&!t.exit){const u=S.units[t.u],d=u.d,dd=t.A||d,k=t.k,F=t.F,th=.22,LL=t.LL||1.6,ct=Math.cos(th),tt_=Math.tan(th),hy=LL*ct; /* dd: the ladder's own axis (facing the wall, or side-on along it) */
         const tl_=vzTL(k),onTop=tt>=tl_.tUp-.3&&tt<tl_.tDn+.2,faceNow=t.face+(onTop?(t.tw||0):0),fT=[Math.sin(faceNow),Math.cos(faceNow)];faceTo(faceNow,onTop?2:3); /* side-on: at the top the chest turns to the diffuser */
         const lat=[dd[2],0,-dd[0]],ank=.09*(ud.k||1); /* lat = his right as he faces the ladder */
         const trY=j=>j?(.05+.3*j)*ct:0,trP=j=>j?[F[0]+dd[0]*((LL-.05-.3*j)*Math.sin(th)+.04),F[1]+dd[2]*((LL-.05-.3*j)*Math.sin(th)+.04)]:[t.stand[0],t.stand[1]];
@@ -2380,7 +2396,7 @@ const space=(function(){
     // lasts as long as its subtitle needs to be read, filled with real work (no standing still waiting for the reader)
     function vzTL(k){const SU=1.5,SD=1.7,cP=3.0,c0=cP+7.0,tUp=c0+SU*k,w0=tUp+.6,o=1.6,tSw=w0+2.6+o,tCl=tSw+4.2,tPh=tCl+2.0,tDn=tPh+5.9,tFl=tDn+SD*k,tOff=tFl+.8,tFold=tOff+5.0,tEnd=tFold+1.8;
       return {SU,SD,cP,c0,tUp,w0,o,tSw,tCl,tPh,tDn,tFl,tOff,tFold,tEnd};}
-    function vzCaption(g){const dz=g.userData.dz;if(!dz)return null;const t=dz.task,tt=dz.t,ph=dz.ph_;if(!t||t.exit||ph!=='work')return null;const L=vzTL(t.k);
+    function vzCaption(g){const dz=g.userData.dz;if(!dz)return null;if(dz.waitCust)return ['Изчаква клиента до мястото','Работи се само когато наблизо няма хора.'];const t=dz.task,tt=dz.t,ph=dz.ph_;if(!t||t.exit||ph!=='work')return null;const L=vzTL(t.k);
       if(tt>=L.cP+.2&&tt<L.c0)return ['Пълни бутилката с аромат','Ароматното масло се налива от туба в бутилка.'];
       if(tt>=L.tUp&&tt<L.tSw)return ['Зареждане на дифузер №'+(t.u+1),'Отваря капака на дифузера.'];
       if(tt>=L.tSw&&tt<L.tPh)return ['Сменя бутилката с ароматно масло','Празната бутилка се заменя с пълна.'];
