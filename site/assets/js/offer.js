@@ -1553,8 +1553,9 @@ const space=(function(){
     // legs too, so over shelving it stands in front of it. He leans his chest in, one hand on the rail: up to about 25 cm, or up to about
     // 42 cm when his hips are above the shelf top and he can rest on it, as a technician does. For a diffuser high over shelving he brings
     // the 2.2 m ladder. If nothing reaches, that diffuser waits for another visit: an arm never goes through a shelf, a bottle never jumps.
-    function vzReach(u,F,k,d,LL){const th=.22,st=Math.sin(th),ct=Math.cos(th),lat=[d[2],0,-d[0]],bo=(LL-.05-.3*k)*st+.1,bx=F[0]+d[0]*bo,bz=F[1]+d[2]*bo,
-        sx=bx+lat[0]*.17-d[0]*.1,sz=bz+lat[2]*.17-d[2]*.1,sy=(.05+.3*k)*ct+1.4,uf=[u.p[0]+d[0]*(u.bd||.07)*.5,u.p[1]-(u.bh||.26)*.05,u.p[2]+d[2]*(u.bd||.07)*.5];
+    function vzReach(u,F,k,d,LL,A,tw){const th=.22,st=Math.sin(th),ct=Math.cos(th),dd=A||d,bo=(LL-.05-.3*k)*st+.1,bx=F[0]+dd[0]*bo,bz=F[1]+dd[2]*bo,
+        ph_=Math.atan2(-dd[0],-dd[2])+(tw||0),fx_=Math.sin(ph_),fz_=Math.cos(ph_), /* where he faces at the top: the ladder, or turned from it toward the diffuser */
+        sx=bx-fz_*.17+fx_*.1,sz=bz+fx_*.17+fz_*.1,sy=(.05+.3*k)*ct+1.4,uf=[u.p[0]+d[0]*(u.bd||.07)*.5,u.p[1]-(u.bh||.26)*.05,u.p[2]+d[2]*(u.bd||.07)*.5];
       const hx=uf[0]-sx,hz=uf[2]-sz,hL=Math.hypot(hx,hz)||1,d0=Math.hypot(hx,uf[1]-sy,hz),rc=VZ.rcR||(VZ.rcR=new T.Raycaster());
       if(d0>1.15)return null;
       _zC.set(u.p[0]+d[0]*.3,u.p[1]-(u.bh||.26)*.6,u.p[2]+d[2]*.3);_zD.set(0,-1,0);rc.set(_zC,_zD);rc.near=0;rc.far=3; /* the shelf top under the diffuser (from just below it, not from above the ceiling) */const hd_=rc.intersectObjects(losMeshes(),false),top=hd_.length?hd_[0].point.y:0,hip=(.05+.3*k)*ct+.95,rest=top>.5&&hip>top+.05;
@@ -1570,6 +1571,14 @@ const space=(function(){
           if(!(vzFree(fx,fz,.26)&&vzFree(fx-d[0]*(rb-.03),fz-d[2]*(rb-.03),.05)&&vzFree(sx,sz,.2)&&vzWalk(sx,sz)&&!(S.wine&&Math.abs(fz-S.zW)<.8)))continue;
           for(let k=1;k<=kmax;k++){const r=vzReach(u,[fx,fz],k,d,LL);if(r){const sc=r.dist+r.lean*.4+Math.abs(lt)*.25+(LL>2?.3:0)+(off-.42)*.2+k*.02;if(!best||sc<best.sc)best={sc,u:i,F:[fx,fz],stand:[sx,sz],off,face:Math.atan2(-d[0],-d[2]),k,lean:r.lean,LL};}}}
         if(best)break;}
+      // side-on: the ladder stands along the wall in front of the shelving, so its back legs do not push him away from it; he climbs
+      // facing along the wall and at the top turns his chest to the diffuser, the working (right) hand on the wall side
+      if(!best){const A=[d[2],0,-d[0]],fA=Math.atan2(-A[0],-A[2]),fW=Math.atan2(-d[0],-d[2]);let tw=fW-fA;tw=Math.atan2(Math.sin(tw),Math.cos(tw))*.6;
+        for(const LL of [1.6,2.2]){const kmax=LL>2?5:3,rb=LL*st;
+          for(const off of [.45,.55,.65,.75,.85,.95,1.05])for(const lt of [0,.15,-.15,.3,-.3,.45,-.45]){const fx=u.p[0]+d[0]*off+A[0]*lt,fz=u.p[2]+d[2]*off+A[2]*lt,sx=fx+A[0]*(rb+.1),sz=fz+A[2]*(rb+.1);
+            if(!(vzFree(fx,fz,.26)&&vzFree(fx+A[0]*rb,fz+A[2]*rb,.12)&&vzFree(fx-A[0]*rb,fz-A[2]*rb,.12)&&vzFree(sx,sz,.2)&&vzWalk(sx,sz)&&!(S.wine&&Math.abs(fz-S.zW)<.8)))continue;
+            for(let k=1;k<=kmax;k++){const r=vzReach(u,[fx,fz],k,d,LL,A,tw);if(r){const sc=r.dist+r.lean*.4+Math.abs(lt)*.25+(LL>2?.3:0)+(off-.45)*.2+k*.02;if(!best||sc<best.sc)best={sc,u:i,F:[fx,fz],stand:[sx,sz],off,face:fA,k,lean:r.lean,LL,A,tw};}}}
+          if(best)break;}}
       if(best){delete best.sc;q.push(best);}else console.debug('[vz] diffuser '+(i+1)+': no ladder spot in reach with a clear line, left for another visit');});
       const out=[];let cur=[S.door.x,S.hd];while(q.length){let bi=0,bd=1e9;q.forEach((t,i)=>{const d=Math.hypot(t.stand[0]-cur[0],t.stand[1]-cur[1]);if(d<bd){bd=d;bi=i;}});const t=q.splice(bi,1)[0];out.push(t);cur=t.stand;}return out;}
     // a route; from a spot the routes count as blocked (pushed by the crowd, a corner) it starts at the nearest walkable point
@@ -1593,22 +1602,23 @@ const space=(function(){
       // step, the weight over it, the other foot after, the hands moving up the rails in turn; at the top one hand always on the ladder
       // (three points of contact), the other opens the cover gently, takes the empty bottle out into the bag, a full one from the bag in,
       // closes the cover; a check on the phone; down the same way, facing the ladder, slower; the test puff once he stands on the floor
-      if(dz.ph_==='work'&&t&&!t.exit){const u=S.units[t.u],d=u.d,k=t.k,F=t.F,th=.22,LL=t.LL||1.6,ct=Math.cos(th),tt_=Math.tan(th),hy=LL*ct;faceTo(t.face,3);
-        const lat=[d[2],0,-d[0]],ank=.09*(ud.k||1); /* lat = his right as he faces the ladder */
-        const trY=j=>j?(.05+.3*j)*ct:0,trP=j=>j?[F[0]+d[0]*((LL-.05-.3*j)*Math.sin(th)+.04),F[1]+d[2]*((LL-.05-.3*j)*Math.sin(th)+.04)]:[t.stand[0],t.stand[1]];
-        const bodyP=j=>{const q=trP(j);return j?[q[0]+d[0]*.06,q[1]+d[2]*.06]:q;},footP=(j,sd)=>{const q=trP(j);return [q[0]+lat[0]*sd*.1,trY(j)+ank,q[1]+lat[2]*sd*.1];};
-        const rail=(sd,y)=>{y=Math.min(y,hy-.08);const o=(hy-y)*tt_;return [F[0]+lat[0]*sd*.22+d[0]*o,y,F[1]+lat[2]*sd*.22+d[2]*o];};
+      if(dz.ph_==='work'&&t&&!t.exit){const u=S.units[t.u],d=u.d,dd=t.A||d,k=t.k,F=t.F,th=.22,LL=t.LL||1.6,ct=Math.cos(th),tt_=Math.tan(th),hy=LL*ct; /* dd: the ladder's own axis (facing the wall, or side-on along it) */
+        const tl_=vzTL(k),onTop=tt>=tl_.tUp-.3&&tt<tl_.tDn+.2,faceNow=t.face+(onTop?(t.tw||0):0),fT=[Math.sin(faceNow),Math.cos(faceNow)];faceTo(faceNow,onTop?2:3); /* side-on: at the top the chest turns to the diffuser */
+        const lat=[dd[2],0,-dd[0]],ank=.09*(ud.k||1); /* lat = his right as he faces the ladder */
+        const trY=j=>j?(.05+.3*j)*ct:0,trP=j=>j?[F[0]+dd[0]*((LL-.05-.3*j)*Math.sin(th)+.04),F[1]+dd[2]*((LL-.05-.3*j)*Math.sin(th)+.04)]:[t.stand[0],t.stand[1]];
+        const bodyP=j=>{const q=trP(j);return j?[q[0]+dd[0]*.06,q[1]+dd[2]*.06]:q;},footP=(j,sd)=>{const q=trP(j);return [q[0]+lat[0]*sd*.1,trY(j)+ank,q[1]+lat[2]*sd*.1];};
+        const rail=(sd,y)=>{y=Math.min(y,hy-.08);const o=(hy-y)*tt_;return [F[0]+lat[0]*sd*.22+dd[0]*o,y,F[1]+lat[2]*sd*.22+dd[2]*o];};
         const lerp3=(A,B_,f)=>[A[0]+(B_[0]-A[0])*f,A[1]+(B_[1]-A[1])*f,A[2]+(B_[2]-A[2])*f],arc=(A,B_,f)=>{const q=lerp3(A,B_,tE(f));q[1]+=.11*Math.sin(Math.PI*f);return q;};
         const {SU,SD,cP,c0,tUp,w0,o:oL,tSw,tCl,tPh,tDn,tFl,tOff,tFold,tEnd}=vzTL(k);
         u.vzBusy=tt>.3&&tt<tOff?performance.now()/1000+.3:0; /* it does not puff while he is at it */
         // the ladder: set down, opened slowly, tested with both hands; folded and picked up at the end
-        if(tt>.5&&tt<tEnd-.4){if(!dz.ladOn){dz.ladOn=true;dz.ladP=[F[0],0,F[1]];dz.ladYaw=Math.atan2(d[0],d[2]);}dz.ladTh=th*Math.min(ramp(.8,2.3),1-ramp(tFold,tFold+1.2));}else dz.ladOn=false;
+        if(tt>.5&&tt<tEnd-.4){if(!dz.ladOn){dz.ladOn=true;dz.ladP=[F[0],0,F[1]];dz.ladYaw=Math.atan2(dd[0],dd[2]);}dz.ladTh=th*Math.min(ramp(.8,2.3),1-ramp(tFold,tFold+1.2));}else dz.ladOn=false;
         if(tt<2.3)R[1]={p:[F[0]+lat[0]*.15,1.15,F[1]+lat[2]*.15],w:win(.3,2.3,.3)};
         if(tt>=2.3&&tt<cP+.2){const w=win(2.3,cP+.2,.25),sh=Math.sin((tt-2.3)*9)*.015;R[0]=({p:rail(-1,1.1),w});R[1]={p:rail(1,1.1+sh),w};} /* a push on the rails: it stands firm */
         // at the foot of the ladder he fills the bottle he will set in: the canister out of the bag into the left hand, the bottle in the right,
         // the oil poured in a thin stream, the canister back into the bag, the full bottle into the bag too, and only then up the ladder
         dz.canOn=false;dz.pour=0;
-        if(tt>=cP&&tt<c0){const s_=tt-cP,fx=-d[0],fz=-d[2],sp=(a_,b_)=>s_>=a_&&s_<b_,bagP=[px+lat[0]*-.22,.95,pz+lat[2]*-.22],bP=[px+fx*.3+lat[0]*.05,1.06,pz+fz*.3+lat[2]*.05],cHP=[px+fx*.3-lat[0]*.07,1.2,pz+fz*.3-lat[2]*.07];
+        if(tt>=cP&&tt<c0){const s_=tt-cP,fx=-dd[0],fz=-dd[2],sp=(a_,b_)=>s_>=a_&&s_<b_,bagP=[px+lat[0]*-.22,.95,pz+lat[2]*-.22],bP=[px+fx*.3+lat[0]*.05,1.06,pz+fz*.3+lat[2]*.05],cHP=[px+fx*.3-lat[0]*.07,1.2,pz+fz*.3-lat[2]*.07];
           if(sp(0,.9))R[1]={p:s_<.55?bagP:bP,w:win(0,.9,.25)};                       // the empty bottle out of the bag
           if(s_>=.5&&s_<6.3)dz.holdB='fill';
           if(sp(.9,6.4))R[1]={p:s_<5.6?bP:bagP,w:win(.9,6.4,.3)};                   // held up in front, then back into the bag, full
@@ -1641,12 +1651,12 @@ const space=(function(){
         if(tt>=tSw+2.0&&tt<tSw+4.0){R[1]={p:tt<tSw+2.6?bag_:tt<tSw+3.1?out_:uf,w:win(tSw+2.0,tSw+4.0,.35)};if(tt>tSw+2.5&&tt<tSw+3.6)dz.holdB='new';}   // the full one from the bag, set in
         if(tt>=tCl&&tt<tCl+1.8)R[1]={p:ue,w:win(tCl,tCl+1.8,.4)};                                                             // the cover pushed shut, gently
         // the schedule on the phone: thumb on the screen, the phone held up toward the diffuser for a moment, a look at it now and then
-        if(tt>=tPh&&tt<tDn-.2){dz.phOn=true;const q_=tt-tPh,up=q_>2.2&&q_<3.4?.07*Math.sin(Math.PI*(q_-2.2)/1.2):0;R[1]={p:[px-d[0]*(.3+up)+lat[0]*.08,1.25+lift+up+Math.sin(q_*3.1)*.006,pz-d[2]*(.3+up)+lat[2]*.08],w:win(tPh,tDn-.2,.3)};}
+        if(tt>=tPh&&tt<tDn-.2){dz.phOn=true;const q_=tt-tPh,up=q_>2.2&&q_<3.4?.07*Math.sin(Math.PI*(q_-2.2)/1.2):0;R[1]={p:[px+fT[0]*(.3+up)-fT[1]*.08,1.25+lift+up+Math.sin(q_*3.1)*.006,pz+fT[1]*(.3+up)+fT[0]*.08],w:win(tPh,tDn-.2,.3)};}
         if(!dz.puffed&&tt>tOff+.4){dz.puffed=true;u.vzPuff=T_+2.6;} /* the test puff once he stands on the floor */
         if(tt>=tFl&&tt<tOff){const B0=bodyP(0);bp=B0;g.position.x=B0[0];g.position.z=B0[1];}
         // after the test puff he waits for the mist and checks the scent with a small wave of the hand toward his face
-        if(tt>=tOff+2.0&&tt<tOff+3.8){const q_=tt-tOff-2.0,sw=.06+.05*Math.sin(q_*5);R[1]={p:[px-d[0]*.22+lat[0]*sw,1.5,pz-d[2]*.22+lat[2]*sw],w:win(tOff+2.0,tOff+3.8,.35)};}
-        dz.u=u;if(!(tt>=cP&&tt<c0))lookP=tt>=tPh&&tt<tDn-.2?((Math.floor((tt-tPh)/1.6)%3===2)?[u.p[0],u.p[2]]:[px-d[0]*.3,pz-d[2]*.3]):tt<cP||(tt>=tUp&&tt<tDn)||tt>tOff?[u.p[0],u.p[2]]:[F[0],F[1]];
+        if(tt>=tOff+2.0&&tt<tOff+3.8){const q_=tt-tOff-2.0,sw=.06+.05*Math.sin(q_*5);R[1]={p:[px-dd[0]*.22+lat[0]*sw,1.5,pz-dd[2]*.22+lat[2]*sw],w:win(tOff+2.0,tOff+3.8,.35)};}
+        dz.u=u;if(!(tt>=cP&&tt<c0))lookP=tt>=tPh&&tt<tDn-.2?((Math.floor((tt-tPh)/1.6)%3===2)?[u.p[0],u.p[2]]:[px+fT[0]*.3,pz+fT[1]*.3]):tt<cP||(tt>=tUp&&tt<tDn)||tt>tOff?[u.p[0],u.p[2]]:[F[0],F[1]];
         if(tt>=tFold&&tt<tEnd)R[1]={p:[F[0]+lat[0]*.15,1.1,F[1]+lat[2]*.15],w:win(tFold,tEnd,.3)};
         if(tt>tEnd){dz.ph_='next';dz.puffed=false;dz.lift=0;dz.open=0;dz.feet=null;dz.leanL=0;if(u.bottle)u.bottle.visible=true;u.vzBusy=0;}}
       if(dz.ph_!=='work'){dz.lift=0;dz.open=0;dz.feet=null;dz.leanL=0;dz.leanS=0;}
