@@ -938,7 +938,7 @@ const space=(function(){
     const gridOf=g=>g.userData.stroller?nav.G55:(g.userData.buyer?nav.G35:(nav.G35X||nav.G35));
     // the grid with the people who are standing still (at a shelf, in the queue, at the till, just inside the door) marked as obstacles,
     // so a route is planned round them instead of through them; route() falls back to the bare grid if that leaves no way at all
-    function gridDyn(g){const G=gridOf(g);let D=null;for(const o of people){if(o===g||!o.visible||o.userData.follow!=null)continue;const s=o.userData.state;if(!(s==='browse'||s==='queue'||s==='enter'||s==='ddd'||o.userData.pay))continue;
+    function gridDyn(g){const G=gridOf(g);let D=null;for(const o of people){if(o===g||!o.visible||o.userData.follow!=null)continue;const s=o.userData.state;if(!(s==='browse'||s==='queue'||s==='enter'||s==='ddd'||o.userData.pay||(s==='walk'&&(o.userData.yielding||o.userData.holdT>0))))continue;
       if(!D)D=G.slice();const [i,j]=nav.toCell(o.position.x,o.position.z);for(let dj=-1;dj<=1;dj++)for(let di=-1;di<=1;di++){const ii=i+di,jj=j+dj;if(ii>=0&&jj>=0&&ii<nav.cols&&jj<nav.rows)D[jj*nav.cols+ii]=1;}}
       if(VZ.zone&&!g.userData.ddd&&!g.userData.pay){if(!D)D=G.slice();const Z=VZ.zone,xs=[Z.x-Z.r,Z.x+Z.r],zs=[Z.z-Z.r,Z.z+Z.r];if(Z.cx!=null){xs.push(Z.cx-.5,Z.cx+.5);zs.push(Z.cz-.5,Z.cz+.5);}
         const a=nav.toCell(Math.min(...xs),Math.min(...zs)),b=nav.toCell(Math.max(...xs),Math.max(...zs)),keep=[[g.position.x,g.position.z],nav.entry,nav.exit].concat(nav.queue||[]);
@@ -1047,8 +1047,9 @@ const space=(function(){
     // that opens, head-on both keep right), following (a slower walker ahead is followed, not walked through), and only when someone stands
     // right in the way with no room past do we wait, and then a new route is planned round the standing people. A stroller parent stops 0.7 m early
     let _tn=0;const T_now=()=>_tn;
-    function advance(g,d,dt){_tn++;const ud=g.userData,P=ud.path;let x=g.position.x,z=g.position.z;const lg=ud.visit&&ud.visit[ud.legI],stopAt=ud.stroller&&!(lg&&lg.kind==='queue')?.7:0;
-      while(ud.pi<P.length-2&&Math.hypot(P[ud.pi+1][0]-x,P[ud.pi+1][1]-z)<.2)ud.pi++;
+    function advance(g,d,dt){_tn++;const ud=g.userData,P=ud.path;if(!isFinite(ud.ang))ud.ang=isFinite(g.rotation.y)?g.rotation.y:0; /* a heading always defined: an undefined one can never be turned */let x=g.position.x,z=g.position.z;const lg=ud.visit&&ud.visit[ud.legI],stopAt=ud.stroller&&!(lg&&lg.kind==='queue')?.7:0;
+      while(ud.pi<P.length-2&&Math.hypot(P[ud.pi+1][0]-x,P[ud.pi+1][1]-z)<.2){ud.pi++;if(P[ud.pi][2]==='hold')ud.holdT=rnd(.8,1.4);}
+      if(ud.holdT>0){ud.holdT-=dt;ud.vx=ud.vz=0;ud.vNow=0;ud.yielding=false;return false;}
       let rem=0;for(let k=ud.pi;k<P.length-1;k++){const a=k===ud.pi?[x,z]:P[k];rem+=Math.hypot(P[k+1][0]-a[0],P[k+1][1]-a[1]);}
       const tol=stopAt+(lg&&lg.kind==='queue'?.15:.03);if(rem<=tol){ud.vx=ud.vz=0;ud.vNow=0;return true;}
       const n=P[ud.pi+1],dx=n[0]-x,dz=n[1]-z,L=Math.hypot(dx,dz)||1,fx=dx/L,fz=dz/L,vx0=ud.vx||0,vz0=ud.vz||0,moving=Math.hypot(vx0,vz0)>.2;
@@ -1082,6 +1083,11 @@ const space=(function(){
         if(ud.stuckT>=2&&(ud.nudged||0)<(ud.stuckT>=3?2:1)&&ud.path){const lvl=ud.stuckT>=3?2:1,tg=ud.path[Math.min(ud.pi+1,ud.path.length-1)],dx0=tg[0]-x,dz0=tg[1]-z,L0=Math.hypot(dx0,dz0)||1,px_=-dz0/L0,pz_=dx0/L0,d_=lvl===1?.3:.4,s0=Math.random()<.5?1:-1;
           for(const sg of [s0,-s0]){const wx=x+px_*d_*sg+(lvl===2?dx0/L0*.1:0),wz=z+pz_*d_*sg+(lvl===2?dz0/L0*.1:0),[ci,cj]=nav.toCell(wx,wz);if(nav.free(gridOf(g),ci,cj)&&circleFree(wx,wz,.22)&&circleFree((x+wx)/2,(z+wz)/2,.22)){ud.path.splice(ud.pi+1,0,[wx,wz]);break;}}ud.nudged=lvl;}
         if(ud.stuckT>=4&&!ud.replanned){ud.replanned=true;const np=nav.route(gridDyn(g),[x,z],end);if(np&&np.length>2){setPath(g,np);ud.vx=ud.vz=0;return false;}}}
+      ud.blockBy=block;
+      if(block&&block.userData.blockBy===g&&(ud.waitAcc||0)>1.2&&people.indexOf(g)>people.indexOf(block)&&!ud.backed){const bu=block.userData,bP=bu.path,bn=bP&&bP[Math.min((bu.pi||0)+1,bP.length-1)]||[x,z],ox=block.position.x,oz=block.position.z,lx=bn[0]-ox,lz=bn[1]-oz,lL=Math.hypot(lx,lz)||1;let best=null;
+        for(const r of [.6,.85,1.1,1.4])for(let a=0;a<6.28;a+=.4){const px=x+Math.sin(a)*r,pz=z+Math.cos(a)*r,[ci,cj]=nav.toCell(px,pz);if(!nav.free(gridOf(g),ci,cj)||!circleFree(px,pz,.28))continue;let t=((px-ox)*lx+(pz-oz)*lz)/(lL*lL);t=t<0?0:t>1.6?1.6:t;if(Math.hypot(px-(ox+lx*t),pz-(oz+lz*t))<.6)continue;if(people.some(o=>o!==g&&o.visible&&Math.hypot(o.position.x-px,o.position.z-pz)<.55))continue;const c=r;if(!best||c<best[2])best=[px,pz,c];}
+        if(best){ud.backed=true;P.splice(ud.pi+1,0,[best[0],best[1],'hold']);ud.waitAcc=0;ud.squeeze=false;ud.yielding=false;return false;}} // "after you": into a pocket off their line, a moment, then on
+      if(!block)ud.backed=false;
       if(block&&((ud.waitAcc||0)>.5||ud.squeeze))askRoom(block,g,fx,fz);
       if(block&&!ud.squeeze){
         const lx=fz*(ax*fz-az*fx>0?1:-1)*.4,lz=-fx*(ax*fz-az*fx>0?1:-1)*.4,[ci,cj]=nav.toCell(x+lx,z+lz);
@@ -1182,7 +1188,7 @@ const space=(function(){
       const taken=lu.state!=='walk'&&L<1.6&&people.some(o=>strg(o)&&Math.hypot(o.position.x-tx,o.position.z-tz)<.55),arrived=L<((ud.blend||0)>.5?.15:.3);
       if(!arrived&&!taken){const P=ud.path,goal=P&&P.length&&P[P.length-1];
         if(!goal||Math.hypot(goal[0]-tx,goal[1]-tz)>.45){const r=nav.route(gridDyn(g),[g.position.x,g.position.z],[tx,tz]);ud.path=r&&r.length>1?r:[[g.position.x,g.position.z],[tx,tz]];ud.pi=0;}
-        const sp_=Math.min(lu.sp*(ud.waitP?1:L>1.4?1.6:1.25),L*2.5),x0=g.position.x,z0=g.position.z;if(advance(g,sp_*dt,dt))ud.path=null;
+        const sp_=Math.min(lu.sp*(ud.waitP?1:L>3?2:L>1.4?1.6:1.25),L*2.5),x0=g.position.x,z0=g.position.z;if(advance(g,sp_*dt,dt))ud.path=null;
         v=Math.hypot(g.position.x-x0,g.position.z-z0)/Math.max(dt,1e-3);}
       else{ud.vx=ud.vz=0;ud.vNow=0;for(const o of people){if(!strg(o))continue;const ox=g.position.x-o.position.x,oz=g.position.z-o.position.z,d=Math.hypot(ox,oz);if(d<.5&&d>1e-3){const pu=Math.min(.5-d,.3*dt),nx=g.position.x+ox/d*pu,nz=g.position.z+oz/d*pu;if(onFloor(nx,nz)){g.position.x=nx;g.position.z=nz;}}}} // standing: a stranger too close, a small step away
       if(L>6&&lead.userData.culled&&ud.culled){let need2=.9,px_=lead.position.x,pz_=lead.position.z;for(let k=tr.length-1;k>=0;k--){const ddx=tr[k][0]-px_,ddz=tr[k][1]-pz_,LL=Math.hypot(ddx,ddz);if(LL>=need2){px_+=ddx/LL*need2;pz_+=ddz/LL*need2;break;}px_=tr[k][0];pz_=tr[k][1];need2-=LL;}g.position.set(px_,0,pz_);} // far behind where nobody sees: caught up off screen (on screen it hurries)
