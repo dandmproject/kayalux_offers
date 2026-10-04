@@ -1957,7 +1957,7 @@ const space=(function(){
         ok=p=>{const c=pose(p);return cell(c.x,c.z)&&(seen(c,W)||seen(c,Wt))&&seen(c,Hh)&&seen(c,Mh)&&!ppl(c);}; /* the work, his head and his hands in between */
       VZ.wkT=(VZ.wkT||0)+dt;let again=VZ.wkFor!==wk.key||!VZ.wkP;if(!again&&VZ.wkT>.8){VZ.wkT=0;again=!ok(VZ.wkP);}
       if(again){VZ.wkFor=wk.key;VZ.wkP=null;for(const dh of [0,.55,1.1])for(const th of [-1.3,1.3,-1.05,1.05,-1.55,1.55,-.8,.8,-1.85,1.85]){ /* his working (right) hand's side first: his body never hides what the hand does */ /* from the side: his profile, his hands and the work in one frame; over a fixture: the same from higher up */if(VZ.wkP)break;for(const d of wk.D){const p={th,d,h:wk.h+dh};if(ok(p)){VZ.wkP=p;break;}}}
-        if(!VZ.wkP){/* the work is wedged in behind a fixture: over his shoulder from up near the ceiling, looking down at his hands */const hw=Math.hypot(Hh.x-W.x,Hh.z-W.z),top=Math.max(wk.h+.6,Hh-.3);
+        if(!VZ.wkP){/* the work is wedged in behind a fixture: over his shoulder from up near the ceiling, looking down at his hands */const hw=Math.hypot(Hh.x-W.x,Hh.z-W.z),top=Math.max(wk.h+.6,(S.H||3)-.3);
           for(const th of [0,.35,-.35,.7,-.7]){if(VZ.wkP)break;for(const d of [hw+.6,hw+.9,hw+.35]){const p={th,d,h:top};const c=pose(p);if(cell(c.x,c.z)&&(seen(c,W)||seen(c,Wt))){VZ.wkP=p;break;}}}
           if(!VZ.wkP)VZ.wkP={th:0,d:hw+.6,h:top};}}
       return [pose(VZ.wkP),W.clone().lerp(Hh,wk.mix==null?.4:wk.mix)];}
@@ -2721,12 +2721,12 @@ const space=(function(){
           if(TIP.tf!==tf){TIP.tf=tf;TIP.el.style.transform=tf;}if(TIP.ax!==ax){TIP.ax=ax;TIP.el.style.setProperty('--ax',ax);} /* the arrow points at the diffuser even when the note is pushed off-centre */if(!TIP.on){TIP.on=true;TIP.el.classList.add('on');}return;}}
       if(TIP.on){TIP.on=false;TIP.el.classList.remove('on');}if(!un)TIP.u=-1;}
     const hudIn=!!(hud&&stage.contains(hud)); // the info card sits under the set now: no per-frame measuring against it
-    const _fr=new T.Frustum(),_fm=new T.Matrix4(),_sp=new T.Sphere(new T.Vector3(),1.15);let vis=false,raf=0,last=0,lightK=1,hover=false,fno=0,lastR=0;window.__q=()=>({TIER,dpr,shadows:renderer.shadowMap.enabled,avg:pf.avg,half:!!pf.half,q:pf.q||0,probing:!!pf.probing,jank:pf.jank});const v3=new T.Vector3();
+    const _fr=new T.Frustum(),_fm=new T.Matrix4(),_sp=new T.Sphere(new T.Vector3(),1.15);let onScr=()=>true,vis=false,raf=0,last=0,lightK=1,hover=false,fno=0,lastR=0;window.__q=()=>({TIER,dpr,shadows:renderer.shadowMap.enabled,avg:pf.avg,half:!!pf.half,q:pf.q||0,probing:!!pf.probing,jank:pf.jank});const v3=new T.Vector3();
     const touchUI=matchMedia('(hover: none)').matches;stage.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse'){hover=true;kick();}});stage.addEventListener('pointerleave',()=>{hover=false;});
     // the advert screen: each slide 7 s, then a 0.8 s cross-fade to the next
     function adsTick(now){const a=S.ads,AT=S.adSlides||M.adTex;if(!a||!AT)return;const n=AT.length,t=now/1000/7.8,k=Math.floor(t)+a.i,f=t%1,fd=clamp((f*7.8-7)/.8,0,1);a.A.material.map=AT[k%n];a.B.material.map=AT[(k+1)%n];a.B.material.opacity=fd;a.B.visible=fd>0;}
     function frame(now){adsTick(now);
-      raf=0;if((!vis&&LD.done)||document.hidden)return; // while it is still getting ready it keeps working off-screen, so it is ready when the visitor scrolls to it
+      raf=0;if((!vis&&LD.done&&!onScr())||document.hidden)return; // while it is still getting ready it keeps working off-screen, so it is ready when the visitor scrolls to it
       if(window.__klBusy){if(!raf)raf=requestAnimationFrame(frame);return;} // някой подписва: пауза на рендера
       if(pf.half&&(fno++&1)){if(!raf)raf=requestAnimationFrame(frame);return;} // weak machines: every other display frame, a steady 30 fps instead of an uneven 40-50
       {const f=Math.min(.25,(now-(lastR||now))/1000);lastR=now;if(f>0&&f<.2){pf.t+=f;pf.n++;if(f>(pf.half?.05:.03))pf.j=(pf.j||0)+1;}if(DIAG&&f>0)diagTick(now,f);
@@ -2763,7 +2763,7 @@ const space=(function(){
           if(ud.state==='ddd'){const wk=vzWork(g);if(wk){const r_=vzWorkCam(wk,cell,dt);want=r_[0];tg=r_[1];}}
           if(!want){/* walking: the camera circles round to his back at a limited turn rate (never cuts in front of him when he turns) */VZ.camYaw=(walkSnap||VZ.camYaw==null)?a:angStep(VZ.camYaw,a,4,dt,3.2);const bx=Math.sin(VZ.camYaw),bz=Math.cos(VZ.camYaw);let dA=Math.abs(((a-VZ.camYaw+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI);const lift_=.7*clamp((dA-.9)/1.4,0,1); /* mid-turn: from higher up, over him */for(let d=2.8;d>=1.1&&!want;d-=.2){const x=px-bx*d-bz*.4,z=pz-bz*d+bx*.4;if(cell(x,z))want=new T.Vector3(x,1.7+lift_,z);}if(!want)want=new T.Vector3(px-bx*1.1,2.1,pz-bz*1.1);tg=new T.Vector3(px+bx*1.6,1.05,pz+bz*1.6);}else VZ.camYaw=Math.atan2(px-camera.position.x,pz-camera.position.z);}
         else{want=new T.Vector3(S.door.x-.9,1.9,S.hd+1.9);tg=new T.Vector3(S.door.x,1.0,S.hd-2.2);}
-        VZ.camT=VZ.camT||tg.clone();camera.position.lerp(want,walkSnap?1:Math.min(1,dt*2.2));VZ.camT.lerp(tg,walkSnap?1:Math.min(1,dt*3));walkSnap=false;camera.lookAt(VZ.camT);}
+        VZ.camT=VZ.camT||tg.clone();camera.position.lerp(want,walkSnap?1:Math.min(1,dt*2.2));VZ.camT.lerp(tg,walkSnap?1:Math.min(1,dt*3));walkSnap=false;if(!isFinite(camera.position.x+camera.position.y+camera.position.z))camera.position.copy(isFinite(want.x+want.y+want.z)?want:new T.Vector3(S.door.x-.9,1.9,S.hd+1.9));if(!isFinite(VZ.camT.x+VZ.camT.y+VZ.camT.z))VZ.camT.copy(tg);camera.lookAt(VZ.camT);}
       const _t1=DIAG?performance.now():0;
       if(!LD.done)ldTick();
       const on=sysOn(state.t),open=isOpen(state.t);
@@ -2802,7 +2802,8 @@ const space=(function(){
       const pT1=performance.now();if(window.__camLock){const c_=window.__camLock;camera.position.set(c_.p[0],c_.p[1],c_.p[2]);camera.lookAt(c_.t[0],c_.t[1],c_.t[2]);}renderer.render(scene,camera);if(_cav)camera.position.sub(_cav);if(DIAG){const e=performance.now();DG.seg=[_t1-pT0,_t2-_t1,_t3-_t2,_t4-_t3,pT1-_t4,e-pT1,e-pT0];}if(window.__prof){const P=window.__prof;P.js+=pT1-pT0;if(pT1-pT0>(P.max||0))P.max=pT1-pT0;(P.h=P.h||[]).push(+(pT1-pT0).toFixed(1));P.gl+=performance.now()-pT1;P.n++;}if(window.__perf){window.__perf.frames=(window.__perf.frames||0)+1;if(!window.__perf.first)window.__perf.first=performance.now();}
       if(!raf)raf=requestAnimationFrame(frame); // exactly one loop: a kick() during this frame (a tour key, a click) has already scheduled the next one
     }
-    kick=()=>{if(!raf&&(vis||!LD.done)){last=0;raf=requestAnimationFrame(frame);}};
+    onScr=()=>{const r_=stage.getBoundingClientRect(),v_=r_.height>0&&r_.bottom>0&&r_.top<innerHeight;if(v_&&!vis){vis=true;root.classList.add('klive');}return v_;};
+    kick=()=>{if(!raf&&(vis||!LD.done||onScr())){last=0;raf=requestAnimationFrame(frame);}};
     window.__renderNow=()=>{renderer.render(scene,camera);};window.__gl=()=>({renderer,scene,camera,M});window.__view=()=>({...view,spin:spin.vx});
     window.__cam=(x,y,z,tx,ty,tz)=>{view.name='free';tween=null;camera.position.set(x,y,z);camera.lookAt(tx,ty,tz);$$('.views [data-view]').forEach(b=>b.setAttribute('aria-pressed','false'));kick();};
     window.__tri=()=>{renderer.render(scene,camera);return {tri:renderer.info.render.triangles,calls:renderer.info.render.calls,geo:renderer.info.memory.geometries,tex:renderer.info.memory.textures};};
