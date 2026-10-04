@@ -949,7 +949,11 @@ const space=(function(){
     // the grid with the people who are standing still (at a shelf, in the queue, at the till, just inside the door) marked as obstacles,
     // so a route is planned round them instead of through them; route() falls back to the bare grid if that leaves no way at all
     function gridDyn(g){const G=gridOf(g);let D=null;for(const o of people){if(o===g||!o.visible||o.userData.follow!=null)continue;const s=o.userData.state;if(!(s==='browse'||s==='queue'||s==='enter'||s==='ddd'||o.userData.pay))continue;
-      if(!D)D=G.slice();const [i,j]=nav.toCell(o.position.x,o.position.z);for(let dj=-1;dj<=1;dj++)for(let di=-1;di<=1;di++){const ii=i+di,jj=j+dj;if(ii>=0&&jj>=0&&ii<nav.cols&&jj<nav.rows)D[jj*nav.cols+ii]=1;}}return D||G;}
+      if(!D)D=G.slice();const [i,j]=nav.toCell(o.position.x,o.position.z);for(let dj=-1;dj<=1;dj++)for(let di=-1;di<=1;di++){const ii=i+di,jj=j+dj;if(ii>=0&&jj>=0&&ii<nav.cols&&jj<nav.rows)D[jj*nav.cols+ii]=1;}}
+      if(VZ.zone&&!g.userData.ddd&&!g.userData.pay){if(!D)D=G.slice();const Z=VZ.zone,xs=[Z.x-Z.r,Z.x+Z.r],zs=[Z.z-Z.r,Z.z+Z.r];if(Z.cx!=null){xs.push(Z.cx-.5,Z.cx+.5);zs.push(Z.cz-.5,Z.cz+.5);}
+        const a=nav.toCell(Math.min(...xs),Math.min(...zs)),b=nav.toCell(Math.max(...xs),Math.max(...zs)),keep=[[g.position.x,g.position.z],nav.entry,nav.exit].concat(nav.queue||[]);
+        for(let jj=Math.max(0,Math.min(a[1],b[1]));jj<=Math.min(nav.rows-1,Math.max(a[1],b[1]));jj++)for(let ii=Math.max(0,Math.min(a[0],b[0]));ii<=Math.min(nav.cols-1,Math.max(a[0],b[0]));ii++){const w=nav.toWorld(ii,jj);if(inZone(w[0],w[1])&&!keep.some(k=>k&&Math.hypot(k[0]-w[0],k[1]-w[1])<.7))D[jj*nav.cols+ii]=1;}}
+      return D||G;}
     // §1: arrival rate now → time a slot stays "away" before the next visitor uses it
     function lambdaNow(){const h=Math.floor(state.t/60);const l=PARAMS.lambda[h]||6;return l*(PARAMS.dayMul[state.day]||1)*Math.max(.3,S.A/PARAMS.areaRef);}
     function awayDur(){return Math.max(3,Math.min(30,3600/(lambdaNow()*PARAMS.densityMult)))*rnd(.6,1.5);}
@@ -957,7 +961,7 @@ const space=(function(){
     // §4: nearest-neighbour ordering from the entrance with a right-turn tendency (right = +x side of the door)
     function orderTargets(list){const out=[];let cur=[S.door.x,S.hd];const pool=list.slice();if(pool.length&&Math.random()<PARAMS.rightTurnP){pool.sort((a,b)=>(b.p[0]-a.p[0]));const first=pool.shift();out.push(first);cur=first.p;}
       while(pool.length){let bi=0,bd=1e9;pool.forEach((b,i)=>{const d=Math.hypot(b.p[0]-cur[0],b.p[1]-cur[1]);if(d<bd){bd=d;bi=i;}});const b=pool.splice(bi,1)[0];out.push(b);cur=b.p;}return out;}
-    function pickBrowse(g,n){const G=gridOf(g),pool=nav.browse.filter(b=>(!g.userData.stroller||b.ok55)&&(()=>{const [ci,cj]=nav.toCell(b.p[0],b.p[1]);return nav.free(G,ci,cj);})()); /* only spots one can walk to and away from */const out=[];for(let k=0;k<n&&pool.length;k++){const j=(Math.random()*pool.length)|0;out.push(pool.splice(j,1)[0]);}return orderTargets(out);}
+    function pickBrowse(g,n){const G=gridOf(g),pool=nav.browse.filter(b=>(!g.userData.stroller||b.ok55)&&(()=>{const [ci,cj]=nav.toCell(b.p[0],b.p[1]);return nav.free(G,ci,cj);})()&&!inZone(b.p[0],b.p[1],.2)); /* only spots one can walk to and away from, never at the specialist's work */const out=[];for(let k=0;k<n&&pool.length;k++){const j=(Math.random()*pool.length)|0;out.push(pool.splice(j,1)[0]);}return orderTargets(out);}
     function fallbackPath(from){const s=S;return [[from[0],from[1]],[s.door.x,s.hd-.9],[s.mainX,s.hd-.9],[s.mainX,s.zTop-.6],[s.mainX,s.hd-.9],[s.door.x-.25,s.hd+1.3]];}
     function setPath(g,path,T_){const ud=g.userData;if(ud.room){ud.room=null;ud.dockV=0;}if(!path){path=fallbackPath([g.position.x,g.position.z]);ud.fallback=true;}ud.path=path;ud.pi=0;ud.stuckT=0;ud.px=null;ud.pAcc=0;ud.state='walk';ud.blend=ud.blend||0;flowDirty=true;}
     // §2/§3/§9: a visit = ENTER(decompression, basket pickup) → stops (grab | browse) → [QUEUE → PAY → RETURN_BASKET] → EXIT
@@ -1248,6 +1252,8 @@ const space=(function(){
         g.visible=true;if(ud.stroller)ud.stroller.visible=true;
         if(ud.state==='enter'){ud.blend=Math.max(0,ud.blend-dt*3);if(T_>ud.until)startLeg(g,T_);}
         else if(ud.state==='walk'){ud.blend=Math.min(1,ud.blend+dt*2);
+          if(VZ.zone&&ud.path&&ud.zRe!==VZ.zone.tok&&!ud.pay&&!ud.ddd){const P=ud.path;let hit=false;for(let q=ud.pi||0;q<Math.min(P.length,(ud.pi||0)+4);q++)if(P[q]&&inZone(P[q][0],P[q][1])){hit=true;break;} // the way ahead runs through the work: round it
+            if(hit){ud.zRe=VZ.zone.tok;const tg=P[P.length-1],lg=ud.visit&&ud.visit[ud.legI];if(lg&&lg.kind==='browse'&&inZone(tg[0],tg[1],.2))navNext(g,T_);else{const NP=nav.route(gridDyn(g),[g.position.x,g.position.z],tg);if(NP)setPath(g,NP,T_);}}}
           // nobody walks at a metronome pace: the speed drifts slowly around the person's own (±~7 %, mean-reverting noise, ~3 s memory)
           ud.spN=clamp((ud.spN||1)+(1-(ud.spN||1))*dt/3+(Math.random()-.5)*.25*Math.sqrt(dt),.9,1.1);
           if(advance(g,ud.sp*ud.spN*ud.blend*dt,dt)){ud.glanceAt=null;ud.lookAtP=null;navArrive(g,T_);}
@@ -1262,6 +1268,7 @@ const space=(function(){
           const pt=ud.partner!=null?people[ud.partner]:null;
           const pd=pt?Math.hypot(pt.position.x-g.position.x,pt.position.z-g.position.z):0;if(pt&&pt.visible&&!ud.chat&&pd>.5&&pd<1.7&&Math.random()<dt*.08){ud.chat={until:T_+rnd(6,15),sw:T_+3,talker:0};ud.until=Math.max(ud.until,ud.chat.until+1);}
           if(ud.chat){if(!pt||!pt.visible||T_>ud.chat.until){ud.chat=null;ud.lookAtP=null;ud.talking=false;}else{if(T_>ud.chat.sw){ud.chat.sw=T_+rnd(2,4);ud.chat.talker^=1;}ud.faceAng=Math.atan2(pt.position.x-g.position.x,pt.position.z-g.position.z);ud.lookAtP=[pt.position.x,pt.position.z];ud.talking=ud.chat.talker===0;}}
+          if(VZ.zone&&ud.zTok!==VZ.zone.tok&&inZone(g.position.x,g.position.z)){ud.zTok=VZ.zone.tok;ud.until=Math.min(ud.until,T_+rnd(.5,1.5));ud.chat=null;} // the specialist sets up here: finish and move on
           ud.ang=angStep(ud.ang,ud.faceAng,4,dt,2.6);g.rotation.y=ud.ang;if(T_>ud.until&&!ud.chat)navNext(g,T_);}
         else if(ud.state==='queue'){ud.blend=Math.max(0,ud.blend-dt*3);makeRoom(g,dt);const k=ud.slot;
           // in the line: facing the one ahead (the line reads as a line, not as people standing about), now and then a look at the till
@@ -1643,6 +1650,15 @@ const space=(function(){
           for(const th of [0,.35,-.35,.7,-.7]){if(VZ.wkP)break;for(const d of [hw+.6,hw+.9,hw+.35]){const p={th,d,h:top};const c=pose(p);if(cell(c.x,c.z)&&(seen(c,W)||seen(c,Wt))){VZ.wkP=p;break;}}}
           if(!VZ.wkP)VZ.wkP={th:0,d:hw+.6,h:top};}}
       return [pose(VZ.wkP),W.clone().lerp(Hh,wk.mix==null?.4:wk.mix)];}
+    // reality rule: shoppers keep clear of the specialist at work (a ladder up, a box open on the floor): nobody stops at the spot or, while
+    // he is being followed, between it and the camera; routes go round it, nobody picks a shelf spot inside it, and whoever was browsing
+    // there finishes and moves on (people heading for the till or the door may still pass, as they do in a shop)
+    function vzZoneUpd(g){const wk=g&&g.visible&&g.userData.dz&&true?vzWork(g):null;
+      if(!wk||(wk.key&&wk.key.kind==='hand')){VZ.zone=null;return;}
+      const Z=VZ.zone&&VZ.zone.key===wk.key?VZ.zone:(VZ.zone={key:wk.key,tok:(VZ.zTok=(VZ.zTok||0)+1)}),fol=view.name==='ddd';
+      Z.x=(wk.W[0]+g.position.x)/2;Z.z=(wk.W[2]+g.position.z)/2;Z.r=1.15;Z.cx=fol?camera.position.x:null;Z.cz=fol?camera.position.z:null;}
+    function inZone(x,z,pad){const Z=VZ.zone;if(!Z)return false;pad=pad||0;if(Math.hypot(x-Z.x,z-Z.z)<Z.r+pad)return true;if(Z.cx==null)return false;
+      const dx=Z.cx-Z.x,dz=Z.cz-Z.z,L2=dx*dx+dz*dz||1;let t=((x-Z.x)*dx+(z-Z.z)*dz)/L2;t=t<0?0:t>1?1:t;return Math.hypot(x-(Z.x+dx*t),z-(Z.z+dz*t))<.45+pad;}
     function vzWork(g){const ud=g.userData,dz=ud.dz,t=dz&&dz.task,hd=ud.headB;if(!t||t.exit||dz.ph_!=='work'||!hd)return null;const u=S.units[t.u];if(!u)return null;hd.getWorldPosition(_zS);
       return {key:t,W:[u.p[0],u.p[1],u.p[2]],H:[_zS.x,_zS.y-.1,_zS.z],face:t.face,D:[2.7,2.3,3.1],h:clamp(u.p[1]-.4,1.6,2.2),mix:.4};}
 
@@ -1668,7 +1684,7 @@ const space=(function(){
       if(tt>=tFl&&tt<tFold)return ['Пробно пръскане','Проверка, че дифузерът работи след зареждането.'];
       return null;}
     // the props each frame
-    function vzProps(dt){const g=VZ.g;if(!g)return;const ud=g.userData,dz=ud.dz;if(!dz)return;vzSubShow(g,vzCaption(g));const vis=g.visible;dz.tag.hidden=!vis;dz.lad.visible=vis;dz.bag.visible=true;
+    function vzProps(dt){const g=VZ.g;if(!g)return;const ud=g.userData,dz=ud.dz;if(!dz)return;vzZoneUpd(g);vzSubShow(g,vzCaption(g));const vis=g.visible;dz.tag.hidden=!vis;dz.lad.visible=vis;dz.bag.visible=true;
       if(!vis){dz.btl.visible=dz.ph.visible=false;return;}g.updateMatrixWorld(true);const hd=ud.headB;if(hd){hd.getWorldPosition(_zS);dz.tagV.set(_zS.x,_zS.y+.36,_zS.z);}
       // the ladder: open on the floor under the diffuser, or folded in his right hand
       const LLc=(dz.task&&dz.task.LL)||1.6;if(dz.ladLL!==LLc){dz.ladLL=LLc;dz.lf.geometry=LLc>2?VZ.geo.front2:VZ.geo.front;dz.lr.geometry=LLc>2?VZ.geo.rear2:VZ.geo.rear;}
