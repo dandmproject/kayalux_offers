@@ -1636,23 +1636,31 @@ const space=(function(){
           cu.ikReq=cr;cu.lookAtP=tt>4.4&&tt<10.2?[C[0],C[2]]:[px,pz];cu.talking=tt>10.2&&tt<11.4||tt>14.6&&tt<15.6;cu.smile=tt>1&&tt<16;cu.leanBoost=tt>4.4&&tt<10.2?.12:0;
           lookP=tt>2.4&&tt<4.6||tt>10.6&&tt<11.8?[C[0],C[2]]:[cx,cz];
           if(tt>16){cu.ikReq=null;cu.talking=false;cu.smile=false;cu.lookAtP=null;cu.leanBoost=0;dz.handed=true;VZ.atTill=false;dz.docsAt=dz.copyAt=null;dz.penOn=false;dz.talk=false;dz.ph='next';dz.t=0;dz.tagH='<b>Дезинфектор</b><i>„УНИЩОЖИТЕЛИ“ · ДДД</i>';dz.tag.innerHTML=dz.tagH;}}}
-      if(dz.ph==='work'&&t.kind==='box'){const u=S.units[t.u];faceTo(t.face);const hgB=u&&u.hinge;sqTarget=tt<9.6?1:0;caseDown(.7,9.2);
-        // the full service of a point: lid up, the used glue board out and looked at, into the case, a new board in, lid down, a note in the protocol
-        const open_=tt<1.4?0:tt<2.1?(tt-1.4)/.7:tt<5.7?1:tt<6.4?1-(tt-5.7)/.7:0;
+      if(dz.ph==='work'&&t.kind==='box'){const u=S.units[t.u];faceTo(t.face);const hgB=u&&u.hinge;sqTarget=tt<23?1:0;caseDown(.7,22.8);
+        // the full service of a point, at the pace it takes in real life (each step as long as its subtitle needs): the box looked over, still
+        // fixed in place, a finger along its label; the lid up; the used glue board out and looked at closely, turned over in the hand; into
+        // the waste bag in the case; a new board out of the case, its film peeled, laid in and pressed down; the lid shut; the result written
+        const open_=tt<4.0?0:tt<4.7?(tt-4.0)/.7:tt<15.8?1:tt<16.5?1-(tt-15.8)/.7:0;
         if(hgB&&u){hgB.rotation.x=-1.25*tE(open_);hgB.updateMatrixWorld(true);const B_=hgB.parent;B_.updateMatrixWorld(true);
-          const edge=sd=>{const v=_zC.set(sd?-.08:.08,0,.2*.96).applyMatrix4(hgB.matrixWorld);return [v.x,v.y+.01,v.z];},inBox=()=>{const v=_zD.set(0,.05,.02).applyMatrix4(B_.matrixWorld);return [v.x,v.y,v.z];};
-          const cTop=[dz.caseP[0],dz.caseP[1]+.04,dz.caseP[2]],look=hp(.34,.02,.66);
-          if(tt>1.0&&tt<2.2){const w=win(1.0,2.2,.3);R[0]={p:edge(0),w};R[1]={p:edge(1),w};}
-          if(tt>=2.2&&tt<5.7)R[0]={p:edge(0),w:win(2.2,5.7,.3)};                                              // the left hand keeps the lid up
-          if(tt>=2.1&&tt<5.75){let p_;if(tt<2.8)p_=inBox();else if(tt<3.7)p_=look;else if(tt<4.3)p_=cTop;else if(tt<4.8)p_=cTop;else if(tt<5.45)p_=inBox();else p_=edge(1);R[1]={p:p_,w:win(2.1,5.75,.25)};}
-          if(tt>=5.75&&tt<6.5){const w=win(5.75,6.5,.25);R[0]={p:edge(0),w};R[1]={p:edge(1),w};}
-          if(tt>2.75&&!dz.took){dz.took=true;u.board.visible=false;dz.holdB='used';}                         // the used board comes out
-          if(tt>4.2&&dz.holdB==='used')dz.holdB=null;                                                       // into the waste bag in the case
-          if(tt>4.55&&tt<5.4&&!dz.holdB&&!dz.put)dz.holdB='new';                                             // a fresh board from the case
-          if(tt>5.4&&!dz.put){dz.put=true;dz.holdB=null;u.board.material=M.boardNew;u.board.visible=true;}  // laid into the box
-          dz.clipOn=tt>6.6&&tt<8.7;if(dz.clipOn){const cp=hp(.3,-.05,.72);R[0]={p:cp,w:win(6.6,8.7,.3)};const cc=[cp[0]+fwd.x*.075,cp[1]+.08,cp[2]+fwd.z*.075],tw=Math.sin(tt*9)*.025,tl=((tt*1.3)%1)*.05; /* the pen hand stays in front of the sheet (the side turned to his face), never through the board */R[1]={p:[cc[0]-fwd.x*.06+rgt.x*(.07+tw),cc[1]+.05-tl,cc[2]-fwd.z*.06+rgt.z*(.07+tw)],w:win(6.7,8.6,.3)};}
+          const edge=sd=>{const v=_zC.set(sd?-.08:.08,0,.2*.96).applyMatrix4(hgB.matrixWorld);return [v.x,v.y+.01,v.z];},inBox=()=>{const v=_zD.set(0,.05,.02).applyMatrix4(B_.matrixWorld);return [v.x,v.y,v.z];},
+            side=(sd,o_)=>{const v=_zD.set(sd?-.115:.115,.06,.06+o_).applyMatrix4(B_.matrixWorld);return [v.x,v.y,v.z];},lbl=o_=>{const v=_zD.set(o_,.09,.13).applyMatrix4(B_.matrixWorld);return [v.x,v.y,v.z];};
+          const cTop=[dz.caseP[0],dz.caseP[1]+.04,dz.caseP[2]],bagP=[dz.caseP[0],dz.caseP[1]+.07,dz.caseP[2]],look=hp(.34,.02,.66);
+          if(tt>1.2&&tt<2.8){const w=win(1.2,2.8,.3),pu=Math.sin((tt-1.2)*6)*.008;R[0]={p:side(0,pu),w};R[1]={p:side(1,pu),w};}        // both hands on its sides: does it sit firm?
+          if(tt>=2.8&&tt<3.8)R[1]={p:lbl(-.05+.1*clamp((tt-2.9)/.8,0,1)),w:win(2.8,3.8,.25)};                                       // a finger along the label
+          if(tt>=3.6&&tt<4.9){const w=win(3.6,4.9,.3);R[0]={p:edge(0),w};R[1]={p:edge(1),w};}                                        // the lid lifted by its edge
+          if(tt>=4.9&&tt<10.6)R[0]={p:edge(0),w:win(4.9,10.6,.3)};                                                                    // the left hand keeps the lid up
+          if(tt>=4.8&&tt<10.6){const p_=tt<5.7?inBox():[look[0],look[1]+.03*Math.sin((tt-5.7)*1.2),look[2]];R[1]={p:p_,w:win(4.8,10.6,.3)};} // the used board up close
+          dz.boardTilt=tt>6.4&&tt<10.2?Math.sin((tt-6.4)*1.65)*1.2:0;                                                                 // turned over: one side, the other
+          if(tt>5.6&&!dz.took){dz.took=true;u.board.visible=false;dz.holdB='used';}
+          if(tt>=10.6&&tt<15.6){const ib=inBox(),p_=tt<11.6?bagP:tt<12.5?cTop:tt<13.9?look:tt<14.9?ib:[ib[0],ib[1]-.015*Math.sin((tt-14.9)*12),ib[2]];R[1]={p:p_,w:win(10.6,15.6,.3)};} // waste bag, a new board, in, pressed
+          if(tt>=12.6&&tt<13.9){const pe=((tt-12.6)*1.5)%1;R[0]={p:[look[0]+rgt.x*(-.06+.05*pe),look[1]-.02,look[2]+rgt.z*(-.06+.05*pe)],w:win(12.6,13.9,.25)};} // its film peeled off
+          if(tt>11.4&&dz.holdB==='used')dz.holdB=null;
+          if(tt>12.3&&tt<14.8&&!dz.holdB&&!dz.put)dz.holdB='new';
+          if(tt>14.8&&!dz.put){dz.put=true;dz.holdB=null;u.board.material=M.boardNew;u.board.visible=true;}
+          if(tt>=15.6&&tt<16.6){const w=win(15.6,16.6,.25);R[0]={p:edge(0),w};R[1]={p:edge(1),w};}                                      // the lid shut
+          dz.clipOn=tt>16.8&&tt<22.4;if(dz.clipOn){const cp=hp(.3,-.05,.72);R[0]={p:cp,w:win(16.8,22.4,.3)};const cc=[cp[0]+fwd.x*.075,cp[1]+.08,cp[2]+fwd.z*.075],tw=Math.sin(tt*9)*.025,tl=((tt*1.3)%1)*.05; /* the pen hand stays in front of the sheet (the side turned to his face), never through the board */R[1]={p:[cc[0]-fwd.x*.06+rgt.x*(.07+tw),cc[1]+.05-tl,cc[2]-fwd.z*.06+rgt.z*(.07+tw)],w:win(16.9,22.3,.3)};}
           lookP=dz.clipOn?[px+fwd.x*.3,pz+fwd.z*.3]:[u.p[0],u.p[2]];}
-        if(tt>10.4){const tk=dz.task;dz.ph=tk.near&&Math.hypot(tk.near[0]-tk.stand[0],tk.near[1]-tk.stand[1])>.08?'stepOut':'next';dz.t=0;dz.took=dz.put=false;dz.holdB=null;dz.clipOn=false;if(u&&u.board)u.board.visible=true;}}
+        if(tt>24.0){const tk=dz.task;dz.ph=tk.near&&Math.hypot(tk.near[0]-tk.stand[0],tk.near[1]-tk.stand[1])>.08?'stepOut':'next';dz.t=0;dz.took=dz.put=false;dz.holdB=null;dz.clipOn=false;dz.boardTilt=0;if(u&&u.board)u.board.visible=true;}}
       if(dz.ph==='work'&&t.kind==='gel'){faceTo(t.face);const per=1.5,t0=1.5,n=t.pts.length,tEnd=t0+per*n;caseDown(.6,tEnd+.95);
         dz.gunOn=tt>1.1&&tt<tEnd+.35;if(tt>.7&&tt<1.2)R[1]={p:[dz.caseP[0],dz.caseP[1]+.04,dz.caseP[2]],w:win(.7,1.2,.2)};      // the bait gun out of the case
         if(tt>=t0-.3&&tt<tEnd){const i=Math.min(n-1,Math.floor(Math.max(0,tt-t0)/per)),f=(Math.max(0,tt-t0)%per)/per,p=t.pts[i];sqTarget=clamp((1.05-p[1])/.9,0,1);
@@ -1731,10 +1739,10 @@ const space=(function(){
       if(t.kind==='hand'){if(ph==='wait')return ['Попълва протокола','Описва извършените обработки в обекта.'];if(ph!=='hand')return null;
         if(tt<10.2)return ['Предава протокола','Служителят от обекта го проверява и подписва.'];
         return ['Протоколът е подписан','Копие остава в обекта, копие е за фирмата.'];}
-      if(t.kind==='box'&&ph==='work'){if(tt<2.2)return ['Проверка на дератизационна точка'+n,'Отваря кутията с лепливата плоскост.'];
-        if(tt<4.3)return ['Проверява лепливата плоскост','Отчита дали има гризачи или следи от тях.'];
-        if(tt<6.6)return ['Подменя лепливата плоскост','Използваната се прибира, поставя се нова неотровна плоскост.'];
-        return ['Вписва резултата в протокола','Отчетът за всяка точка е част от документацията на обекта.'];}
+      if(t.kind==='box'&&ph==='work'){if(tt<5.5)return ['Дератизационна точка'+n,'Оглежда кутията и я отваря.']; /* each as long as its step: read in time, no waiting */
+        if(tt<10.6)return ['Проверява лепливата плоскост','Търси следи от гризачи.'];
+        if(tt<16.6)return ['Подменя лепливата плоскост','Поставя нова неотровна плоскост.'];
+        return ['Вписва резултата в протокола','Всяка точка се отчита в документацията.'];}
       if(t.kind==='gel'&&ph==='work')return ['Нанася гел срещу хлебарки','Гелът се поставя в процепи и ъгли, където се крият насекомите.'];
       if(t.kind==='spray'&&ph==='spray'){if(dz.holdT>0)return ['Изчаква клиента да мине','Не се пръска, когато наблизо има хора.'];return ['Пръска срещу пълзящи насекоми','Препаратът се нанася по перваза, по пътя на насекомите.'];}
       return null;}
@@ -1774,7 +1782,7 @@ const space=(function(){
         if(dz.copyAt==='counter'&&C)flat(dz.copy,.08,.08,(dz.toHer||0));else if(dz.copyAt==='him')inHand(dz.copy,g,1);else dz.copy.visible=false;
         if(dz.penOn&&cs){const pp=palmOf(cs,1);dz.pen.visible=!!pp;if(pp){dz.pen.position.set(pp[0],pp[1]+.01,pp[2]);dz.pen.rotation.set(.9,dz.toHer||0,0);}}else dz.pen.visible=false;
         if(cs&&(dz.docsAt==='her'||dz.penOn))cs.userData.tillGrip=[0,1];}
-      dz.handB.visible=!!dz.holdB;if(dz.holdB){dz.handB.material=dz.holdB==='used'?VZ.bU:VZ.bN;const rp=palmOf(g,1);if(rp&&hd){dz.handB.position.set(rp[0],rp[1]+.03,rp[2]);dz.handB.lookAt(_zS);}}
+      dz.handB.visible=!!dz.holdB;if(dz.holdB){dz.handB.material=dz.holdB==='used'?VZ.bU:VZ.bN;const rp=palmOf(g,1);if(rp&&hd){dz.handB.position.set(rp[0],rp[1]+.03,rp[2]);dz.handB.lookAt(_zS);dz.handB.rotateY(dz.boardTilt||0);}}
       if(!spr){[dz.lance,dz.hose].forEach(o=>o.visible=false);VZ.mist.forEach(s_=>{if(s_.userData.t>=1.2)s_.visible=false;});return;}
       // hose: outlet → down → up to the lance's back end, a cubic curve with its own sag
       const a=_zA,b=_zB;dz.outlet.getWorldPosition(a);b.set(0,0,-.09).applyMatrix4(dz.lance.matrixWorld);const c1=_zC.copy(a).add(_zS.set(0,-.35,0)),c2=_zD.set(0,-.05,-.3).applyMatrix4(dz.lance.matrixWorld);c2.y-=.3;

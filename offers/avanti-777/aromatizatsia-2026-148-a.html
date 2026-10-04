@@ -2011,7 +2011,9 @@ const space=(function(){
       VZ.geo={front:lf1,rear:lr1,front2:lf2,rear2:lr2,
         bottle:mergeColored([[C(.026,.028,.085,14).translate(0,.0425,0),'#7a4a12'],[C(.012,.02,.02,12).translate(0,.095,0),'#7a4a12'],[C(.013,.013,.022,12).translate(0,.115,0),BL],[C(.0285,.0285,.028,14).translate(0,.04,0),GD]]),
         bag:mergeColored([[roundedBox(.24,.2,.07,.02),BL],[at(new T.BoxGeometry(.25,.035,.072),0,.07,0),'#26262a']]),
-        phone:mergeColored([[new T.BoxGeometry(.072,.15,.009),'#141416'],[at(new T.BoxGeometry(.064,.135,.001),0,0,.005),'#9fd0ff']])};
+        phone:mergeColored([[new T.BoxGeometry(.072,.15,.009),'#141416'],[at(new T.BoxGeometry(.064,.135,.001),0,0,.005),'#9fd0ff']]),
+        can:mergeColored([[at(roundedBox(.11,.19,.075,.012),0,.095,0),'#ece8df'],[at(new T.BoxGeometry(.045,.022,.024),0,.2,-.018),'#ece8df'],[at(C(.011,.013,.026,10),0,.205,.024),GD],[at(new T.BoxGeometry(.07,.05,.002),0,.1,.047),'#7a4a12']]), /* 1 l of aroma oil: white canister, gold spout cap, amber label */
+        stream:new T.CylinderGeometry(.0028,.0022,1,6).translate(0,-.5,0)};
       Object.values(VZ.geo).forEach(g=>GEOSET.add(g));
       const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d');const im=new Image();const tt_=new T.CanvasTexture(c);tt_.encoding=T.sRGBEncoding;
       im.onload=()=>{x.clearRect(0,0,128,128);x.drawImage(im,128/2-36,8,72,96);x.fillStyle='#c9a656';x.font='600 13px Inter, Arial';x.textAlign='center';x.fillText('KAYA LUX',64,122);tt_.needsUpdate=true;};im.src='assets/img/logo-mark.png';
@@ -2027,9 +2029,9 @@ const space=(function(){
       // the shoulder bag with the oil bottles, on his left hip, the gold KL on its flap
       const bag=vzBone(B('Pelvis'),new T.Mesh(VZ.geo.bag,M.vc2),new T.Vector3(.2,pv.y-.02,.02),new T.Quaternion().setFromEuler(_zE.set(0,Math.PI/2,0)));const dec=new T.Mesh(VZ.geo.decal,VZ.mat.decal);dec.position.set(0,0,.037);dec.scale.setScalar(.8);bag.add(dec);
       const lad=new T.Group(),lf=new T.Mesh(VZ.geo.front,M.vc2),lr=new T.Mesh(VZ.geo.rear,M.vc2);lf.castShadow=lr.castShadow=true;lad.add(lf,lr);
-      const btl=new T.Mesh(VZ.geo.bottle,M.vc2);btl.visible=false;const ph=new T.Mesh(VZ.geo.phone,M.vc2);ph.visible=false;room.add(lad,btl,ph);
+      const btl=new T.Mesh(VZ.geo.bottle,M.vc2);btl.visible=false;const ph=new T.Mesh(VZ.geo.phone,M.vc2);ph.visible=false;const can=new T.Mesh(VZ.geo.can,M.vc2);can.visible=false;const strm=new T.Mesh(VZ.geo.stream,VZ.streamM||(VZ.streamM=new T.MeshStandardMaterial({color:0xb5791d,roughness:.25,metalness:0,transparent:true,opacity:.85})));strm.visible=false;room.add(lad,btl,ph,can,strm);
       const tag=document.createElement('div');tag.className='vztag';tag.innerHTML='<b>Оператор</b><i>KAYA LUX · сервиз</i>';tag.hidden=true;ovl.appendChild(tag);const tagV=new T.Vector3();overlay.push({el:tag,v:tagV,kind:'vz'});
-      ud.dz={legs,feet:null,tag,tagV,bag,lad,lf,lr,btl,ph,ladTh:0,ladOn:false,ladP:[0,0,0],ladYaw:0,lift:0,holdB:null,phOn:false,q:[],task:null,ph_:'away',t:0,until:T_+rnd(2,6)};
+      ud.dz={legs,feet:null,tag,tagV,bag,lad,lf,lr,btl,can,strm,ph,ladTh:0,ladOn:false,ladP:[0,0,0],ladYaw:0,lift:0,holdB:null,phOn:false,q:[],task:null,ph_:'away',t:0,until:T_+rnd(2,6)};
       g.visible=false;ud.state='away';g.position.set(nav.entry[0],0,nav.entry[1]);room.add(g);people.push(g);VZ.g=g;return true;}
     function vzLeg(g,l,tg){const [th,ca,ft]=l;th.getWorldPosition(_S0);ca.getWorldPosition(_E0);ft.getWorldPosition(_W0);const l1=_S0.distanceTo(_E0),l2=_E0.distanceTo(_W0);
       _Dv.copy(tg).sub(_S0);let d=_Dv.length();if(d<1e-4)return;_Dv.multiplyScalar(1/d);d=Math.min(Math.max(d,Math.abs(l1-l2)+.02),(l1+l2)*.995);
@@ -2096,12 +2098,24 @@ const space=(function(){
         const bodyP=j=>{const q=trP(j);return j?[q[0]+d[0]*.06,q[1]+d[2]*.06]:q;},footP=(j,sd)=>{const q=trP(j);return [q[0]+lat[0]*sd*.1,trY(j)+ank,q[1]+lat[2]*sd*.1];};
         const rail=(sd,y)=>{y=Math.min(y,hy-.08);const o=(hy-y)*tt_;return [F[0]+lat[0]*sd*.22+d[0]*o,y,F[1]+lat[2]*sd*.22+d[2]*o];};
         const lerp3=(A,B_,f)=>[A[0]+(B_[0]-A[0])*f,A[1]+(B_[1]-A[1])*f,A[2]+(B_[2]-A[2])*f],arc=(A,B_,f)=>{const q=lerp3(A,B_,tE(f));q[1]+=.11*Math.sin(Math.PI*f);return q;};
-        const SU=1.5,SD=1.7,c0=3.0,tUp=c0+SU*k,w0=tUp+.6,tDn=w0+10.4,tFl=tDn+SD*k,tOff=tFl+.8,tFold=tOff+3.0,tEnd=tFold+1.8;
+        const {SU,SD,cP,c0,tUp,w0,o:oL,tSw,tCl,tPh,tDn,tFl,tOff,tFold,tEnd}=vzTL(k);
         u.vzBusy=tt>.3&&tt<tOff?performance.now()/1000+.3:0; /* it does not puff while he is at it */
         // the ladder: set down, opened slowly, tested with both hands; folded and picked up at the end
         if(tt>.5&&tt<tEnd-.4){if(!dz.ladOn){dz.ladOn=true;dz.ladP=[F[0],0,F[1]];dz.ladYaw=Math.atan2(d[0],d[2]);}dz.ladTh=th*Math.min(ramp(.8,2.3),1-ramp(tFold,tFold+1.2));}else dz.ladOn=false;
         if(tt<2.3)R[1]={p:[F[0]+lat[0]*.15,1.15,F[1]+lat[2]*.15],w:win(.3,2.3,.3)};
-        if(tt>=2.3&&tt<c0+.2){const w=win(2.3,c0+.2,.25),sh=Math.sin((tt-2.3)*9)*.015;R[0]=({p:rail(-1,1.1),w});R[1]={p:rail(1,1.1+sh),w};} /* a push on the rails: it stands firm */
+        if(tt>=2.3&&tt<cP+.2){const w=win(2.3,cP+.2,.25),sh=Math.sin((tt-2.3)*9)*.015;R[0]=({p:rail(-1,1.1),w});R[1]={p:rail(1,1.1+sh),w};} /* a push on the rails: it stands firm */
+        // at the foot of the ladder he fills the bottle he will set in: the canister out of the bag into the left hand, the bottle in the right,
+        // the oil poured in a thin stream, the canister back into the bag, the full bottle into the bag too, and only then up the ladder
+        dz.canOn=false;dz.pour=0;
+        if(tt>=cP&&tt<c0){const s_=tt-cP,fx=-d[0],fz=-d[2],sp=(a_,b_)=>s_>=a_&&s_<b_,bagP=[px+lat[0]*-.22,.95,pz+lat[2]*-.22],bP=[px+fx*.3+lat[0]*.05,1.06,pz+fz*.3+lat[2]*.05],cHP=[px+fx*.3-lat[0]*.07,1.2,pz+fz*.3-lat[2]*.07];
+          if(sp(0,.9))R[1]={p:s_<.55?bagP:bP,w:win(0,.9,.25)};                       // the empty bottle out of the bag
+          if(s_>=.5&&s_<6.3)dz.holdB='fill';
+          if(sp(.9,6.4))R[1]={p:s_<5.6?bP:bagP,w:win(.9,6.4,.3)};                   // held up in front, then back into the bag, full
+          if(sp(.7,5.7))R[0]={p:s_<1.3||s_>5.1?bagP:cHP,w:win(.7,5.7,.3)};         // the canister out of the bag and back
+          if(s_>=1.15&&s_<5.35)dz.canOn=true;
+          dz.pour=s_<1.9?0:s_<2.5?tE((s_-1.9)/.6):s_<4.6?1:s_<5.1?1-tE((s_-4.6)/.5):0;
+          if(dz.pour>.95)R[0]={p:[cHP[0],cHP[1]+Math.sin(s_*7)*.004,cHP[2]],w:1};
+          lookP=[px+fx*.35,pz+fz*.35];}
         // where his body and feet are
         let lvl=0,bp=bodyP(0),fL=footP(0,-1),fR=footP(0,1),lift=0,hL=null,hR=null;
         if(tt>=c0&&tt<tUp){const j=Math.min(k,Math.floor((tt-c0)/SU)+1),f=((tt-c0)-(j-1)*SU)/SU,a0=j-1;
@@ -2113,22 +2127,25 @@ const space=(function(){
           fL=f<.4?arc(footP(j,-1),footP(a1,-1),f/.4):footP(a1,-1);fR=f<.6?footP(j,1):f<1?arc(footP(j,1),footP(a1,1),(f-.6)/.4):footP(a1,1);
           const b_=tE(clamp((f-.25)/.45,0,1));lift=trY(j)+(trY(a1)-trY(j))*b_;const B0=bodyP(j),B1=bodyP(a1);bp=[B0[0]+(B1[0]-B0[0])*b_,B0[1]+(B1[1]-B0[1])*b_];
           const gy=lift+1.05;hL=rail(-1,f<.3?gy+.2-.2*tE(f/.3):gy);hR=rail(1,f<.5?gy+.25:f<.8?gy+.25-.25*tE((f-.5)/.3):gy);}
-        dz.feet=tt>=c0-.2&&tt<tFl+.3?[fL,fR]:null;{const lt_=tt>=w0-.3&&tt<w0+8.7?(t.lean||.14):tt>=tUp&&tt<tDn?.14:tt>=c0&&tt<tFl?.08:0;dz.leanS=(dz.leanS||0)+(lt_-(dz.leanS||0))*Math.min(1,dt*2.5);dz.leanL=dz.leanS;} /* at the top he leans in to the diffuser as far as the plan found he must (over a shelf, more), one hand on the rail; eased in and out */
+        dz.feet=tt>=c0-.2&&tt<tFl+.3?[fL,fR]:null;{const lt_=tt>=w0-.3&&tt<tCl+1.9?(t.lean||.14):tt>=tUp&&tt<tDn?.14:tt>=c0&&tt<tFl?.08:0;dz.leanS=(dz.leanS||0)+(lt_-(dz.leanS||0))*Math.min(1,dt*2.5);dz.leanL=dz.leanS;} /* at the top he leans in to the diffuser as far as the plan found he must (over a shelf, more), one hand on the rail; eased in and out */
         g.position.x=bp[0];g.position.z=bp[1];dz.lift=Math.max(0,lift);
         if(hL)R[0]={p:hL,w:.95};if(hR)R[1]={p:hR,w:.95};
         // at the top: one hand on the ladder, the other does the work, slowly
         const bw_=u.bw||.19,ue=(()=>{if(u.cover){u.cover.updateMatrixWorld(true);_zC.set(bw_*.97,0,(u.bd||.07)*.9);u.cover.localToWorld(_zC);return [_zC.x,_zC.y,_zC.z];}return [u.p[0],u.p[1],u.p[2]];})();
         const uf=[u.p[0]+d[0]*(u.bd||.07)*.5,u.p[1]-(u.bh||.26)*.05,u.p[2]+d[2]*(u.bd||.07)*.5],bag_=[px+lat[0]*-.22,.95+lift,pz+lat[2]*-.22],out_=[uf[0]+d[0]*.18,uf[1]-.05,uf[2]+d[2]*.18];
-        dz.open=tt<w0+1.1?0:tt<w0+2.5?tE((tt-w0-1.1)/1.4):tt<w0+7.2?1:tt<w0+8.6?1-tE((tt-w0-7.2)/1.4):0;
-        if(u.bottle)u.bottle.visible=!(tt>w0+3.3&&tt<w0+6.2);
-        if(tt>=w0&&tt<w0+2.6)R[1]={p:ue,w:win(w0,w0+2.6,.4)};                                                                  // the cover drawn open by its edge
-        if(tt>=w0+2.6&&tt<w0+4.6){R[1]={p:tt<w0+3.3?uf:tt<w0+3.8?out_:bag_,w:win(w0+2.6,w0+4.6,.35)};if(tt>w0+3.3&&tt<w0+4.4)dz.holdB='old';}   // the empty bottle out, down into the bag
-        if(tt>=w0+4.6&&tt<w0+6.6){R[1]={p:tt<w0+5.2?bag_:tt<w0+5.7?out_:uf,w:win(w0+4.6,w0+6.6,.35)};if(tt>w0+5.1&&tt<w0+6.2)dz.holdB='new';}   // a full one from the bag, set in
-        if(tt>=w0+6.8&&tt<w0+8.6)R[1]={p:ue,w:win(w0+6.8,w0+8.6,.4)};                                                         // the cover pushed shut, gently
-        if(tt>=w0+8.8&&tt<tDn-.2){dz.phOn=true;R[1]={p:[px-d[0]*.3+lat[0]*.08,1.25+lift,pz-d[2]*.3+lat[2]*.08],w:win(w0+8.8,tDn-.2,.3)};}
+        dz.open=tt<w0+1.1?0:tt<w0+2.5?tE((tt-w0-1.1)/1.4):tt<tCl+.4?1:tt<tCl+1.8?1-tE((tt-tCl-.4)/1.4):0;
+        if(u.bottle)u.bottle.visible=!(tt>tSw+.7&&tt<tSw+3.6);
+        if(tt>=w0&&tt<w0+2.6+oL)R[1]={p:ue,w:win(w0,w0+2.6+oL,.4)};                                                            // the cover drawn open by its edge, held while he looks in at the seat and the old bottle
+        if(tt>=tSw&&tt<tSw+2.0){R[1]={p:tt<tSw+.7?uf:tt<tSw+1.2?out_:bag_,w:win(tSw,tSw+2.0,.35)};if(tt>tSw+.7&&tt<tSw+1.8)dz.holdB='old';}   // the empty bottle out, down into the bag
+        if(tt>=tSw+2.0&&tt<tSw+4.0){R[1]={p:tt<tSw+2.6?bag_:tt<tSw+3.1?out_:uf,w:win(tSw+2.0,tSw+4.0,.35)};if(tt>tSw+2.5&&tt<tSw+3.6)dz.holdB='new';}   // the full one from the bag, set in
+        if(tt>=tCl&&tt<tCl+1.8)R[1]={p:ue,w:win(tCl,tCl+1.8,.4)};                                                             // the cover pushed shut, gently
+        // the schedule on the phone: thumb on the screen, the phone held up toward the diffuser for a moment, a look at it now and then
+        if(tt>=tPh&&tt<tDn-.2){dz.phOn=true;const q_=tt-tPh,up=q_>2.2&&q_<3.4?.07*Math.sin(Math.PI*(q_-2.2)/1.2):0;R[1]={p:[px-d[0]*(.3+up)+lat[0]*.08,1.25+lift+up+Math.sin(q_*3.1)*.006,pz-d[2]*(.3+up)+lat[2]*.08],w:win(tPh,tDn-.2,.3)};}
         if(!dz.puffed&&tt>tOff+.4){dz.puffed=true;u.vzPuff=T_+2.6;} /* the test puff once he stands on the floor */
-        if(tt>=tFl&&tt<tOff){const f=(tt-tFl)/(tOff-tFl),B0=bodyP(0);bp=B0;g.position.x=B0[0];g.position.z=B0[1];}
-        dz.u=u;lookP=tt>=w0+8.8&&tt<tDn-.2?[px-d[0]*.3,pz-d[2]*.3]:tt<c0||(tt>=tUp&&tt<tDn)||tt>tOff?[u.p[0],u.p[2]]:[F[0],F[1]];
+        if(tt>=tFl&&tt<tOff){const B0=bodyP(0);bp=B0;g.position.x=B0[0];g.position.z=B0[1];}
+        // after the test puff he waits for the mist and checks the scent with a small wave of the hand toward his face
+        if(tt>=tOff+2.0&&tt<tOff+3.8){const q_=tt-tOff-2.0,sw=.06+.05*Math.sin(q_*5);R[1]={p:[px-d[0]*.22+lat[0]*sw,1.5,pz-d[2]*.22+lat[2]*sw],w:win(tOff+2.0,tOff+3.8,.35)};}
+        dz.u=u;if(!(tt>=cP&&tt<c0))lookP=tt>=tPh&&tt<tDn-.2?((Math.floor((tt-tPh)/1.6)%3===2)?[u.p[0],u.p[2]]:[px-d[0]*.3,pz-d[2]*.3]):tt<cP||(tt>=tUp&&tt<tDn)||tt>tOff?[u.p[0],u.p[2]]:[F[0],F[1]];
         if(tt>=tFold&&tt<tEnd)R[1]={p:[F[0]+lat[0]*.15,1.1,F[1]+lat[2]*.15],w:win(tFold,tEnd,.3)};
         if(tt>tEnd){dz.ph_='next';dz.puffed=false;dz.lift=0;dz.open=0;dz.feet=null;dz.leanL=0;if(u.bottle)u.bottle.visible=true;u.vzBusy=0;}}
       if(dz.ph_!=='work'){dz.lift=0;dz.open=0;dz.feet=null;dz.leanL=0;dz.leanS=0;}
@@ -2178,16 +2195,20 @@ const space=(function(){
     // the moment, as someone checking his work does); nobody watching, he works at his own pace
     function vzTick(g,dz,dt){const sh=VZ.subShown;if(VZ.subVis&&sh&&performance.now()/1000-sh.at<sh.min){const t0=dz.t;dz.t+=dt;const c=vzCaption(g),k=c?c[0]+'|'+c[1]:'';dz.t=t0;
         if(k&&k!==sh.key&&(dz.gateT=(dz.gateT||0)+dt)<7)return;}dz.gateT=0;dz.t+=dt;}
-    function vzCaption(g){const dz=g.userData.dz;if(!dz)return null;const t=dz.task,tt=dz.t,ph=dz.ph_;if(!t||t.exit||ph!=='work')return null;
-      const k=t.k,SU=1.5,SD=1.7,c0=3.0,tUp=c0+SU*k,w0=tUp+.6,tDn=w0+10.4,tFl=tDn+SD*k,tOff=tFl+.8,tFold=tOff+3.0;
-      if(tt>=w0&&tt<w0+2.6)return ['Зареждане на дифузер №'+(t.u+1),'Отваря капака на дифузера.'];
-      if(tt>=w0+2.6&&tt<w0+8.8)return ['Сменя бутилката с ароматно масло','Празната бутилка се заменя с пълна.'];
-      if(tt>=w0+8.8&&tt<tDn)return ['Проверява графика на дифузера','Работното време се сверява с графика на обекта.'];
-      if(tt>=tFl&&tt<tFold)return ['Пробно пръскане','Проверка, че дифузерът работи след зареждането.'];
+    // one timeline for a diffuser job: the actions and the subtitles both read it, so the words never run ahead of the hands; every step
+    // lasts as long as its subtitle needs to be read, filled with real work (no standing still waiting for the reader)
+    function vzTL(k){const SU=1.5,SD=1.7,cP=3.0,c0=cP+7.0,tUp=c0+SU*k,w0=tUp+.6,o=1.6,tSw=w0+2.6+o,tCl=tSw+4.2,tPh=tCl+2.0,tDn=tPh+5.9,tFl=tDn+SD*k,tOff=tFl+.8,tFold=tOff+5.0,tEnd=tFold+1.8;
+      return {SU,SD,cP,c0,tUp,w0,o,tSw,tCl,tPh,tDn,tFl,tOff,tFold,tEnd};}
+    function vzCaption(g){const dz=g.userData.dz;if(!dz)return null;const t=dz.task,tt=dz.t,ph=dz.ph_;if(!t||t.exit||ph!=='work')return null;const L=vzTL(t.k);
+      if(tt>=L.cP+.2&&tt<L.c0)return ['Пълни бутилката с аромат','Ароматното масло се налива от туба в бутилка.'];
+      if(tt>=L.tUp&&tt<L.tSw)return ['Зареждане на дифузер №'+(t.u+1),'Отваря капака на дифузера.'];
+      if(tt>=L.tSw&&tt<L.tPh)return ['Сменя бутилката с ароматно масло','Празната бутилка се заменя с пълна.'];
+      if(tt>=L.tPh&&tt<L.tDn)return ['Проверява графика на дифузера','Сверява работното време на обекта.'];
+      if(tt>=L.tFl&&tt<L.tFold)return ['Пробно пръскане','Проверка, че дифузерът работи след зареждането.'];
       return null;}
     // the props each frame
     function vzProps(dt){const g=VZ.g;if(!g)return;const ud=g.userData,dz=ud.dz;if(!dz)return;vzZoneUpd(g);vzSubShow(g,vzCaption(g));const vis=g.visible;dz.tag.hidden=!vis;dz.lad.visible=vis;dz.bag.visible=true;
-      if(!vis){dz.btl.visible=dz.ph.visible=false;return;}g.updateMatrixWorld(true);const hd=ud.headB;if(hd){hd.getWorldPosition(_zS);dz.tagV.set(_zS.x,_zS.y+.36,_zS.z);}
+      if(!vis){dz.btl.visible=dz.ph.visible=dz.can.visible=dz.strm.visible=false;return;}g.updateMatrixWorld(true);const hd=ud.headB;if(hd){hd.getWorldPosition(_zS);dz.tagV.set(_zS.x,_zS.y+.36,_zS.z);}
       // the ladder: open on the floor under the diffuser, or folded in his right hand
       const LLc=(dz.task&&dz.task.LL)||1.6;if(dz.ladLL!==LLc){dz.ladLL=LLc;dz.lf.geometry=LLc>2?VZ.geo.front2:VZ.geo.front;dz.lr.geometry=LLc>2?VZ.geo.rear2:VZ.geo.rear;}
       dz.lf.rotation.x=-dz.ladTh;dz.lr.rotation.x=dz.ladTh;const hy=LLc*Math.cos(dz.ladTh);
@@ -2196,7 +2217,9 @@ const space=(function(){
       // the unit's cover swings open on its left edge, the bottle inside shows
       if(dz.u&&dz.u.cover){dz.u.cover.rotation.y=-1.75*tE(dz.open||0);}
       dz.btl.visible=!!dz.holdB;if(dz.holdB){const pp=palmOf(g,1);if(pp){dz.btl.position.set(pp[0],pp[1]-.05,pp[2]);dz.btl.rotation.set(0,0,0);}}
-      dz.ph.visible=!!dz.phOn;if(dz.phOn&&hd){const pp=palmOf(g,1);if(pp){dz.ph.position.set(pp[0],pp[1]+.02,pp[2]);dz.ph.lookAt(_zS);}}}
+      dz.ph.visible=!!dz.phOn;if(dz.phOn&&hd){const pp=palmOf(g,1);if(pp){dz.ph.position.set(pp[0],pp[1]+.02,pp[2]);dz.ph.lookAt(_zS);}}
+      dz.can.visible=!!dz.canOn;if(dz.canOn){const lp=palmOf(g,0);if(lp){dz.can.position.set(lp[0],lp[1]-.03,lp[2]);const bt=dz.btl.visible?dz.btl.position:null,yaw=bt?Math.atan2(bt.x-lp[0],bt.z-lp[2]):(ud.ang||0);dz.can.rotation.set(0,yaw,0);dz.can.rotateX(1.05*(dz.pour||0));}}
+      dz.strm.visible=false;if(dz.canOn&&(dz.pour||0)>.9&&dz.btl.visible){dz.can.updateMatrixWorld(true);_zA.set(0,.205,.024);dz.can.localToWorld(_zA);_zB.set(dz.btl.position.x,dz.btl.position.y+.11,dz.btl.position.z);const L_=_zA.distanceTo(_zB);if(L_>.02&&L_<.5){dz.strm.visible=true;dz.strm.position.copy(_zA);dz.strm.scale.set(1,L_,1);dz.strm.quaternion.setFromUnitVectors(_zD.set(0,-1,0),_zC.copy(_zB).sub(_zA).normalize());}}}
     window.__vz=()=>{const g=VZ.g;if(!g)return {none:true,texN:VZ.texN};const d=g.userData.dz;return {ph:d.ph_,u:d.task&&d.task.u,t:+d.t.toFixed(1),x:+g.position.x.toFixed(2),y:+g.position.y.toFixed(2),z:+g.position.z.toFixed(2),ang:+(g.userData.ang||0).toFixed(2),vis:g.visible,q:d.q.length,lift:+(d.lift||0).toFixed(2),lad:d.ladOn,st:g.userData.state,clip:g.userData.clip};};
     window.__vzPlan=()=>vzPlan().map(t=>t.u+' k'+t.k+' '+JSON.stringify(t.F.map(v=>+v.toFixed(2))));
     window.__vzSkip=()=>{const g=VZ.g;if(g)g.userData.dz.until=0;};
