@@ -1956,9 +1956,9 @@ const space=(function(){
         ppl=c=>people.concat(extras).some(o=>{if(o===VZ.g||!o.visible)return false;const ox_=o.position.x,oz_=o.position.z;return [W,Hh].some(t=>{const dx=t.x-c.x,dz=t.z-c.z,L2=dx*dx+dz*dz||1,u_=((ox_-c.x)*dx+(oz_-c.z)*dz)/L2;return u_>.05&&u_<.95&&Math.hypot(ox_-(c.x+dx*u_),oz_-(c.z+dz*u_))<.3;});}), /* a person (the cashier, a shopper) standing between the camera and the work blocks it too */
         ok=p=>{const c=pose(p);return cell(c.x,c.z)&&(seen(c,W)||seen(c,Wt))&&seen(c,Hh)&&seen(c,Mh)&&!ppl(c);}; /* the work, his head and his hands in between */
       VZ.wkT=(VZ.wkT||0)+dt;let again=VZ.wkFor!==wk.key||!VZ.wkP;if(!again&&VZ.wkT>.8){VZ.wkT=0;again=!ok(VZ.wkP);}
-      if(again){VZ.wkFor=wk.key;VZ.wkP=null;for(const dh of [0,.55,1.1])for(const th of [-1.3,1.3,-1.05,1.05,-1.55,1.55,-.8,.8,-1.85,1.85]){ /* his working (right) hand's side first: his body never hides what the hand does */ /* from the side: his profile, his hands and the work in one frame; over a fixture: the same from higher up */if(VZ.wkP)break;for(const d of wk.D){const p={th,d,h:wk.h+dh};if(ok(p)){VZ.wkP=p;break;}}}
+      if(again){VZ.wkFor=wk.key;VZ.wkP=null;for(const th of [-1.3,-1.05,-1.55,-.8,-1.85,-.55,1.3,1.05,1.55,.8,1.85])for(const dh of [0,.55,1.1]){ /* always from his right, as when he shows the work to someone: every distance and height on that side first, the left only if the right is walled in */ /* his working (right) hand's side first: his body never hides what the hand does */ /* from the side: his profile, his hands and the work in one frame; over a fixture: the same from higher up */if(VZ.wkP)break;for(const d of wk.D){const p={th,d,h:wk.h+dh};if(ok(p)){VZ.wkP=p;break;}}}
         if(!VZ.wkP){/* the work is wedged in behind a fixture: over his shoulder from up near the ceiling, looking down at his hands */const hw=Math.hypot(Hh.x-W.x,Hh.z-W.z),top=Math.max(wk.h+.6,(S.H||3)-.3);
-          for(const th of [0,.35,-.35,.7,-.7]){if(VZ.wkP)break;for(const d of [hw+.6,hw+.9,hw+.35]){const p={th,d,h:top};const c=pose(p);if(cell(c.x,c.z)&&(seen(c,W)||seen(c,Wt))){VZ.wkP=p;break;}}}
+          for(const th of [-.35,0,-.7,.35,.7]){if(VZ.wkP)break;for(const d of [hw+.6,hw+.9,hw+.35]){const p={th,d,h:top};const c=pose(p);if(cell(c.x,c.z)&&(seen(c,W)||seen(c,Wt))){VZ.wkP=p;break;}}}
           if(!VZ.wkP)VZ.wkP={th:0,d:hw+.6,h:top};}}
       return [pose(VZ.wkP),W.clone().lerp(Hh,wk.mix==null?.4:wk.mix)];}
     // reality rule: shoppers keep clear of the specialist at work (a ladder up, a box open on the floor): nobody stops at the spot or, while
@@ -1971,7 +1971,7 @@ const space=(function(){
     function inZone(x,z,pad){const Z=VZ.zone;if(!Z)return false;pad=pad||0;if(Math.hypot(x-Z.x,z-Z.z)<Z.r+pad)return true;if(Z.cx==null)return false;
       const dx=Z.cx-Z.x,dz=Z.cz-Z.z,L2=dx*dx+dz*dz||1;let t=((x-Z.x)*dx+(z-Z.z)*dz)/L2;t=t<0?0:t>1?1:t;return Math.hypot(x-(Z.x+dx*t),z-(Z.z+dz*t))<.45+pad;}
     function vzWork(g){const ud=g.userData,dz=ud.dz,t=dz&&dz.task,hd=ud.headB;if(!t||t.exit||dz.ph_!=='work'||!hd)return null;const u=S.units[t.u];if(!u)return null;hd.getWorldPosition(_zS);
-      return {key:t,W:[u.p[0],u.p[1],u.p[2]],H:[_zS.x,_zS.y-.1,_zS.z],face:t.face,D:[2.7,2.3,3.1],h:clamp(u.p[1]-.4,1.6,2.2),mix:.4};}
+      return {key:t,W:[u.p[0],u.p[1],u.p[2]],H:[_zS.x,_zS.y-.1,_zS.z],face:t.face,D:[1.6,1.9,2.2,2.6,3.1],h:clamp(u.p[1]-.4,1.6,2.2),mix:.3};}
 
     // subtitles under the 3D scene: what he is doing right now and why (shown while you follow him, or while he is on screen nearby)
     function vzSubShow(g,cap){let el=VZ.sub;if(!el){el=VZ.sub=document.createElement('div');el.className='vzsub';el.setAttribute('aria-live','polite');el.innerHTML='<b></b><span></span>';stage.appendChild(el);}
@@ -2039,7 +2039,7 @@ const space=(function(){
     // every person model's materials compiled up front (their originals are briefly part of the scene for the compile): a model walking in for
     // the first time a minute into the presentation must not stall the frame – on Windows/ANGLE (Firefox, Chrome) one shader compile costs 100+ ms
     function warmModels(){const G=GL();if(!G)return;const hold=new T.Group();hold.visible=false;G.models.forEach(m=>{if(!m.warm){m.warm=1;hold.add(m.scene);}});if(!hold.children.length)return;scene.add(hold);warm();scene.remove(hold);[...hold.children].forEach(c=>hold.remove(c));}
-    function later(fn){const tok=buildTok;pending.push(requestAnimationFrame(()=>{if(tok!==buildTok)return;fn();warm();renderer.shadowMap.needsUpdate=true;kick();}));}
+    function later(fn){const tok=buildTok;pending.push(requestAnimationFrame(()=>{if(tok!==buildTok)return;fn();S._losTok=null;warm();renderer.shadowMap.needsUpdate=true;kick();}));}
     // ?zf=1 (debug only): every axis-aligned box is recorded, so __zf() can list coplanar overlapping faces of different materials — the cause of flicker (z-fighting)
     const ZF=/[?&]zf=1/.test(location.search),ZB=[];
     const REC=[]; // every axis-aligned box of the build being made: {id (material or colour), g (its geometry), mn, mx, s (source, ?zf=1 only)}
