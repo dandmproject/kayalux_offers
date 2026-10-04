@@ -2232,7 +2232,9 @@ const space=(function(){
     const V3=(x,y,z)=>new T.Vector3(x,y,z);
     function inRoom(x,z,m){return Math.abs(x)<S.hw-m&&Math.abs(z)<S.hd-m;}
     // the static things a shelf view can hide the diffuser behind (walls, gondolas, coolers) — built once per store, reused for every line-of-sight test
-    function losMeshes(){if(S._losTok===buildTok)return S._los;const L=[];room.traverse(o=>{if(o.isMesh&&!o.isSkinnedMesh&&(PEST||!o.isInstancedMesh)&&o.geometry&&o.visible&&!(o.material&&o.material.depthWrite===false)&&!(o.parent&&o.parent.userData&&o.parent.userData.gltf))L.push(o);});S._los=L; /* pest: the goods on the shelves count too — they hide a box on the floor */S._losTok=buildTok;return L;}
+    function losMeshes(){if(S._losTok===buildTok)return S._los; /* fixed fixtures only: people, whatever they carry (the specialist's case, tank, ladder; baskets, bags, phones) and the goods moving over the till never count as walls */
+      const skip=new Set(people.concat(extras));if(VZ.g){skip.add(VZ.g);const dz=VZ.g.userData.dz;if(dz)Object.values(dz).forEach(v=>{if(v&&v.isObject3D)skip.add(v);});}[S.counterBag,S.counterBasket,S.tillNote,S.beep].concat(S.counterItems||[]).forEach(o=>{if(o)skip.add(o);});
+      const L=[],walk=o=>{if(skip.has(o))return;if(o.isMesh&&!o.isSkinnedMesh&&(PEST||!o.isInstancedMesh)&&o.geometry&&o.visible&&!(o.material&&o.material.depthWrite===false)&&!(o.parent&&o.parent.userData&&o.parent.userData.gltf))L.push(o);o.children.forEach(walk);};room.children.forEach(walk);S._los=L; /* pest: the goods on the shelves count too, they hide a box on the floor */S._losTok=buildTok;return L;}
     const _rcU=new T.Raycaster(),_cv=new T.Vector3(),_dv=new T.Vector3();
     function clearLOS(cx,cy,cz,o){_cv.set(cx,cy,cz);_dv.set(o[0]-cx,o[1]-cy,o[2]-cz);const dist=_dv.length();_dv.normalize();_rcU.set(_cv,_dv);_rcU.near=.05;_rcU.far=dist-.35;const h=_rcU.intersectObjects(losMeshes(),false);return h.length===0;} // nothing stands between the camera and the diffuser
     function unitKey(i){const u=S.units[i],d=u.d,o=u.o;
