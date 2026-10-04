@@ -979,7 +979,7 @@ const space=(function(){
       setPath(g,nav.route(gridDyn(g),from,to),T_);}
     function navArrive(g,T_){const ud=g.userData,leg=ud.visit[ud.legI],ts=PARAMS.timeScale;
       if(leg.kind==='browse'){ud.state='browse';ud.until=T_+leg.dur;ud.faceAng=Math.atan2(-leg.b.f[0],-leg.b.f[1]);}
-      else if(leg.kind==='queue'){ud.state='queue';ud.faceAng=0;ud.until=1e12;ud.qT=T_;} /* facing +z, toward the cashier across the counter */
+      else if(leg.kind==='queue'){ud.state='queue';ud.faceAng=-Math.PI/2;ud.until=1e12;ud.qT=T_;} /* toward the counter/head of the queue; the one being served turns to the cashier */
       else if(leg.kind==='returnBasket'){ud.state='browse';ud.until=T_+rr(PARAMS.returnBasket)*ts;ud.faceAng=Math.atan2(-1,0);ud.hasBasket=false;}
       else{ud.state='away';ud.until=T_+awayDur();g.visible=false;if(ud.stroller)ud.stroller.visible=false;ud.fallback=false;}}
     function navNext(g,T_){g.userData.legI++;startLeg(g,T_);}
@@ -1258,6 +1258,7 @@ const space=(function(){
           // in the line: facing the one ahead (the line reads as a line, not as people standing about), now and then a look at the till
           if(k>0&&!ud.pay){const ah=qOcc[k-1],tp=ah&&ah.visible?[ah.position.x,ah.position.z]:nav.queue[k-1];if(tp&&Math.hypot(tp[0]-g.position.x,tp[1]-g.position.z)>.15)ud.faceAng=Math.atan2(tp[0]-g.position.x,tp[1]-g.position.z);
             if(!ud.phone&&S.tl){if(T_>(ud.qLook||0)){ud.qLook=T_+rnd(4,9);ud.qLookEnd=T_+rnd(1.2,2.4);}ud.lookAtP=T_<(ud.qLookEnd||0)?[S.tl.E-.3,S.tl.H[2]+.24]:null;}}
+          else if(S.tl)ud.faceAng=Math.atan2(S.tl.E-.3-g.position.x,S.tl.H[2]-g.position.z); // at the head of the line or being served: square up to the counter
           ud.ang=angStep(ud.ang,ud.faceAng,4,dt,2.6);g.rotation.y=ud.ang;
           let tillBusy=k===1&&people.some(o=>o!==g&&o.visible&&o.userData.state==='walk'&&!(o.userData.visit&&o.userData.visit[o.userData.legI]&&o.userData.visit[o.userData.legI].kind==='queue')&&Math.hypot(o.position.x-nav.queue[0][0],o.position.z-nav.queue[0][1])<.7);ud.tbT=tillBusy?(ud.tbT||0)+dt:0;if(ud.tbT>1.5)tillBusy=false; // the one just served walks off first (never more than 3 s)
           if(k>0&&!qOcc[k-1]&&!tillBusy){qOcc[k]=null;qOcc[k-1]=g;ud.slot=k-1;setPath(g,nav.route(gridDyn(g),[g.position.x,g.position.z],nav.queue[k-1]),T_);}
@@ -1910,7 +1911,7 @@ const space=(function(){
       blk(ckX,ckZ+.32,ckW,1.5);ao(ckX,ckZ+.4,ckW,0,1);ao(ckX+ckW/2,ckZ,.8,1,0);box(ckW,1,.8,M.oak,ckX,.5,ckZ);cbox(ckW+.04,.04,.84,'#3a2a1e',ckX,1.02,ckZ);cbox(ckW,.06,.02,BLK,ckX,.03,ckZ-.39);
       {const po=new T.Mesh(new T.PlaneGeometry(.6,.5),M.poster);po.position.set(ckX+ckW/2-.5,.55,ckZ+.41);room.add(po);
         const px=ckX+ckW/2-.3;cbox(.3,.02,.2,BLK,px,1.05,ckZ-.05);cbox(.03,.14,.03,BLK,px,1.12,ckZ-.05);
-        const mon=new T.Group();mon.position.set(px,1.3,ckZ+.12);mon.rotation.y=Math.PI-.3;mon.rotation.x=-.15; /* turned to face the cashier, who stands behind the counter */const bz=new T.Mesh(new T.BoxGeometry(.34,.24,.02),M.unit);const sc=new T.Mesh(new T.PlaneGeometry(.31,.21),M.screen);sc.position.z=.011;mon.add(bz,sc);room.add(mon);S.screen=sc;
+        const mon=new T.Group();mon.position.set(px,1.3,ckZ+.12);mon.rotation.y=-.3;mon.rotation.x=-.15; /* the screen with the data faces the cashier, who stands behind the counter */const bz=new T.Mesh(new T.BoxGeometry(.34,.24,.02),M.unit);const sc=new T.Mesh(new T.PlaneGeometry(.31,.21),M.screen);sc.position.z=.011;mon.add(bz,sc);room.add(mon);S.screen=sc;
         const term=new T.Group();term.position.set(ckX+ckW/2-.08,1.06,ckZ-.31);term.rotation.y=Math.PI/2;term.rotation.x=-.3; /* the card terminal stands at the customer's end, within reach */const tb=new T.Mesh(new T.BoxGeometry(.085,.03,.15),M.unit);const ts=new T.Mesh(new T.PlaneGeometry(.06,.035),M.screen2);ts.rotation.x=-Math.PI/2;ts.position.set(0,.016,-.045);const keys=new T.Mesh(new T.PlaneGeometry(.06,.06),M.keys);keys.rotation.x=-Math.PI/2;keys.position.set(0,.016,.03);term.add(tb,ts,keys);room.add(term);S.termP=[term.position.x,term.position.y,term.position.z];
         cbox(.16,.1,.2,BLK,px-.32,1.09,ckZ-.15);cbox(.1,.02,.02,WHT,px-.32,1.15,ckZ-.06);cbox(.06,.06,.06,BLK,ckX-ckW/2+.3,1.07,ckZ+.15);S.cashier=[px-.12,ckZ+.62];}
       label('Каса',ckX,1.5,ckZ);
@@ -2101,10 +2102,12 @@ const space=(function(){
       nav.entry=nf(doorX+.2,hd+1.2);nav.exit=nf(doorX-.2,hd+1.2);
       // queue places: the first beside the till, the rest 0.8 m apart behind it; where a shelf cuts that line off, the place moves a little further
       // back or bends out into the aisle, and a place that would land on top of another is simply not made (fewer people wait, nobody stacks)
-      {const qx=ckX+ckW/2-.15,qz0=ckZ-.66,gap=PARAMS.queueGap,Q=[]; // the queue stands in front of the counter (customer side) and runs into the aisle, facing the cashier
-        for(let k=0;k<4;k++){const cand=[];for(let e=0;e<=.6;e+=.2)cand.push([qx,qz0-k*gap-e]);for(let j=1;j<=2;j++)cand.push([qx-j*.45,qz0-k*gap],[qx+j*.45,qz0-k*gap]);
-          let q=null;for(const c of cand){const p=nf(c[0],c[1]),prev=Q[Q.length-1];if(Q.every(s=>Math.hypot(s[0]-p[0],s[1]-p[1])>=.7)&&(!prev||Math.hypot(prev[0]-p[0],prev[1]-p[1])<=1.5)){q=p;break;}}
-          if(!q)break;Q.push(q);}
+      // the queue stands in front of the counter (customer side): the first in front of the till, the rest running along the counter and
+      // then turning toward the entrance, the way shoppers line up down the aisle; each place must be free floor and not stack on another
+      {const gap=PARAMS.queueGap,bz=ckZ-.68,Q=[],xLim=nav.entry[0]-.1;let x=ckX+ckW/2-.15; // head in front of the till, the line runs toward the entrance but never past it
+        for(let k=0;k<5;k++){if(k>0&&x>xLim)break;let p=null;const cand=[[x,bz],[x,bz-.3],[x+.25,bz],[x,bz+.18]];
+          for(const c of cand){const q=nf(c[0],c[1]);if(q[1]<ckZ-.4&&Q.every(s=>Math.hypot(s[0]-q[0],s[1]-q[1])>=.62)){p=q;break;}}
+          if(!p)break;Q.push(p);x+=gap;}
         nav.queue.push(...Q);}
       qOcc.length=0;nav.queue.forEach(()=>qOcc.push(null));
       nav.stack=nf(doorX-doorW/2-.35,hd-1.1);
@@ -2126,6 +2129,8 @@ const space=(function(){
       // light rig
       key.position.set(-W*.25,Hh*4.2,D*.4);key.target.position.set(0,0,0);const sc=key.shadow.camera,R=Math.max(W,D)*.85;sc.left=-R;sc.right=R;sc.top=R;sc.bottom=-R;sc.near=.5;sc.far=Hh*10+Math.max(W,D)*4;sc.updateProjectionMatrix();
       recolor();labelsVis();if(!M.badge.map){M.badge.map=badgeTex();M.badge.needsUpdate=true;} /* drawn once, not a new texture for every store */
+      // sharper textures at grazing angles (floor, signs, labels, the POS screen) with anisotropic filtering; it is a sampling-quality setting, not extra geometry or pixels, so it costs almost nothing
+      {const AX=Math.min(TIER>=2?8:4,(renderer.capabilities.getMaxAnisotropy&&renderer.capabilities.getMaxAnisotropy())||4),seen=new Set();scene.traverse(o=>{const ms=o.material&&(Array.isArray(o.material)?o.material:[o.material]);if(ms)ms.forEach(m=>['map','normalMap','roughnessMap','emissiveMap','metalnessMap'].forEach(k=>{const t=m[k];if(t&&!seen.has(t)){seen.add(t);if((t.anisotropy||1)<AX){t.anisotropy=AX;t.needsUpdate=true;}}}));});}
       pown.fill(-1);pAl.fill(0);emitAcc=0;
       go(view.name==='free'?'persp':view.name,true);renderer.shadowMap.needsUpdate=true;warm();
       if(window.__perf)window.__perf.build0=performance.now()-t0;
