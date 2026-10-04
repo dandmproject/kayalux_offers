@@ -979,7 +979,7 @@ const space=(function(){
       setPath(g,nav.route(gridDyn(g),from,to),T_);}
     function navArrive(g,T_){const ud=g.userData,leg=ud.visit[ud.legI],ts=PARAMS.timeScale;
       if(leg.kind==='browse'){ud.state='browse';ud.until=T_+leg.dur;ud.faceAng=Math.atan2(-leg.b.f[0],-leg.b.f[1]);}
-      else if(leg.kind==='queue'){ud.state='queue';ud.faceAng=Math.atan2(-1,0);ud.until=1e12;ud.qT=T_;}
+      else if(leg.kind==='queue'){ud.state='queue';ud.faceAng=0;ud.until=1e12;ud.qT=T_;} /* facing +z, toward the cashier across the counter */
       else if(leg.kind==='returnBasket'){ud.state='browse';ud.until=T_+rr(PARAMS.returnBasket)*ts;ud.faceAng=Math.atan2(-1,0);ud.hasBasket=false;}
       else{ud.state='away';ud.until=T_+awayDur();g.visible=false;if(ud.stroller)ud.stroller.visible=false;ud.fallback=false;}}
     function navNext(g,T_){g.userData.legI++;startLeg(g,T_);}
@@ -1107,7 +1107,7 @@ const space=(function(){
       const bl=mk({k:'bagLift',who:'s',side:1,re:.45,ca:.8,rt:.45,hold:.2,o:BG,off:[0,-.26,0],G:.26,dep:[[pay,5]],delay:.25,touch:1,start:()=>T.bag,touchEnd:1,end:H}),
         bt=mk({k:'bagTake',who:'c',side:1,re:.55,ca:1.05,rt:.9,o:BG,off:[0,-.24,0],G:.26,dep:[[bl,3]],delay:.05,touch:1,start:H});bl.holdFor=bt;
       ud.bagTaken=false;ud.basketOnCounter=false;ud.basketL=false;ud.leanBoost=0;
-      return {t0:T_,n,cash,hb,E,dock,U,SC,pay,bt,bye:rr(P.goodbye)*ts,byeA:0,from:[g.position.x,g.position.z],to:[T.E+.33,clamp(g.position.z,T.H[2]+.2,T.basket[2]+.04)],steps:0};}
+      return {t0:T_,n,cash,hb,E,dock,U,SC,pay,bt,bye:rr(P.goodbye)*ts,byeA:0,from:[g.position.x,g.position.z],to:[T.E-.15,T.H[2]-.58],steps:0};}
     // the gap between where the palm is and where it must be to hold `pt` (the object's point minus the way it hangs from the palm)
     function evGap(ev,pt,who){if(!who||!pt)return 0;const G=ev.G!=null?ev.G:.07;let w=null;if(who.userData.gltfP){const a=armBones(who)[ev.side];if(a&&a[2]){a[2].getWorldPosition(_pa);w=[_pa.x,_pa.y,_pa.z];}}if(!w)return 0;return Math.hypot(w[0]-pt[0],w[1]-(pt[1]+G),w[2]-pt[2]);} /* wrist vs where the IK puts it */
     function evStep(ev,dt,g,cs,pl){if(ev.s===5)return;const who=ev.who==='c'?g:cs,tag=ev.k+(ev.j!=null?ev.j:'');
@@ -1582,7 +1582,7 @@ const space=(function(){
       const hp=(f,r,y)=>[px+fwd.x*f+rgt.x*r,y*k,pz+fwd.z*f+rgt.z*r]; /* a point in his own frame: f ahead, r to his right, y up */
       if(dz.ph==='away'){g.visible=false;if(T_>dz.until&&!doorBusy(g)){VZ.vn=(VZ.vn||0)+1;const all=vzPlan(),spr=all.filter(t=>t.kind==='spray');dz.kind=spr.length&&VZ.vn%2===0?'spray':'service';dz.q=dz.kind==='spray'?spr:all.filter(t=>t.kind!=='spray');dz.caseOn=false;if(window.__vzOnly){dz.q=all.filter(t=>t.kind===window.__vzOnly);if(window.__vzN)dz.q=dz.q.slice(0,window.__vzN);dz.kind=window.__vzOnly==='spray'?'spray':'service';}g.position.set(nav.entry[0],0,nav.entry[1]);ud.ang=Math.PI;g.rotation.y=ud.ang;g.visible=true;ud.blend=0;dz.task=null;dz.ph='next';dz.t=0;}}
       if(dz.ph==='next'){let nt=dz.q.shift();
-        if(!nt&&!dz.handed&&S.tl&&extras.some(e=>e.userData.cashier)){const tl=S.tl;let d0=[tl.E+.33,(tl.H[2]+.2+tl.basket[2])/2];if(!vzWalk(d0[0],d0[1])){const w=vzNearWalk(d0[0],d0[1],.15);if(w)d0=w;}nt={kind:'hand',stand:d0};VZ.atTill=true;} /* from now on the till finishes the customer it is serving and then waits for him: no one new is called */
+        if(!nt&&!dz.handed&&S.tl&&extras.some(e=>e.userData.cashier)){const tl=S.tl;let d0=[tl.E-.15,tl.H[2]-.58];if(!vzWalk(d0[0],d0[1])){const w=vzNearWalk(d0[0],d0[1],.15);if(w)d0=w;}nt={kind:'hand',stand:d0};VZ.atTill=true;} /* from now on the till finishes the customer it is serving and then waits for him: no one new is called */
         dz.task=nt||{kind:'exit'};const t=dz.task;dz.t=0;dz.ph='go';
         if(dz.q.length<=2&&t.kind!=='exit'&&!VZ.quiet){VZ.quiet=true; /* the last job: the shop empties a little, so he can hand over the documents at a free till */
           people.forEach(o=>{const u=o.userData;if(u.ddd||!u.visit||u.follow!=null)return;const keep=u.visit.slice(0,u.legI+1),rest=u.visit.slice(u.legI+1).filter(l=>l.kind!=='browse');u.visit=keep.concat(rest);if(u.state==='browse')u.until=Math.min(u.until,T_+rnd(1,4));});}
@@ -1607,7 +1607,7 @@ const space=(function(){
       // the handover, as it goes in a real shop: he puts the protocol on the counter facing her and points through it, she reads it and
       // signs it, keeps her copy in the drawer and gives him the signed one, which goes into his case; a few words, and he leaves
       if(dz.ph==='hand'){const cs=extras.find(e=>e.userData.cashier),cu=cs&&cs.userData;VZ.atTill=true;
-        if(!cs){dz.ph='next';dz.handed=true;}else{const tl=S.tl,cx=cs.position.x,cz=cs.position.z,C=[tl.E-.14,1.048,tl.a[0][1]-.02];dz.counterP=C;dz.toHer=Math.atan2(cx-C[0],cz-C[2]);
+        if(!cs){dz.ph='next';dz.handed=true;}else{const tl=S.tl,cx=cs.position.x,cz=cs.position.z,C=[tl.E-.14,1.048,tl.scan[2]-.08];dz.counterP=C;dz.toHer=Math.atan2(cx-C[0],cz-C[2]);
           faceTo(Math.atan2(C[0]-px,C[2]-pz),4);const win2=(t0,t1,f)=>tt>=t0&&tt<t1?Math.min(1,(tt-t0)/(f||.3),(t1-tt)/(f||.3)):0,cr=[null,null],sC=(dx,dy,dz_)=>[C[0]+dx,C[1]+dy,C[2]+dz_];
           {const h_=tt<15?'<b>Дезинфектор</b><i>предава протокола</i>':'<b>Дезинфектор</b><i>„УНИЩОЖИТЕЛИ“ · ДДД</i>';if(dz.tagH!==h_){dz.tagH=h_;dz.tag.innerHTML=h_;}}
           // his part
@@ -1907,12 +1907,12 @@ const space=(function(){
           for(let lv=0;lv<4;lv++)for(let i=0;i<3;i++)put('bag',hx-.14+i*.14,.2+lv*.3,hz+.2,.11,.2,.05,pick_(['#f5c400','#c8382e','#3c7a3e','#f28c28','#2f6fb5']));}}
       // checkout: oak counter, black POS, terminal, printer, green-vest cashier; cigarette wall behind
       const ckW=Math.min(A<60?1.5:2.2,W*.25),ckX=Math.max(-hw+ckW/2+.35,doorX-doorW/2-ckW/2-.9),ckZ=hd-1.15;
-      blk(ckX,ckZ-.2,ckW,1.2);ao(ckX,ckZ+.4,ckW,0,1);ao(ckX+ckW/2,ckZ,.8,1,0);box(ckW,1,.8,M.oak,ckX,.5,ckZ);cbox(ckW+.04,.04,.84,'#3a2a1e',ckX,1.02,ckZ);cbox(ckW,.06,.02,BLK,ckX,.03,ckZ-.39);
+      blk(ckX,ckZ+.32,ckW,1.5);ao(ckX,ckZ+.4,ckW,0,1);ao(ckX+ckW/2,ckZ,.8,1,0);box(ckW,1,.8,M.oak,ckX,.5,ckZ);cbox(ckW+.04,.04,.84,'#3a2a1e',ckX,1.02,ckZ);cbox(ckW,.06,.02,BLK,ckX,.03,ckZ-.39);
       {const po=new T.Mesh(new T.PlaneGeometry(.6,.5),M.poster);po.position.set(ckX+ckW/2-.5,.55,ckZ+.41);room.add(po);
         const px=ckX+ckW/2-.3;cbox(.3,.02,.2,BLK,px,1.05,ckZ-.05);cbox(.03,.14,.03,BLK,px,1.12,ckZ-.05);
-        const mon=new T.Group();mon.position.set(px,1.3,ckZ-.05);mon.rotation.y=-.35;mon.rotation.x=-.15;const bz=new T.Mesh(new T.BoxGeometry(.34,.24,.02),M.unit);const sc=new T.Mesh(new T.PlaneGeometry(.31,.21),M.screen);sc.position.z=.011;mon.add(bz,sc);room.add(mon);S.screen=sc;
+        const mon=new T.Group();mon.position.set(px,1.3,ckZ+.12);mon.rotation.y=Math.PI-.3;mon.rotation.x=-.15; /* turned to face the cashier, who stands behind the counter */const bz=new T.Mesh(new T.BoxGeometry(.34,.24,.02),M.unit);const sc=new T.Mesh(new T.PlaneGeometry(.31,.21),M.screen);sc.position.z=.011;mon.add(bz,sc);room.add(mon);S.screen=sc;
         const term=new T.Group();term.position.set(ckX+ckW/2-.08,1.06,ckZ-.31);term.rotation.y=Math.PI/2;term.rotation.x=-.3; /* the card terminal stands at the customer's end, within reach */const tb=new T.Mesh(new T.BoxGeometry(.085,.03,.15),M.unit);const ts=new T.Mesh(new T.PlaneGeometry(.06,.035),M.screen2);ts.rotation.x=-Math.PI/2;ts.position.set(0,.016,-.045);const keys=new T.Mesh(new T.PlaneGeometry(.06,.06),M.keys);keys.rotation.x=-Math.PI/2;keys.position.set(0,.016,.03);term.add(tb,ts,keys);room.add(term);S.termP=[term.position.x,term.position.y,term.position.z];
-        cbox(.16,.1,.2,BLK,px-.32,1.09,ckZ-.15);cbox(.1,.02,.02,WHT,px-.32,1.15,ckZ-.06);cbox(.06,.06,.06,BLK,ckX-ckW/2+.3,1.07,ckZ+.15);S.cashier=[px,ckZ-.54];}
+        cbox(.16,.1,.2,BLK,px-.32,1.09,ckZ-.15);cbox(.1,.02,.02,WHT,px-.32,1.15,ckZ-.06);cbox(.06,.06,.06,BLK,ckX-ckW/2+.3,1.07,ckZ+.15);S.cashier=[px-.12,ckZ+.62];}
       label('Каса',ckX,1.5,ckZ);
       {const tz0=ckZ-.9,tz1=Math.min(ckZ+.6,hd-.25),tl=tz1-tz0;if(tl>.8){blk(-hw+.16,(tz0+tz1)/2,.34,tl);box(.3,2.2,tl,M.oak,-hw+.16,1.1,(tz0+tz1)/2);for(let lv=0;lv<7;lv++)box(.34,.015,tl,M.oak,-hw+.18,.22+lv*.27,(tz0+tz1)/2,false);for(let lv=0;lv<7;lv++)for(let z=tz0+.06;z<tz1-.05;z+=.1*dens)put('pack',-hw+.33,.23+lv*.27,z,.055,.09,.024,pick_(['#c9a24a','#b7b7b7','#274a7a','#8c3b2e','#e6e2d8','#3a3a3a','#2f6fb5']));label('Цигари',-hw+.35,2.45,(tz0+tz1)/2);
         cgeo(new T.CylinderGeometry(.065,.065,.48,8),'#c41e1e',-hw+.16,.65,tz0-.25);cgeo(new T.CylinderGeometry(.03,.05,.08,8),BLK,-hw+.16,.93,tz0-.25);cbox(.06,.05,.16,BLK,-hw+.1,.7,tz0-.25);}}
@@ -2101,18 +2101,18 @@ const space=(function(){
       nav.entry=nf(doorX+.2,hd+1.2);nav.exit=nf(doorX-.2,hd+1.2);
       // queue places: the first beside the till, the rest 0.8 m apart behind it; where a shelf cuts that line off, the place moves a little further
       // back or bends out into the aisle, and a place that would land on top of another is simply not made (fewer people wait, nobody stacks)
-      {const qx=ckX+ckW/2+.42,qz0=ckZ+.1,gap=PARAMS.queueGap,Q=[];
-        for(let k=0;k<4;k++){const cand=[];for(let e=0;e<=1.0;e+=.25)cand.push([qx,qz0-k*gap-e]);for(let j=1;j<=3;j++)cand.push([qx+j*.4,qz0-k*gap],[qx+j*.4,qz0-k*gap-.4],[qx+j*.4,qz0-k*gap+.4]);
+      {const qx=ckX+ckW/2-.15,qz0=ckZ-.66,gap=PARAMS.queueGap,Q=[]; // the queue stands in front of the counter (customer side) and runs into the aisle, facing the cashier
+        for(let k=0;k<4;k++){const cand=[];for(let e=0;e<=.6;e+=.2)cand.push([qx,qz0-k*gap-e]);for(let j=1;j<=2;j++)cand.push([qx-j*.45,qz0-k*gap],[qx+j*.45,qz0-k*gap]);
           let q=null;for(const c of cand){const p=nf(c[0],c[1]),prev=Q[Q.length-1];if(Q.every(s=>Math.hypot(s[0]-p[0],s[1]-p[1])>=.7)&&(!prev||Math.hypot(prev[0]-p[0],prev[1]-p[1])<=1.5)){q=p;break;}}
           if(!q)break;Q.push(q);}
         nav.queue.push(...Q);}
       qOcc.length=0;nav.queue.forEach(()=>qOcc.push(null));
       nav.stack=nf(doorX-doorW/2-.35,hd-1.1);
       if(A>=60){nav.G35X=nav.G35.slice();nav.queue.forEach(q=>{const [i,j]=nav.toCell(q[0],q[1]);for(let dj=-1;dj<=1;dj++)for(let di=-1;di<=1;di++){const ii=i+di,jj=j+dj;if(ii>=0&&jj>=0&&ii<nav.cols&&jj<nav.rows)nav.G35X[jj*nav.cols+ii]=1;}});}
-      {const E_=ckX+ckW/2,cb=new T.Mesh(mergeColored([[new T.CylinderGeometry(.15,.12,.2,8,1,true),'#d0212b'],[new T.CircleGeometry(.12,8).rotateX(Math.PI/2).translate(0,-.1,0),'#d0212b'],[new T.TorusGeometry(.14,.008,4,10,Math.PI).translate(0,.1,0),'#3a1a14']]),M.vc2);cb.position.set(E_-.15,1.14,ckZ+.12);cb.visible=false;room.add(cb);S.counterBasket=cb;
-        const bp=new T.Mesh(new T.BoxGeometry(.03,.03,.03),M.led);bp.position.set(E_-.2,1.07,ckZ-.16);bp.visible=false;room.add(bp);S.beep=bp;
+      {const E_=ckX+ckW/2,cb=new T.Mesh(mergeColored([[new T.CylinderGeometry(.15,.12,.2,8,1,true),'#d0212b'],[new T.CircleGeometry(.12,8).rotateX(Math.PI/2).translate(0,-.1,0),'#d0212b'],[new T.TorusGeometry(.14,.008,4,10,Math.PI).translate(0,.1,0),'#3a1a14']]),M.vc2);cb.position.set(E_-.15,1.14,ckZ-.13);cb.visible=false;room.add(cb);S.counterBasket=cb;
+        const bp=new T.Mesh(new T.BoxGeometry(.03,.03,.03),M.led);bp.position.set(E_-.2,1.07,ckZ-.04);bp.visible=false;room.add(bp);S.beep=bp;
         // till points: where the basket stands, where unscanned items wait, the scanner, the open bag, the hand-over point, the cash drawer
-        S.tl={E:E_,basket:[E_-.1,1.14,ckZ+.12],a:[[E_-.05,ckZ-.1],[E_-.15,ckZ-.07],[E_-.08,ckZ-.21]],scan:[E_-.2,1.16,ckZ-.16],bag:[E_-.66,1.04+.165,ckZ-.13],bagStore:[E_-.6,.86,ckZ-.5],H:[E_+.08,1.42,ckZ-.24],drawer:[E_-.3,1.0,ckZ-.34]};
+        S.tl={E:E_,basket:[E_-.1,1.14,ckZ-.13],a:[[E_-.05,ckZ-.08],[E_-.15,ckZ-.05],[E_-.08,ckZ-.11]],scan:[E_-.2,1.16,ckZ-.04],bag:[E_-.66,1.04+.165,ckZ+.18],bagStore:[E_-.6,.86,ckZ+.30],H:[E_+.08,1.42,ckZ-.08],drawer:[E_-.3,1.0,ckZ+.24]};
         const ob=mkOpenBag();ob.position.set(S.tl.bag[0],S.tl.bag[1],S.tl.bag[2]);ob.visible=false;room.add(ob);S.counterBag=ob;
         const nt=new T.Mesh(new T.BoxGeometry(.14,.003,.07),new T.MeshStandardMaterial({color:0x7fae86,roughness:.8}));nt.visible=false;room.add(nt);S.tillNote=nt;
         // the customer's items: each has its own place in the basket, its spot on the counter while it waits for the scanner
@@ -2162,7 +2162,7 @@ const space=(function(){
       if(false&&S.restock&&!phone){const st=gltfPerson({h:1.76,fem:false})||mkRandom({h:1.76,hairStyle:'crop',hair:0x3b2a1a,vest:0x1e7a3c,top:0x8a8a8a,tshirt:true,bot:0x1f3a2a,skin:0xd9ae8a,shoe:0x14110e});const p=S.restock.p;st.position.set(p[0],floorY(p[0],p[1]),p[1]);st.rotation.y=Math.atan2(-S.restock.f[0],-S.restock.f[1]);st.userData.state='restock';st.userData.restocker=true;st.userData.blend=0;st.userData.basket.visible=false;
         const bx=new T.Mesh(mergeColored([[new T.BoxGeometry(.36,.24,.28),'#b08a5a']]),M.vc2);if(st.userData.torso){bx.position.set(0,.02,.34);st.userData.torso.add(bx);}else{bx.position.set(0,.55,.35);st.add(bx);}room.add(st);extras.push(st);}
       // cashier first (always visible at the till), then the customers three per frame
-      const [cx,cz]=S.cashier;const cs=gltfPerson({staff:true,h:1.72})||makePerson(8,{h:1.74,hairStyle:'crop',hair:0x1a1410,vest:0xc41f2b,top:0x8a8a8a,tshirt:true,bot:0x1f3a2a,skin:0xe8c4a4,shoe:0x14110e,iris:'#3a2a1a'});if(cs.userData.gltfP)dressCashier(cs);cs.position.set(cx,0,cz);cs.rotation.y=.95;cs.userData.state='queue';cs.userData.blend=0;cs.userData.ph=Math.random()*6.28;cs.userData.basket.visible=false;cs.userData.cashier=true;room.add(cs);extras.push(cs);
+      const [cx,cz]=S.cashier;const cs=gltfPerson({staff:true,h:1.72})||makePerson(8,{h:1.74,hairStyle:'crop',hair:0x1a1410,vest:0xc41f2b,top:0x8a8a8a,tshirt:true,bot:0x1f3a2a,skin:0xe8c4a4,shoe:0x14110e,iris:'#3a2a1a'});if(cs.userData.gltfP)dressCashier(cs);cs.position.set(cx,0,cz);cs.rotation.y=Math.PI;cs.userData.ang=Math.PI;cs.userData.faceAng=Math.PI;cs.userData.state='queue';cs.userData.blend=0;cs.userData.ph=Math.random()*6.28;cs.userData.basket.visible=false;cs.userData.cashier=true;room.add(cs);extras.push(cs);
       const step=i=>{spec.slice(i,i+3).forEach(one);if(i+3<spec.length)later(()=>step(i+3));else{LD.base=45;ldTick();if(window.__perf&&!window.__perf.done)window.__perf.done=performance.now();}};
       step(0);
     }
