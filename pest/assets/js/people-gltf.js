@@ -38,7 +38,7 @@
        spine jumps.) A clip that is still blending keeps its time, so a walk that resumes goes on with the same step, not from the start */
     var W=[],rate=1/0.3;
     g.userData.play=function(n,fade){var a=acts[n]||acts.idle;if(!a||a===cur)return;rate=1/Math.max(.05,fade||0.3);var e=null;for(var i=0;i<W.length;i++)if(W[i].a===a)e=W[i];
-      if(!e){a.reset();a.play();e={a:a,w:cur?0:1};W.push(e);a.setEffectiveWeight(e.w);}cur=a;g.userData.clip=n;};
+      if(!e){a.reset();if(n!=='walk'&&n!=='walkslow'&&a.getClip)a.time=Math.random()*a.getClip().duration;a.play();e={a:a,w:cur?0:1};W.push(e);a.setEffectiveWeight(e.w);}cur=a;g.userData.clip=n;};
     g.userData.mixW=function(dt){if(W.length<2&&W.length&&W[0].a===cur){W[0].w=1;return;}var sum=0,i;for(i=0;i<W.length;i++){var e=W[i];e.w=e.a===cur?Math.min(1,e.w+dt*rate):Math.max(0,e.w-dt*rate);sum+=e.w;}
       for(i=W.length-1;i>=0;i--){var e2=W[i];if(e2.w<=0&&e2.a!==cur){e2.a.stop();W.splice(i,1);}else e2.a.setEffectiveWeight(sum>0?e2.w/sum:1);}};
     g.userData.setSpeed=function(mps){/* ходене: клипът е ~1.3 m/s при timeScale 1 */var a=acts.walk;if(a)a.setEffectiveTimeScale(Math.max(.4,Math.min(1.8,mps/1.3)));var b=acts.walkslow;if(b)b.setEffectiveTimeScale(Math.max(.4,Math.min(1.8,mps/0.8)));};
