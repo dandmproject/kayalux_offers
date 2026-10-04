@@ -1043,13 +1043,14 @@ const space=(function(){
         const lx=fz*(ax*fz-az*fx>0?1:-1)*.4,lz=-fx*(ax*fz-az*fx>0?1:-1)*.4,[ci,cj]=nav.toCell(x+lx,z+lz);
         if(!nav.free(gridOf(g),ci,cj)){ud.waitAcc=(ud.waitAcc||0)+dt;
           if(ud.waitAcc>1.2&&!ud.rerouted){ud.rerouted=true;const np=nav.route(gridDyn(g),[x,z],end);if(np&&np.length>2){setPath(g,np);ud.vx=ud.vz=0;return false;}} // a way round the people who stand still
-          if(ud.waitAcc<3){ud.yielding=true;ud.vx=ud.vz=0;ud.vNow=0;return false;}
+          if(ud.waitAcc<(ud.ddd?9:3)){ud.yielding=true;ud.vx=ud.vz=0;ud.vNow=0;return false;}
           ud.squeeze=true;}} // patience over: squeeze past, close but never through (the separation below keeps half a metre)
       ud.yielding=false;if(!block){ud.waitAcc=0;ud.rerouted=false;ud.squeeze=false;}
       if(ud.squeeze){ax*=.25;az*=.25;}
       // desired velocity = route direction + steering, limited to walking speed, reached smoothly (no jitter, no jumps)
       let vdx=fx*want+ax*sp,vdz=fz*want+az*sp;const vm=Math.hypot(vdx,vdz);if(vm>sp*1.05){vdx*=sp*1.05/vm;vdz*=sp*1.05/vm;}
       const k=Math.min(1,dt*8);let vx=vx0+(vdx-vx0)*k,vz=vz0+(vdz-vz0)*k;
+      {const hx=Math.sin(ud.ang||0),hz=Math.cos(ud.ang||0),fw=vx*hx+vz*hz,lt=vx*hz-vz*hx,fw2=Math.max(-.12,fw),lt2=Math.max(-.38,Math.min(.38,lt));if(fw2!==fw||lt2!==lt){vx=hx*fw2+hz*lt2;vz=hz*fw2-hx*lt2;}} // feet go where the body faces: a short step back or aside, never a backward or crab walk; a sharp change of way means slowing and turning first
       const G=gridOf(g),ok=(px,pz,g0)=>{const [ci,cj]=nav.toCell(px,pz);return nav.free(g0?nav.G0:G,ci,cj)&&(ud.ddd||!inFP(px,pz,.12)||inFP(x,z,.12));};
       let nx=x+vx*dt,nz=z+vz*dt;
       if(!ok(nx,nz)){const f=Math.max(0,vx*fx+vz*fz);nx=x+fx*f*dt;nz=z+fz*f*dt;if(ok(nx,nz)||ok(nx,nz,true)){vx=fx*f;vz=fz*f;}else if(ok(x+vx*dt,z)){nx=x+vx*dt;nz=z;vz=0;}else if(ok(x,z+vz*dt)){nx=x;nz=z+vz*dt;vx=0;}else{nx=x;nz=z;vx=vz=0;ud.blkT=(ud.blkT||0)+dt;
@@ -1077,7 +1078,7 @@ const space=(function(){
       const tg=R.ph===0?R.to:R.home,dx=tg[0]-g.position.x,dz=tg[1]-g.position.z,L=Math.hypot(dx,dz);
       if(L<.01){ud.dockV=0;if(R.ph===1||R.stay){ud.room=null;}return;}
       if(R.ph===1&&!past&&R.t<6){ud.dockV=0;return;} // still passing: wait aside
-      const st=Math.min(L,.5*dt),nx=g.position.x+dx/L*st,nz=g.position.z+dz/L*st;g.position.set(nx,floorY(nx,nz),nz);ud.dockV=L>.02?.45:0;}
+      const bk=(dx*Math.sin(g.rotation.y)+dz*Math.cos(g.rotation.y))/L<-.5,st=Math.min(L,(bk?.25:.5)*dt),nx=g.position.x+dx/L*st,nz=g.position.z+dz/L*st;g.position.set(nx,floorY(nx,nz),nz);ud.dockV=L>.02?(bk?.25:.45):0;} /* a step back from the shelf is a slow one */
     function strollerFollow(g,dt){const ud=g.userData,st=ud.stroller,ry=g.rotation.y;
       let rx=st.position.x-g.position.x,rz=st.position.z-g.position.z,r=Math.hypot(rx,rz),a=r>.05?Math.atan2(rx,rz):ry;if(r<.05||r>2)r=.62;
       let ta=null,tr=.62;if(ud.state==='walk'||ud.state==='enter')ta=ry;else if(ud.state==='queue'){ta=ry+Math.PI;tr=.85;}
@@ -1098,8 +1099,10 @@ const space=(function(){
       else ud.waitP=null;
       let dx=tx-g.position.x,dz=tz-g.position.z,L=Math.hypot(dx,dz);let v=0;
       if(L>(T_-(ud.waitT||-9)<6?4.5:2.2)||!ud.placed){ud.placed=true;g.position.set(lead.position.x,0,lead.position.z);dx=tx-g.position.x;dz=tz-g.position.z;L=Math.hypot(dx,dz);}
-      if(L>.12){v=Math.min(lu.sp*(ud.waitP?1:1.25),L*2.5);const s=Math.min(L,v*dt);g.position.x+=dx/L*s;g.position.z+=dz/L*s;ud.ang=angStep(ud.ang||0,Math.atan2(dx,dz),8,dt,4);}
-      else if(ud.waitP){ud.ang=angStep(ud.ang||0,Math.atan2(nav.exit[0]-g.position.x,nav.exit[1]-g.position.z),4,dt,2);}
+      {const strg=o=>o!==g&&o!==lead&&o.visible&&!(o.userData.follow===ud.follow&&o.userData.follow!=null),taken=L<1.6&&people.some(o=>strg(o)&&Math.hypot(o.position.x-tx,o.position.z-tz)<.55),mvg=L>.12&&!taken; /* the spot is someone else's: stop short and wait there */v=mvg?Math.min(lu.sp*(ud.waitP?1:1.25),L*2.5):0;const s=mvg?Math.min(L,v*dt):0;let nx=mvg?g.position.x+dx/L*s:g.position.x,nz=mvg?g.position.z+dz/L*s:g.position.z;
+        for(const o of people){if(!strg(o))continue;const ox=nx-o.position.x,oz=nz-o.position.z,d=Math.hypot(ox,oz);if(d<.5&&d>1e-3){const pu=Math.min(.5-d,Math.max(s*1.2,.35*dt));nx+=ox/d*pu;nz+=oz/d*pu;}} // the one who came along keeps out of strangers' way too: round the one at the till, never through
+        {const ok_=(x_,z_)=>{const [ci,cj]=nav.toCell(x_,z_);return nav.free(nav.G0,ci,cj);};const sx=mvg?g.position.x+dx/L*s:g.position.x,sz=mvg?g.position.z+dz/L*s:g.position.z;if(ok_(nx,nz)){g.position.x=nx;g.position.z=nz;}else if(ok_(sx,sz)){g.position.x=sx;g.position.z=sz;}}if(mvg)ud.ang=angStep(ud.ang||0,Math.atan2(dx,dz),8,dt,4);}
+      if(L<=.12&&ud.waitP){ud.ang=angStep(ud.ang||0,Math.atan2(nav.exit[0]-g.position.x,nav.exit[1]-g.position.z),4,dt,2);}
       g.position.y=floorY(g.position.x,g.position.z);g.rotation.y=ud.ang||0;ud.state=v>0?'walk':lu.state==='walk'?'queue':lu.state;ud.blend=v>0?Math.min(1,(ud.blend||0)+dt*3):Math.max(0,(ud.blend||0)-dt*3);
       if(ud.basket){ud.basket.visible=false;ud.bag.visible=false;}poseAny(g,T_,dt,v*ud.blend);}
     // §6 checkout at the head of the queue: greeting → scan n items → cash | card → bagging → goodbye; the next customer advances only afterwards
@@ -1311,11 +1314,11 @@ const space=(function(){
       {const n=people.length,mov=u=>(u.state==='walk'&&(u.vNow||0)>.2)||u.follow!=null,wt=u=>u.pay||u.state==='queue'||u.state==='browse'||u.state==='ddd'?0:(mov(u)?1:.25),cap=u=>(mov(u)?.6:.25)*dt; // walkers give way (within their stride); someone standing only shifts a foot; the queue and the till stay
         const ux0=(d,L)=>d/(L||1),acc=new Map(),add=(g,x,z)=>{const v=acc.get(g)||[0,0];v[0]+=x;v[1]+=z;acc.set(g,v);}; // all pushes on a person are summed, then limited once (two neighbours must not push twice as fast)
         for(let a=0;a<n;a++){const A=people[a];if(!A.visible)continue;const ua=A.userData;
-          for(let b=a+1;b<n;b++){const B=people[b];if(!B.visible)continue;const ub=B.userData,pair=ua.follow===b||ub.follow===a||ua.partner===b||ub.partner===a,r=pair?.46:.5;
+          for(let b=a+1;b<n;b++){const B=people[b];if(!B.visible)continue;const ub=B.userData,pair=ua.follow===b||ub.follow===a||ua.partner===b||ub.partner===a,r=pair?.46:(ua.ddd||ub.ddd)?.58:.5;
             let dx=B.position.x-A.position.x,dz=B.position.z-A.position.z,L=Math.hypot(dx,dz);if(L>=r)continue;if(L<1e-3){dx=Math.cos(a*2.4),dz=Math.sin(a*2.4);L=1;}
             if(!pair&&ua.state==='browse'&&ub.state==='browse'){askRoom(B,A,ux0(dx,L),ux0(dz,L),true);continue;} // two at one shelf spot: the later one moves along a step
             if(ua.state==='browse'&&mov(ub)&&ub.follow==null)askRoom(A,B,(ub.vx||0)/((ub.vNow||1)),(ub.vz||0)/((ub.vNow||1)));else if(ub.state==='browse'&&mov(ua)&&ua.follow==null)askRoom(B,A,(ua.vx||0)/((ua.vNow||1)),(ua.vz||0)/((ua.vNow||1)));
-            const wa=wt(ua),wb=wt(ub),ws=wa+wb;if(!ws)continue;const mv=r-L,ux=dx/L,uz=dz/L;
+            let wa=wt(ua),wb=wt(ub);if(ua.ddd&&!ub.pay&&!ub.cashier){wa=0;wb=1;}else if(ub.ddd&&!ua.pay&&!ua.cashier){wb=0;wa=1;}const ws=wa+wb;if(!ws)continue; /* the specialist at work keeps his place: the other one makes room */const mv=r-L,ux=dx/L,uz=dz/L;
             if(wa)add(A,-ux*mv*wa/ws,-uz*mv*wa/ws);if(wb)add(B,ux*mv*wb/ws,uz*mv*wb/ws);}}
         acc.forEach((v,g)=>{const L=Math.hypot(v[0],v[1]),c=cap(g.userData),k=L>c?c/L:1,G=gridOf(g),x0=g.position.x,z0=g.position.z,fr=(px,pz)=>{const [ci,cj]=nav.toCell(px,pz);return nav.free(G,ci,cj)||(nav.free(nav.G0,ci,cj)&&circleFree(px,pz,.17));};
           for(const [px,pz] of [[x0+v[0]*k,z0+v[1]*k],[x0+v[0]*k,z0],[x0,z0+v[1]*k]])if(fr(px,pz)){g.position.set(px,floorY(px,pz),pz);g.userData.sepV=Math.hypot(px-x0,pz-z0)/Math.max(dt,1e-3);break;}});} // never faster than a step: no gliding
@@ -1569,15 +1572,20 @@ const space=(function(){
     function segFP(a,b,pad){const F=VZ.fp;if(!F)return false;const dx=b[0]-a[0],dz=b[1]-a[1],L2=dx*dx+dz*dz||1e-6;for(const c of F){let t=((c[0]-a[0])*dx+(c[1]-a[1])*dz)/L2;t=t<0?0:t>1?1:t;if(Math.hypot(a[0]+dx*t-c[0],a[1]+dz*t-c[1])<c[2]+pad)return true;}return false;}
     // the watcher is a person too: in the tour, the free views and behind a shopper the camera steps round the people and round the specialist's
     // ladder or case instead of passing through them (eased, at most 0.9 m, never into a fixture); where it looks is left as it was
-    const _ca=new T.Vector3(),_cw=new T.Vector3();
-    function camAvoid(dt){const cp=camera.position;_cw.set(0,0,0);if(window.__camLock){_ca.set(0,0,0);return null;}
-      if(view.name!=='ddd'&&view.name!=='fp'&&cp.y<2.4&&Math.abs(cp.x)<S.hw+.5&&Math.abs(cp.z)<S.hd+.8){
-        const push=(cx,cz,r)=>{const dx=cp.x-cx,dz=cp.z-cz,L=Math.hypot(dx,dz);if(L>=r)return;const f=r-L,ux=L>1e-3?dx/L:1,uz=L>1e-3?dz/L:0;_cw.x+=ux*f;_cw.z+=uz*f;};
-        if(cp.y<1.95)for(const p of people.concat(extras)){if(!p.visible||p.userData.cashier||(view.name==='walk'&&p===camSub))continue;push(p.position.x,p.position.z,.6);}
+    const _ca=new T.Vector3(),_cw=new T.Vector3(),_cl=new T.Vector3();let _clOk=false;
+    function camAvoid(dt){const cp=camera.position;_cw.set(0,0,0);if(window.__camLock){_ca.set(0,0,0);_clOk=false;return null;}
+      let vx=0,vz=0;if(_clOk&&dt>0){vx=(cp.x-_cl.x)/dt;vz=(cp.z-_cl.z)/dt;if(Math.hypot(vx,vz)>9)vx=vz=0;}_cl.copy(cp);_clOk=true; // which way it is going: it looks ahead along its way, as a walker does
+      if(view.name!=='ddd'&&view.name!=='fp'&&cp.y<2.4&&Math.abs(cp.x)<S.hw+.5&&Math.abs(cp.z)<S.hd+2.2){
+        const sp=Math.hypot(vx,vz),mv=sp>.15,ux=mv?vx/sp:0,uz=mv?vz/sp:0,Lk=mv?clamp(sp*1.2,.5,2.4):0;
+        const push=(cx,cz,r)=>{let qx=cp.x,qz=cp.z,t=0;if(mv){t=clamp((cx-cp.x)*ux+(cz-cp.z)*uz,0,Lk);qx+=ux*t;qz+=uz*t;}
+          let dx=qx-cx,dz=qz-cz,L=Math.hypot(dx,dz);if(L>=r)return;if(L<1e-3){if(mv){dx=-uz;dz=ux;}else{dx=1;dz=0;}L=1;}
+          const w=(r-Math.hypot(qx-cx,qz-cz))*(mv?1-.2*t/Lk:1);_cw.x+=dx/L*w;_cw.z+=dz/L*w;}; /* someone ahead on the way: the camera bends round them in good time, on the open side */
+        if(cp.y<1.95)for(const p of people.concat(extras)){if(!p.visible||p.userData.cashier||(view.name==='walk'&&p===camSub))continue;push(p.position.x,p.position.z,.62);}
         if(VZ.fp)for(const c of VZ.fp)if(cp.y<c[3]+.35)push(c[0],c[1],c[2]+.45);
-        const L=Math.hypot(_cw.x,_cw.z);if(L>.9)_cw.multiplyScalar(.9/L);}
-      _ca.lerp(_cw,Math.min(1,dt*4));if(_ca.lengthSq()<1e-6)return null;
-      if(nav){const nx=cp.x+_ca.x,nz=cp.z+_ca.z,c=nav.toCell(nx,nz);if(Math.abs(nx)<S.hw&&Math.abs(nz)<S.hd&&!nav.free(nav.G0,c[0],c[1]))_ca.multiplyScalar(.5);}
+        const L=Math.hypot(_cw.x,_cw.z);if(L>.9)_cw.multiplyScalar(.9/L);
+        if(Math.abs(cp.z-S.hd)<.8&&Math.abs(cp.x-S.door.x)<S.door.w/2+.5){const lo=S.door.x-S.door.w/2+.22,hi=S.door.x+S.door.w/2-.22;_cw.x=clamp(cp.x+_cw.x,lo,hi)-cp.x;}} // through the door: round them, but within the opening
+      _ca.lerp(_cw,Math.min(1,dt*(_cw.lengthSq()>_ca.lengthSq()?10:3)));if(_ca.lengthSq()<1e-6)return null; // quick to step aside, slow to come back
+      if(nav&&cp.z<S.hd-.3){const nx=cp.x+_ca.x,nz=cp.z+_ca.z,c=nav.toCell(nx,nz);if(Math.abs(nx)<S.hw&&Math.abs(nz)<S.hd&&!nav.free(nav.G0,c[0],c[1]))_ca.multiplyScalar(.5);}
       cp.add(_ca);return _ca;}
     function vzClear(){VZ.fp=null;if(VZ.sub){VZ.sub.classList.remove('on');VZ.subShown=null;}if(VZ.g){(VZ.g.userData.ownMats||[]).forEach(m=>m.dispose());}VZ.g=null;}
     const vzFree=(x,z,r)=>x>-S.hw+r&&x<S.hw-r&&z>-S.hd+r&&z<S.hd-r&&!OBS.some(o=>x+r>o[0]&&x-r<o[1]&&z+r>o[2]&&z-r<o[3]);
@@ -2245,36 +2253,44 @@ const space=(function(){
     // phone. Never through a shelf, a fridge, a person or the specialist's ladder: you go round them, and the shoppers step round you too
     const FPV={x:0,z:0,yaw:Math.PI,pitch:-.06,v:0,dx:0,dz:0,keys:{},path:null,bob:0,joy:null,step:0,ring:null,ringT:0,hintT:0,blk:0};
     const _fpr=new T.Raycaster(),_fpn=new T.Vector2(),_fpd=new T.Vector3(),_fpPl=new T.Plane(new T.Vector3(0,1,0),0);
-    function fpFree(x,z,ox,oz){if(Math.abs(x)>S.hw-.3||Math.abs(z)>S.hd-.3||!circleFree(x,z,.3))return false;if(inFP(x,z,.25)&&!inFP(ox,oz,.25))return false;
-      for(const p of people.concat(extras)){if(!p.visible)continue;const d=Math.hypot(p.position.x-x,p.position.z-z);if(d<.42&&d<Math.hypot(p.position.x-ox,p.position.z-oz))return false;}return true;}
+    // where a person can stand: inside, clear of the fixtures (a hand's breadth from a shelf), through the door opening and out onto the
+    // pavement in front; close past people and the specialist's ladder, never into them. Hemmed in for any reason, any step that opens
+    // more room is allowed: you can never be stuck
+    const fpClr=(x,z)=>{let m=9;for(const q of OBS){const cx=Math.max(q[0],Math.min(x,q[1])),cz=Math.max(q[2],Math.min(z,q[3]));m=Math.min(m,Math.hypot(x-cx,z-cz));}
+      const hd=S.hd,hw=S.hw,dj=S.door.w/2-Math.abs(x-S.door.x);
+      if(z<=hd-.3)m=Math.min(m,hw-Math.abs(x),z+hd,hd-z);else if(z>=hd+.3)m=Math.min(m,hd+1.6-z,hw+.4-Math.abs(x));else m=Math.min(m,dj);return m;};
+    function fpFree(x,z,ox,oz){const c=fpClr(x,z);if(c<.26&&c<=fpClr(ox,oz)+1e-4)return false;
+      if(inFP(x,z,.08)&&!(inFP(ox,oz,.08)&&!inFP(x,z,0)))return false;
+      for(const p of people.concat(extras)){if(!p.visible)continue;const d=Math.hypot(p.position.x-x,p.position.z-z);if(d<.34&&d<Math.hypot(p.position.x-ox,p.position.z-oz))return false;}return true;}
     function fpEnter(){const cp=camera.position;let x=S.door.x,z=S.hd-1.2,yaw=Math.PI;
       if(Math.abs(cp.x)<S.hw-.4&&Math.abs(cp.z)<S.hd-.4&&cp.y<2.6&&fpFree(cp.x,cp.z,cp.x,cp.z)){x=cp.x;z=cp.z;camera.getWorldDirection(_fpd);yaw=Math.atan2(_fpd.x,_fpd.z);}
       else{let ok=fpFree(x,z,x,z);for(let r=.2;r<2.5&&!ok;r+=.2)for(let a=0;a<6.28&&!ok;a+=.5){const tx=x+Math.sin(a)*r,tz=z+Math.cos(a)*r;if(fpFree(tx,tz,tx,tz)){x=tx;z=tz;ok=true;}}}
       Object.assign(FPV,{x,z,yaw,pitch:-.06,v:0,path:null,step:0,keys:{},joy:null});}
     function fpRing(p){if(!FPV.ring){const m=new T.MeshBasicMaterial({color:0xd4af63,transparent:true,opacity:0,depthWrite:false});m.userData.own=true;FPV.ring=new T.Mesh(new T.RingGeometry(.15,.2,32),m);FPV.ring.rotation.x=-Math.PI/2;FPV.ring.renderOrder=5;}
       if(FPV.ring.parent!==room)room.add(FPV.ring);FPV.ring.position.set(p[0],floorY(p[0],p[1])+.012,p[1]);FPV.ringT=1.8;}
-    function fpGo(t,look){if(!nav)return;const r=nav.route(nav.G35X||nav.G35,[FPV.x,FPV.z],t);FPV.path=r&&r.length>1?r.slice(1):[[t[0],t[1]]];FPV.step=0;FPV.blk=0;FPV.look=look||null;fpRing(FPV.path[FPV.path.length-1]);}
+    function fpGo(t,look){if(!nav)return;const r=nav.route(nav.G35X||nav.G35,[FPV.x,FPV.z],t);FPV.path=r&&r.length>1?r.slice(1):[[t[0],t[1]]];FPV.step=0;FPV.blk=0;FPV.look=look||null;FPV.lookT=2.5;FPV.autoT=performance.now()-(FPV.lookAt||0)>1500?1.2:0;fpRing(FPV.path[FPV.path.length-1]);}
     function fpPick(cx,cy){const b=stage.getBoundingClientRect();_fpn.set((cx-b.left)/b.width*2-1,-((cy-b.top)/b.height)*2+1);_fpr.setFromCamera(_fpn,camera);
       const hit=_fpr.intersectObjects(losMeshes(),false)[0];let p=null,look=null;
       if(_fpr.ray.intersectPlane(_fpPl,_fpd)&&(!hit||_fpd.distanceTo(camera.position)<=hit.distance+.08))p=[_fpd.x,_fpd.z];
       else if(hit){const q=hit.point,dx=q.x-camera.position.x,dz=q.z-camera.position.z,L=Math.hypot(dx,dz)||1;p=[q.x-dx/L*.75,q.z-dz/L*.75];look=[q.x,q.z,q.y];} // a shelf, a fridge: walk up to it and look at it
       if(!p)return;p[0]=clamp(p[0],-S.hw+.3,S.hw-.3);p[1]=clamp(p[1],-S.hd+.3,S.hd-.3);fpGo(p,look);}
     function fpStep(dt){const K=FPV.keys,run=K.ShiftLeft||K.ShiftRight;let f=(K.KeyW||K.ArrowUp?1:0)-(K.KeyS||K.ArrowDown?1:0),s=(K.KeyD?1:0)-(K.KeyA?1:0),sp=run?2.1:1.3;
-      FPV.yaw-=((K.ArrowRight||K.KeyE?1:0)-(K.ArrowLeft||K.KeyQ?1:0))*dt*1.8;
+      {const tr=(K.ArrowRight||K.KeyE?1:0)-(K.ArrowLeft||K.KeyQ?1:0);if(tr){FPV.yaw-=tr*dt*1.8;FPV.lookAt=performance.now();FPV.autoT=0;FPV.look=null;}}
       if(FPV.joy){f-=FPV.joy.y;s+=FPV.joy.x;}
       if(FPV.step){const d=Math.min(Math.abs(FPV.step),sp*dt);f+=Math.sign(FPV.step);FPV.step-=Math.sign(FPV.step)*d;if(Math.abs(FPV.step)<.01)FPV.step=0;}
       const fx=Math.sin(FPV.yaw),fz=Math.cos(FPV.yaw);let mx=0,mz=0;
       if(f||s){FPV.path=null;const L=Math.max(1,Math.hypot(f,s));f/=L;s/=L;mx=fx*f-fz*s;mz=fz*f+fx*s;sp*=Math.hypot(f,s);}
       else if(FPV.path){const n=FPV.path[0],dx=n[0]-FPV.x,dz=n[1]-FPV.z,L=Math.hypot(dx,dz);
         if(L<.12){FPV.path.shift();if(!FPV.path.length)FPV.path=null;}
-        else{mx=dx/L;mz=dz/L;FPV.yaw=angStep(FPV.yaw,Math.atan2(dx,dz),5,dt,2.6);if(FPV.path.length===1&&L<.6)sp*=Math.max(.35,L/.6);}} // the body turns to where it goes, slows into the spot
+        else{mx=dx/L;mz=dz/L;if(FPV.autoT>0&&performance.now()-(FPV.lookAt||0)>1500){FPV.autoT-=dt;FPV.yaw=angStep(FPV.yaw,Math.atan2(dx,dz),3,dt,1.6);}if(FPV.path.length===1&&L<.6)sp*=Math.max(.35,L/.6);}} // the body turns to where it goes, slows into the spot
+      if(FPV.look&&(FPV.lookT-=dt)<=0||performance.now()-(FPV.lookAt||0)<1500)FPV.look=null;
       if(!FPV.path&&FPV.look&&!(f||s)){const L_=FPV.look,a=Math.atan2(L_[0]-FPV.x,L_[1]-FPV.z),pt=clamp(Math.atan2(L_[2]-1.6,Math.hypot(L_[0]-FPV.x,L_[1]-FPV.z)),-.9,.6);FPV.yaw=angStep(FPV.yaw,a,5,dt,2.4);FPV.pitch+=(pt-FPV.pitch)*Math.min(1,dt*3);let d_=a-FPV.yaw;d_=((d_+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;if(Math.abs(d_)<.02&&Math.abs(pt-FPV.pitch)<.02)FPV.look=null;}
       else if(f||s)FPV.look=null;
       const tv=(mx||mz)?sp:0;FPV.v+=(tv-FPV.v)*Math.min(1,dt*(tv>FPV.v?4:7));if(mx||mz){const L=Math.hypot(mx,mz);FPV.dx=mx/L;FPV.dz=mz/L;}
       if(FPV.v>.01){const d=FPV.v*dt,ox=FPV.x,oz=FPV.z,nx=ox+FPV.dx*d,nz=oz+FPV.dz*d;let moved=true;
         if(fpFree(nx,nz,ox,oz)){FPV.x=nx;FPV.z=nz;}else if(fpFree(nx,oz,ox,oz))FPV.x=nx;else if(fpFree(ox,nz,ox,oz))FPV.z=nz;else{moved=false;FPV.v*=.5;} // along a shelf: slide, as a hand on it would
         if(moved){FPV.blk=0;FPV.bob+=d*Math.PI/.72;}else if(FPV.path&&(FPV.blk+=dt)>1.2)fpGo(FPV.path[FPV.path.length-1]);} // someone in the way: a moment, then a way round
-      const k=Math.min(1,FPV.v/1.3),y=1.6+floorY(FPV.x,FPV.z)+(Math.abs(Math.sin(FPV.bob))-.6)*.022*k,cp=Math.cos(FPV.pitch); // a step ~0.72 m, the head dips a little at each
+      const k=Math.min(1,FPV.v/1.3),y=1.6+(FPV.z<S.hd?floorY(FPV.x,FPV.z):0)+(Math.abs(Math.sin(FPV.bob))-.6)*.022*k,cp=Math.cos(FPV.pitch); // a step ~0.72 m, the head dips a little at each
       camera.position.set(FPV.x,y,FPV.z);camera.lookAt(FPV.x+Math.sin(FPV.yaw)*cp,y+Math.sin(FPV.pitch),FPV.z+Math.cos(FPV.yaw)*cp);
       if(FPV.ring){FPV.ringT-=dt;FPV.ring.visible=FPV.ringT>0;FPV.ring.material.opacity=clamp(FPV.ringT,0,1)*.8;}
       if(fpUI&&FPV.hintT>0){FPV.hintT-=dt;fpUI.classList.toggle('hint',FPV.hintT>0);}}
@@ -2290,7 +2306,7 @@ const space=(function(){
     const FPK=new Set(['KeyW','KeyA','KeyS','KeyD','KeyQ','KeyE','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','ShiftLeft','ShiftRight']);
     const fpOnScreen=()=>{const b=stage.getBoundingClientRect();return b.bottom>80&&b.top<innerHeight-80;};
     addEventListener('keydown',e=>{if(view.name!=='fp'||!fpOnScreen()||!FPK.has(e.code)||(e.target.closest&&e.target.closest('input,textarea,select,[contenteditable]')))return;FPV.keys[e.code]=true;if(e.code.startsWith('Arrow'))e.preventDefault();kick();});
-    addEventListener('keyup',e=>{if(FPK.has(e.code))FPV.keys[e.code]=false;});addEventListener('blur',()=>{FPV.keys={};});
+    addEventListener('keyup',e=>{if(FPK.has(e.code))FPV.keys[e.code]=false;});addEventListener('blur',()=>{FPV.keys={};});document.addEventListener('visibilitychange',()=>{FPV.keys={};FPV.joy=null;});
     $$('.views [data-view]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.view)));
     $$('.views [data-zoom]').forEach(b=>b.addEventListener('click',()=>{const m=Math.max(S.W,S.D);view.r=clamp(view.r*(+b.dataset.zoom>0?1.18:.85),m*.35,m*3.2+10);tween=null;apply();idle=0;kick();}));
     // fingers (touch events, reliable on iOS): one finger sideways = orbit around the store (and tilt once it has started), one finger up/down first = the page
@@ -2303,13 +2319,13 @@ const space=(function(){
     ['gesturestart','gesturechange'].forEach(t=>stage.addEventListener(t,e=>e.preventDefault(),{passive:false})); // Safari: no page zoom while the fingers work the set
     const onUI=e=>e.target.closest&&e.target.closest('button,label,input,select,a,.hud-card');
     stage.addEventListener('touchstart',e=>{if(onUI(e))return;const P=tpts(e);TCH.n=P.length;spin.vx=spin.vy=0;TCH.t=performance.now();
-      if(view.name==='fp'){if(P.length===1){TCH.x0=TCH.x=P[0][0];TCH.y0=TCH.y=P[0][1];TCH.lock=null;}else if(P.length===2){e.preventDefault();TCH.lock='fp2';TCH.d0=Math.hypot(P[0][0]-P[1][0],P[0][1]-P[1][1])||1;TCH.a=Math.atan2(P[1][1]-P[0][1],P[1][0]-P[0][0]);}return;}
+      if(view.name==='fp'){if(P.length===1){e.preventDefault();TCH.x0=TCH.x=P[0][0];TCH.y0=TCH.y=P[0][1];TCH.lock=null;}else if(P.length===2){e.preventDefault();TCH.lock='fp2';TCH.d0=Math.hypot(P[0][0]-P[1][0],P[0][1]-P[1][1])||1;TCH.a=Math.atan2(P[1][1]-P[0][1],P[1][0]-P[0][0]);}return;}
       if(P.length===1){TCH.x0=TCH.x=P[0][0];TCH.y0=TCH.y=P[0][1];TCH.lock=null;TCH.vx=TCH.vy=0;}
       else if(P.length===2){e.preventDefault();twoInit(P);}},{passive:false});
     stage.addEventListener('touchmove',e=>{if(onUI(e)||!TCH.n)return;const P=tpts(e),now_=performance.now(),dtm=Math.max(1,now_-TCH.t);TCH.t=now_;
-      if(view.name==='fp'){idle=0;if(P.length>=2){e.preventDefault();const d=Math.hypot(P[0][0]-P[1][0],P[0][1]-P[1][1])||1,a=Math.atan2(P[1][1]-P[0][1],P[1][0]-P[0][0]);if(TCH.lock!=='fp2'){TCH.lock='fp2';TCH.d0=d;TCH.a=a;return;}let da=a-TCH.a;da=((da+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;TCH.a=a;FPV.yaw+=da;FPV.step=clamp(FPV.step+(d-TCH.d0)*.01,-1.5,1.5);FPV.path=null;TCH.d0=d;kick();return;}
-        if(TCH.lock==='page'||TCH.lock==='fp2')return;const x=P[0][0],y=P[0][1];if(!TCH.lock){const ax=Math.abs(x-TCH.x0),ay=Math.abs(y-TCH.y0);if(ax<7&&ay<7)return;if(ay>ax*1.6){TCH.lock='page';return;}TCH.lock='look';TCH.x=x;TCH.y=y;}
-        e.preventDefault();FPV.look=null;FPV.yaw+=(x-TCH.x)*.0058;FPV.pitch=clamp(FPV.pitch+(y-TCH.y)*.0045,-1.15,1.05);TCH.x=x;TCH.y=y;kick();return;}
+      if(view.name==='fp'){idle=0;if(P.length>=2){e.preventDefault();const d=Math.hypot(P[0][0]-P[1][0],P[0][1]-P[1][1])||1,a=Math.atan2(P[1][1]-P[0][1],P[1][0]-P[0][0]);if(TCH.lock!=='fp2'){TCH.lock='fp2';TCH.d0=d;TCH.a=a;return;}let da=a-TCH.a;da=((da+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;TCH.a=a;FPV.yaw+=da;FPV.lookAt=performance.now();FPV.autoT=0;FPV.look=null;FPV.step=clamp(FPV.step+(d-TCH.d0)*.01,-1.5,1.5);FPV.path=null;TCH.d0=d;kick();return;}
+        if(TCH.lock==='page'||TCH.lock==='fp2')return;const x=P[0][0],y=P[0][1];if(!TCH.lock){const ax=Math.abs(x-TCH.x0),ay=Math.abs(y-TCH.y0);if(ax<6&&ay<6)return;TCH.lock='look';TCH.x=x;TCH.y=y;}
+        e.preventDefault();FPV.look=null;FPV.lookAt=performance.now();FPV.autoT=0;FPV.yaw+=(x-TCH.x)*.0058;FPV.pitch=clamp(FPV.pitch+(y-TCH.y)*.0045,-1.15,1.05);TCH.x=x;TCH.y=y;kick();return;}
       if(P.length>=2){e.preventDefault();if(TCH.lock!=='two'){twoInit(P);return;}
         // two fingers, all at once: pinch = zoom, twist = turn the store a full 360°, move together = slide the view across the floor
         const d=Math.hypot(P[0][0]-P[1][0],P[0][1]-P[1][1])||1,mx=(P[0][0]+P[1][0])/2,my=(P[0][1]+P[1][1])/2,a=Math.atan2(P[1][1]-P[0][1],P[1][0]-P[0][0]);
@@ -2332,7 +2348,7 @@ const space=(function(){
     stage.addEventListener('pointerdown',e=>{if(e.pointerType==='touch'||e.target.closest('button,label,input,select,.hud-card'))return;
       spin.vx=spin.vy=0;drag={x:e.clientX,y:e.clientY,x0:e.clientX,y0:e.clientY,id:e.pointerId,on:true};stage.classList.add('drag');try{stage.setPointerCapture(e.pointerId);}catch(_){}});
     stage.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id||e.pointerType==='touch')return;
-      if(view.name==='fp'){const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.x=e.clientX;drag.y=e.clientY;FPV.look=null;FPV.yaw+=dx*.0042;FPV.pitch=clamp(FPV.pitch+dy*.0034,-1.15,1.05);idle=0;kick();return;}
+      if(view.name==='fp'){const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.x=e.clientX;drag.y=e.clientY;FPV.look=null;FPV.lookAt=performance.now();FPV.autoT=0;FPV.yaw+=dx*.0042;FPV.pitch=clamp(FPV.pitch+dy*.0034,-1.15,1.05);idle=0;kick();return;}
       if(view.name==='walk'||view.name==='ddd'){view.name='free';apply();}const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.x=e.clientX;drag.y=e.clientY;
       view.theta-=dx*.0065;view.phi=clamp(view.phi-dy*.005,.07,1.5);tween=null;idle=0;if(view.name!=='free'){autoLayers(false);view.name='free';$$('.views [data-view]').forEach(b=>b.setAttribute('aria-pressed','false'));}apply();kick();});
     const end=e=>{if(view.name==='fp'&&drag&&e&&e.type==='pointerup'&&Math.hypot(e.clientX-drag.x0,e.clientY-drag.y0)<6)fpPick(e.clientX,e.clientY);drag=null;stage.classList.remove('drag');};stage.addEventListener('pointerup',end);stage.addEventListener('pointercancel',end);
@@ -2464,7 +2480,7 @@ const space=(function(){
       stepP(dt,on,false);stepHeat(dt);
       if(nav&&!window.__frz)stepPeople(dt,now/1000,open);const _t4=DIAG?performance.now():0;
       const _cav=camAvoid(dt);camera.updateMatrixWorld();_fm.multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse);_fr.setFromProjectionMatrix(_fm);
-      people.concat(extras).forEach(p=>{if(!p.visible)return;const d=Math.hypot(p.position.x-camera.position.x,p.position.z-camera.position.z);_sp.center.set(p.position.x,p.position.y+.9,p.position.z);const inV=_fr.intersectsSphere(_sp);p.userData.culled=!inV;_sp.radius=2.6;p.userData.culledFar=!_fr.intersectsSphere(_sp);_sp.radius=1.15; /* arms and hands keep being posed a little beyond the frame edge, so nobody walks into view mid-snap */if(p.userData.gltfP){if(p.children[0])p.children[0].visible=d>.6&&inV;}else if(p.userData.skin){const m=p.userData.skin.material,o=Math.max(0,Math.min(1,(d-.35)/.5));if(o<1||m.transparent){m.transparent=o<1;m.opacity=o;m.depthWrite=o>=.5;}}});
+      people.concat(extras).forEach(p=>{if(!p.visible)return;const d=Math.hypot(p.position.x-camera.position.x,p.position.z-camera.position.z);_sp.center.set(p.position.x,p.position.y+.9,p.position.z);const inV=_fr.intersectsSphere(_sp);p.userData.culled=!inV;_sp.radius=2.6;p.userData.culledFar=!_fr.intersectsSphere(_sp);_sp.radius=1.15; /* arms and hands keep being posed a little beyond the frame edge, so nobody walks into view mid-snap */if(p.userData.gltfP){if(p.children[0])p.children[0].visible=d>.38&&inV;}else if(p.userData.skin){const m=p.userData.skin.material,o=Math.max(0,Math.min(1,(d-.35)/.5));if(o<1||m.transparent){m.transparent=o<1;m.opacity=o;m.depthWrite=o>=.5;}}});
       const w=w0||stage.clientWidth,h=h0||stage.clientHeight;
       const kept=[],LBL=stage.classList.contains('show-labels');overlay.forEach(o=>{if(o.kind==='lbl'&&!LBL){o.off=true;return;}v3.copy(o.v).project(camera);o.sx=(v3.x+1)/2*w;o.sy=(1-v3.y)/2*h;o.sz=v3.z;o.off=v3.z>1||v3.x<-1.1||v3.x>1.1||v3.y<-1.1||v3.y>1.1;});
       let HR=null;if(hud&&hudIn&&hud.offsetParent){const a=hud.getBoundingClientRect(),b=stage.getBoundingClientRect();HR=[a.left-b.left,a.top-b.top,a.right-b.left,a.bottom-b.top];}
