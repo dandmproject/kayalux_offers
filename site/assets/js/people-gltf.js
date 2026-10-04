@@ -41,7 +41,7 @@
       if(!e){a.reset();if(n!=='walk'&&n!=='walkslow'&&a.getClip)a.time=Math.random()*a.getClip().duration;a.play();e={a:a,w:cur?0:1};W.push(e);a.setEffectiveWeight(e.w);}cur=a;g.userData.clip=n;};
     g.userData.mixW=function(dt){if(W.length<2&&W.length&&W[0].a===cur){W[0].w=1;return;}var sum=0,i;for(i=0;i<W.length;i++){var e=W[i];e.w=e.a===cur?Math.min(1,e.w+dt*rate):Math.max(0,e.w-dt*rate);sum+=e.w;}
       for(i=W.length-1;i>=0;i--){var e2=W[i];if(e2.w<=0&&e2.a!==cur){e2.a.stop();W.splice(i,1);}else e2.a.setEffectiveWeight(sum>0?e2.w/sum:1);}};
-    g.userData.setSpeed=function(mps){/* ходене: клипът е ~1.3 m/s при timeScale 1 */var a=acts.walk;if(a)a.setEffectiveTimeScale(Math.max(.4,Math.min(1.8,mps/1.3)));var b=acts.walkslow;if(b)b.setEffectiveTimeScale(Math.max(.4,Math.min(1.8,mps/0.8)));};
+    g.userData.setSpeed=function(mps){/* ходене: клипът е ~1.3 m/s при timeScale 1 за възрастен; по-ниското тяло прави по-къси крачки, затова темпото е спрямо ръста (иначе краката се плъзгат) */var k=g.userData.k||1,a=acts.walk;if(a)a.setEffectiveTimeScale(Math.max(.4,Math.min(2.4,mps/(1.3*k))));var b=acts.walkslow;if(b)b.setEffectiveTimeScale(Math.max(.4,Math.min(2.4,mps/(0.8*k))));};
     /* лицеви форми (ако моделът е с blendshapes): face('smile'|'blink'|'aa'|'oh'|'ee'|'jaw'|'brows', 0..1) */
     var morphs=[];root.traverse(function(x){if(x.isMesh&&x.morphTargetDictionary&&x.morphTargetInfluences)morphs.push(x);});
     if(morphs.length){g.userData.face=function(name,w){for(var i=0;i<morphs.length;i++){var k=morphs[i].morphTargetDictionary[name];if(k!=null)morphs[i].morphTargetInfluences[k]=w;}};g.userData.faces=Object.keys(morphs[0].morphTargetDictionary);}
