@@ -1179,9 +1179,12 @@ const space=(function(){
       if(!moving_&&ud.stSide==null)ud.stSide=Math.random()<.5?1:-1;if(moving_)ud.stSide=null;
       const pref=moving_?ry:ry+ud.stSide*Math.PI/2;let ta=null;
       for(let k=0;k<=8&&ta==null;k++)for(const sg of k?[1,-1]:[1]){const aa=pref+sg*k*Math.PI/8;if(free(aa,tr)){ta=aa;break;}} /* in front while walking (beside when standing), else the nearest free place round the parent */
+      {const rA=Math.hypot(rx,rz),okP=rA>.3&&rA<1&&circleFree(st.position.x,st.position.z,.2),ok_=okP&&!people.some(o=>o!==g&&o.visible&&o.userData.follow!==me&&Math.hypot(o.position.x-st.position.x,o.position.z-st.position.z)<.38);
+        if(!moving_){if(ud.stPark&&okP){st.position.set(ud.stPark[0],floorY(ud.stPark[0],ud.stPark[1]),ud.stPark[1]);st.rotation.y=ud.stPark[2];return;}if(ok_&&!ud.stPark){ud.stPark=[st.position.x,st.position.z,st.rotation.y];return;}ud.stPark=null;} /* she stands: the pram stays parked exactly where she left it, as it stood (it does not slide or turn when she turns to a shelf) */
+        else{ud.stPark=null;if((ud.vNow||0)<.05&&!ud.turning&&ok_)return;}} /* a moment's stop on the way: it stays in her hands, where it is */
       const a0=a,r0=r,f0=free(a0,r0);if(ta!=null){let d=ta-a;d=((d+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;if(Math.abs(d)>.2){const arc=(sg,len)=>{let n=0;for(let q=Math.PI/16;q<len;q+=Math.PI/16)if(!free(a0+sg*q,Math.min(r0,tr)))n++;return n;},s1=d>0?1:-1,l1=Math.abs(d),l2=2*Math.PI-l1,b1=arc(s1,l1),b2=arc(-s1,l2);if(b1>0&&b2<b1)d=-s1*l2;} /* swung round only through free floor, the long way if the short one is shut */a+=Math.max(-1.6*dt,Math.min(1.6*dt,d*Math.min(1,dt*6)));}
       r+=(tr-r)*Math.min(1,dt*3);if(!free(a,r)&&f0){if(free(a0,r))a=a0;else if(r0<.95){a=a0;r=r0;}} /* blocked: the pram is not pushed into it, it stays where it is (out of a tight spot it is worked free) */
-      st.position.set(g.position.x+Math.sin(a)*r,0,g.position.z+Math.cos(a)*r);st.position.y=floorY(st.position.x,st.position.z);st.rotation.y=moving_?a:ry;}
+      st.position.set(g.position.x+Math.sin(a)*r,0,g.position.z+Math.cos(a)*r);st.position.y=floorY(st.position.x,st.position.z);st.rotation.y=moving_?a:ry;if(!moving_)ud.stPark=[st.position.x,st.position.z,st.rotation.y];} /* set down once where there is room, then parked */
     // §2 companions: child / partner follow the leader's trail 0.6–1.0 m behind
     // a child and the sweets: it sees them, stops and points, then turns to the parent and pleads, stamping, arms going. The parent stops,
     // turns round, talks; gives in (the child takes one, beaming) or says no, shaking the head, takes the child by the hand and walks on
@@ -1568,6 +1571,7 @@ const space=(function(){
     function gltfPose(g,v){const ud=g.userData,st=ud.state;let clip='idle';
       if(v<=.04&&ud.vR>.15&&!ud.cashier&&!ud.ddd)v=ud.vR; // whatever moves the body (a pull by the hand, a step aside), the feet step with it
       if(ud.talking&&!ud.call&&!ud.ddd&&!people.concat(extras).some(o=>o!==g&&o.visible&&Math.hypot(o.position.x-g.position.x,o.position.z-g.position.z)<2.6))ud.talking=false; // nobody talks to the air
+      if(v>.04&&ud.vR!=null&&!ud.cashier&&!ud.ddd)v=Math.min(v,ud.vR+.04); /* the legs step only as fast as the body really goes: held up, nobody walks on the spot */
       if(v>.04){clip=ud.elder?'walkslow':'walk';ud.setSpeed(v);}
       else if(st==='queue')clip=(ud.phone&&ud.phoneM&&ud.phoneM.visible)?'phone':'wait';
       else if(st==='browse'||st==='restock'||st==='scan')clip='look';else if(ud.bag&&ud.bag.visible)clip='bag';
