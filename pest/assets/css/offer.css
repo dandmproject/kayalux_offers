@@ -1373,3 +1373,13 @@ footer.foot{overflow:hidden} /* the glint moving over the letters never widens t
 .vzsub span{display:block;margin-top:3px;font:400 14px/1.45 var(--body);color:#efe9dc}
 @media (max-width:560px){.vzsub{bottom:10px;padding:8px 12px 9px}.vzsub b{font-size:13.5px}.vzsub span{font-size:12.5px}}
 .vzsub.pop{animation:vzsubIn .45s ease}@keyframes vzsubIn{from{opacity:.25}to{opacity:1}} /* a new line fades in */
+
+/* „Разходка“: the hint and the walking stick on a phone */
+.fp-ui{position:absolute;inset:0;pointer-events:none;z-index:6;display:none}
+.fp-ui.on{display:block}
+.fp-hint{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);margin:0;width:max-content;max-width:min(560px,calc(100% - 28px));padding:8px 14px;background:rgba(14,12,10,.74);color:#efe9dc;font:400 13px/1.45 var(--body);text-align:center;border:1px solid rgba(212,175,99,.45);opacity:0;transition:opacity .6s}
+.fp-ui.hint .fp-hint{opacity:1}
+.fp-ui.touch .fp-hint{bottom:128px}
+.fp-joy{display:none;position:absolute;left:18px;bottom:18px;width:100px;height:100px;border-radius:50%;background:rgba(14,12,10,.38);border:1px solid rgba(212,175,99,.6);pointer-events:auto;touch-action:none}
+.fp-ui.touch .fp-joy{display:block}
+.fp-joy i{position:absolute;left:50%;top:50%;width:42px;height:42px;margin:-21px 0 0 -21px;border-radius:50%;background:rgba(212,175,99,.88);box-shadow:0 2px 8px rgba(0,0,0,.35);transition:transform .06s}

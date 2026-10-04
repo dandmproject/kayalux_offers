@@ -908,7 +908,7 @@ const space=(function(){
       const los=(g,a,b)=>{const dx=b[0]-a[0],dz=b[1]-a[1],n=Math.max(1,Math.ceil(Math.hypot(dx,dz)/.06));for(let s=0;s<=n;s++){const x=a[0]+dx*s/n,z=a[1]+dz*s/n;if(!free(g,Math.floor((x-x0)/c),Math.floor((z-z0)/c)))return false;}return true;};
       const simplify=(g,pts)=>{const out=[pts[0]];let i=0;while(i<pts.length-1){let j=pts.length-1;while(j>i+1&&!los(g,pts[i],pts[j]))j--;out.push(pts[j]);i=j;}return out;};
       let failed=0;
-      function route(g,from,to){let s=nearFree(g,from[0],from[1]),t=nearFree(g,to[0],to[1]);let cells=s&&t?astar(g,s,t):null;if(!cells&&g!==G0){s=nearFree(G0,from[0],from[1]);t=nearFree(G0,to[0],to[1]);cells=s&&t?astar(G0,s,t):null;if(cells)g=G0;} // retry without body inflation (tight small stores)
+      function route(g,from,to){const alt=g.alt;let s=nearFree(g,from[0],from[1]),t=nearFree(g,to[0],to[1]);let cells=s&&t?astar(g,s,t):null;if(!cells&&alt)for(const a of alt){s=nearFree(a,from[0],from[1]);t=nearFree(a,to[0],to[1]);cells=s&&t?astar(a,s,t):null;if(cells){g=a;break;}}if(!cells&&g!==G0){s=nearFree(G0,from[0],from[1]);t=nearFree(G0,to[0],to[1]);cells=s&&t?astar(G0,s,t):null;if(cells)g=G0;} // retry without body inflation (tight small stores)
         if(!cells){if(!failed++)console.warn('nav: no path in store №'+state.n+' from',from,'to',to);return null;}
         const pts=cells.map(q=>toWorld(q[0],q[1]));pts[0]=[from[0],from[1]];pts[pts.length-1]=[to[0],to[1]];const sp=simplify(g,pts);return sp.length>1?sp:[pts[0],pts[pts.length-1]];}
       // browse cells: first free cell in front of each registered shelf face
@@ -943,6 +943,9 @@ const space=(function(){
       if(VZ.zone&&!g.userData.ddd&&!g.userData.pay){if(!D)D=G.slice();const Z=VZ.zone,xs=[Z.x-Z.r,Z.x+Z.r],zs=[Z.z-Z.r,Z.z+Z.r];if(Z.cx!=null){xs.push(Z.cx-.5,Z.cx+.5);zs.push(Z.cz-.5,Z.cz+.5);}
         const a=nav.toCell(Math.min(...xs),Math.min(...zs)),b=nav.toCell(Math.max(...xs),Math.max(...zs)),keep=[[g.position.x,g.position.z],nav.entry,nav.exit].concat(nav.queue||[]);
         for(let jj=Math.max(0,Math.min(a[1],b[1]));jj<=Math.min(nav.rows-1,Math.max(a[1],b[1]));jj++)for(let ii=Math.max(0,Math.min(a[0],b[0]));ii<=Math.min(nav.cols-1,Math.max(a[0],b[0]));ii++){const w=nav.toWorld(ii,jj);if(inZone(w[0],w[1])&&!keep.some(k=>k&&Math.hypot(k[0]-w[0],k[1]-w[1])<.7))D[jj*nav.cols+ii]=1;}}
+      if(VZ.fp&&!g.userData.ddd){const gx=g.position.x,gz=g.position.z,mk=B=>{for(const c of VZ.fp){const r=c[2]+.25,a=nav.toCell(c[0]-r,c[1]-r),b=nav.toCell(c[0]+r,c[1]+r);
+          for(let jj=Math.max(0,a[1]);jj<=Math.min(nav.rows-1,b[1]);jj++)for(let ii=Math.max(0,a[0]);ii<=Math.min(nav.cols-1,b[0]);ii++){const w=nav.toWorld(ii,jj);if(Math.hypot(w[0]-c[0],w[1]-c[1])<r&&Math.hypot(w[0]-gx,w[1]-gz)>.45)B[jj*nav.cols+ii]=1;}}return B;};
+        if(!D)D=G.slice();mk(D);D.alt=[mk(G.slice()),mk(nav.G0.slice())];} /* if the way is shut by the people standing about, the next try still goes round him, never through */
       return D||G;}
     // §1: arrival rate now → time a slot stays "away" before the next visitor uses it
     function lambdaNow(){const h=Math.floor(state.t/60);const l=PARAMS.lambda[h]||6;return l*(PARAMS.dayMul[state.day]||1)*Math.max(.3,S.A/PARAMS.areaRef);}
@@ -1011,6 +1014,9 @@ const space=(function(){
         if(walking&&L2<1.0&&ahead>.8&&(ovx*fx+ovz*fz)>.2){want=Math.min(want,Math.max(.25,ovx*fx+ovz*fz));}   // follow a slower walker instead of walking through
         if(walking&&L2<.5&&ahead>.5&&(ovx*fx+ovz*fz)<-.1)want=Math.min(want,.15); // face to face, nearly touching: both slow to a shuffle, the steering takes them past each other
         if(!walking&&L2<.55&&Math.abs((ox*fz-oz*fx)/L2)<.35)block=o;}
+      {const OB=view.name==='fp'?(VZ.fp||[]).concat([[FPV.x,FPV.z,.22,1.8]]):VZ.fp;if(OB&&!ud.ddd)for(const c of OB){const ox=c[0]-x,oz=c[1]-z,L2=Math.hypot(ox,oz)||.01,R=c[2]+.3;if(L2>R+1.4)continue; // the ladder, the case: kept clear of, passed on the open side
+        if(L2<R+.25){const w=(R+.25-L2)/(R+.25);ax-=ox/L2*w*1.6;az-=oz/L2*w*1.6;}
+        const ah=ox*fx+oz*fz,lat=ox*fz-oz*fx;if(ah>0&&Math.abs(lat)<R){const s_=lat>0?-1:1,w=(R+1.4-L2)/(R+1.4)*(1-Math.abs(lat)/R);ax+=fz*s_*w*1.2;az+=-fx*s_*w*1.2;}}}
       const end=P[P.length-1],toEnd=Math.hypot(end[0]-x,end[1]-z),stopHere=()=>{ud.yielding=false;ud.waitAcc=0;ud.squeeze=false;ud.stuckT=0;ud.vx=ud.vz=0;ud.vNow=0;return true;};
       if(block&&lg&&(lg.kind==='queue'||lg.kind==='browse')&&toEnd<.6)return stopHere(); // the place (in the queue, at the shelf) is right here behind whoever stands in front: take it
       // no real progress (eased back as fast as it walks): after 2 s a new route, after 4 s near the goal it stops there, after 6 s it gives up this stop
@@ -1034,7 +1040,7 @@ const space=(function(){
       // desired velocity = route direction + steering, limited to walking speed, reached smoothly (no jitter, no jumps)
       let vdx=fx*want+ax*sp,vdz=fz*want+az*sp;const vm=Math.hypot(vdx,vdz);if(vm>sp*1.05){vdx*=sp*1.05/vm;vdz*=sp*1.05/vm;}
       const k=Math.min(1,dt*8);let vx=vx0+(vdx-vx0)*k,vz=vz0+(vdz-vz0)*k;
-      const G=gridOf(g),ok=(px,pz,g0)=>{const [ci,cj]=nav.toCell(px,pz);return nav.free(g0?nav.G0:G,ci,cj);};
+      const G=gridOf(g),ok=(px,pz,g0)=>{const [ci,cj]=nav.toCell(px,pz);return nav.free(g0?nav.G0:G,ci,cj)&&(ud.ddd||!inFP(px,pz,.12)||inFP(x,z,.12));};
       let nx=x+vx*dt,nz=z+vz*dt;
       if(!ok(nx,nz)){const f=Math.max(0,vx*fx+vz*fz);nx=x+fx*f*dt;nz=z+fz*f*dt;if(ok(nx,nz)||ok(nx,nz,true)){vx=fx*f;vz=fz*f;}else if(ok(x+vx*dt,z)){nx=x+vx*dt;nz=z;vz=0;}else if(ok(x,z+vz*dt)){nx=x;nz=z+vz*dt;vx=0;}else{nx=x;nz=z;vx=vz=0;ud.blkT=(ud.blkT||0)+dt;
         if(ud.blkT>.4&&!ud.blkRe){ud.blkRe=true;const np=nav.route(gridDyn(g),[x,z],end);if(np&&np.length>1){setPath(g,np);return false;}}}} // against an edge: slide along it; boxed in a corner: a new route at once
@@ -1074,9 +1080,16 @@ const space=(function(){
       const tr=lu.trail||[[lead.position.x,lead.position.z]];let need=ud.gap||.9,tx=lead.position.x,tz=lead.position.z;
       for(let k=tr.length-1;k>=0;k--){const dx=tr[k][0]-tx,dz=tr[k][1]-tz,L=Math.hypot(dx,dz);if(L>=need){tx+=dx/L*need;tz+=dz/L*need;need=0;break;}tx=tr[k][0];tz=tr[k][1];need-=L;}
       if(!ud.isChild&&lu.state==='walk'){if(ud.sideS==null)ud.sideS=Math.random()<.5?-1:1;const a=lead.rotation.y,sx=tx+Math.cos(a)*.5*ud.sideS,sz=tz-Math.sin(a)*.5*ud.sideS,[ci,cj]=nav.toCell(sx,sz);if(nav.free(nav.G35,ci,cj)){tx=sx;tz=sz;}} // a partner walks beside, not behind, where the aisle is wide enough
+      if(!ud.isChild&&(lu.state==='queue'||lu.pay)&&nav.exit){ // the one who came along does not queue: waits aside, near the way out, facing the door
+        if(!ud.waitP){let best=null;for(let r=1.4;r<=2.6&&!best;r+=.3)for(let a=0;a<6.28;a+=.35){const x=lead.position.x+Math.sin(a)*r,z=lead.position.z+Math.cos(a)*r,[ci,cj]=nav.toCell(x,z);if(!nav.free(nav.G35,ci,cj)||inZone(x,z)||inFP(x,z,.4))continue;
+            if((nav.queue||[]).some(q=>q&&Math.hypot(q[0]-x,q[1]-z)<.85)||Math.hypot(nav.entry[0]-x,nav.entry[1]-z)<1||Math.hypot(nav.exit[0]-x,nav.exit[1]-z)<.9||people.some(o=>o!==g&&o!==lead&&o.visible&&Math.hypot(o.position.x-x,o.position.z-z)<.7))continue;
+            const sc=Math.hypot(nav.exit[0]-x,nav.exit[1]-z);if(!best||sc<best[2])best=[x,z,sc];}ud.waitP=best;}
+        if(ud.waitP){tx=ud.waitP[0];tz=ud.waitP[1];ud.waitT=T_;}}
+      else ud.waitP=null;
       let dx=tx-g.position.x,dz=tz-g.position.z,L=Math.hypot(dx,dz);let v=0;
-      if(L>2.2||!ud.placed){ud.placed=true;g.position.set(lead.position.x,0,lead.position.z);dx=tx-g.position.x;dz=tz-g.position.z;L=Math.hypot(dx,dz);}
-      if(L>.12){v=Math.min(lu.sp*1.25,L*2.5);const s=Math.min(L,v*dt);g.position.x+=dx/L*s;g.position.z+=dz/L*s;ud.ang=angStep(ud.ang||0,Math.atan2(dx,dz),8,dt,4);}
+      if(L>(T_-(ud.waitT||-9)<6?4.5:2.2)||!ud.placed){ud.placed=true;g.position.set(lead.position.x,0,lead.position.z);dx=tx-g.position.x;dz=tz-g.position.z;L=Math.hypot(dx,dz);}
+      if(L>.12){v=Math.min(lu.sp*(ud.waitP?1:1.25),L*2.5);const s=Math.min(L,v*dt);g.position.x+=dx/L*s;g.position.z+=dz/L*s;ud.ang=angStep(ud.ang||0,Math.atan2(dx,dz),8,dt,4);}
+      else if(ud.waitP){ud.ang=angStep(ud.ang||0,Math.atan2(nav.exit[0]-g.position.x,nav.exit[1]-g.position.z),4,dt,2);}
       g.position.y=floorY(g.position.x,g.position.z);g.rotation.y=ud.ang||0;ud.state=v>0?'walk':lu.state==='walk'?'queue':lu.state;ud.blend=v>0?Math.min(1,(ud.blend||0)+dt*3):Math.max(0,(ud.blend||0)-dt*3);
       if(ud.basket){ud.basket.visible=false;ud.bag.visible=false;}poseAny(g,T_,dt,v*ud.blend);}
     // §6 checkout at the head of the queue: greeting → scan n items → cash | card → bagging → goodbye; the next customer advances only afterwards
@@ -1243,6 +1256,8 @@ const space=(function(){
         g.visible=true;if(ud.stroller)ud.stroller.visible=true;
         if(ud.state==='enter'){ud.blend=Math.max(0,ud.blend-dt*3);if(T_>ud.until)startLeg(g,T_);}
         else if(ud.state==='walk'){ud.blend=Math.min(1,ud.blend+dt*2);
+          if(VZ.fp&&ud.path&&ud.fRe!==VZ.fpTok&&!ud.pay&&!ud.ddd){const P=ud.path;let a=[g.position.x,g.position.z],hit=false;for(let q=(ud.pi||0)+1;q<Math.min(P.length,(ud.pi||0)+5);q++){if(segFP(a,P[q],.2)){hit=true;break;}a=P[q];}
+            if(hit){ud.fRe=VZ.fpTok;const tg=P[P.length-1],NP=nav.route(gridDyn(g),[g.position.x,g.position.z],tg);if(NP)setPath(g,NP,T_);}}
           if(VZ.zone&&ud.path&&ud.zRe!==VZ.zone.tok&&!ud.pay&&!ud.ddd){const P=ud.path;let hit=false;for(let q=ud.pi||0;q<Math.min(P.length,(ud.pi||0)+4);q++)if(P[q]&&inZone(P[q][0],P[q][1])){hit=true;break;} // the way ahead runs through the work: round it
             if(hit){ud.zRe=VZ.zone.tok;const tg=P[P.length-1],lg=ud.visit&&ud.visit[ud.legI];if(lg&&lg.kind==='browse'&&inZone(tg[0],tg[1],.2))navNext(g,T_);else{const NP=nav.route(gridDyn(g),[g.position.x,g.position.z],tg);if(NP)setPath(g,NP,T_);}}}
           // nobody walks at a metronome pace: the speed drifts slowly around the person's own (±~7 %, mean-reverting noise, ~3 s memory)
@@ -1552,7 +1567,27 @@ const space=(function(){
       const legs=['L','R'].map(s=>[B(s+'_Thigh'),B(s+'_Calf'),B(s+'_Foot')]);poseBones(g);ud.pB=ud.pB.concat(...legs.map(l=>l.slice(0,3))).filter(Boolean);
       ud.dz={tag,tagV,tank,straps,kase,clip,handB,docs,copy,pen,docsAt:null,copyAt:null,caseOn:false,caseP:[0,0,0],holdB:null,clipOn:false,kind:'service',stow,outlet,pump,mFace,mNeck,mask,lance,gun,hose,HN,HR,legs,maskT:0,maskW:0,lanceT:0,lanceW:0,ldir:new T.Vector3(0,-.5,.8).normalize(),sq:0,sqT:0,q:[],task:null,ph:'away',t:0,until:T_+rnd(2,6),spraying:false,emit:0,pumpT:0};
       g.visible=false;ud.state='away';g.position.set(nav.entry[0],0,nav.entry[1]);room.add(g);people.push(g);VZ.g=g;return true;}
-    function vzClear(){if(VZ.sub){VZ.sub.classList.remove('on');VZ.subShown=null;}if(VZ.g){(VZ.g.userData.ownMats||[]).forEach(m=>m.dispose());(VZ.g.userData.ownGeo||[]).forEach(g_=>g_.dispose());const dz=VZ.g.userData.dz;if(dz)dz.hose.geometry.dispose();}VZ.g=null;if(VZ.gel){VZ.gel.count=0;VZ.gelN=0;}}
+    // the specialist's footprint on the floor while he works: himself (kneeling at a box, at a crack with the gel) and his case on the floor.
+    // Nobody walks through it: routes go round it, steering keeps clear of it, and whoever watches through the camera steps round it too
+    function vzFP(g){const F=[],ud=g&&g.userData,dz=g&&g.visible&&ud.dz;let k='';
+      if(dz&&dz.caseOn&&dz.caseP){F.push([dz.caseP[0],dz.caseP[2],.24,.7]);k+=dz.caseP[0].toFixed(2)+','+dz.caseP[2].toFixed(2);}
+      if(dz&&ud.state==='ddd'&&['work','stepIn','stepOut','maskOn','after'].includes(dz.ph)){F.push([g.position.x,g.position.z,.3,1.9]);k+='b';}
+      if(k!==VZ.fpK){VZ.fpK=k;VZ.fpTok=(VZ.fpTok||0)+1;}VZ.fp=F.length?F:null;}
+    function inFP(x,z,pad){const F=VZ.fp;if(!F)return false;pad=pad||0;for(const c of F)if(Math.hypot(x-c[0],z-c[1])<c[2]+pad)return true;return false;}
+    function segFP(a,b,pad){const F=VZ.fp;if(!F)return false;const dx=b[0]-a[0],dz=b[1]-a[1],L2=dx*dx+dz*dz||1e-6;for(const c of F){let t=((c[0]-a[0])*dx+(c[1]-a[1])*dz)/L2;t=t<0?0:t>1?1:t;if(Math.hypot(a[0]+dx*t-c[0],a[1]+dz*t-c[1])<c[2]+pad)return true;}return false;}
+    // the watcher is a person too: in the tour, the free views and behind a shopper the camera steps round the people and round the specialist's
+    // ladder or case instead of passing through them (eased, at most 0.9 m, never into a fixture); where it looks is left as it was
+    const _ca=new T.Vector3(),_cw=new T.Vector3();
+    function camAvoid(dt){const cp=camera.position;_cw.set(0,0,0);if(window.__camLock){_ca.set(0,0,0);return null;}
+      if(view.name!=='ddd'&&view.name!=='fp'&&cp.y<2.4&&Math.abs(cp.x)<S.hw+.5&&Math.abs(cp.z)<S.hd+.8){
+        const push=(cx,cz,r)=>{const dx=cp.x-cx,dz=cp.z-cz,L=Math.hypot(dx,dz);if(L>=r)return;const f=r-L,ux=L>1e-3?dx/L:1,uz=L>1e-3?dz/L:0;_cw.x+=ux*f;_cw.z+=uz*f;};
+        if(cp.y<1.95)for(const p of people.concat(extras)){if(!p.visible||p.userData.cashier||(view.name==='walk'&&p===camSub))continue;push(p.position.x,p.position.z,.6);}
+        if(VZ.fp)for(const c of VZ.fp)if(cp.y<c[3]+.35)push(c[0],c[1],c[2]+.45);
+        const L=Math.hypot(_cw.x,_cw.z);if(L>.9)_cw.multiplyScalar(.9/L);}
+      _ca.lerp(_cw,Math.min(1,dt*4));if(_ca.lengthSq()<1e-6)return null;
+      if(nav){const nx=cp.x+_ca.x,nz=cp.z+_ca.z,c=nav.toCell(nx,nz);if(Math.abs(nx)<S.hw&&Math.abs(nz)<S.hd&&!nav.free(nav.G0,c[0],c[1]))_ca.multiplyScalar(.5);}
+      cp.add(_ca);return _ca;}
+    function vzClear(){VZ.fp=null;if(VZ.sub){VZ.sub.classList.remove('on');VZ.subShown=null;}if(VZ.g){(VZ.g.userData.ownMats||[]).forEach(m=>m.dispose());(VZ.g.userData.ownGeo||[]).forEach(g_=>g_.dispose());const dz=VZ.g.userData.dz;if(dz)dz.hose.geometry.dispose();}VZ.g=null;if(VZ.gel){VZ.gel.count=0;VZ.gelN=0;}}
     // where is open floor (for him to stand) / a free wall (to spray its skirting)
     const vzFree=(x,z,r)=>x>-S.hw+r&&x<S.hw-r&&z>-S.hd+r&&z<S.hd-r&&!OBS.some(o=>x+r>o[0]&&x-r<o[1]&&z+r>o[2]&&z-r<o[3]);
     const vzWalk=(x,z)=>{if(!nav)return true;const c=nav.toCell(x,z);return nav.free(nav.G35,c[0],c[1]);}; // a spot the crowd's routes can reach and leave (fixtures +35 cm)
@@ -1762,7 +1797,7 @@ const space=(function(){
       if(s>.004){dz.legs.forEach(l=>{if(!l[2])return;l[2].getWorldPosition(_zC);_zC.y+=s;vzLeg(g,l,_zC);});leanTo(g,dz.sq*.5);}}
     // props each frame: the mask between chest and face, the lance in the hand or in its holder, the gel gun, the hose, the mist
     function vzSetW(o,p,q){o.position.copy(p);if(q)o.quaternion.copy(q);}
-    function vzProps(dt){const g=VZ.g;if(!g)return;const ud=g.userData,dz=ud.dz;if(!dz)return;vzZoneUpd(g);vzSubShow(g,vzCaption(g));const vis=g.visible,spr=dz.kind==='spray';dz.mask.visible=vis;dz.lance.visible=dz.hose.visible=vis&&spr;dz.tank.visible=dz.straps.visible=spr;dz.kase.visible=vis&&!spr;
+    function vzProps(dt){const g=VZ.g;if(!g)return;const ud=g.userData,dz=ud.dz;if(!dz)return;vzZoneUpd(g);vzFP(g);vzSubShow(g,vzCaption(g));const vis=g.visible,spr=dz.kind==='spray';dz.mask.visible=vis;dz.lance.visible=dz.hose.visible=vis&&spr;dz.tank.visible=dz.straps.visible=spr;dz.kase.visible=vis&&!spr;
       dz.tag.hidden=!vis;if(!vis){VZ.mist.forEach(s_=>s_.visible=false);dz.gun.visible=dz.clip.visible=dz.handB.visible=false;return;}
       g.updateMatrixWorld(true);dz.maskW+=(dz.maskT-dz.maskW)*(1-Math.exp(-dt*5));const mw=tE(dz.maskW);
       dz.mNeck.getWorldPosition(_zA);dz.mFace.getWorldPosition(_zB);dz.mNeck.getWorldQuaternion(_zQ);dz.mFace.getWorldQuaternion(_zQ2);_zA.lerp(_zB,mw);_zQ.slerp(_zQ2,mw);vzSetW(dz.mask,_zA,_zQ);
@@ -1924,7 +1959,8 @@ const space=(function(){
         const bd=new T.Mesh(new T.PlaneGeometry(W+30,5),M.street);bd.rotation.y=Math.PI;bd.position.set(0,2.0,hd+13);room.add(bd);
         // green exit sign above the door (inside), CCTV domes on the ceiling
         const ex=new T.Mesh(new T.PlaneGeometry(.34,.14),M.exit);ex.position.set(doorX+doorW/2-.3,gH-.12,hd-.08);ex.rotation.y=Math.PI;room.add(ex);cbox(.34,.14,.03,'#1f7a3e',doorX+doorW/2-.3,gH-.12,hd-.06);
-        LAYER=vaccC;[[doorX-2,hd-1.2],[0,0],[-hw*.5,-hd*.5]].forEach(([x,z])=>cgeo(new T.SphereGeometry(.07,8,4,0,Math.PI*2,Math.PI/2,Math.PI/2),'#f2f2f0',x,Hh-.01,z));LAYER=null;}
+        LAYER=vaccC;[[doorX-2,hd-1.2],[0,0],[-hw*.5,-hd*.5],[hw*.55,-hd*.35],[-hw*.55,hd*.25],[hw*.5,hd*.55]].forEach(([x,z])=>cgeo(new T.SphereGeometry(.07,8,4,0,Math.PI*2,Math.PI/2,Math.PI/2),'#f2f2f0',x,Hh-.01,z));
+        [[hw*.2,-hd*.7],[-hw*.25,-hd*.05]].forEach(([x,z])=>{cgeo(new T.CylinderGeometry(.06,.06,.03,12),'#e9e9e6',x,Hh-.015,z);cgeo(new T.SphereGeometry(.05,8,4,0,Math.PI*2,Math.PI/2,Math.PI/2),'#1b1b1d',x,Hh-.03,z);});LAYER=null;}
       // entrance: red basket stack (left of the door), chest freezer + Milka fridge + Haribo stand (right of the door)
       {const bx=doorX-doorW/2-.35,bz=hd-.55;blk(bx,bz,.5,.36);for(let i=0;i<5;i++){cbox(.46,.2,.32,'#d0212b',bx,.1+i*.075,bz);cbox(.5,.03,.36,'#a8191f',bx,.21+i*.075,bz);}
         const rx=doorX+doorW/2;if(hw-rx>1.9){const fx=rx+.95,fz=hd-.72;blk(fx,fz,1.35,.72);cbox(1.35,.82,.72,'#1fb5b0',fx,.41,fz);cbox(1.35,.05,.72,'#eef2f2',fx,.85,fz);cbox(1.2,.02,.5,'#bfe6f0',fx,.88,fz);cbox(1.35,.06,.72,'#0e7d79',fx,.03,fz);
@@ -1932,7 +1968,8 @@ const space=(function(){
           [.45,.85,1.25,1.65].forEach(y=>{cbox(.6,.02,.5,'#e6e8ea',mx,y,mz);for(let x=mx-.24;x<mx+.24;x+=.09*dens)put('pack',x,y+.01,mz-.2,.07,.12,.16,pick_(['#5b2d8e','#e8e2d6','#3a2410','#2f6fb5']));});
           const ml=new T.Mesh(new T.PlaneGeometry(.66,1.6),M.milka);ml.rotation.y=-Math.PI/2;ml.position.set(mx-.364,1.05,mz);room.add(ml);
           const hx=rx+1.7,hz=hd-1.55;blk(hx,hz,.5,.42);face(hx,hz+.2,0,1,'haribo');cbox(.44,1.35,.36,'#f5c400',hx,.675,hz);cbox(.5,.05,.42,'#f5c400',hx,.03,hz);const hb=new T.Mesh(new T.PlaneGeometry(.44,.17),M.haribo);hb.position.set(hx,1.45,hz+.18);room.add(hb);
-          for(let lv=0;lv<4;lv++)for(let i=0;i<3;i++)put('bag',hx-.14+i*.14,.2+lv*.3,hz+.2,.11,.2,.05,pick_(['#f5c400','#c8382e','#3c7a3e','#f28c28','#2f6fb5']));}}
+          for(let lv=0;lv<4;lv++)for(let i=0;i<3;i++)put('bag',hx-.14+i*.14,.2+lv*.3,hz+.2,.11,.2,.05,pick_(['#f5c400','#c8382e','#3c7a3e','#f28c28','#2f6fb5']));
+          {const wx=rx+.42,wz=hd-1.38;blk(wx,wz,.36,.26);for(const sg of [1,-1]){const pn=new T.BoxGeometry(.3,.62,.012);pn.rotateX(-.17*sg);cgeo(pn,'#f4c20d',wx,.31,wz+.053*sg);const pc=new T.BoxGeometry(.13,.15,.004);pc.rotateX(-.17*sg);cgeo(pc,'#1c1c1c',wx,.36,wz+.061*sg);const pb=new T.BoxGeometry(.24,.035,.004);pb.rotateX(-.17*sg);cgeo(pb,'#1c1c1c',wx,.17,wz+.068*sg);}}}} /* „мокър под“: the folding warning sign by the door */
       // checkout: oak counter, black POS, terminal, printer, green-vest cashier; cigarette wall behind
       const ckW=Math.min(A<60?1.5:2.2,W*.25),ckX=Math.max(-hw+ckW/2+.35,doorX-doorW/2-ckW/2-.9),ckZ=hd-1.15;
       blk(ckX,ckZ+.39,ckW,1.38);ao(ckX,ckZ+.3,ckW,0,1);ao(ckX+ckW/2,ckZ,.6,1,0);box(ckW,1,.6,M.oak,ckX,.5,ckZ);cbox(ckW+.04,.04,.64,'#3a2a1e',ckX,1.02,ckZ);cbox(ckW,.06,.02,BLK,ckX,.03,ckZ-.29); // a 60 cm counter, as in small shops: the customer and the cashier each reach about 45 cm to the middle
@@ -1940,7 +1977,11 @@ const space=(function(){
         const px=ckX+ckW/2-.4,mx=px-.38,mz=ckZ+.18;cbox(.3,.02,.2,BLK,mx,1.05,mz);cbox(.03,.14,.03,BLK,mx,1.12,mz); /* the POS on the cashier's left: stand and screen together, the screen turned to her */
         const mon=new T.Group();mon.position.set(mx,1.3,mz);mon.rotation.y=Math.atan2(px-mx,ckZ+.43-mz);mon.rotation.x=-.15; /* the screen with the data faces the cashier, who stands behind the counter */const bz=new T.Mesh(new T.BoxGeometry(.34,.24,.02),M.unit);const sc=new T.Mesh(new T.PlaneGeometry(.31,.21),M.screen);sc.position.z=.011;mon.add(bz,sc);room.add(mon);S.screen=sc;
         const term=new T.Group();term.position.set(px-.48,1.06,ckZ-.2);term.rotation.y=Math.PI; /* keypad toward the customer, who stands in front of the counter */term.rotation.x=-.3; /* the card terminal stands at the customer's end, within reach */const tb=new T.Mesh(new T.BoxGeometry(.085,.03,.15),M.unit);const ts=new T.Mesh(new T.PlaneGeometry(.06,.035),M.screen2);ts.rotation.x=-Math.PI/2;ts.position.set(0,.016,-.045);const keys=new T.Mesh(new T.PlaneGeometry(.06,.06),M.keys);keys.rotation.x=-Math.PI/2;keys.position.set(0,.016,.03);term.add(tb,ts,keys);room.add(term);S.termP=[term.position.x,term.position.y,term.position.z];
-        cbox(.16,.1,.2,BLK,mx-.24,1.09,ckZ+.12);cbox(.1,.02,.02,WHT,mx-.24,1.15,ckZ+.03);cbox(.06,.06,.06,BLK,ckX-ckW/2+.3,1.07,ckZ+.15);S.cashier=[px,ckZ+.43];}
+        cbox(.16,.1,.2,BLK,mx-.24,1.09,ckZ+.12);cbox(.1,.02,.02,WHT,mx-.24,1.15,ckZ+.03);cbox(.06,.06,.06,BLK,ckX-ckW/2+.3,1.07,ckZ+.15);S.cashier=[px,ckZ+.43];
+        {const cx=px-.62,cz=ckZ+.7,ya=.5,P=(lx,lz)=>[cx+lx*Math.cos(ya)+lz*Math.sin(ya),cz-lx*Math.sin(ya)+lz*Math.cos(ya)]; /* her office chair, rolled aside while she stands at the till: five chrome legs on castors, a gas column, a black seat, a mesh back */
+          for(let k=0;k<5;k++){const a=ya+k*Math.PI*2/5,lg=new T.BoxGeometry(.27,.025,.035);lg.translate(.135,0,0);lg.rotateY(a);cgeo(lg,'#b9bdc3',cx,.075,cz,true);cgeo(new T.SphereGeometry(.026,8,6),'#1a1a1a',cx+Math.cos(a)*.27,.028,cz-Math.sin(a)*.27);}
+          cgeo(new T.CylinderGeometry(.024,.03,.34,10),'#c7cbd1',cx,.25,cz,true);const st=new T.BoxGeometry(.46,.07,.44);st.rotateY(ya);cgeo(st,'#1d1d1f',cx,.46,cz);
+          const [bx_,bz_]=P(0,.21),bk=new T.BoxGeometry(.42,.5,.03);bk.rotateX(.12);bk.rotateY(ya);cgeo(bk,'#232326',bx_,.82,bz_);const [sx_,sz_]=P(0,.2),sp_=new T.BoxGeometry(.05,.3,.03);sp_.rotateY(ya);cgeo(sp_,'#2a2a2c',sx_,.57,sz_);}}
       label('Каса',ckX,1.5,ckZ);
       {const tz0=ckZ-.9,tz1=Math.min(ckZ+.6,hd-.25),tl=tz1-tz0;if(tl>.8){blk(-hw+.16,(tz0+tz1)/2,.34,tl);box(.3,2.2,tl,M.oak,-hw+.16,1.1,(tz0+tz1)/2);for(let lv=0;lv<7;lv++)box(.34,.015,tl,M.oak,-hw+.18,.22+lv*.27,(tz0+tz1)/2,false);for(let lv=0;lv<7;lv++)for(let z=tz0+.06;z<tz1-.05;z+=.1*dens)put('pack',-hw+.33,.23+lv*.27,z,.055,.09,.024,pick_(['#c9a24a','#b7b7b7','#274a7a','#8c3b2e','#e6e2d8','#3a3a3a','#2f6fb5']));label('Цигари',-hw+.35,2.45,(tz0+tz1)/2);
         cgeo(new T.CylinderGeometry(.065,.065,.48,8),'#c41e1e',-hw+.16,.65,tz0-.25);cgeo(new T.CylinderGeometry(.03,.05,.08,8),BLK,-hw+.16,.93,tz0-.25);cbox(.06,.05,.16,BLK,-hw+.1,.7,tz0-.25);}}
@@ -2318,11 +2359,63 @@ const space=(function(){
     function apply(){const s=Math.sin(view.phi);camera.position.set(view.tx+view.r*s*Math.sin(view.theta),view.ty+view.r*Math.cos(view.phi),view.tz+view.r*s*Math.cos(view.theta));camera.lookAt(view.tx,view.ty,view.tz);}
     function go(name,instant){
       view.name=name;idle=0;if(name==='walk'||name==='ddd')walkSnap=true;if(name!=='tour')autoLayers(name==='plan');$$('.views [data-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view===name)));
+      fpHint(name==='fp');if(name==='fp'){tween=null;spin.vx=spin.vy=0;fpEnter();kick();return;}
       if(name==='tour'){tour.k=-1;tour.t=0;tour.first=!!instant;kick();return;}
       const p=presets(name);if(!p){tween=null;kick();return;}if(instant||reduce){Object.assign(view,p);tween=null;apply();kick();return;}
       const from={theta:view.theta,phi:view.phi,r:view.r,tx:view.tx,ty:view.ty,tz:view.tz};let dth=p.theta-from.theta;dth=((dth+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;
       tween={from,to:{...p,theta:from.theta+dth},t:0,dur:go.dur||1.35};go.dur=0;kick();
     }
+    // „Разходка“: you walk the shop yourself, at eye height, anywhere a person can stand. Drag to look round (all the way round, up and down),
+    // tap or click a spot to walk there (round the shelves, the way a person would), W A S D or the arrows or the wheel to step, the stick on a
+    // phone. Never through a shelf, a fridge, a person or the specialist's ladder: you go round them, and the shoppers step round you too
+    const FPV={x:0,z:0,yaw:Math.PI,pitch:-.06,v:0,dx:0,dz:0,keys:{},path:null,bob:0,joy:null,step:0,ring:null,ringT:0,hintT:0,blk:0};
+    const _fpr=new T.Raycaster(),_fpn=new T.Vector2(),_fpd=new T.Vector3(),_fpPl=new T.Plane(new T.Vector3(0,1,0),0);
+    function fpFree(x,z,ox,oz){if(Math.abs(x)>S.hw-.3||Math.abs(z)>S.hd-.3||!circleFree(x,z,.3))return false;if(inFP(x,z,.25)&&!inFP(ox,oz,.25))return false;
+      for(const p of people.concat(extras)){if(!p.visible)continue;const d=Math.hypot(p.position.x-x,p.position.z-z);if(d<.42&&d<Math.hypot(p.position.x-ox,p.position.z-oz))return false;}return true;}
+    function fpEnter(){const cp=camera.position;let x=S.door.x,z=S.hd-1.2,yaw=Math.PI;
+      if(Math.abs(cp.x)<S.hw-.4&&Math.abs(cp.z)<S.hd-.4&&cp.y<2.6&&fpFree(cp.x,cp.z,cp.x,cp.z)){x=cp.x;z=cp.z;camera.getWorldDirection(_fpd);yaw=Math.atan2(_fpd.x,_fpd.z);}
+      else{let ok=fpFree(x,z,x,z);for(let r=.2;r<2.5&&!ok;r+=.2)for(let a=0;a<6.28&&!ok;a+=.5){const tx=x+Math.sin(a)*r,tz=z+Math.cos(a)*r;if(fpFree(tx,tz,tx,tz)){x=tx;z=tz;ok=true;}}}
+      Object.assign(FPV,{x,z,yaw,pitch:-.06,v:0,path:null,step:0,keys:{},joy:null});}
+    function fpRing(p){if(!FPV.ring){const m=new T.MeshBasicMaterial({color:0xd4af63,transparent:true,opacity:0,depthWrite:false});m.userData.own=true;FPV.ring=new T.Mesh(new T.RingGeometry(.15,.2,32),m);FPV.ring.rotation.x=-Math.PI/2;FPV.ring.renderOrder=5;}
+      if(FPV.ring.parent!==room)room.add(FPV.ring);FPV.ring.position.set(p[0],floorY(p[0],p[1])+.012,p[1]);FPV.ringT=1.8;}
+    function fpGo(t,look){if(!nav)return;const r=nav.route(nav.G35X||nav.G35,[FPV.x,FPV.z],t);FPV.path=r&&r.length>1?r.slice(1):[[t[0],t[1]]];FPV.step=0;FPV.blk=0;FPV.look=look||null;fpRing(FPV.path[FPV.path.length-1]);}
+    function fpPick(cx,cy){const b=stage.getBoundingClientRect();_fpn.set((cx-b.left)/b.width*2-1,-((cy-b.top)/b.height)*2+1);_fpr.setFromCamera(_fpn,camera);
+      const hit=_fpr.intersectObjects(losMeshes(),false)[0];let p=null,look=null;
+      if(_fpr.ray.intersectPlane(_fpPl,_fpd)&&(!hit||_fpd.distanceTo(camera.position)<=hit.distance+.08))p=[_fpd.x,_fpd.z];
+      else if(hit){const q=hit.point,dx=q.x-camera.position.x,dz=q.z-camera.position.z,L=Math.hypot(dx,dz)||1;p=[q.x-dx/L*.75,q.z-dz/L*.75];look=[q.x,q.z,q.y];} // a shelf, a fridge: walk up to it and look at it
+      if(!p)return;p[0]=clamp(p[0],-S.hw+.3,S.hw-.3);p[1]=clamp(p[1],-S.hd+.3,S.hd-.3);fpGo(p,look);}
+    function fpStep(dt){const K=FPV.keys,run=K.ShiftLeft||K.ShiftRight;let f=(K.KeyW||K.ArrowUp?1:0)-(K.KeyS||K.ArrowDown?1:0),s=(K.KeyD?1:0)-(K.KeyA?1:0),sp=run?2.1:1.3;
+      FPV.yaw-=((K.ArrowRight||K.KeyE?1:0)-(K.ArrowLeft||K.KeyQ?1:0))*dt*1.8;
+      if(FPV.joy){f-=FPV.joy.y;s+=FPV.joy.x;}
+      if(FPV.step){const d=Math.min(Math.abs(FPV.step),sp*dt);f+=Math.sign(FPV.step);FPV.step-=Math.sign(FPV.step)*d;if(Math.abs(FPV.step)<.01)FPV.step=0;}
+      const fx=Math.sin(FPV.yaw),fz=Math.cos(FPV.yaw);let mx=0,mz=0;
+      if(f||s){FPV.path=null;const L=Math.max(1,Math.hypot(f,s));f/=L;s/=L;mx=fx*f-fz*s;mz=fz*f+fx*s;sp*=Math.hypot(f,s);}
+      else if(FPV.path){const n=FPV.path[0],dx=n[0]-FPV.x,dz=n[1]-FPV.z,L=Math.hypot(dx,dz);
+        if(L<.12){FPV.path.shift();if(!FPV.path.length)FPV.path=null;}
+        else{mx=dx/L;mz=dz/L;FPV.yaw=angStep(FPV.yaw,Math.atan2(dx,dz),5,dt,2.6);if(FPV.path.length===1&&L<.6)sp*=Math.max(.35,L/.6);}} // the body turns to where it goes, slows into the spot
+      if(!FPV.path&&FPV.look&&!(f||s)){const L_=FPV.look,a=Math.atan2(L_[0]-FPV.x,L_[1]-FPV.z),pt=clamp(Math.atan2(L_[2]-1.6,Math.hypot(L_[0]-FPV.x,L_[1]-FPV.z)),-.9,.6);FPV.yaw=angStep(FPV.yaw,a,5,dt,2.4);FPV.pitch+=(pt-FPV.pitch)*Math.min(1,dt*3);let d_=a-FPV.yaw;d_=((d_+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;if(Math.abs(d_)<.02&&Math.abs(pt-FPV.pitch)<.02)FPV.look=null;}
+      else if(f||s)FPV.look=null;
+      const tv=(mx||mz)?sp:0;FPV.v+=(tv-FPV.v)*Math.min(1,dt*(tv>FPV.v?4:7));if(mx||mz){const L=Math.hypot(mx,mz);FPV.dx=mx/L;FPV.dz=mz/L;}
+      if(FPV.v>.01){const d=FPV.v*dt,ox=FPV.x,oz=FPV.z,nx=ox+FPV.dx*d,nz=oz+FPV.dz*d;let moved=true;
+        if(fpFree(nx,nz,ox,oz)){FPV.x=nx;FPV.z=nz;}else if(fpFree(nx,oz,ox,oz))FPV.x=nx;else if(fpFree(ox,nz,ox,oz))FPV.z=nz;else{moved=false;FPV.v*=.5;} // along a shelf: slide, as a hand on it would
+        if(moved){FPV.blk=0;FPV.bob+=d*Math.PI/.72;}else if(FPV.path&&(FPV.blk+=dt)>1.2)fpGo(FPV.path[FPV.path.length-1]);} // someone in the way: a moment, then a way round
+      const k=Math.min(1,FPV.v/1.3),y=1.6+floorY(FPV.x,FPV.z)+(Math.abs(Math.sin(FPV.bob))-.6)*.022*k,cp=Math.cos(FPV.pitch); // a step ~0.72 m, the head dips a little at each
+      camera.position.set(FPV.x,y,FPV.z);camera.lookAt(FPV.x+Math.sin(FPV.yaw)*cp,y+Math.sin(FPV.pitch),FPV.z+Math.cos(FPV.yaw)*cp);
+      if(FPV.ring){FPV.ringT-=dt;FPV.ring.visible=FPV.ringT>0;FPV.ring.material.opacity=clamp(FPV.ringT,0,1)*.8;}
+      if(fpUI&&FPV.hintT>0){FPV.hintT-=dt;fpUI.classList.toggle('hint',FPV.hintT>0);}}
+    let fpUI=null;
+    function fpHint(on){if(!fpUI){fpUI=document.createElement('div');fpUI.className='fp-ui'+(touchUI?' touch':'');fpUI.innerHTML='<p class="fp-hint"></p><div class="fp-joy" aria-hidden="true"><i></i></div>';stage.appendChild(fpUI);
+        const J=fpUI.querySelector('.fp-joy'),N=J.firstChild;let id=null;
+        const mv=e=>{const b=J.getBoundingClientRect(),R=b.width/2;let dx=(e.clientX-b.left-R)/R,dy=(e.clientY-b.top-R)/R;const L=Math.hypot(dx,dy);if(L>1){dx/=L;dy/=L;}FPV.joy={x:dx,y:dy};N.style.transform='translate('+(dx*R*.6).toFixed(1)+'px,'+(dy*R*.6).toFixed(1)+'px)';};
+        J.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();id=e.pointerId;try{J.setPointerCapture(id);}catch(_){}mv(e);});J.addEventListener('pointermove',e=>{if(e.pointerId===id)mv(e);});
+        const up=e=>{if(e.pointerId!==id)return;id=null;FPV.joy=null;N.style.transform='';};J.addEventListener('pointerup',up);J.addEventListener('pointercancel',up);
+        ['touchstart','touchmove','touchend'].forEach(t=>J.addEventListener(t,e=>{e.stopPropagation();if(t!=='touchend')e.preventDefault();},{passive:false}));}
+      fpUI.classList.toggle('on',!!on);if(!on){FPV.joy=null;FPV.keys={};if(FPV.ring)FPV.ring.visible=false;return;}
+      fpUI.querySelector('.fp-hint').textContent=touchUI?'Плъзни, за да се огледаш. Докосни пода, за да отидеш там. С джойстика вървиш.':'Влачи, за да се огледаш. Кликни на пода, за да отидеш там. W A S D или стрелките: ходене, Shift: по-бързо.';FPV.hintT=7;fpUI.classList.add('hint');}
+    const FPK=new Set(['KeyW','KeyA','KeyS','KeyD','KeyQ','KeyE','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','ShiftLeft','ShiftRight']);
+    const fpOnScreen=()=>{const b=stage.getBoundingClientRect();return b.bottom>80&&b.top<innerHeight-80;};
+    addEventListener('keydown',e=>{if(view.name!=='fp'||!fpOnScreen()||!FPK.has(e.code)||(e.target.closest&&e.target.closest('input,textarea,select,[contenteditable]')))return;FPV.keys[e.code]=true;if(e.code.startsWith('Arrow'))e.preventDefault();kick();});
+    addEventListener('keyup',e=>{if(FPK.has(e.code))FPV.keys[e.code]=false;});addEventListener('blur',()=>{FPV.keys={};});
     $$('.views [data-view]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.view)));
     $$('.views [data-zoom]').forEach(b=>b.addEventListener('click',()=>{const m=Math.max(S.W,S.D);view.r=clamp(view.r*(+b.dataset.zoom>0?1.18:.85),m*.35,m*3.2+10);tween=null;apply();idle=0;kick();}));
     // fingers (touch events, reliable on iOS): one finger sideways = orbit around the store (and tilt once it has started), one finger up/down first = the page
@@ -2335,9 +2428,13 @@ const space=(function(){
     ['gesturestart','gesturechange'].forEach(t=>stage.addEventListener(t,e=>e.preventDefault(),{passive:false})); // Safari: no page zoom while the fingers work the set
     const onUI=e=>e.target.closest&&e.target.closest('button,label,input,select,a,.hud-card');
     stage.addEventListener('touchstart',e=>{if(onUI(e))return;const P=tpts(e);TCH.n=P.length;spin.vx=spin.vy=0;TCH.t=performance.now();
+      if(view.name==='fp'){if(P.length===1){TCH.x0=TCH.x=P[0][0];TCH.y0=TCH.y=P[0][1];TCH.lock=null;}else if(P.length===2){e.preventDefault();TCH.lock='fp2';TCH.d0=Math.hypot(P[0][0]-P[1][0],P[0][1]-P[1][1])||1;TCH.a=Math.atan2(P[1][1]-P[0][1],P[1][0]-P[0][0]);}return;}
       if(P.length===1){TCH.x0=TCH.x=P[0][0];TCH.y0=TCH.y=P[0][1];TCH.lock=null;TCH.vx=TCH.vy=0;}
       else if(P.length===2){e.preventDefault();twoInit(P);}},{passive:false});
     stage.addEventListener('touchmove',e=>{if(onUI(e)||!TCH.n)return;const P=tpts(e),now_=performance.now(),dtm=Math.max(1,now_-TCH.t);TCH.t=now_;
+      if(view.name==='fp'){idle=0;if(P.length>=2){e.preventDefault();const d=Math.hypot(P[0][0]-P[1][0],P[0][1]-P[1][1])||1,a=Math.atan2(P[1][1]-P[0][1],P[1][0]-P[0][0]);if(TCH.lock!=='fp2'){TCH.lock='fp2';TCH.d0=d;TCH.a=a;return;}let da=a-TCH.a;da=((da+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;TCH.a=a;FPV.yaw+=da;FPV.step=clamp(FPV.step+(d-TCH.d0)*.01,-1.5,1.5);FPV.path=null;TCH.d0=d;kick();return;}
+        if(TCH.lock==='page'||TCH.lock==='fp2')return;const x=P[0][0],y=P[0][1];if(!TCH.lock){const ax=Math.abs(x-TCH.x0),ay=Math.abs(y-TCH.y0);if(ax<7&&ay<7)return;if(ay>ax*1.6){TCH.lock='page';return;}TCH.lock='look';TCH.x=x;TCH.y=y;}
+        e.preventDefault();FPV.look=null;FPV.yaw+=(x-TCH.x)*.0058;FPV.pitch=clamp(FPV.pitch+(y-TCH.y)*.0045,-1.15,1.05);TCH.x=x;TCH.y=y;kick();return;}
       if(P.length>=2){e.preventDefault();if(TCH.lock!=='two'){twoInit(P);return;}
         // two fingers, all at once: pinch = zoom, twist = turn the store a full 360°, move together = slide the view across the floor
         const d=Math.hypot(P[0][0]-P[1][0],P[0][1]-P[1][1])||1,mx=(P[0][0]+P[1][0])/2,my=(P[0][1]+P[1][1])/2,a=Math.atan2(P[1][1]-P[0][1],P[1][0]-P[0][0]);
@@ -2351,6 +2448,7 @@ const space=(function(){
       e.preventDefault();const dx=x-TCH.x,dy=y-TCH.y;TCH.x=x;TCH.y=y;view.theta-=dx*.0072;view.phi=clamp(view.phi-dy*.005,.07,1.5);
       TCH.vx=TCH.vx*.6+(dx/dtm)*.4;TCH.vy=TCH.vy*.6+(dy/dtm)*.4;apply();kick();},{passive:false});
     const touchEnd=e=>{const n=e.touches.length;
+      if(view.name==='fp'){if(n===0){if(TCH.lock===null&&TCH.n===1&&!onUI(e))fpPick(TCH.x0,TCH.y0);TCH.n=0;TCH.lock=null;}else if(n===1&&TCH.lock==='fp2'){const P=tpts(e);TCH.lock='look';TCH.x=P[0][0];TCH.y=P[0][1];TCH.n=1;}return;}
       if(n===0){if(TCH.lock==='orbit'&&performance.now()-TCH.t<90){spin.vx=TCH.vx;spin.vy=TCH.vy;kick();}
         if(TCH.lock===null&&TCH.n===1&&!onUI(e)){const now_=performance.now();if(now_-TCH.tap<320){TCH.tap=0;go('tour');}else TCH.tap=now_;}
         TCH.n=0;TCH.lock=null;}
@@ -2359,10 +2457,11 @@ const space=(function(){
     stage.addEventListener('pointerdown',e=>{if(e.pointerType==='touch'||e.target.closest('button,label,input,select,.hud-card'))return;
       spin.vx=spin.vy=0;drag={x:e.clientX,y:e.clientY,x0:e.clientX,y0:e.clientY,id:e.pointerId,on:true};stage.classList.add('drag');try{stage.setPointerCapture(e.pointerId);}catch(_){}});
     stage.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id||e.pointerType==='touch')return;
+      if(view.name==='fp'){const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.x=e.clientX;drag.y=e.clientY;FPV.look=null;FPV.yaw+=dx*.0042;FPV.pitch=clamp(FPV.pitch+dy*.0034,-1.15,1.05);idle=0;kick();return;}
       if(view.name==='walk'||view.name==='ddd'){view.name='free';apply();}const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.x=e.clientX;drag.y=e.clientY;
       view.theta-=dx*.0065;view.phi=clamp(view.phi-dy*.005,.07,1.5);tween=null;idle=0;if(view.name!=='free'){autoLayers(false);view.name='free';$$('.views [data-view]').forEach(b=>b.setAttribute('aria-pressed','false'));}apply();kick();});
-    const end=()=>{drag=null;stage.classList.remove('drag');};stage.addEventListener('pointerup',end);stage.addEventListener('pointercancel',end);
-    stage.addEventListener('wheel',e=>{e.preventDefault();idle=0;if(view.name==='tour'){autoLayers(false);view.name='free';$$('.views [data-view]').forEach(b=>b.setAttribute('aria-pressed','false'));}const m=Math.max(S.W,S.D);view.r=clamp(view.r*Math.exp(e.deltaY*.0025),m*.35,m*3.2+10);tween=null;apply();kick();},{passive:false});
+    const end=e=>{if(view.name==='fp'&&drag&&e&&e.type==='pointerup'&&Math.hypot(e.clientX-drag.x0,e.clientY-drag.y0)<6)fpPick(e.clientX,e.clientY);drag=null;stage.classList.remove('drag');};stage.addEventListener('pointerup',end);stage.addEventListener('pointercancel',end);
+    stage.addEventListener('wheel',e=>{e.preventDefault();idle=0;if(view.name==='fp'){FPV.step=clamp(FPV.step-e.deltaY*.004,-1.5,1.5);FPV.path=null;kick();return;}if(view.name==='tour'){autoLayers(false);view.name='free';$$('.views [data-view]').forEach(b=>b.setAttribute('aria-pressed','false'));}const m=Math.max(S.W,S.D);view.r=clamp(view.r*Math.exp(e.deltaY*.0025),m*.35,m*3.2+10);tween=null;apply();kick();},{passive:false});
 
     // layers
     $('#lyCover').addEventListener('change',e=>{if(!heat&&e.target.checked&&S.W)makeHeat();if(heat)heat.mesh.visible=e.target.checked;kick();});
@@ -2453,7 +2552,9 @@ const space=(function(){
         else{['theta','phi','r','tx','ty','tz'].forEach(p=>view[p]=tween.from[p]+(tween.to[p]-tween.from[p])*k);apply();}if(tween.t>=1)tween=null;}
       else if(spin.vx||spin.vy){view.theta-=spin.vx*dt*1000*.0072;view.phi=clamp(view.phi-spin.vy*dt*1000*.005,.07,1.5);const k=Math.exp(-dt*4.2);spin.vx*=k;spin.vy*=k;if(Math.abs(spin.vx)+Math.abs(spin.vy)<.004)spin.vx=spin.vy=0;idle=0;apply();}
       else if(!drag&&view.name==='tour'&&LD.done)tourStep(dt);
-      else if(!drag&&!TCH.n&&view.name!=='walk'&&view.name!=='ddd'&&!hover){idle+=dt;if(idle>(touchUI?8:14))go('tour');}
+      else if(!drag&&!TCH.n&&view.name!=='walk'&&view.name!=='ddd'&&view.name!=='fp'&&!hover){idle+=dt;if(idle>(touchUI?8:14))go('tour');}
+      if(view.name==='fp')fpStep(dt);
+      {const tf=view.name==='fp'?(camera.aspect<1?72:60):38;if(Math.abs(camera.fov-tf)>.05){camera.fov=Math.abs(camera.fov-tf)<.3?tf:camera.fov+(tf-camera.fov)*Math.min(1,dt*5);camera.updateProjectionMatrix();pm.uniforms.uScale.value=stage.clientHeight*renderer.getPixelRatio()/2/Math.tan(camera.fov*Math.PI/360)*.5;}} // on foot the eye sees as wide as a person does; the overviews keep their narrower lens
       if(view.name==='walk'&&people.length){let p=(camSub&&camSub.parent&&camSub.visible&&camSub.userData.state==='walk')?camSub:null;const inside=g=>g.visible&&g.parent&&g.position.z<S.hd-1.2&&Math.abs(g.position.x)<S.hw-.2;const browsing=g=>{const u=g.userData,l=u.visit&&u.visit[u.legI];return !!l&&l.kind==='browse';};if(p&&(!inside(p)||!browsing(p)))p=null;if(!p){const w=people.filter(g=>inside(g)&&browsing(g)&&g.userData.follow==null&&g.userData.state==='walk'&&!g.userData.turning&&Math.cos(g.rotation.y)<.3);if(w.length){w.sort((a,b)=>a.position.distanceToSquared(camera.position)-b.position.distanceToSquared(camera.position));p=w[0];}}if(p)camSub=p;p=camSub&&camSub.parent&&inside(camSub)?camSub:(people.find(g=>inside(g)&&g.userData.follow==null)||people.find(inside)||people[0]);const ud=p.userData;if(ud.state==='walk'&&!ud.turning&&inside(p))ud.camAng=p.rotation.y;else ud.camAng=Math.atan2((S.mainX||0)*.3-p.position.x,-S.hd*.3-p.position.z);const fw=new T.Vector3(0,0,1).applyAxisAngle(new T.Vector3(0,1,0),ud.camAng),side=new T.Vector3(fw.z,0,-fw.x);
         let want=null;for(let d=3.2;d>=1.2;d-=.2){const x=p.position.x-fw.x*d+side.x*.5*(d/3.2),z=p.position.z-fw.z*d+side.z*.5*(d/3.2);const cc=nav?nav.toCell(x,z):null;if(z<S.hd-.35&&Math.abs(x)<S.hw-.3&&(!nav||nav.free(nav.G0,cc[0],cc[1]))){want=new T.Vector3(x,1.55,z);break;}}
         if(!want)want=new T.Vector3(p.position.x,1.55,p.position.z);camera.position.lerp(want,walkSnap?1:Math.min(1,dt*2));walkSnap=false;const tgt=new T.Vector3(p.position.x+fw.x*3.0,1.42,p.position.z+fw.z*3.0);camera.lookAt(tgt);}
@@ -2503,7 +2604,7 @@ const space=(function(){
       if(!PEST&&flowLine&&flowLine.visible)M.flow.map.offset.x-=dt*1.1;
       stepP(dt,on,false);stepHeat(dt);
       if(nav&&!window.__frz)stepPeople(dt,now/1000,open);const _t4=DIAG?performance.now():0;
-      camera.updateMatrixWorld();_fm.multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse);_fr.setFromProjectionMatrix(_fm);
+      const _cav=camAvoid(dt);camera.updateMatrixWorld();_fm.multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse);_fr.setFromProjectionMatrix(_fm);
       people.concat(extras).forEach(p=>{if(!p.visible)return;const d=Math.hypot(p.position.x-camera.position.x,p.position.z-camera.position.z);_sp.center.set(p.position.x,p.position.y+.9,p.position.z);const inV=_fr.intersectsSphere(_sp);p.userData.culled=!inV;_sp.radius=2.6;p.userData.culledFar=!_fr.intersectsSphere(_sp);_sp.radius=1.15; /* arms and hands keep being posed a little beyond the frame edge, so nobody walks into view mid-snap */if(p.userData.gltfP){if(p.children[0])p.children[0].visible=d>.6&&inV;}else if(p.userData.skin){const m=p.userData.skin.material,o=Math.max(0,Math.min(1,(d-.35)/.5));if(o<1||m.transparent){m.transparent=o<1;m.opacity=o;m.depthWrite=o>=.5;}}});
       const w=w0||stage.clientWidth,h=h0||stage.clientHeight;
       const kept=[],LBL=stage.classList.contains('show-labels');overlay.forEach(o=>{if(o.kind==='lbl'&&!LBL){o.off=true;return;}v3.copy(o.v).project(camera);o.sx=(v3.x+1)/2*w;o.sy=(1-v3.y)/2*h;o.sz=v3.z;o.off=v3.z>1||v3.x<-1.1||v3.x>1.1||v3.y<-1.1||v3.y>1.1;});
@@ -2515,7 +2616,7 @@ const space=(function(){
       overlay.forEach(o=>{if(o.kind==='pin'&&HR&&!o.off&&o.sx>HR[0]-20&&o.sx<HR[2]+20&&o.sy>HR[1]-20&&o.sy<HR[3]+20)o.off=true;});
       {const FOL=view.name==='ddd';overlay.forEach(o=>{if(FOL?(o.kind==='pin'||o.kind==='lbl'):o.kind==='vz')o.off=true;});} // one voice at a time: following him shows only his name and subtitles, any other view only the numbers and labels of the store
       overlay.forEach(o=>{if(o.vis!==!o.off){o.vis=!o.off;o.el.style.visibility=o.off?'hidden':'visible';}if(!o.off){const tf='translate('+o.sx.toFixed(1)+'px,'+o.sy.toFixed(1)+'px)'+(o.kind==='lbl'?' translate(-50%,-50%)':' translate(-50%,-100%)');if(o.tf!==tf){o.tf=tf;o.el.style.transform=tf;}}}); // DOM written only when something changed
-      const pT1=performance.now();if(window.__camLock){const c_=window.__camLock;camera.position.set(c_.p[0],c_.p[1],c_.p[2]);camera.lookAt(c_.t[0],c_.t[1],c_.t[2]);}renderer.render(scene,camera);if(DIAG){const e=performance.now();DG.seg=[_t1-pT0,_t2-_t1,_t3-_t2,_t4-_t3,pT1-_t4,e-pT1,e-pT0];}if(window.__prof){const P=window.__prof;P.js+=pT1-pT0;if(pT1-pT0>(P.max||0))P.max=pT1-pT0;(P.h=P.h||[]).push(+(pT1-pT0).toFixed(1));P.gl+=performance.now()-pT1;P.n++;}if(window.__perf){window.__perf.frames=(window.__perf.frames||0)+1;if(!window.__perf.first)window.__perf.first=performance.now();}
+      const pT1=performance.now();if(window.__camLock){const c_=window.__camLock;camera.position.set(c_.p[0],c_.p[1],c_.p[2]);camera.lookAt(c_.t[0],c_.t[1],c_.t[2]);}renderer.render(scene,camera);if(_cav)camera.position.sub(_cav);if(DIAG){const e=performance.now();DG.seg=[_t1-pT0,_t2-_t1,_t3-_t2,_t4-_t3,pT1-_t4,e-pT1,e-pT0];}if(window.__prof){const P=window.__prof;P.js+=pT1-pT0;if(pT1-pT0>(P.max||0))P.max=pT1-pT0;(P.h=P.h||[]).push(+(pT1-pT0).toFixed(1));P.gl+=performance.now()-pT1;P.n++;}if(window.__perf){window.__perf.frames=(window.__perf.frames||0)+1;if(!window.__perf.first)window.__perf.first=performance.now();}
       if(!raf)raf=requestAnimationFrame(frame); // exactly one loop: a kick() during this frame (a tour key, a click) has already scheduled the next one
     }
     kick=()=>{if(!raf&&(vis||!LD.done)){last=0;raf=requestAnimationFrame(frame);}};
