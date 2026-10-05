@@ -411,6 +411,9 @@ const space=(function(){
     L.forEach(r=>{const o=document.createElement('option');o.value=r.n;o.textContent='№ '+r.n+' · '+r.name+' · '+fmt(r.area)+' м²';og.appendChild(o);});sel.appendChild(og);});
   sel.value=state.n;
   const row=()=>ROWS.find(r=>r.n===state.n);
+  // the store's name and address under the scene for a few seconds when it opens and whenever another store is chosen: you always know where you are
+  let capUntil=0;function storeCap(){const r=row();if(!r||!stage)return;let el=stage.querySelector('.storecap');if(!el){el=document.createElement('div');el.className='storecap';el.setAttribute('aria-live','polite');el.innerHTML='<b></b><span></span>';stage.appendChild(el);}
+    el.firstChild.textContent='Обект № '+r.n+' · '+r.name;el.lastChild.textContent=r.addr+(r.city?', '+r.city:'');el.classList.remove('on');void el.offsetWidth;el.classList.add('on');capUntil=performance.now()+3600;clearTimeout(storeCap.t);storeCap.t=setTimeout(()=>el.classList.remove('on'),3400);}
   function syncHours(){HRS=hoursFor(state.n);}
   const PLAN=(()=>{const m={};ROWS.forEach(r=>{const a=r.area,c=r.city;let mdl='PG',n;
     if(c==='Варна'||c==='Велико Търново'){mdl='PL';n=1;}
@@ -459,13 +462,13 @@ const space=(function(){
   function isOpen(t){const h=HRS[state.day];return t>=h.open&&t<h.close;}
   function paintClock(){stage.style.setProperty('--night','0');}
   (function(){const r=$('#ceilRange'),o=$('#ceilOut');let tm=0;r.addEventListener('input',()=>{state.ceil=+r.value;o.textContent=r.value.replace('.',',')+' м';clearTimeout(tm);tm=setTimeout(rebuild,180);});})();
-  sel.addEventListener('change',()=>{state.n=+sel.value;state.unit=0;rebuild();});
+  sel.addEventListener('change',()=>{state.n=+sel.value;state.unit=0;rebuild();setTimeout(storeCap,350);});
   modeSubs.push(()=>{paintClock();paintCard();});
 
   let S={units:[]},three=null,kick=()=>{};
   function rebuild(){syncHours();state.unit=0;if(three)three.build();else{S={units:[]};}paintCard();paintClock();}
 
-  function show(n){state.n=n;sel.value=n;syncHours();state.unit=0;rebuild();$('#prostranstvo').scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});}
+  function show(n){state.n=n;sel.value=n;syncHours();state.unit=0;rebuild();setTimeout(storeCap,350);$('#prostranstvo').scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});}
 
   function fallback(){$('#stageFallback').hidden=false;stage.style.cursor='default';}
 
@@ -2178,7 +2181,7 @@ const space=(function(){
     function ldSet(p){if(LD.done)return;LD.p=Math.max(LD.p,Math.min(100,p));const e=LD.el;if(e){e.querySelector('.sl-bar i').style.transform='scaleX('+(LD.p/100).toFixed(3)+')';e.querySelector('.sl-pct').textContent=Math.round(LD.p)+'%';e.setAttribute('aria-valuenow',Math.round(LD.p));}if(LD.p>=100)ldDone();}
     function toFirstKey(){if(view.name!=='tour'||!S.units||!S.units.length)return;const K=tourKeys();tween=null;Object.assign(view,viewFrom(K[0].cam,K[0].tgt));apply();tour.k=0;tour.t=0;tour.first=false;tour.top=false;}
     // the bar leaves only once the first real frame (the store from the street) has been drawn under it: never a glimpse of a wall
-    function ldDone(){if(LD.done)return;LD.done=true;if(DIAG)dlog('зареждането приключи за '+((performance.now()-LD.t0)/1000).toFixed(1)+' s');toFirstKey();try{renderer.render(scene,camera);}catch(e){}
+    function ldDone(){if(LD.done)return;LD.done=true;{const r_=stage.getBoundingClientRect();if(r_.bottom>0&&r_.top<innerHeight)setTimeout(storeCap,400);}if(DIAG)dlog('зареждането приключи за '+((performance.now()-LD.t0)/1000).toFixed(1)+' s');toFirstKey();try{renderer.render(scene,camera);}catch(e){}
       if(LD.el)requestAnimationFrame(()=>requestAnimationFrame(()=>{LD.el.classList.add('out');setTimeout(()=>{LD.el.hidden=true;},600);}));kick();}
     function ldTick(){if(LD.done)return;const G=window.KL_GLTF,need=(G&&G.total)||19,now_=performance.now();let mp=1;if(G&&!G.failed)mp=Math.min(1,(G.doneN||0)/need);
       // last stretch behind the bar: everything to the GPU, then a few seconds of measured frames so a slow phone settles its quality here, not during the presentation
@@ -3045,7 +3048,7 @@ const space=(function(){
     window.__place=(i,x,z,ry,st)=>{const p=people[i];if(!p)return;p.position.set(x,0,z);p.rotation.y=ry;p.visible=true;if(st){p.userData.state=st;p.userData.blend=st==='walk'?1:0;}posePerson(p,performance.now()/1000,.016,st==='walk'?.5:0);if(p.userData.stroller)p.userData.stroller.visible=false;};
     window.__dbg=()=>{const p=people[0];if(!p)return {people:people.length};const out={people:people.length,pos:[p.position.x,p.position.y,p.position.z],children:[]};p.traverse(o=>{if(o.isMesh){const b=new T.Box3().setFromObject(o);out.children.push([o.geometry.type,o.material.color?'#'+o.material.color.getHexString():'-',+(b.max.y-b.min.y).toFixed(2),+(b.min.y).toFixed(2),+(b.max.y).toFixed(2)]);}});return out;};
     let flown=false;
-    if('IntersectionObserver' in window)new IntersectionObserver(es=>{vis=es[0].isIntersecting;root.classList.toggle('klive',vis);if(vis&&!flown){flown=true;if(view.name==='tour'){tour.k=-1;tour.t=0;tour.first=true;}}kick();},{threshold:.15}).observe(stage);else vis=true;
+    if('IntersectionObserver' in window)new IntersectionObserver(es=>{vis=es[0].isIntersecting;root.classList.toggle('klive',vis);if(vis&&!flown){flown=true;if(LD.done)setTimeout(storeCap,400);if(view.name==='tour'){tour.k=-1;tour.t=0;tour.first=true;}}kick();},{threshold:.15}).observe(stage);else vis=true;
     document.addEventListener('visibilitychange',kick);
     three={build};
     resize();build();paintCard();kick();
