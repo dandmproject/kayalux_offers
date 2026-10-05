@@ -1747,7 +1747,7 @@ const space=(function(){
       if(!arrived&&!taken){const P=ud.path,goal=P&&P.length&&P[P.length-1];
         if(!goal||Math.hypot(goal[0]-tx,goal[1]-tz)>.45){let Gf=L<8?(ud.stroller?nav.G55:nav.G35):gridDyn(g);if(lu.state!=='walk'){Gf=Gf.slice();const [li,lj]=nav.toCell(lead.position.x,lead.position.z),[si,sj]=nav.toCell(g.position.x,g.position.z),[ti,tj]=nav.toCell(tx,tz);for(let dj=-1;dj<=1;dj++)for(let di=-1;di<=1;di++){const ii=li+di,jj=lj+dj;if(ii<0||jj<0||ii>=nav.cols||jj>=nav.rows||(ii===si&&jj===sj)||(ii===ti&&jj===tj))continue;Gf[jj*nav.cols+ii]=1;}} /* the parent standing is something to go round, like anyone else */const r=nav.route(Gf,[g.position.x,g.position.z],[tx,tz]);ud.path=r&&r.length>1?r:[[g.position.x,g.position.z],[tx,tz]];ud.pi=0;let rl=0;for(let k=1;k<ud.path.length;k++)rl+=Math.hypot(ud.path[k][0]-ud.path[k-1][0],ud.path[k][1]-ud.path[k-1][1]);ud.detour=lu.state!=='walk'&&L<3.5&&rl>2*L+1.5;if(ud.detour)ud.detourT=T_;}
         const sp_=Math.min(lu.sp*(ud.waitP?1:L>3?(ud.isChild?2.8:2.2):L>1.4?1.6:1.25),ud.isChild?1.8:1.6,L*2.5),x0=g.position.x,z0=g.position.z;if(advance(g,sp_*dt,dt))ud.path=null;
-        {const lx=lead.position.x,lz=lead.position.z,d1=Math.hypot(g.position.x-lx,g.position.z-lz);if(d1<.36){const d0=Math.hypot(x0-lx,z0-lz),ux=d1>1e-3?(g.position.x-lx)/d1:(d0>1e-3?(x0-lx)/d0:1),uz=d1>1e-3?(g.position.z-lz)/d1:(d0>1e-3?(z0-lz)/d0:0),px=lx+ux*.36,pz=lz+uz*.36,[ci,cj]=nav.toCell(px,pz);if(nav.free(nav.G0,ci,cj)&&circleFree(px,pz,.15)){g.position.x=px;g.position.z=pz;}else if(d1<d0){g.position.x=x0;g.position.z=z0;}}} /* contact with the parent: it slides round her at arm's length (a contact constraint), never into her and never jerked back */
+        {const lx=lead.position.x,lz=lead.position.z,d1=Math.hypot(g.position.x-lx,g.position.z-lz);if(d1<.36){const d0=Math.hypot(x0-lx,z0-lz),ux=d1>1e-3?(g.position.x-lx)/d1:(d0>1e-3?(x0-lx)/d0:1),uz=d1>1e-3?(g.position.z-lz)/d1:(d0>1e-3?(z0-lz)/d0:0),px=lx+ux*.36,pz=lz+uz*.36,[ci,cj]=nav.toCell(px,pz);if(nav.free(nav.G0,ci,cj)&&circleFree(px,pz,.15)){g.position.x=px;g.position.z=pz;}else if(d1<d0){g.position.x=x0;g.position.z=z0;}}} /* contact with the parent: it slides round her at arm's length (a contact constraint), never into her */
         v=Math.hypot(g.position.x-x0,g.position.z-z0)/Math.max(dt,1e-3);}
       else{ud.vx=ud.vz=0;ud.vNow=0;for(const o of people){if(!strg(o)&&o!==lead)continue;let ox=g.position.x-o.position.x,oz=g.position.z-o.position.z,d=Math.hypot(ox,oz);const dm=o===lead?.38:.5;if(d<=1e-3){const a_=o.rotation.y+Math.PI;ox=Math.sin(a_)*1e-3;oz=Math.cos(a_)*1e-3;d=1e-3;}if(d<dm){const pu=Math.min(dm-d,.3*dt),nx=g.position.x+ox/d*pu,nz=g.position.z+oz/d*pu;if(onFloor(nx,nz)){g.position.x=nx;g.position.z=nz;}}}} // standing: a stranger too close, a small step away
       if(L>6&&lead.userData.culled&&ud.culled){let need2=.9,px_=lead.position.x,pz_=lead.position.z;for(let k=tr.length-1;k>=0;k--){const ddx=tr[k][0]-px_,ddz=tr[k][1]-pz_,LL=Math.hypot(ddx,ddz);if(LL>=need2){px_+=ddx/LL*need2;pz_+=ddz/LL*need2;break;}px_=tr[k][0];pz_=tr[k][1];need2-=LL;}g.position.set(px_,0,pz_);} // far behind where nobody sees: caught up off screen (on screen it hurries)
@@ -1786,7 +1786,7 @@ const space=(function(){
       const bl=mk({k:'bagLift',who:'s',side:1,re:.45,ca:.8,rt:.45,hold:.2,o:BG,off:[0,-.26,0],G:.26,dep:[[pay,5]],delay:.25,touch:1,start:()=>T.bag,touchEnd:1,end:H}),
         bt=mk({k:'bagTake',who:'c',side:1,re:.55,ca:1.05,rt:.9,o:BG,off:[0,-.24,0],G:.26,dep:[[bl,3]],delay:.05,touch:1,start:H});bl.holdFor=bt;
       ud.bagTaken=false;ud.basketOnCounter=false;ud.basketL=false;ud.leanBoost=0;
-      return {t0:T_,n,cash,hb,E,dock,U,SC,pay,bt,coffee:S.coffee&&!S.coffee.owner&&!ud.isChild&&Math.random()<(ud.elder?.15:.32)?{t:0}:null,cig:S.cig&&!S.cig.owner&&!ud.isChild&&!ud.follow&&Math.random()<(ud.elder?.08:.2)?{t:0}:null,bye:rr(P.goodbye)*ts,byeA:0,from:[g.position.x,g.position.z],to:[T.E-.4,T.H[2]-.41],steps:0};}
+      return {t0:T_,n,cash,hb,E,dock,U,SC,pay,bt,coffee:S.coffee&&!S.coffee.owner&&!ud.isChild&&Math.random()<(ud.elder?.15:.32)?{t:0}:null,cig:S.cig&&!S.cig.owner&&!ud.isChild&&!ud.follow&&Math.random()<(ud.elder?.08:.2)?{t:0}:null,bye:rr(P.goodbye)*ts,byeA:0,from:[g.position.x,g.position.z],to:[T.E-.3,T.H[2]-.41],steps:0};} /* at the counter as people stand: a hand's breadth off it, not a long arm away */
     // the gap between where the palm is and where it must be to hold `pt` (the object's point minus the way it hangs from the palm)
     function evGap(ev,pt,who){if(!who||!pt)return 0;const G=ev.G!=null?ev.G:.07;let w=null;if(who.userData.gltfP){const a=armBones(who)[ev.side];if(a&&a[2]){a[2].getWorldPosition(_pa);w=[_pa.x,_pa.y,_pa.z];}}if(!w)return 0;return Math.hypot(w[0]-pt[0],w[1]-(pt[1]+G),w[2]-pt[2]);} /* wrist vs where the IK puts it */
     function evStep(ev,dt,g,cs,pl){if(ev.s===5)return;const who=ev.who==='c'?g:cs,tag=ev.k+(ev.j!=null?ev.j:'');
@@ -1860,8 +1860,8 @@ const space=(function(){
       const pl=ud.pay;
       // FinalApproach: the grid stops a body ~0.54 m from the counter; the last step is taken off the grid, in small slow steps,
       // straight to 0.40 m from it (each step checked against the fixtures), then the customer is docked (the crowd does not push)
-      {const dk=pl.dock;if((pl.dh||0)>0){pl.dh-=dt;ud.dockV=0;}else if(pl.stepIn){pl.stepIn=0;if(pl.steps<2){pl.steps++;dk.s=1;}}
-        if(dk.s<5&&!(pl.dh>0)){dk.s=1;const sdx=T.H[0]-pl.to[0],sdz=T.H[2]-pl.to[1],sL=Math.hypot(sdx,sdz)||1,tx=pl.to[0]+sdx/sL*.05*pl.steps,tz=pl.to[1]+sdz/sL*.05*pl.steps,dx=tx-g.position.x,dz=tz-g.position.z,L=Math.hypot(dx,dz);
+      {const dk=pl.dock;if((pl.dh||0)>0){pl.dh-=dt;ud.dockV=0;}else if(pl.stepIn){pl.stepIn=0;if(pl.steps<3){pl.steps++;dk.s=1;}}
+        if(dk.s<5&&!(pl.dh>0)){dk.s=1;const sdx=T.H[0]-pl.to[0],sdz=T.H[2]-pl.to[1],sL=Math.hypot(sdx,sdz)||1,tx=pl.to[0]+sdx/sL*.08*pl.steps,tz=pl.to[1]+sdz/sL*.08*pl.steps,dx=tx-g.position.x,dz=tz-g.position.z,L=Math.hypot(dx,dz);
           if(L<=.02){dk.s=5;ud.dockV=0;}
           else{const st=Math.min(L,.3*dt),nx=g.position.x+dx/L*st,nz=g.position.z+dz/L*st;
             if(people.some(o=>o!==g&&o.visible&&o.userData.follow==null&&Math.hypot(o.position.x-nx,o.position.z-nz)<.55&&Math.hypot(o.position.x-nx,o.position.z-nz)<Math.hypot(o.position.x-g.position.x,o.position.z-g.position.z))){ud.dockV=0;pl.dh=.5;pl.dw=(pl.dw||0)+.5;if(pl.dw>2.5){dk.s=5;console.debug('[till] someone stays in the way, serving from here');}}
@@ -1952,11 +1952,32 @@ const space=(function(){
       if(q){q=[q[0]+d.off[0],q[1]+d.off[1],q[2]+d.off[2]];const gr=e_&&e_.grip;if(gr){const a_=e_.s===2?e_.a:9,L0=Math.hypot(gr[0],gr[1],gr[2]),k=L0>1e-4?Math.max(0,Math.max(Math.exp(-a_*12),1-a_*1.0/L0)):0;q=[q[0]+gr[0]*k,q[1]+gr[1]*k,q[2]+gr[2]*k];}} /* the contact offset melts away (never faster than 1 m/s) */
       else q=d.plan||[o.position.x,o.position.y,o.position.z];
       o.position.set(q[0],q[1],q[2]);if(d.ry!=null)o.rotation.y=d.ry;});}
+    // watchdog: every walker checks that it is really getting closer to where it is going. No headway for a while, or turning on the spot
+    // round and round, is a blockage whatever caused it, and it resolves itself the way a person would: (1) step back to where there is room
+    // and take a way round the spot that is blocked, (2) a wider way round (the pram set straight first), (3) change of plan: that shelf
+    // later or not at all; the till, the basket stack and the door are never given up, only approached another way
+    function watchdog(g,dt,T_){const ud=g.userData,P=ud.path;
+      if(ud.state!=='walk'||!P||P.length<2||((ud.fpWait||0)>0&&ud.fpWait<8)||ud.holdT>0||ud.pauseT>0||ud.room){ud.wd=null;return;} /* a short wait for the specialist is manners, not a blockage */
+      const x=g.position.x,z=g.position.z,e=P[P.length-1],de=Math.hypot(e[0]-x,e[1]-z);let W=ud.wd;
+      if(!W||Math.hypot(W.e[0]-e[0],W.e[1]-e[1])>.4){W=ud.wd={e:[e[0],e[1]],best:de,t:T_,lv:0,rot:0,pa:ud.ang||0};return;}
+      {let da=(ud.ang||0)-W.pa;da=((da+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;W.rot+=Math.abs(da);W.pa=ud.ang||0;}
+      if(de<W.best-.3||de<.35){W.best=Math.min(W.best,de);W.t=T_;W.rot=0;if(de<W.best-.6)W.lv=0;return;}
+      const stall=T_-W.t,loop=W.rot>2*Math.PI&&stall>2.5;if(!(stall>(W.lv?4:5)||loop))return;
+      W.t=T_;W.rot=0;W.lv++;ud.wdN=(ud.wdN||0)+1;const lg=ud.visit&&ud.visit[ud.legI],must=!lg||lg.kind==='queue'||lg.kind==='exit'||lg.kind==='returnBasket'||lg.kind==='enter';
+      if(W.lv>=3&&!must){ud.wd=null;navNext(g,T_);return;}
+      if(ud.stroller){ud.turning=false;ud.stPark=null;}
+      const G=gridOf(g),Gd=gridDyn(g),G2=(Gd===G?G:Gd).slice(),n1=P[Math.min((ud.pi||0)+1,P.length-1)],L1=Math.hypot(n1[0]-x,n1[1]-z)||1,ax=x+(n1[0]-x)/L1*Math.min(.6,L1),az=z+(n1[1]-z)/L1*Math.min(.6,L1),rr=W.lv>=2?.55:.35;
+      for(let s_=0;s_<6.28;s_+=.5)for(let q_=0;q_<=rr;q_+=.1){const [ci,cj]=nav.toCell(ax+Math.sin(s_)*q_,az+Math.cos(s_)*q_);if(ci>=0&&cj>=0&&ci<nav.cols&&cj<nav.rows&&Math.hypot(ax+Math.sin(s_)*q_-e[0],az+Math.cos(s_)*q_-e[1])>.4)G2[cj*nav.cols+ci]=1;}
+      let back=null,bc=fpClr(x,z)+.02;for(let k_=0;k_<12;k_++){const a_=k_*Math.PI/6,bx=x+Math.sin(a_)*.5,bz=z+Math.cos(a_)*.5,[ci,cj]=nav.toCell(bx,bz);if(!nav.free(G,ci,cj)||!circleFree(bx,bz,.22)||!circleFree((x+bx)/2,(z+bz)/2,.22)||people.some(o=>o!==g&&o.visible&&Math.hypot(o.position.x-bx,o.position.z-bz)<.5))continue;const c_=fpClr(bx,bz)+.1*Math.hypot(ax-bx,az-bz);if(c_>bc){bc=c_;back=[bx,bz];}}
+      if(VZ.fp)for(const c of VZ.fp){const R_=c[2]+.3;for(let s_=0;s_<6.28;s_+=.4)for(let q_=0;q_<=R_;q_+=.15){const [ci,cj]=nav.toCell(c[0]+Math.sin(s_)*q_,c[1]+Math.cos(s_)*q_);if(ci>=0&&cj>=0&&ci<nav.cols&&cj<nav.rows)G2[cj*nav.cols+ci]=1;}}
+      const from=back||[x,z],r_=nav.route(G2,from,e)||(W.lv>=2?nav.route(nav.G0,from,e):null);
+      if(r_&&r_.length>1){setPath(g,back?[[x,z]].concat(r_):r_,T_);ud.wd=W;W.e=[e[0],e[1]];}
+      else if(W.lv>=3){W.lv=1;} /* the way there is still shut: keep trying, another way each time */}
     function stepPeople(dt,T_,open){
       if(!VZ.g&&T_>VZ.nextTry&&people.length){VZ.nextTry=T_+1.5;vzTex();vzSpawn(T_);} // Венци joins once his model and textures are in
       people.forEach((g,i)=>{const ud=g.userData;if(ud.ddd){vzStep(g,dt,T_,open);g.position.y=floorY(g.position.x,g.position.z)+(ud.dz.lift||0);return;}if(!open){g.visible=false;if(ud.stroller)ud.stroller.visible=false;return;}
         {const lp=ud._lpos,vr=lp&&g.visible?Math.hypot(g.position.x-lp[0],g.position.z-lp[1])/Math.max(dt,1e-3):0;ud.vR=(ud.vR||0)+((vr<3?vr:0)-(ud.vR||0))*Math.min(1,dt*8);ud._lpos=[g.position.x,g.position.z];} /* real speed of the body over the last frames */
-        if(ud.follow!=null){followParent(g,dt,T_);return;}
+        if(ud.follow!=null){followParent(g,dt,T_);return;}if(g.visible)watchdog(g,dt,T_);
         if(ud.state==null)navStart(g,T_,i);
         if(ud.state==='away'){g.visible=false;if(ud.stroller)ud.stroller.visible=false;if(T_>ud.until){if(doorBusy(g))ud.until=T_+rnd(.8,1.6);else if(ud.isChild){restyle(g);navEnter(g,T_);}else navEnter(regen(i),T_);}return;}
         g.visible=true;if(ud.stroller)ud.stroller.visible=true;
@@ -2140,7 +2161,7 @@ const space=(function(){
       ud.spB.forEach((b,i)=>{_lq.setFromAxisAngle(_rv,ang*(i?.45:.55));b.getWorldQuaternion(_qb);_qb.premultiply(_lq);b.parent.getWorldQuaternion(_q).invert();b.quaternion.copy(_q.multiply(_qb));b.updateMatrixWorld(true);});}
     function armsApply(g,R,dt){const ud=g.userData,A=ud.armS||(ud.armS=[{t:new T.Vector3(),w:0,on:false},{t:new T.Vector3(),w:0,on:false}]),kt=1-Math.exp(-dt*26),kw=1-Math.exp(-dt*16);let lean=0;
       A.forEach((s_,i)=>{const r=R[i];if(r){if(!s_.on){s_.t.set(r.p[0],r.p[1],r.p[2]);s_.on=true;}else{_rt.set(r.p[0],r.p[1],r.p[2]);_rt.sub(s_.t).multiplyScalar(kt);const L_=_rt.length(),mx=2.5*dt;if(L_>mx)_rt.multiplyScalar(mx/L_);s_.t.add(_rt);}} /* never faster than 2.5 m/s */s_.w+=((r?r.w:0)-s_.w)*(r&&r.w>s_.w?kw:1-Math.exp(-dt*7));if(s_.w<.004&&!r){s_.w=0;s_.on=false;}
-        if(s_.on&&s_.w>0){const k=ud.k||1,hz=Math.hypot(s_.t.x-g.position.x,s_.t.z-g.position.z);lean=Math.max(lean,clamp((hz-.38*k)/.3,0,1)*(.36+(ud.leanBoost||0))*s_.w*(s_.t.y<1.35*k?1:.4));}});
+        if(s_.on&&s_.w>0){const k=ud.k||1,hz=Math.hypot(s_.t.x-g.position.x,s_.t.z-g.position.z);lean=Math.max(lean,clamp((hz-.38*k)/.3,0,1)*(.22+(ud.leanBoost||0)*.3)*s_.w*(s_.t.y<1.35*k?1:.4)); /* a bend from the waist of at most ~15°: what is further away is reached by stepping closer, never by leaning the whole body over */}});
       // the lean comes from where the target is relative to the feet, not to the shoulder (which the lean itself moves): no feedback, no rocking
       ud.leanS=(ud.leanS||0)+(lean-(ud.leanS||0))*(1-Math.exp(-dt*6));leanTo(g,ud.leanS);
       A.forEach((s_,i)=>{if(s_.on&&s_.w>.004)ik2(g,i,s_.t,s_.w);});}
