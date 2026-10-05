@@ -597,6 +597,22 @@ const space=(function(){
       g.fillStyle='#fbf8f0';g.beginPath();g.ellipse(w*.5,h*.3,w*.34,h*.11,0,0,6.283);g.fill();g.fillStyle='#d3232a';g.font='bold 15px Inter, Arial';g.textAlign='center';g.textBaseline='middle';g.fillText('CHIPS',w*.5,h*.3);
       g.fillStyle='#e8b640';g.beginPath();g.arc(w*.5,h*.62,w*.2,0,6.283);g.fill();g.fillStyle='#f3cf70';for(let i=0;i<5;i++){g.beginPath();g.ellipse(w*(.4+i*.05),h*(.56+(i%2)*.1),w*.07,h*.035,i*.6,0,6.283);g.fill();}
       g.fillStyle='#fff';g.font='bold 8px Inter, Arial';g.fillText('SEA SALT · 140 g',w*.5,h*.86);gloss(g,w,h,w*.12,w*.16,.25);}),.0,.0,.3,0,.9);
+    // more of the chain's range, each with its own printed label: still water (PET), juice cartons, energy drinks, household cleaners,
+    // nuts, pasta and groceries, biscuits, gift sets
+    const T2=(g,t,x,y,sz,c,f)=>{g.fillStyle=c;g.font=(f||'bold')+' '+sz+'px Inter, Arial';g.textAlign='center';g.textBaseline='middle';g.fillText(t,x,y);};
+    M.water=lblMat(tex2(128,256,(g,w,h)=>{g.fillStyle='#c9dcea';g.fillRect(0,0,w,h);g.fillStyle='#1d5fa8';g.fillRect(0,0,w,26);g.fillStyle='#f4f8fb';g.fillRect(0,h*.5,w,h*.28);g.fillStyle='#2f86d0';g.beginPath();g.moveTo(0,h*.66);for(let x=0;x<=w;x+=8)g.lineTo(x,h*.66+Math.sin(x*.12)*4);g.lineTo(w,h*.78);g.lineTo(0,h*.78);g.closePath();g.fill();
+      T2(g,'АКВА',w/2,h*.56,22,'#1d5fa8');T2(g,'изворна · 1,5 л',w/2,h*.62,10,'#3a5a7a','600');gloss(g,w,h,w*.1,w*.16,.45);}),.22,.5,.12,0,1.0);
+    M.det=lblMat(tex2(128,256,(g,w,h)=>{g.fillStyle='#8a8a8a';g.fillRect(0,0,w,h);g.fillStyle='#fbfbfb';g.fillRect(0,h*.5,w,h*.28);g.fillStyle='#19a0d8';g.beginPath();g.arc(w/2,h*.6,18,0,6.283);g.fill();T2(g,'CLEAN',w/2,h*.6,15,'#fff');T2(g,'за под · 1 л',w/2,h*.72,10,'#333','600');gloss(g,w,h,w*.08,w*.14,.3);}),.22,.5,.35,0,.6);
+    M.juice=lblMat(tex2(128,128,(g,w,h)=>{g.fillStyle='#8a8a8a';g.fillRect(0,0,w,h);g.fillStyle='#fffaf0';g.fillRect(0,h*.22,w,h*.58);g.fillStyle='#f28c28';g.beginPath();g.arc(w*.5,h*.48,18,0,6.283);g.fill();g.fillStyle='#ffc266';g.beginPath();g.arc(w*.5,h*.48,11,0,6.283);g.fill();
+      T2(g,'100% СОК',w/2,h*.7,14,'#3c7a3e');barcode(g,w*.62,h*.84,w*.3,h*.1);}),.2,.78,.55,0,.5);
+    M.energy=lblMat(tex2(128,128,(g,w,h)=>{g.fillStyle='#8a8a8a';g.fillRect(0,0,w,h);const al=g.createLinearGradient(0,0,w,0);al.addColorStop(0,'#9a9a9a');al.addColorStop(.5,'#e6e6e6');al.addColorStop(1,'#8e8e8e');g.fillStyle=al;g.fillRect(0,0,w,12);g.fillRect(0,h-12,w,12);
+      g.fillStyle='#ffd400';g.beginPath();g.moveTo(w*.55,h*.3);g.lineTo(w*.38,h*.52);g.lineTo(w*.5,h*.52);g.lineTo(w*.42,h*.72);g.lineTo(w*.64,h*.46);g.lineTo(w*.52,h*.46);g.closePath();g.fill();T2(g,'ENERGY',w/2,h*.84,13,'#fff','italic 900');gloss(g,w,h,w*.1,w*.12,.3);}),.0,.0,.3,.5,.9);
+    M.nuts=lblMat(tex2(128,128,(g,w,h)=>{g.fillStyle='#8a8a8a';g.fillRect(0,0,w,h);g.fillStyle='#b8b8b8';g.fillRect(0,0,w,9);g.fillRect(0,h-9,w,9);g.fillStyle='#f6efe0';g.fillRect(w*.12,h*.18,w*.76,h*.24);T2(g,'ЯДКИ',w/2,h*.3,17,'#5a3218');
+      g.fillStyle='#b98a52';for(let i=0;i<7;i++){g.beginPath();g.ellipse(w*(.28+(i%4)*.15),h*(.56+((i/4)|0)*.13),9,6,i,0,6.283);g.fill();}T2(g,'печени · 150 г',w/2,h*.86,9,'#fff','600');gloss(g,w,h,w*.12,w*.16,.25);}),.0,.0,.35,0,.8);
+    M.pasta=lblMat(tex2(128,128,(g,w,h)=>{g.fillStyle='#8a8a8a';g.fillRect(0,0,w,h);g.fillStyle='#fbf6e8';g.fillRect(0,h*.26,w,h*.5);T2(g,'ПАСТА',w/2,h*.36,17,'#1d4f8f');g.fillStyle='#f1d58a';g.fillRect(w*.2,h*.48,w*.6,h*.18);g.strokeStyle='#d9b45a';for(let x=w*.22;x<w*.8;x+=4){g.beginPath();g.moveTo(x,h*.48);g.lineTo(x+3,h*.66);g.stroke();}
+      T2(g,'спагети · 500 г',w/2,h*.72,9,'#444','600');barcode(g,w*.6,h*.82,w*.32,h*.1);}),.25,.75,.6,0,.4);
+    M.bisc=lblMat(tex2(128,128,(g,w,h)=>{g.fillStyle='#8a8a8a';g.fillRect(0,0,w,h);g.fillStyle='#fbf3e2';g.fillRect(0,h*.26,w,h*.48);T2(g,'Бисквити',w/2,h*.36,15,'#7a1f1f','bold italic');g.fillStyle='#d9a352';for(let i=0;i<3;i++){g.beginPath();g.arc(w*(.3+i*.2),h*.58,11,0,6.283);g.fill();}g.fillStyle='#b97f34';for(let i=0;i<3;i++)for(let k=0;k<4;k++)g.fillRect(w*(.27+i*.2)+(k%2)*5,h*.54+(k>>1)*6,2,2);gloss(g,w,h,w*.05,w*.2,.2);}),.25,.75,.45,0,.6);
+    M.gift=lblMat(tex2(128,128,(g,w,h)=>{g.fillStyle='#8a8a8a';g.fillRect(0,0,w,h);g.fillStyle='#c9a24a';g.fillRect(w*.44,0,w*.12,h);g.fillRect(0,h*.44,w,h*.12);g.fillStyle='#f3dc96';g.fillRect(w*.47,0,w*.03,h);T2(g,'GIFT SET',w/2,h*.24,13,'#f3dc96','bold');gloss(g,w,h,w*.08,w*.2,.2);}),.0,.0,.4,.2,.8);
     const box5=(()=>{const mk=(rx,ry,tx,ty,tz)=>{const p=new T.PlaneGeometry(1,1);if(rx)p.rotateX(rx);if(ry)p.rotateY(ry);p.translate(tx,ty,tz);return p;};return mergeGeos([mk(-Math.PI/2,0,0,.5,0),mk(0,0,0,0,.5),mk(0,Math.PI,0,0,-.5),mk(0,Math.PI/2,.5,0,0),mk(0,-Math.PI/2,-.5,0,0)]);})();
     // rounder bottles and cans (8 sides instead of 5), a real shoulder and neck on the bottle
     const GEO={bottle:new T.LatheGeometry([new T.Vector2(.44,0),new T.Vector2(.5,.06),new T.Vector2(.5,.6),new T.Vector2(.34,.74),new T.Vector2(.17,.84),new T.Vector2(.17,1)],8),can:new T.CylinderGeometry(.5,.5,1,8,1,true),box:box5};
@@ -2135,7 +2151,7 @@ const space=(function(){
       const zTop=-hd+Math.max(wine?4.9:2.3,store_?sd+.9:0),zBot=hd-4.0,len=zBot-zTop,zW=wine?zTop-2.4:-hd;
       S={A,W,D,H:Hh,hw,hd,sw,sd,hasStore:store_,units:[],shape,yF,zW,wine};
       const B='#7a1f2b',BD='#4a1119',BLK='#161616',STEEL='#c9cdd1',WHT='#ece9e2';
-      const FAM={bottle:[],can:[],carton:[],pack:[],bag:[]};const put=(f,x,y,z,sx,sy,sz,c)=>FAM[f].push([x,y,z,sx,sy,sz,c]);
+      const FAM={bottle:[],can:[],carton:[],pack:[],bag:[],water:[],det:[],juice:[],energy:[],nuts:[],pasta:[],bisc:[],gift:[]};const put=(f,x,y,z,sx,sy,sz,c)=>FAM[f].push([x,y,z,sx,sy,sz,c]);
       const strips=[],glassAcc=[],headAcc=[[],[],[]],aoAcc=[],aoVAcc=[];const shade=(x,y,z,L,side)=>{const g=new T.PlaneGeometry(L,.16);g.rotateY(side);g.translate(x,y-.1,z);aoVAcc.push(g);};const ao=(x,z,L,dx,dz)=>{const g=new T.PlaneGeometry(.42,L);g.rotateX(-Math.PI/2);g.rotateY(dx>0?0:dx<0?Math.PI:dz>0?-Math.PI/2:Math.PI/2);g.translate(x+dx*.21,.007,z+dz*.21);aoAcc.push(g);};
       const rail=(x,y,z,L,ry)=>{const sg=new T.PlaneGeometry(L,.04);sg.rotateY(ry);sg.translate(x,y,z);const uv=sg.attributes.uv;for(let i=0;i<uv.count;i++)uv.setX(i,uv.getX(i)*L/.96);strips.push(sg);};
       // floor (two levels when the wine corner is a step down)
@@ -2326,6 +2342,70 @@ const space=(function(){
         const NL=TIER===2?2:0,nx=Math.max(1,Math.round(Math.sqrt(NL*W/D))),ny=Math.max(1,Math.ceil(NL/nx));S.lights=[];
         for(let i=0;i<nx;i++)for(let j=0;j<ny;j++){if(S.lights.length>=NL)break;const l=new T.PointLight(0xfff4e2,.22,Math.max(W,D)*.7,2);l.position.set(-hw+W*(i+.5)/nx,Hh-.15,-hd+D*(j+.5)/ny);room.add(l);S.lights.push(l);}
         if(TIER===2){const lt=new T.PointLight(0xd8ecff,.3,Math.max(4,len*.8),1.8);lt.position.set(-hw+1,1.5,zTop+1.8);room.add(lt);S.coolLight=lt;}else S.coolLight=null;S.ambAdd=.06*(2-NL);}
+      // a small АВАНТИ leaves no bare floor and no bare wall: wall shelving on the free wall runs, then low island units, ШОК ЦЕНА pallets and
+      // card floor stands in the open floor; each keeps a clear way round it (>= 1.4 m: two people pass, a pram passes) and nothing goes by the
+      // door, the till and its line, the step down to the wine, the storage room or the office, or on the main aisle. The goods are the chain's
+      // own range (avanti-bg.com): water and juices, energy drinks, wine, gift sets, groceries, nuts and dried fruit, biscuits and wafers,
+      // chocolate and sweets, chips and salty snacks, coffee and tea, household cleaning
+      {const FA=S.fillAt=[],WALK=1.4,qg=PARAMS.queueGap||.8,Q0=[ckX+ckW/2-.25,ckZ-.72],Q1=[Q0[0]+.55*qg*4,Q0[1]-.83*qg*4],nF=[0,0];
+        const gapR=(a,b)=>Math.hypot(Math.max(0,a[0]-b[1],b[0]-a[1]),Math.max(0,a[2]-b[3],b[2]-a[3]));
+        const segR=r=>{let m=1e9;for(let t=0;t<=1.001;t+=.05){const x=Q0[0]+(Q1[0]-Q0[0])*t,z=Q0[1]+(Q1[1]-Q0[1])*t;m=Math.min(m,Math.hypot(Math.max(0,r[0]-x,x-r[1]),Math.max(0,r[2]-z,z-r[3])));}return m;};
+        const banned=r=>(r[1]>doorX-doorW/2-1&&r[0]<doorX+doorW/2+1&&r[3]>hd-3.4)||(r[0]<ckX+ckW/2+1.3&&r[1]>ckX-ckW/2-.6&&r[3]>ckZ-1.7)||segR(r)<1.2||(wine&&r[2]<zW+1&&r[3]>zW-1)||
+          (r[0]<aR+.6&&r[1]>aR-.6&&r[2]<zBot+.5&&r[3]>zTop-.5)||(store_&&r[1]>hw-sw-1.7&&r[2]<-hd+sd+1.7)||(shape==='L'&&r[0]<-hw+lw+1.7&&r[2]<-hd+ld+1.7)||(r[0]<-hw+.6&&r[3]>ckZ-1.6);
+        const CAT=[['Вода · сокове','water'],['Хранителни стоки','groceries'],['Ядки · сушени плодове','nuts'],['Енергийни напитки','energy'],['Препарати','household'],['Бисквити · вафли','biscuits'],['Подаръчни комплекти','gift'],['Вина','wine']];
+        let ci_=(r.n*3)%CAT.length;const nextCat=()=>CAT[(ci_++)%CAT.length];
+        // the goods on one shelf run: u along the run, the products 'rows' deep from the front edge
+        const stock=(tag,X,b0,Z,L,alongX,out,y,lv,rows)=>{const P=(u,v)=>alongX?[X+u,Z+v*out]:[X+v*out,Z+u],S_=(a,b,c)=>alongX?[a,b,c]:[c,b,a];
+          for(let rw=0;rw<rows;rw++){const v=b0-rw*.15;
+            const row_=(f,step,sx,sy,sz,pal,y2)=>{for(let u=-L/2+step*.6;u<L/2-step*.4;u+=step*dens){if(Math.random()<.03)continue;const [px,pz]=P(u,v),s=S_(sx,sy,sz);put(f,px,y2!=null?y2:y+.015,pz,s[0],s[1],s[2],pick_(pal));}};
+            if(tag==='water'){if(lv<2)row_('water',.11,.095,.33,.095,['#cfe3f2','#d8ecf6','#b9d6ea','#cfe3f2']);else row_('juice',.1,.08,.22,.06,['#f28c28','#e0b23a','#c8382e','#3c7a3e','#7a1f1f']);}
+            else if(tag==='energy'){row_('energy',.075,.066,.155,.066,['#1b1917','#2f6fb5','#c8382e','#3c7a3e','#e0b23a','#dfe9ee']);if(lv>2)row_('energy',.075,.066,.155,.066,['#1b1917','#2f6fb5','#e0b23a'],y+.17);}
+            else if(tag==='wine')row_('bottle',.1,.08,.31,.08,WINE);
+            else if(tag==='gift')row_('gift',.2,.16,.24,.12,['#1b1917','#c9a24a','#5a1a22','#0d2b45','#e8e2d0','#7a1f1f']);
+            else if(tag==='household'){if(lv<2)row_('det',.12,.1,.3,.07,['#2f6fb5','#3c7a3e','#f28c28','#e8e2d6','#c8382e','#6b3fa0']);else row_('det',.1,.08,.22,.06,['#19a0d8','#e8e2d6','#3c7a3e','#e0b23a','#6b3fa0']);}
+            else if(tag==='groceries'){if(lv<3)row_('pasta',.1,.08,.24,.06,['#2f6fb5','#e0b23a','#c8382e','#3c7a3e','#1d4f8f']);else row_('juice',.09,.07,.16,.06,['#c8382e','#3c7a3e','#e0b23a','#7a1f1f']);}
+            else if(tag==='nuts'||tag==='snack')row_(tag==='nuts'?'nuts':'bag',.15,.05,.24,.14,tag==='nuts'?['#7a4a1f','#c9862a','#3c7a3e','#e0b23a','#5a1a22']:CHIPS);
+            else if(tag==='biscuits'||tag==='sweets'){if(lv<2&&tag==='sweets'){row_('pack',.11,.1,.15,.06,SWEET);row_('pack',.11,.1,.15,.06,SWEET,y+.165);}else row_('bisc',.13,.12,.18,.09,BISC);}
+            else if(tag==='coffee'){if(lv<2)row_('carton',.11,.09,.2,.07,COFFEE);else{row_('pack',.12,.1,.08,.06,TEA);row_('pack',.12,.1,.08,.06,TEA,y+.095);}}}};
+        // wall shelving: 45 cm deep, five levels, against a bare stretch of wall
+        const wallFits=(r,side)=>{if(banned(r))return false;for(const o of OBS){const g_=gapR(r,o);if(g_<.03)return false;const onW=side<0?o[0]<-hw+.15:side>0?o[1]>hw-.15:o[2]<-hd+.15;if(!onW&&g_<WALK)return false;}return true;};
+        const wallUnit=(side,c0,L)=>{const [nm,tag]=nextCat(),alongX=side===0,dep=.45,X=side<0?-hw+dep/2:side>0?hw-dep/2:c0,Z=side===0?-hd+dep/2:c0,out=side<0?1:side>0?-1:1;
+          blk(X,Z,alongX?L:dep,alongX?dep:L);const fx=X+(alongX?0:out*dep/2),fz=Z+(alongX?out*dep/2:0);for(let u=-L/2+.5;u<L/2-.2;u+=1)face(alongX?X+u:fx,alongX?fz:Z+u,alongX?0:out,alongX?out:0,tag);
+          const bx=(w,h,d,m,x,y,z,sh)=>alongX?box(w,h,d,m,x,y,z,sh):box(d,h,w,m,x,y,z,sh);ao(fx,fz,L,alongX?0:out,alongX?out:0);
+          if(alongX)box(L,1.9,.03,M.oak,X,.95,-hd+.015);else box(.03,1.9,L,M.oak,X-out*(dep/2-.015),.95,Z);bx(L,.1,dep,M.oak,X,.05,Z);
+          for(const e of [-1,1])cbox(alongX?.04:dep,1.92,alongX?dep:.04,B,alongX?X+e*L/2:X,.96,alongX?Z:Z+e*L/2);
+          [.1,.45,.8,1.15,1.5].forEach((y,lv)=>{bx(L,.025,dep,M.oak,X,y,Z,false);rail(fx+(alongX?0:out*.005),y+.01,fz+(alongX?out*.005:0),L,alongX?(out>0?0:Math.PI):(out>0?Math.PI/2:-Math.PI/2));stock(tag,X,.17,Z,L,alongX,out,y,lv,2);});
+          const sg=new T.Mesh(new T.PlaneGeometry(Math.min(L*.85,2),.2),signMat(nm));sg.rotation.y=alongX?(out>0?0:Math.PI):(out>0?Math.PI/2:-Math.PI/2);sg.position.set(alongX?X:X-out*(dep/2-.035),2.05,alongX?Z-out*(dep/2-.035):Z);room.add(sg);
+          cbox(alongX?Math.min(L*.85,2)+.04:.02,.24,alongX?.02:Math.min(L*.85,2)+.04,'#3a2a1e',alongX?X:X-out*(dep/2-.02),2.05,alongX?Z-out*(dep/2-.02):Z);label(nm,fx,2.2,fz);nF[0]++;FA.push(['w',fx,fz,alongX?0:out,alongX?out:0]);};
+        for(const side of [1,-1,0]){const s0=side===0?-hw+.2:-hd+.2,s1=side===0?hw-.2:hd-.3;let s=s0;
+          while(s<s1-1.2&&nF[0]<6){let put_=0;for(const L of [2.4,1.8,1.2]){if(s+L>s1)continue;const r_=side<0?[-hw,-hw+.45,s,s+L]:side>0?[hw-.45,hw,s,s+L]:[s,s+L,-hd,-hd+.45];if(wallFits(r_,side)){wallUnit(side,s+L/2,L);put_=L;break;}}s+=put_?put_+.05:.25;}}
+        // open floor: low island units (1.35 m, so the store still reads across), then pallets, then card stands
+        const islFits=(r,wk)=>{wk=wk||WALK;if(banned(r)||r[0]<-hw+wk||r[1]>hw-wk||r[2]<-hd+wk||r[3]>hd-wk)return false;for(const o of OBS)if(gapR(r,o)<wk)return false;return true;};
+        const ISL=[['Шоколади · бонбони','sweets'],['Чипс · солети','snack'],['Кафе · чай','coffee'],['Бисквити · вафли','biscuits'],['Ядки · сушени плодове','nuts']];let ii_=r.n%ISL.length;
+        const island=(X,Z,L,alongX)=>{const [nm,tag]=ISL[(ii_++)%ISL.length],w=.9,bx=(a,h,b,m,x,y,z,sh)=>alongX?box(a,h,b,m,x,y,z,sh):box(b,h,a,m,x,y,z,sh);
+          blk(X,Z,alongX?L+.04:w+.04,alongX?w+.04:L+.04);bx(L,1.3,.05,M.oak,X,.65,Z);bx(L,.1,w,M.oak,X,.05,Z);bx(L+.02,.04,w,M.oak,X,1.33,Z,false);
+          for(const e of [-1,1])cbox(alongX?.04:w+.02,1.36,alongX?w+.02:.04,B,alongX?X+e*L/2:X,.68,alongX?Z:Z+e*L/2);
+          for(const sd_ of [-1,1]){const fx=alongX?X:X+sd_*w/2,fz=alongX?Z+sd_*w/2:Z;ao(fx,fz,L,alongX?0:sd_,alongX?sd_:0);for(let u=-L/2+.5;u<L/2-.2;u+=1)face(alongX?X+u:fx+sd_*.02,alongX?fz+sd_*.02:Z+u,alongX?0:sd_,alongX?sd_:0,tag);
+            [.12,.5,.88].forEach((y,lv)=>{bx(L,.025,w/2-.03,M.oak,alongX?X:X+sd_*w/4,y,alongX?Z+sd_*w/4:Z,false);rail(fx,y+.01,fz,L,alongX?(sd_>0?0:Math.PI):(sd_>0?Math.PI/2:-Math.PI/2));stock(tag,X,.34,Z,L,alongX,sd_,y,lv,2);});
+            const sg=new T.Mesh(new T.PlaneGeometry(Math.min(L*.8,1.6),.18),signMat(nm));sg.rotation.y=alongX?(sd_>0?0:Math.PI):(sd_>0?Math.PI/2:-Math.PI/2);sg.position.set(alongX?X:X+sd_*.03,1.47,alongX?Z+sd_*.03:Z);room.add(sg);}
+          cbox(alongX?Math.min(L*.8,1.6):.05,.2,alongX?.05:Math.min(L*.8,1.6),'#3a2a1e',X,1.47,Z);stock(tag==='coffee'?'coffee':'sweets',X,.2,Z,L-.1,alongX,1,1.35,0,1);stock(tag==='coffee'?'coffee':'sweets',X,.2,Z,L-.1,alongX,-1,1.35,0,1);nF[1]++;FA.push(['i',X,Z,alongX?0:1,alongX?1:0]);};
+        if(!M.shock)M.shock=new T.MeshBasicMaterial({map:tex2(256,160,(g,w,h)=>{g.fillStyle='#ffd400';g.fillRect(0,0,w,h);g.fillStyle='#e0202c';g.beginPath();for(let i=0;i<24;i++){const a=i*Math.PI/12,rr=i%2?52:70;g.lineTo(128+Math.cos(a)*rr*1.6,80+Math.sin(a)*rr*.95);}g.closePath();g.fill();g.fillStyle='#fff';g.font='900 34px Inter, Arial';g.textAlign='center';g.fillText('ШОК',128,74);g.fillText('ЦЕНА',128,110);})});
+        const pallet=(X,Z,alongX)=>{const a=alongX?1.2:.8,b=alongX?.8:1.2,beer=Math.random()<.5;blk(X,Z,a+.04,b+.04);cbox(a,.12,b,'#b98a52',X,.06,Z);for(let k=-1;k<=1;k++)cbox(alongX?a:.1,.02,alongX?.1:b,'#8a6236',alongX?X:X+k*(a/2-.05),.125,alongX?Z+k*(b/2-.05):Z);
+          const pw=beer?.4:.27,pd=beer?.27:.18,nx=Math.floor(a/pw),nz=Math.floor(b/pd),cols=beer?['#1f3a24','#c8382e','#0d2b45','#e0b23a']:['#cfe3f2','#2f6fb5','#dfe9ee'];
+          for(let ly=0;ly<3;ly++)for(let ix=0;ix<nx;ix++)for(let iz=0;iz<nz;iz++){if(ly===2&&(ix+iz)%3===0)continue;cbox(pw-.01,.3,pd-.01,cols[(ix+iz+ly)%cols.length],X-a/2+pw*(ix+.5),.28+ly*.3,Z-b/2+pd*(iz+.5));}
+          cgeo(new T.CylinderGeometry(.012,.012,.7,6),'#9a9a9a',X,1.27,Z,true);const sg=new T.Mesh(new T.PlaneGeometry(.5,.31),M.shock);sg.position.set(X,1.62,Z);sg.rotation.y=alongX?0:Math.PI/2;room.add(sg);const sb=sg.clone();sb.rotation.y+=Math.PI;room.add(sb);
+          for(const sd_ of [-1,1])face(alongX?X:X+sd_*(a/2+.02),alongX?Z+sd_*(b/2+.02):Z,alongX?0:sd_,alongX?sd_:0,'shock');nF[1]++;FA.push(['p',X,Z,alongX?0:1,alongX?1:0]);};
+        const stand=(X,Z)=>{blk(X,Z,.56,.44);cbox(.54,1.45,.02,'#e0b23a',X,.725,Z);for(const e of [-1,1])cbox(.02,1.45,.42,'#e0b23a',X+e*.27,.725,Z);cbox(.56,.28,.44,'#c8382e',X,1.58,Z);for(let lv=0;lv<4;lv++){const y=.12+lv*.33;cbox(.5,.02,.38,'#f0e2c4',X,y,Z);for(const sd_ of [-1,1])for(let i=0;i<3;i++)put('bag',X-.16+i*.16,y+.015,Z+sd_*.12,.14,.24,.05,pick_(CHIPS));}
+          for(const sd_ of [-1,1])face(X,Z+sd_*.24,0,sd_,'snack');nF[1]++;FA.push(['s',X,Z,0,1]);};
+        const nMax=Math.max(1,Math.min(10,Math.floor(A/15)));
+        const scan=(w,d,fn,wk)=>{wk=wk||WALK;for(let z=-hd+wk+d/2;z<=hd-wk-d/2&&nF[1]<nMax;z+=.25)for(let x=-hw+wk+w/2;x<=hw-wk-w/2&&nF[1]<nMax;x+=.25){const r_=[x-w/2-.02,x+w/2+.02,z-d/2-.02,z+d/2+.02];if(islFits(r_,wk)){fn(x,z);}}};
+        for(const L of [2.4,1.8,1.2]){scan(.92,L+.02,(x,z)=>island(x,z,L,false));scan(L+.02,.92,(x,z)=>island(x,z,L,true));}
+        scan(.84,1.24,(x,z)=>pallet(x,z,false),1.2);scan(1.24,.84,(x,z)=>pallet(x,z,true),1.2);scan(.6,.48,(x,z)=>stand(x,z),1.2);
+        // end-caps on the gondola ends that face the till and have none: a low display of the week's offer
+        xs.forEach(x=>{const r_=[x-.47,x+.47,zBot+.07,zBot+.5];if(banned(r_))return;for(const o of OBS){const g_=gapR(r_,o);if(g_<.01)return;if(g_<1.2&&!(o[0]<x+.5&&o[1]>x-.5&&o[3]<=zBot+.1))return;}const [nm,tag]=nextCat(),pz=zBot+.28;blk(x,pz,.94,.44);
+          cbox(.94,.08,.44,B,x,.04,pz);cbox(.94,1.25,.03,B,x,.66,zBot+.075);for(const e of [-1,1])cbox(.03,1.25,.44,B,x+e*.455,.66,pz);[.1,.48,.86].forEach((y,lv)=>{cbox(.9,.025,.4,'#e9e4d8',x,y,pz);rail(x,y+.01,zBot+.5,.9,0);stock(tag,x,.06,pz,.84,true,1,y,lv,2);});
+          const sg=new T.Mesh(new T.PlaneGeometry(.9,.18),signMat(nm));sg.position.set(x,1.37,zBot+.095);room.add(sg);face(x,zBot+.52,0,1,tag);ao(x,zBot+.5,.94,0,1);nF[0]++;FA.push(['e',x,pz,0,1]);});
+        S.fill=nF.slice();}
       // diffusers
       const U=unitsFor(A);
       U.forEach((u,i)=>{
@@ -2439,7 +2519,7 @@ const space=(function(){
       LD.base=Math.max(LD.base||0,30);ldSet(30);
       // progressive fill: products over the next frames, then the particle warm-up, then people
       later(()=>{if(FAM.bottle.length)instanced(GEO.bottle,FAM.bottle,false,SPIRIT,M.bottle);if(FAM.can.length)instanced(GEO.can,FAM.can,false,CANS,M.can);
-        later(()=>{if(FAM.carton.length)instanced(GEO.box,FAM.carton,false,BISC,M.carton);if(FAM.pack.length)instanced(GEO.box,FAM.pack,false,SWEET,M.pack);if(FAM.bag.length)instanced(GEO.box,FAM.bag,false,CHIPS,M.bag);
+        later(()=>{if(FAM.carton.length)instanced(GEO.box,FAM.carton,false,BISC,M.carton);if(FAM.pack.length)instanced(GEO.box,FAM.pack,false,SWEET,M.pack);if(FAM.bag.length)instanced(GEO.box,FAM.bag,false,CHIPS,M.bag);for(const [k,g_,pl] of [['water',GEO.bottle,['#cfe3f2']],['det',GEO.bottle,['#2f6fb5']],['juice',GEO.box,['#f28c28']],['energy',GEO.can,['#1b1917']],['nuts',GEO.box,['#7a4a1f']],['pasta',GEO.box,['#2f6fb5']],['bisc',GEO.box,['#c8382e']],['gift',GEO.box,['#1b1917']]])if(FAM[k].length)instanced(g_,FAM[k],false,pl,M[k]);
           later(()=>{const on=sysOn(state.t);for(let i=0;i<30*22;i++)stepP(1/30,on,true);pg.attributes.position.needsUpdate=true;pg.attributes.alpha.needsUpdate=true;pg.attributes.psize.needsUpdate=true;
             later(()=>{castPeople(A,phone);if(!heat&&S.W)makeHeat();});});});});
     }
