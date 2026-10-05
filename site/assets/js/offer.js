@@ -488,7 +488,7 @@ const space=(function(){
     if(!renderer.getContext()){fallback();return;}
     if(window.KL_GLTF){KL_GLTF.renderer=renderer;KL_GLTF.models.forEach(m=>m.scene.traverse(x=>{if(x.isMesh&&x.material)['map','normalMap','alphaMap'].forEach(k=>{if(x.material[k])renderer.initTexture(x.material[k]);});}));}
     const small=()=>stage.clientWidth<640;
-    const DPR=devicePixelRatio||1,dprMax=TIER===2?Math.min(DPR,1.25):TIER===1?Math.min(DPR,1.15):Math.min(DPR,.85);let dpr=dprMax;renderer.setPixelRatio(dpr);
+    const DPR=devicePixelRatio||1,MOB=/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent),dprMax=TIER===2?Math.min(DPR,2):TIER===1?Math.min(DPR,MOB?2:1.5):Math.min(DPR,1.25);let dpr=dprMax;renderer.setPixelRatio(dpr); /* sharp on phones and retina screens (it used to be capped at 1.15 / 0.85: a 3x phone screen showed a blurred, blocky picture) */
     renderer.outputEncoding=T.sRGBEncoding;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;renderer.shadowMap.enabled=TIER>0;renderer.shadowMap.autoUpdate=false; /* shadows of the fixed store only: drawn once per build, not every frame */renderer.shadowMap.type=TIER===2?T.PCFSoftShadowMap:T.PCFShadowMap;
     renderer.domElement.setAttribute('aria-hidden','true');
     stage.insertBefore(renderer.domElement,stage.firstChild);
@@ -501,7 +501,7 @@ const space=(function(){
     function roundedBox(w,h,d,r){const s=new T.Shape();const x=-w/2,y=-h/2;s.moveTo(x+r,y);s.lineTo(x+w-r,y);s.quadraticCurveTo(x+w,y,x+w,y+r);s.lineTo(x+w,y+h-r);s.quadraticCurveTo(x+w,y+h,x+w-r,y+h);s.lineTo(x+r,y+h);s.quadraticCurveTo(x,y+h,x,y+h-r);s.lineTo(x,y+r);s.quadraticCurveTo(x,y,x+r,y);
       const g=new T.ExtrudeGeometry(s,{depth:d,bevelEnabled:true,bevelThickness:r*.6,bevelSize:r*.6,bevelSegments:2});g.translate(0,0,-d/2);return g;}
     function badgeTex(){if(!logoMono)return null;const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d');const iw=logoMono.width,ih=logoMono.height,k=Math.min(96/iw,96/ih);g.drawImage(logoMono,64-iw*k/2,64-ih*k/2,iw*k,ih*k);const t=new T.CanvasTexture(c);t.encoding=T.sRGBEncoding;return t;}
-    const tex2=(w,h,fn,rep)=>{const c=document.createElement('canvas');c.width=w;c.height=h;fn(c.getContext('2d'),w,h);const t=new T.CanvasTexture(c);t.encoding=T.sRGBEncoding;if(rep){t.wrapS=t.wrapT=T.RepeatWrapping;}t.anisotropy=4;return t;};
+    const tex2=(w,h,fn,rep)=>{const c=document.createElement('canvas');c.width=w;c.height=h;fn(c.getContext('2d'),w,h);const t=new T.CanvasTexture(c);t.encoding=T.sRGBEncoding;if(rep){t.wrapS=t.wrapT=T.RepeatWrapping;}t.anisotropy=8;return t;};
     const speck=(g,w,h,n,a,col,sz)=>{for(let i=0;i<n;i++){g.fillStyle='rgba('+(col||'0,0,0')+','+(Math.random()*a).toFixed(3)+')';g.fillRect(Math.random()*w,Math.random()*h,sz||1.5,sz||1.5);}};
     // floor: polished black stone, 60 cm tiles with hair-thin warm joints and faint veining; low roughness so the store lights and the scent glow reflect
     // floor: polished dark porcelain, 60 cm tiles (2x2 per 1.2 m repeat) with light veining, a fine bevel at every edge (normal map) and grey grout;
@@ -1788,7 +1788,7 @@ const space=(function(){
     // the schedule on his phone (Bluetooth), lets it puff once, climbs down, folds the ladder and goes on to the next one ----
     const VZ={g:null,tex:null,texN:0,geo:null,nextTry:0};
     const _zA=new T.Vector3(),_zB=new T.Vector3(),_zC=new T.Vector3(),_zD=new T.Vector3(),_zQ=new T.Quaternion(),_zQ2=new T.Quaternion(),_zM=new T.Matrix4(),_zM2=new T.Matrix4(),_zS=new T.Vector3(),_zE=new T.Euler();
-    function vzTex(){if(VZ.tex)return VZ.tex;const L=new T.TextureLoader(),mk=f=>{const t=L.load('assets/models/'+f,()=>{VZ.texN++;});t.flipY=false;t.encoding=T.sRGBEncoding;t.anisotropy=4;return t;};VZ.tex={head:mk('venci-head.jpg'),body:mk('venci-kl-body.jpg')};return VZ.tex;}
+    function vzTex(){if(VZ.tex)return VZ.tex;const L=new T.TextureLoader(),mk=f=>{const t=L.load('assets/models/'+f,()=>{VZ.texN++;});t.flipY=false;t.encoding=T.sRGBEncoding;t.anisotropy=8;return t;};VZ.tex={head:mk('venci-head.jpg'),body:mk('venci-kl-body.jpg')};return VZ.tex;}
     // the aroma oil bottle these units take (cold-air nebulising diffusers): a round clear bottle with a short screw neck, screwed
     // straight up into the atomiser head at the top of the unit, a dip tube going down to its bottom; the oil level shows through it,
     // the KAYA LUX label round the body. Plug'n'Go: ~120 ml (4.4 cm across); Prime Lux: ~500 ml (8 cm). Origin: the bottle's middle
@@ -2255,7 +2255,7 @@ const space=(function(){
         if(ckW>=1.9){const wx=x0+.34,wz=ckZ-.1;cbox(.46,.03,.36,DK,wx,cy+.015,wz);cbox(.46,.03,.36,DK,wx,cy+.34,wz);for(const sx of [-1,1])cbox(.015,.32,.36,DK,wx+sx*.222,cy+.18,wz);const gg=new T.BoxGeometry(.43,.3,.34);gg.translate(wx,cy+.18,wz);glassAcc.push(gg);
           cbox(.43,.006,.33,'#c9c9c9',wx,cy+.17,wz);for(let i=0;i<6;i++)cgeo(new T.SphereGeometry(.035,8,6),i%2?'#d79a3a':'#c8843a',wx-.15+(i%3)*.15,cy+.05+(i>2?.15:0),wz-.06+(i>2?.06:0));cbox(.4,.005,.3,'#ffcf7a',wx,cy+.33,wz);} /* heated pastry case: glass, two trays, warm light */
         // the advert screen over the counter (a 55" panel on two rods from the ceiling), slides changing with a soft cross-fade
-        if(!M.adTex){const sl=(bg,fn)=>tex2(512,288,(g,w,h)=>{g.fillStyle=bg;g.fillRect(0,0,w,h);g.save();g.scale(1,.86);fn(g,w,h);g.restore();g.fillStyle='#e0202c';g.fillRect(0,h-40,w,40);g.fillStyle='#fff';g.font='800 23px Inter, Arial';g.textAlign='center';g.textBaseline='middle';g.fillText('Най-доброто е точно пред ТЕБ!',w/2,h-20);g.textBaseline='alphabetic';}); /* the chain's slogan runs along the foot of the screen on every slide, as on the shops' own screens */const T1=(g,t,y,sz,c,wt)=>{g.fillStyle=c||'#fff';g.font=(wt||800)+' '+sz+'px Inter, Arial';g.textAlign='center';g.fillText(t,256,y);};
+        if(!M.adTex){const sl=(bg,fn)=>tex2(1024,576,(g,w,h)=>{g.scale(2,2);w/=2;h/=2;g.fillStyle=bg;g.fillRect(0,0,w,h);g.save();g.scale(1,.86);fn(g,w,h);g.restore();g.fillStyle='#e0202c';g.fillRect(0,h-40,w,40);g.fillStyle='#fff';g.font='800 23px Inter, Arial';g.textAlign='center';g.textBaseline='middle';g.fillText('Най-доброто е точно пред ТЕБ!',w/2,h-20);g.textBaseline='alphabetic';}); /* the chain's slogan runs along the foot of the screen on every slide, as on the shops' own screens */const T1=(g,t,y,sz,c,wt)=>{g.fillStyle=c||'#fff';g.font=(wt||800)+' '+sz+'px Inter, Arial';g.textAlign='center';g.fillText(t,256,y);};
           // the chain's own messages (its slogans, its campaigns: ШОК ЦЕНА, the VIP Club and its green tags, weekend discounts, Играй и спечели!)
           M.adTex=[sl('#111',(g,w,h)=>{T1(g,'АВАНТИ',150,92,'#e0202c');}),
             sl('#ffd400',(g,w,h)=>{g.fillStyle='#e0202c';g.beginPath();for(let i=0;i<24;i++){const a=i*Math.PI/12,r=i%2?92:120;g.lineTo(256+Math.cos(a)*r*1.9,118+Math.sin(a)*r*.62);}g.closePath();g.fill();T1(g,'ШОК ЦЕНА',138,58,'#fff');T1(g,'ликьори · уиски · джин · вино',222,24,'#1c1c1c',700);T1(g,'търси жълтите етикети',258,19,'#5a4a00',600);}),
@@ -2873,7 +2873,7 @@ const space=(function(){
           if(LD.done||LD.settle){const nowS=performance.now();let changed=false;
             if(pf.probing){pf.probing=false;changed=true;if(avg<=.021){pf.half=false;pf.back=45000;}else{pf.half=true;fno=0;pf.back=Math.min(300000,(pf.back||45000)*2);pf.probeAt=nowS+pf.back;}}
             else if(!pf.half){if(avg>.024){if(++pf.slowN>=3){pf.half=true;fno=0;pf.slowN=0;changed=true;pf.back=pf.back||45000;pf.probeAt=nowS+pf.back;}}else pf.slowN=0;}
-            else if(avg>.045){if(++pf.slowN>=2&&(pf.q||0)<3){pf.slowN=0;changed=true;pf.q=(pf.q||0)+1;const floor=Math.min(dprMax,TIER===0?.62:.72);
+            else if(avg>.045){if(++pf.slowN>=2&&(pf.q||0)<3){pf.slowN=0;changed=true;pf.q=(pf.q||0)+1;const floor=Math.min(dprMax,TIER===0?.9:1);
                 if((pf.q!==2||LD.done)&&dpr>floor){dpr=Math.max(floor,dpr*(pf.q===1?.75:.85));renderer.setPixelRatio(dpr);pm.uniforms.uScale.value=stage.clientHeight*dpr/2/Math.tan(camera.fov*Math.PI/360)*.5;}
                 else if(renderer.shadowMap.enabled&&!LD.done){renderer.shadowMap.enabled=false;scene.traverse(o=>{if(o.material){(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>m.needsUpdate=true);}});warm();root.classList.add('lowfx');}}}
             else{pf.slowN=0;if(TIER>0&&LD.done&&pf.probeAt&&nowS>pf.probeAt){pf.probing=true;pf.half=false;changed=true;}}
