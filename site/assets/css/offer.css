@@ -1198,3 +1198,16 @@ footer.foot{overflow:hidden} /* the glint across the footer mark never widens th
 .storecap b{display:block;font:600 16px/1.3 var(--body);color:#f3d27a;letter-spacing:.01em}
 .storecap span{display:block;margin-top:3px;font:400 14px/1.45 var(--body);color:#efe9dc}
 @media (max-width:560px){.storecap{bottom:10px;padding:8px 12px 9px}.storecap b{font-size:14px}.storecap span{font-size:12.5px}}
+/* „Търговска оферта“ at the top at every width: where the bar is short of room (phones, and beside the chapters) it stacks on two
+   small lines next to the АВАНТИ logo instead of disappearing */
+.nav .doc .dl2{display:none}
+@media (min-width:860px) and (max-width:1300px){.nav .doc .dl2{display:inline}}
+@media (max-width:520px),(min-width:1301px) and (max-width:1520px){
+  .nav .doc .dl{display:inline-flex!important;flex-direction:column;align-items:flex-end;font-size:9.5px;line-height:1.18;letter-spacing:.14em}
+  .nav .doc .dl2{display:none!important}
+  .nav .doc .av-logo{margin-left:8px!important}}
+@media (max-width:374px){.nav .doc .dl{font-size:8.5px;letter-spacing:.08em}.nav .doc .av-logo{height:17px;margin-left:6px!important}}
+@media (min-width:901px) and (max-width:1180px){.obj thead th,.obj thead th button{white-space:normal!important;letter-spacing:.08em!important;line-height:1.25;vertical-align:bottom}.obj tfoot td,.obj tfoot tr.tot3 td.cs,.obj tfoot tr.tot3 td.cf{font-size:1.5rem!important}} /* tablets and small laptops: the column heads wrap, so the table fits its box and the page never scrolls sideways */
+@media (min-width:901px) and (max-width:1000px){.obj td,.obj th button{padding:10px 8px!important}.obj tfoot td{white-space:normal}}
+@media (max-width:319px){.summary th,.summary td{padding-left:4px!important;padding-right:4px!important;font-size:12px!important;letter-spacing:.02em!important}}
+.storecap span:empty{display:none}

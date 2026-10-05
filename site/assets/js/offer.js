@@ -418,9 +418,9 @@ const space=(function(){
     L.forEach(r=>{const o=document.createElement('option');o.value=r.n;o.textContent='№ '+r.n+' · '+r.name+' · '+fmt(r.area)+' м²';og.appendChild(o);});sel.appendChild(og);});
   sel.value=state.n;
   const row=()=>ROWS.find(r=>r.n===state.n);
-  // the store's name and address under the scene for a few seconds when it opens and whenever another store is chosen: you always know where you are
+  // the store's number and name under the scene for a few seconds when it opens and whenever another store is chosen: you always know where you are
   let capUntil=0;function storeCap(){const r=row();if(!r||!stage)return;let el=stage.querySelector('.storecap');if(!el){el=document.createElement('div');el.className='storecap';el.setAttribute('aria-live','polite');el.innerHTML='<b></b><span></span>';stage.appendChild(el);}
-    el.firstChild.textContent='Обект № '+r.n+' · '+r.name;el.lastChild.textContent=r.addr+(r.city?', '+r.city:'');el.classList.remove('on');void el.offsetWidth;el.classList.add('on');capUntil=performance.now()+3600;clearTimeout(storeCap.t);storeCap.t=setTimeout(()=>el.classList.remove('on'),3400);}
+    el.firstChild.textContent='Обект № '+r.n+' · '+r.name;el.lastChild.textContent='';el.classList.remove('on');void el.offsetWidth;el.classList.add('on');capUntil=performance.now()+3600;clearTimeout(storeCap.t);storeCap.t=setTimeout(()=>el.classList.remove('on'),3400);}
   function syncHours(){HRS=hoursFor(state.n);}
   const PLAN=(()=>{const m={};ROWS.forEach(r=>{const a=r.area,c=r.city;let mdl='PG',n;
     if(c==='Варна'||c==='Велико Търново'){mdl='PL';n=1;}
@@ -613,6 +613,14 @@ const space=(function(){
       T2(g,'спагети · 500 г',w/2,h*.72,9,'#444','600');barcode(g,w*.6,h*.82,w*.32,h*.1);}),.25,.75,.6,0,.4);
     M.bisc=lblMat(tex2(128,128,(g,w,h)=>{g.fillStyle='#8a8a8a';g.fillRect(0,0,w,h);g.fillStyle='#fbf3e2';g.fillRect(0,h*.26,w,h*.48);T2(g,'Бисквити',w/2,h*.36,15,'#7a1f1f','bold italic');g.fillStyle='#d9a352';for(let i=0;i<3;i++){g.beginPath();g.arc(w*(.3+i*.2),h*.58,11,0,6.283);g.fill();}g.fillStyle='#b97f34';for(let i=0;i<3;i++)for(let k=0;k<4;k++)g.fillRect(w*(.27+i*.2)+(k%2)*5,h*.54+(k>>1)*6,2,2);gloss(g,w,h,w*.05,w*.2,.2);}),.25,.75,.45,0,.6);
     M.gift=lblMat(tex2(128,128,(g,w,h)=>{g.fillStyle='#8a8a8a';g.fillRect(0,0,w,h);g.fillStyle='#c9a24a';g.fillRect(w*.44,0,w*.12,h);g.fillRect(0,h*.44,w,h*.12);g.fillStyle='#f3dc96';g.fillRect(w*.47,0,w*.03,h);T2(g,'GIFT SET',w/2,h*.24,13,'#f3dc96','bold');gloss(g,w,h,w*.08,w*.2,.2);}),.0,.0,.4,.2,.8);
+    // pallet goods: printed cases you can read from the aisle (beer 20 x 0,5 l, water 6 x 1,5 l, wine 6 x 0,75 l) and brown beer bottles
+    const caseTex=(band,t1,t2,draw)=>tex2(128,128,(g,w,h)=>{g.fillStyle='#8a8a8a';g.fillRect(0,0,w,h);g.fillStyle='#efe6d2';g.fillRect(0,h*.2,w,h*.62);g.fillStyle=band;g.fillRect(0,h*.2,w,h*.16);T2(g,t1,w/2,h*.28,15,'#fff','900');draw(g,w,h);T2(g,t2,w/2,h*.74,11,'#2a2420','700');g.strokeStyle='rgba(0,0,0,.25)';g.lineWidth=2;g.strokeRect(1,1,w-2,h-2);});
+    M.beerc=lblMat(caseTex('#1f3a24','БИРА','20 × 0,5 л',(g,w,h)=>{for(let i=0;i<5;i++){const x=w*(.18+i*.16);g.fillStyle='#5a3210';g.fillRect(x-5,h*.46,10,h*.2);g.fillRect(x-2.5,h*.4,5,h*.07);g.fillStyle='#e0b23a';g.fillRect(x-5,h*.52,10,h*.06);}}),.18,.84,.7,0,.3);
+    M.watc=lblMat(caseTex('#1d5fa8','ВОДА','6 × 1,5 л',(g,w,h)=>{for(let i=0;i<3;i++){const x=w*(.3+i*.2);g.fillStyle='#bcd7ea';g.fillRect(x-8,h*.42,16,h*.24);g.fillStyle='#1d5fa8';g.fillRect(x-4,h*.38,8,h*.05);g.fillStyle='#fff';g.fillRect(x-8,h*.5,16,h*.06);}}),.18,.84,.25,0,.9);
+    M.winec=lblMat(caseTex('#5a1a22','ВИНО','6 × 0,75 л',(g,w,h)=>{g.strokeStyle='#5a1a22';g.lineWidth=2;g.beginPath();g.moveTo(w*.5,h*.4);g.lineTo(w*.5,h*.66);g.moveTo(w*.36,h*.42);g.quadraticCurveTo(w*.5,h*.66,w*.64,h*.42);g.stroke();g.fillStyle='#7a1f2b';for(let i=0;i<4;i++){g.beginPath();g.arc(w*(.3+i*.13),h*.62,5,0,6.283);g.fill();}}),.18,.84,.75,0,.3);
+    M.beer=lblMat(tex2(128,256,(g,w,h)=>{g.fillStyle='#8a8a8a';g.fillRect(0,0,w,h);g.fillStyle='#d9b45a';g.fillRect(0,0,w,22);g.fillStyle='#f6efe0';g.fillRect(0,h*.5,w,h*.26);T2(g,'БИРА',w/2,h*.6,18,'#1f3a24','900');T2(g,'светла · 0,5 л',w/2,h*.69,9,'#5a3210','600');gloss(g,w,h,w*.1,w*.12,.4);}),.24,.5,.2,0,1.0);
+    M.shockT={};[['beer','БИРА 0,5 л','0,99 €'],['water','ВОДА 1,5 л','0,49 €'],['wine','ВИНО 0,75 л','4,99 €']].forEach(([k,t,p])=>{M.shockT[k]=new T.MeshBasicMaterial({map:tex2(256,200,(g,w,h)=>{g.fillStyle='#ffd400';g.fillRect(0,0,w,h);g.fillStyle='#e0202c';g.beginPath();for(let i=0;i<24;i++){const a=i*Math.PI/12,rr=i%2?44:58;g.lineTo(128+Math.cos(a)*rr*1.7,62+Math.sin(a)*rr*.86);}g.closePath();g.fill();
+      T2(g,'ШОК ЦЕНА',128,64,30,'#fff','900');T2(g,t,128,136,24,'#1c1c1c','800');T2(g,p,128,176,34,'#e0202c','900');})});});
     const box5=(()=>{const mk=(rx,ry,tx,ty,tz)=>{const p=new T.PlaneGeometry(1,1);if(rx)p.rotateX(rx);if(ry)p.rotateY(ry);p.translate(tx,ty,tz);return p;};return mergeGeos([mk(-Math.PI/2,0,0,.5,0),mk(0,0,0,0,.5),mk(0,Math.PI,0,0,-.5),mk(0,Math.PI/2,.5,0,0),mk(0,-Math.PI/2,-.5,0,0)]);})();
     // rounder bottles and cans (8 sides instead of 5), a real shoulder and neck on the bottle
     const GEO={bottle:new T.LatheGeometry([new T.Vector2(.44,0),new T.Vector2(.5,.06),new T.Vector2(.5,.6),new T.Vector2(.34,.74),new T.Vector2(.17,.84),new T.Vector2(.17,1)],8),can:new T.CylinderGeometry(.5,.5,1,8,1,true),box:box5};
@@ -2151,7 +2159,7 @@ const space=(function(){
       const zTop=-hd+Math.max(wine?4.9:2.3,store_?sd+.9:0),zBot=hd-4.0,len=zBot-zTop,zW=wine?zTop-2.4:-hd;
       S={A,W,D,H:Hh,hw,hd,sw,sd,hasStore:store_,units:[],shape,yF,zW,wine};
       const B='#7a1f2b',BD='#4a1119',BLK='#161616',STEEL='#c9cdd1',WHT='#ece9e2';
-      const FAM={bottle:[],can:[],carton:[],pack:[],bag:[],water:[],det:[],juice:[],energy:[],nuts:[],pasta:[],bisc:[],gift:[]};const put=(f,x,y,z,sx,sy,sz,c)=>FAM[f].push([x,y,z,sx,sy,sz,c]);
+      const FAM={bottle:[],can:[],carton:[],pack:[],bag:[],water:[],det:[],juice:[],energy:[],nuts:[],pasta:[],bisc:[],gift:[],beerc:[],watc:[],winec:[],beer:[]};const put=(f,x,y,z,sx,sy,sz,c)=>FAM[f].push([x,y,z,sx,sy,sz,c]);
       const strips=[],glassAcc=[],headAcc=[[],[],[]],aoAcc=[],aoVAcc=[];const shade=(x,y,z,L,side)=>{const g=new T.PlaneGeometry(L,.16);g.rotateY(side);g.translate(x,y-.1,z);aoVAcc.push(g);};const ao=(x,z,L,dx,dz)=>{const g=new T.PlaneGeometry(.42,L);g.rotateX(-Math.PI/2);g.rotateY(dx>0?0:dx<0?Math.PI:dz>0?-Math.PI/2:Math.PI/2);g.translate(x+dx*.21,.007,z+dz*.21);aoAcc.push(g);};
       const rail=(x,y,z,L,ry)=>{const sg=new T.PlaneGeometry(L,.04);sg.rotateY(ry);sg.translate(x,y,z);const uv=sg.attributes.uv;for(let i=0;i<uv.count;i++)uv.setX(i,uv.getX(i)*L/.96);strips.push(sg);};
       // floor (two levels when the wine corner is a step down)
@@ -2247,9 +2255,9 @@ const space=(function(){
         if(ckW>=1.9){const wx=x0+.34,wz=ckZ-.1;cbox(.46,.03,.36,DK,wx,cy+.015,wz);cbox(.46,.03,.36,DK,wx,cy+.34,wz);for(const sx of [-1,1])cbox(.015,.32,.36,DK,wx+sx*.222,cy+.18,wz);const gg=new T.BoxGeometry(.43,.3,.34);gg.translate(wx,cy+.18,wz);glassAcc.push(gg);
           cbox(.43,.006,.33,'#c9c9c9',wx,cy+.17,wz);for(let i=0;i<6;i++)cgeo(new T.SphereGeometry(.035,8,6),i%2?'#d79a3a':'#c8843a',wx-.15+(i%3)*.15,cy+.05+(i>2?.15:0),wz-.06+(i>2?.06:0));cbox(.4,.005,.3,'#ffcf7a',wx,cy+.33,wz);} /* heated pastry case: glass, two trays, warm light */
         // the advert screen over the counter (a 55" panel on two rods from the ceiling), slides changing with a soft cross-fade
-        if(!M.adTex){const sl=(bg,fn)=>tex2(512,288,(g,w,h)=>{g.fillStyle=bg;g.fillRect(0,0,w,h);fn(g,w,h);});const T1=(g,t,y,sz,c,wt)=>{g.fillStyle=c||'#fff';g.font=(wt||800)+' '+sz+'px Inter, Arial';g.textAlign='center';g.fillText(t,256,y);};
+        if(!M.adTex){const sl=(bg,fn)=>tex2(512,288,(g,w,h)=>{g.fillStyle=bg;g.fillRect(0,0,w,h);g.save();g.scale(1,.86);fn(g,w,h);g.restore();g.fillStyle='#e0202c';g.fillRect(0,h-40,w,40);g.fillStyle='#fff';g.font='800 23px Inter, Arial';g.textAlign='center';g.textBaseline='middle';g.fillText('Най-доброто е точно пред ТЕБ!',w/2,h-20);g.textBaseline='alphabetic';}); /* the chain's slogan runs along the foot of the screen on every slide, as on the shops' own screens */const T1=(g,t,y,sz,c,wt)=>{g.fillStyle=c||'#fff';g.font=(wt||800)+' '+sz+'px Inter, Arial';g.textAlign='center';g.fillText(t,256,y);};
           // the chain's own messages (its slogans, its campaigns: ШОК ЦЕНА, the VIP Club and its green tags, weekend discounts, Играй и спечели!)
-          M.adTex=[sl('#111',(g,w,h)=>{T1(g,'АВАНТИ',128,72,'#e0202c');T1(g,'Най-доброто е точно пред ТЕБ!',196,27);}),
+          M.adTex=[sl('#111',(g,w,h)=>{T1(g,'АВАНТИ',150,92,'#e0202c');}),
             sl('#ffd400',(g,w,h)=>{g.fillStyle='#e0202c';g.beginPath();for(let i=0;i<24;i++){const a=i*Math.PI/12,r=i%2?92:120;g.lineTo(256+Math.cos(a)*r*1.9,118+Math.sin(a)*r*.62);}g.closePath();g.fill();T1(g,'ШОК ЦЕНА',138,58,'#fff');T1(g,'ликьори · уиски · джин · вино',222,24,'#1c1c1c',700);T1(g,'търси жълтите етикети',258,19,'#5a4a00',600);}),
             sl('#0f5a32',(g,w,h)=>{T1(g,'АВАНТИ VIP Клуб',80,40);T1(g,'Безплатна VIP карта',138,30,'#d8f5e2',700);T1(g,'специални цени · без обвързване',182,22,'#d8f5e2',600);T1(g,'Попитай на касата!',246,30,'#ffd400');}),
             sl('#1f9d4a',(g,w,h)=>{g.fillStyle='#fff';g.fillRect(156,36,200,70);g.fillStyle='#1f9d4a';g.font='800 34px Inter, Arial';g.textAlign='center';g.fillText('VIP',256,84);T1(g,'Зелени етикети',160,38);T1(g,'неограничено пазаруване',206,24,'#eafff1',600);T1(g,'с VIP карта',244,24,'#eafff1',600);}),
@@ -2389,11 +2397,16 @@ const space=(function(){
             [.12,.5,.88].forEach((y,lv)=>{bx(L,.025,w/2-.03,M.oak,alongX?X:X+sd_*w/4,y,alongX?Z+sd_*w/4:Z,false);rail(fx,y+.01,fz,L,alongX?(sd_>0?0:Math.PI):(sd_>0?Math.PI/2:-Math.PI/2));stock(tag,X,.34,Z,L,alongX,sd_,y,lv,2);});
             const sg=new T.Mesh(new T.PlaneGeometry(Math.min(L*.8,1.6),.18),signMat(nm));sg.rotation.y=alongX?(sd_>0?0:Math.PI):(sd_>0?Math.PI/2:-Math.PI/2);sg.position.set(alongX?X:X+sd_*.03,1.47,alongX?Z+sd_*.03:Z);room.add(sg);}
           cbox(alongX?Math.min(L*.8,1.6):.05,.2,alongX?.05:Math.min(L*.8,1.6),'#3a2a1e',X,1.47,Z);stock(tag==='coffee'?'coffee':'sweets',X,.2,Z,L-.1,alongX,1,1.35,0,1);stock(tag==='coffee'?'coffee':'sweets',X,.2,Z,L-.1,alongX,-1,1.35,0,1);nF[1]++;FA.push(['i',X,Z,alongX?0:1,alongX?1:0]);};
-        if(!M.shock)M.shock=new T.MeshBasicMaterial({map:tex2(256,160,(g,w,h)=>{g.fillStyle='#ffd400';g.fillRect(0,0,w,h);g.fillStyle='#e0202c';g.beginPath();for(let i=0;i<24;i++){const a=i*Math.PI/12,rr=i%2?52:70;g.lineTo(128+Math.cos(a)*rr*1.6,80+Math.sin(a)*rr*.95);}g.closePath();g.fill();g.fillStyle='#fff';g.font='900 34px Inter, Arial';g.textAlign='center';g.fillText('ШОК',128,74);g.fillText('ЦЕНА',128,110);})});
-        const pallet=(X,Z,alongX)=>{const a=alongX?1.2:.8,b=alongX?.8:1.2,beer=Math.random()<.5;blk(X,Z,a+.04,b+.04);cbox(a,.12,b,'#b98a52',X,.06,Z);for(let k=-1;k<=1;k++)cbox(alongX?a:.1,.02,alongX?.1:b,'#8a6236',alongX?X:X+k*(a/2-.05),.125,alongX?Z+k*(b/2-.05):Z);
-          const pw=beer?.4:.27,pd=beer?.27:.18,nx=Math.floor(a/pw),nz=Math.floor(b/pd),cols=beer?['#1f3a24','#c8382e','#0d2b45','#e0b23a']:['#cfe3f2','#2f6fb5','#dfe9ee'];
-          for(let ly=0;ly<3;ly++)for(let ix=0;ix<nx;ix++)for(let iz=0;iz<nz;iz++){if(ly===2&&(ix+iz)%3===0)continue;cbox(pw-.01,.3,pd-.01,cols[(ix+iz+ly)%cols.length],X-a/2+pw*(ix+.5),.28+ly*.3,Z-b/2+pd*(iz+.5));}
-          cgeo(new T.CylinderGeometry(.012,.012,.7,6),'#9a9a9a',X,1.27,Z,true);const sg=new T.Mesh(new T.PlaneGeometry(.5,.31),M.shock);sg.position.set(X,1.62,Z);sg.rotation.y=alongX?0:Math.PI/2;room.add(sg);const sb=sg.clone();sb.rotation.y+=Math.PI;room.add(sb);
+        const pallet=(X,Z,alongX)=>{const a=alongX?1.2:.8,b=alongX?.8:1.2,rk=Math.random(),kind=rk<.45?'beer':rk<.8?'water':'wine';blk(X,Z,a+.04,b+.04);cbox(a,.12,b,'#b98a52',X,.06,Z);for(let k=-1;k<=1;k++)cbox(alongX?a:.1,.02,alongX?.1:b,'#8a6236',alongX?X:X+k*(a/2-.05),.125,alongX?Z+k*(b/2-.05):Z);
+          // printed cases, three layers: what is on the pallet reads from the aisle (beer, water or wine), the top layer opened to show the goods
+          const fam=kind==='beer'?'beerc':kind==='water'?'watc':'winec',cw=kind==='water'?.27:kind==='beer'?.4:.3,cd=kind==='water'?.18:kind==='beer'?.27:.2,ch=kind==='water'?.32:kind==='beer'?.26:.33,nx=Math.max(1,Math.floor(a/cw)),nz=Math.max(1,Math.floor(b/cd)),ox=(a-nx*cw)/2,oz=(b-nz*cd)/2,
+            pal=kind==='beer'?['#c9a24a','#d8c08a','#b98a52','#e0c890']:kind==='water'?['#d8ecf6','#cfe3f2','#e2f0f8']:['#c9a87a','#b98a52','#d8c08a'];
+          for(let ly=0;ly<3;ly++)for(let ix=0;ix<nx;ix++)for(let iz=0;iz<nz;iz++){if(ly===2&&kind!=='water'&&(ix+iz)%3===1)continue;put(fam,X-a/2+ox+cw*(ix+.5),.13+ly*ch,Z-b/2+oz+cd*(iz+.5),cw-.012,ch-.008,cd-.012,pick_(pal));}
+          const top=.13+3*ch;if(kind==='beer'){const cx=X,cz=Z,cwx=alongX?.42:.32,cwz=alongX?.32:.42;cbox(cwx,.025,cwz,'#1f6b3a',cx,top+.012,cz);for(const e of [-1,1]){cbox(.02,.13,cwz,'#1f6b3a',cx+e*cwx/2,top+.065,cz);cbox(cwx,.13,.02,'#1f6b3a',cx,top+.065,cz+e*cwz/2);}
+            for(let i=0;i<5;i++)for(let j=0;j<4;j++){const bx=cx-cwx/2+.04+(alongX?i:j)*((cwx-.08)/((alongX?5:4)-1)),bz=cz-cwz/2+.04+(alongX?j:i)*((cwz-.08)/((alongX?4:5)-1));put('beer',bx,top+.025,bz,.062,.24,.062,'#5a3210');}}
+          else if(kind==='wine'){for(let i=0;i<3;i++)for(let j=0;j<2;j++)put('bottle',X-.12+i*.12,top,Z-.06+j*.12,.075,.31,.075,pick_(WINE));}
+          else{for(let ix=0;ix<nx;ix++)for(let iz=0;iz<nz;iz++)for(let q=0;q<6;q++)cgeo(new T.CylinderGeometry(.014,.014,.02,6),'#1d5fa8',X-a/2+ox+cw*(ix+.5)+((q%3)-1)*.085,top+.01,Z-b/2+oz+cd*(iz+.5)+((q/3|0)-.5)*.085);} /* the blue caps of the bottles through the film */
+          const px=X+(alongX?a/2-.06:0),pz=Z+(alongX?0:b/2-.06);cgeo(new T.CylinderGeometry(.012,.012,1.85-top,6),'#9a9a9a',px,(1.85+top)/2,pz,true);const sg=new T.Mesh(new T.PlaneGeometry(.5,.39),M.shockT[kind]);sg.position.set(px,1.9,pz);sg.rotation.y=alongX?0:Math.PI/2;room.add(sg);const sb=sg.clone();sb.rotation.y+=Math.PI;room.add(sb);
           for(const sd_ of [-1,1])face(alongX?X:X+sd_*(a/2+.02),alongX?Z+sd_*(b/2+.02):Z,alongX?0:sd_,alongX?sd_:0,'shock');nF[1]++;FA.push(['p',X,Z,alongX?0:1,alongX?1:0]);};
         const stand=(X,Z)=>{blk(X,Z,.56,.44);cbox(.54,1.45,.02,'#e0b23a',X,.725,Z);for(const e of [-1,1])cbox(.02,1.45,.42,'#e0b23a',X+e*.27,.725,Z);cbox(.56,.28,.44,'#c8382e',X,1.58,Z);for(let lv=0;lv<4;lv++){const y=.12+lv*.33;cbox(.5,.02,.38,'#f0e2c4',X,y,Z);for(const sd_ of [-1,1])for(let i=0;i<3;i++)put('bag',X-.16+i*.16,y+.015,Z+sd_*.12,.14,.24,.05,pick_(CHIPS));}
           for(const sd_ of [-1,1])face(X,Z+sd_*.24,0,sd_,'snack');nF[1]++;FA.push(['s',X,Z,0,1]);};
@@ -2519,7 +2532,7 @@ const space=(function(){
       LD.base=Math.max(LD.base||0,30);ldSet(30);
       // progressive fill: products over the next frames, then the particle warm-up, then people
       later(()=>{if(FAM.bottle.length)instanced(GEO.bottle,FAM.bottle,false,SPIRIT,M.bottle);if(FAM.can.length)instanced(GEO.can,FAM.can,false,CANS,M.can);
-        later(()=>{if(FAM.carton.length)instanced(GEO.box,FAM.carton,false,BISC,M.carton);if(FAM.pack.length)instanced(GEO.box,FAM.pack,false,SWEET,M.pack);if(FAM.bag.length)instanced(GEO.box,FAM.bag,false,CHIPS,M.bag);for(const [k,g_,pl] of [['water',GEO.bottle,['#cfe3f2']],['det',GEO.bottle,['#2f6fb5']],['juice',GEO.box,['#f28c28']],['energy',GEO.can,['#1b1917']],['nuts',GEO.box,['#7a4a1f']],['pasta',GEO.box,['#2f6fb5']],['bisc',GEO.box,['#c8382e']],['gift',GEO.box,['#1b1917']]])if(FAM[k].length)instanced(g_,FAM[k],false,pl,M[k]);
+        later(()=>{if(FAM.carton.length)instanced(GEO.box,FAM.carton,false,BISC,M.carton);if(FAM.pack.length)instanced(GEO.box,FAM.pack,false,SWEET,M.pack);if(FAM.bag.length)instanced(GEO.box,FAM.bag,false,CHIPS,M.bag);for(const [k,g_,pl] of [['water',GEO.bottle,['#cfe3f2']],['det',GEO.bottle,['#2f6fb5']],['juice',GEO.box,['#f28c28']],['energy',GEO.can,['#1b1917']],['nuts',GEO.box,['#7a4a1f']],['pasta',GEO.box,['#2f6fb5']],['bisc',GEO.box,['#c8382e']],['gift',GEO.box,['#1b1917']],['beerc',GEO.box,['#c9a24a']],['watc',GEO.box,['#d8ecf6']],['winec',GEO.box,['#c9a87a']],['beer',GEO.bottle,['#5a3210']]])if(FAM[k].length)instanced(g_,FAM[k],false,pl,M[k]);
           later(()=>{const on=sysOn(state.t);for(let i=0;i<30*22;i++)stepP(1/30,on,true);pg.attributes.position.needsUpdate=true;pg.attributes.alpha.needsUpdate=true;pg.attributes.psize.needsUpdate=true;
             later(()=>{castPeople(A,phone);if(!heat&&S.W)makeHeat();});});});});
     }
@@ -2633,11 +2646,13 @@ const space=(function(){
       {const vf=camera.fov*Math.PI/180,hf=2*Math.atan(Math.tan(vf/2)*camera.aspect),half=S.W/2+.8,far=clamp(half/Math.tan(hf/2),Math.max(8,dist),34); // the whole front fits, sign included, on any screen
         K.push({cam:V3(0,2.1+far*.05,hd+far),tgt:V3(0,1.6,hd),dur:3,tw:2.4,street:1});}                 // on the street: the АВАНТИ front, a little way back
       K.push({cam:V3(dx,1.7,hd+2.5),tgt:V3(dx,1.45,hd-2.5),dur:1.6,tw:2.6});                            // at the entrance, a moment to see where we are
-      K.push({cam:V3(dx,1.72,hd-1.4),tgt:V3(dx*.4,1.45,hd-6),dur:1.2,tw:2.2});                         // through the door, inside
+      K.push({cam:V3(dx,1.72,hd-1.4),tgt:V3(dx*.4,1.45,hd-6),dur:.9,tw:1.6});                          // through the door: no stop, the camera turns straight on to the first object
       S.units.forEach((u,i)=>K.push(unitKey(i)));                                                        // the diffusers
       if(S.cashier&&nav&&nav.queue&&nav.queue[0]){const c=S.cashier,q=nav.queue[0],dx=c[0]-q[0],dz=c[1]-q[1],L=Math.hypot(dx,dz)||1,ux=dx/L,uz=dz/L; // at the till, over the cashier's shoulder: the customer's face, the items, the card
-        K.push({cam:V3(q[0]-ux*.95+uz*.7,1.72,q[1]-uz*.95-ux*.7),tgt:V3(c[0],1.3,c[1]),dur:5.5,tw:2.4,till:1});} /* from beside the customer: the cashier's smiling face, the counter, the items */
-      const p=presets('persp');K.push({view:{...p,theta:.35,phi:.62,r:p.r*1.5,tz:p.tz+S.hd*.18},dur:7,tw:3,drift:.1});    // the whole store from above (a real top view: coverage and labels switch on here)
+        const sy=S.ads&&S.ads.A?S.ads.A.position.y:2.2;let cp=null;for(const bk of [2.6,2.2,1.8,1.4])for(const sd of [.9,0,-.9]){const x_=q[0]-ux*bk+uz*sd,z_=q[1]-uz*bk-ux*sd,[ci,cj]=nav.toCell(x_,z_);if(!cp&&inRoom(x_,z_,.3)&&nav.free(nav.G25,ci,cj))cp=[x_,z_];}if(!cp)cp=[q[0]-ux*.95+uz*.7,q[1]-uz*.95-ux*.7];
+        K.push({cam:V3(cp[0],2.1,cp[1]),tgt:V3(c[0]-ux*.15,(1.05+sy)/2+.18,c[1]-uz*.15),dur:6,tw:2.4,till:1});} /* from a few steps back in the shop: the whole counter, the cashier, the customer and the video wall over the till */
+      const p=presets('persp');K.push({view:{...p,theta:.35,phi:.62,r:p.r*1.5,tz:p.tz+S.hd*.18},dur:8,tw:3,drift:.1});    // the whole store from above (a real top view: coverage and labels switch on here)
+      K.push({view:presets('plan'),dur:6,tw:2.6});                                                     // and straight down: the plan, every point in its place
       return K;}
     const _tc=new T.Vector3(),_tt=new T.Vector3();
     function viewFrom(cam,tgt){const dx=cam.x-tgt.x,dy=cam.y-tgt.y,dz=cam.z-tgt.z,r=Math.max(.01,Math.hypot(dx,dy,dz));return {theta:Math.atan2(dx,dz),phi:Math.acos(clamp(dy/r,-1,1)),r,tx:tgt.x,ty:tgt.y,tz:tgt.z};}
@@ -2655,8 +2670,8 @@ const space=(function(){
       if(tour.k<0||tour.t>=K[tour.k%K.length].dur){tour.k=(tour.k+1)%K.length;tour.t=0;const key=K[tour.k];
         tour.top=!!key.view;autoLayers(tour.top);
         if(tour.first||tour.k===0&&tour.cold){tour.first=false;tour.cold=false;Object.assign(view,viewFrom(key.cam,key.tgt));apply();}else flyTo(key,key.tw||2.2);
-        if(key.u!=null)pick(key.u);return;}
-      if(!(HELP.on&&tour.k===2&&tour.t>.4))tour.t+=dt;const key=K[tour.k];if(key.drift){view.theta+=dt*key.drift;apply();}} // the tour waits inside the door while the help is up, so the help and a diffuser note are never on screen together
+        if(key.u!=null){if(HELP.on){HELP.on=false;if(HELP.el)HELP.el.classList.remove('on');}pick(key.u);}return;}
+      tour.t+=dt;const key=K[tour.k];if(key.drift){view.theta+=dt*key.drift;apply();}} // the tour waits inside the door while the help is up, so the help and a diffuser note are never on screen together
     window.__tourK=()=>view.name==='tour'?tour.k:-1;
     window.__diffAudit=()=>S.units.map((u,i)=>{const k=unitKey(i),cam=k.cam.clone(),o=new T.Vector3(u.o[0],u.o[1],u.o[2]);
       const dir=o.clone().sub(cam),dist=dir.length();dir.normalize();
