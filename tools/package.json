@@ -1,0 +1,7 @@
+{
+  "name": "kayalux-offer-tools",
+  "private": true,
+  "type": "module",
+  "scripts": {"minify": "node minify.mjs"},
+  "devDependencies": {"csso": "^5.0.5", "terser": "^5.31.0"}
+}

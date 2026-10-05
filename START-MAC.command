@@ -1,5 +1,8 @@
 #!/bin/bash
-cd "$(dirname "$0")/site"
-URL=http://localhost:8080/index.php
+# KAYA LUX · оферта АВАНТИ: пуска сайта на първия свободен порт от 5340 нагоре.
+# tools/serve.py сам проверява в GitHub за нова версия (при старта и на всеки 3 минути) и я изтегля.
+cd "$(dirname "$0")"
+if command -v python3 >/dev/null; then exec python3 tools/serve.py "$@"; fi
+URL=http://localhost:5340/index.php
 ( sleep 1; open "$URL" 2>/dev/null || xdg-open "$URL" 2>/dev/null ) &
-if command -v php >/dev/null; then php -S localhost:8080; else python3 -m http.server 8080; fi
+exec php -S 0.0.0.0:5340 -t site
