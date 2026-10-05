@@ -1407,3 +1407,5 @@ footer.foot{overflow:hidden} /* the glint moving over the letters never widens t
 @media (min-width:901px) and (max-width:1000px){.obj td,.obj th button{padding:10px 8px!important}.obj tfoot td{white-space:normal}}
 @media (max-width:319px){.summary th,.summary td{padding-left:4px!important;padding-right:4px!important;font-size:12px!important;letter-spacing:.02em!important}}
 .storecap span:empty{display:none}
+@media (max-width:340px){.obj tfoot tr.tot3{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}.obj tfoot tr.tot3 td.cs,.obj tfoot tr.tot3 td.cf{font-size:1.25rem!important}.obj tfoot td#tLabel{white-space:normal!important}} /* the narrowest phones: the month totals fit the width */
+@media (max-width:319px){.nav .brand .logo{height:11px!important}.nav .doc .av-logo{height:13px!important}.nav .wrap{gap:5px!important}}
