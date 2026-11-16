@@ -199,8 +199,12 @@ function build(){
   label('колона',W-M+0.035,1.4,cz,'#1d2329');
   // стълба по задната стена: от x=0.60 до ръба на подиума
   const x0=0.60,x1=W-M,n=11,run=(x1-x0)/n,rise=top/n;
-  for(let i=0;i<n;i++){box(Math.max(run,0.18),0.04,0.70,x0+run*(i+0.5),rise*(i+1)-0.02,D-0.35,0x3d3027,1);}
-  line([x0,0,D-0.72],[x1,top,D-0.72],0x3d3027);
+  // стълбата е на ~2,5 см от задната стена; с профилите стига до 2,65 м от предната стена (ръба на подиума)
+  const sz1=D-0.025, sz0=Math.min(2.65,D-0.60), szc=(sz0+sz1)/2, stw=sz1-sz0;
+  for(let i=0;i<n;i++){box(Math.max(run,0.18),0.04,stw-0.05,x0+run*(i+0.5),rise*(i+1)-0.02,szc,0x3d3027,1);}
+  {const len=Math.hypot(x1-x0,top),ang=Math.atan2(top,x1-x0);
+   [sz0+0.0125,sz1-0.0125].forEach(z=>{const m=new THREE.Mesh(new THREE.BoxGeometry(len,0.12,0.025),mat(0x1d1d1d,1));
+     m.position.set((x0+x1)/2,top/2-0.04,z);m.rotation.z=ang;group.add(m);});}   // профили отстрани
   // стилажи под стълбата, стъпаловидно: висок в високия край, нисък по средата, първите стъпала свободни
   if(showShelf){const hAt=x=>top*(x-x0)/(x1-x0)-0.08, sdp=0.50, zc2=D-sdp/2, sJoin=W-0.03-0.60-0.02-1.20;
     // кутии на мястото на ниския стилаж (да не се удрят глави)
