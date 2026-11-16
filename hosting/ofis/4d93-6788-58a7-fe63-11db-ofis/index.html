@@ -81,7 +81,7 @@ td{padding:4px 0;border-bottom:1px solid var(--line)} td:last-child{text-align:r
 
     <h2>Фиксирани по скицата</h2>
     <p class="note">Вход 95 см на 55 см от левия ъгъл · стълба 11 стъпала, 70 см широка, по задната стена, започва на 60 см от лявата стена · стената срещу радиатора: 1,87 м (диван) + врата WC 60 см + 77 см до стената със стълбата · WC е зад тази стена, 1,45 × 1,45 м, и горе над него подиумът прави Г · диван 175 × 88 см и маса 90 × 50 см до тъмната стена под подиума · бюро 130 × 60 см горе, пред нишата срещу стълбата (над WC) · радиатор по лявата стена, прозорец горе над него · входната врата се отваря навътре към радиатора · един трегер горе, по ръба на подиума над стилажа, 1,85 м от подиума · тръби в задния ляв ъгъл · ниша горе в стената срещу стълбата, 73 × 25 см, висока 2,02 м · под на подиума 10 см.</p>
-    <p class="note"><b>Под стълбата:</b> два стилажа стъпаловидно, 55 см дълбоки, височината според стълбата над тях; първите стъпала остават свободни.</p>
+    <p class="note"><b>Под стълбата:</b> един стилаж 50 × 50 × 180, долепен до стилажа 120 × 50 × 180 (свържете ги един за друг), и кутии на мястото на ниския стилаж</p>
     <p class="note"><b>Стилажи П (оранжево):</b> 180 см на мястото на белия шкаф, 160 см по съседната стена (с контакта) и по ръба на подиума с гръб, от стената до десния ръб на стълбата, ~2,60–2,65 м (90 + 90 + 80 см). Всички в П-то са високи 180 см (под трегера остават 5 см). Останалите са 180 см, дълбочина 40 см, проход вътре ~80 см.</p>
   </aside>
 </div>
@@ -130,11 +130,15 @@ function arrowDim(a,b,txt,off){off=off||[0,0.30];const g=new THREE.BufferGeometr
     c.position.set(pt[0]-dv.x*0.06,pt[1]-dv.y*0.06,pt[2]-dv.z*0.06);c.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dv);group.add(c);});
   floorText(txt,(a[0]+b[0])/2+off[0],(a[1]+b[1])/2+0.003,(a[2]+b[2])/2+off[1]);}
 // малък надпис, отпечатан на пода (като маркировка)
-function floorText(txt,x,y,z){const c=document.createElement('canvas');c.width=512;c.height=256;const g=c.getContext('2d');
+function floorText(txt,x,y,z,sc,rz){sc=sc||1;rz=rz||0;const c=document.createElement('canvas');c.width=512;c.height=256;const g=c.getContext('2d');
   g.clearRect(0,0,512,256);const parts=txt.includes('|')?txt.split('|'):[txt.split(' ')[0],txt.split(' ').slice(1).join(' ')];const l1=parts[0].toUpperCase(),l2=parts[1];const fit=(t,px)=>{g.font='700 '+px+'px Inter, sans-serif';while(g.measureText(t).width>490&&px>30){px-=4;g.font='700 '+px+'px Inter, sans-serif';}};g.fillStyle='#ffffff';g.shadowColor='rgba(0,0,0,.6)';g.shadowBlur=6;g.textAlign='center';g.textBaseline='middle';fit(l1,78);g.fillText(l1,256,78);fit(l2,96);g.fillText(l2,256,180);
   const tx=new THREE.CanvasTexture(c);const m=new THREE.Mesh(new THREE.PlaneGeometry(0.58,0.29),new THREE.MeshBasicMaterial({map:tx,transparent:true,depthWrite:false}));
-  m.rotation.x=-Math.PI/2;m.rotation.z=Math.PI;const sg=new THREE.Group();sg.scale.z=-1;sg.position.set(x,y,z);sg.add(m);group.add(sg);}
-function shelfUnit(x0,x1,z0,z1,y0,h,n){const post=0.03,pc=0x141414,bc=0xa47a52;
+  m.rotation.x=-Math.PI/2;m.rotation.z=Math.PI+rz;m.scale.set(sc,sc,1);const sg=new THREE.Group();sg.scale.z=-1;sg.position.set(x,y,z);sg.add(m);group.add(sg);}
+// размер, изписан отгоре върху стелажа (като надписите на пода)
+function topTag(txt,x0,x1,z0,z1,y,flip){const w=x1-x0,d=z1-z0,alongZ=d>w,L=Math.max(w,d),S=Math.min(w,d);
+  const sc=Math.min(1.1,(L-0.04)/0.58,(S-0.02)/0.29);floorText(txt,(x0+x1)/2,y+0.005,(z0+z1)/2,sc,(alongZ?Math.PI/2:0)+(flip?Math.PI:0));}
+const cm=v=>Math.round(v*100);
+function shelfUnit(x0,x1,z0,z1,y0,h,n,tag){if(tag!==false)topTag((tag||'стелаж')+'|'+cm(x1-x0>z1-z0?x1-x0:z1-z0)+'×'+cm(Math.min(x1-x0,z1-z0))+'×'+cm(h),x0,x1,z0,z1,y0+h+0.015);const post=0.03,pc=0x141414,bc=0xa47a52;
   [[x0,z0],[x0,z1],[x1,z0],[x1,z1]].forEach(([px,pz])=>box(post,h,post,px+(px===x0?post/2:-post/2),y0+h/2,pz+(pz===z0?post/2:-post/2),pc,1));
   for(let k=0;k<n;k++){const yy=y0+0.08+k*(h-0.10)/(n-1);box(x1-x0,0.02,z1-z0,(x0+x1)/2,yy,(z0+z1)/2,bc,1);}}
 function quad(p,uv,tex){const g=new THREE.BufferGeometry();
@@ -198,12 +202,12 @@ function build(){
   for(let i=0;i<n;i++){box(Math.max(run,0.18),0.04,0.70,x0+run*(i+0.5),rise*(i+1)-0.02,D-0.35,0x3d3027,1);}
   line([x0,0,D-0.72],[x1,top,D-0.72],0x3d3027);
   // стилажи под стълбата, стъпаловидно: висок в високия край, нисък по средата, първите стъпала свободни
-  if(showShelf){const hAt=x=>top*(x-x0)/(x1-x0)-0.08, sdp=0.55, zc2=D-0.05-sdp/2;
+  if(showShelf){const hAt=x=>top*(x-x0)/(x1-x0)-0.08, sdp=0.50, zc2=D-sdp/2, sJoin=W-0.03-0.60-0.02-1.20;
     // кутии на мястото на ниския стилаж (да не се удрят глави)
     [[x1-1.12,0.38,0.32],[x1-0.80,0.38,0.32],[x1-0.96,0.32,0.26]].forEach(([bx,bw2,bh2],i)=>{const by=i<2?bh2/2:0.32+bh2/2;
       box(bw2,bh2,0.30,bx,by,D-0.22,i%2?0x8a6a4a:0x9b7a55,1);});
     label('кутии',x1-0.96,0.75,D-0.3,'#1d2329');
-    [[x1-0.55,x1-0.05]].forEach(([a,b])=>{const h=Math.min(1.80,Math.floor(hAt(a)*10)/10);
+    [[sJoin-0.50,sJoin]].forEach(([a,b])=>{const h=Math.min(1.80,Math.floor(hAt(a)*10)/10);
       if(h>0.4){shelfUnit(a,b,zc2-sdp/2,zc2+sdp/2,0,h,Math.max(2,Math.round(h/0.4)+1)); label((Math.round((b-a)*100))+'×'+Math.round(sdp*100)+'×'+Math.round(h*100),(a+b)/2,h+0.12,zc2-0.2,'#d26a1b');}});
     label('стилажи под стълбата',x1-0.6,0.25,D-0.9,'#d26a1b');
     // стилаж под подиума до задната стена (зад колоната): 150 широк, 50 дълбок, 200 висок
@@ -215,6 +219,7 @@ function build(){
        [[0.04,0.88],[0.92,1.76]].forEach(([a,b2])=>{box(0.27,b2-a,0.01,cx,(a+b2)/2,fz-0.004,0xb7babd,1);
          for(let k=0;k<4;k++) box(0.10,0.008,0.004,cx,b2-0.08-k*0.025,fz-0.010,0x55595d,1);
          box(0.025,0.06,0.02,c0+0.05,(a+b2)/2,fz-0.015,0x2b2b2b,1);});});
+     topTag('шкаф|60×45×180',gx0,gx1,D-gD,D,gH+0.002);
      label('двоен шкаф 60 × 45 × 180, 4 отделения',(gx0+gx1)/2,gH+0.12,D-0.3,'#1d2329');
      const sW=1.20,sD=0.50,sH=1.80,sx0=gx0-0.02-sW;
      shelfUnit(sx0,sx0+sW,D-sD,D,0,sH,5);
@@ -287,7 +292,8 @@ function build(){
     shelfUnit(W-d,W,0,0.90,y,h,5); shelfUnit(W-d,W,0.90,L,y,h,5);
     shelfUnit(W-M+d+0.02,W-d-0.02,0,d,y,h,5);
     const Le=Math.min(2.65,D-0.70), xe0=W-M+0.03;
-    shelfUnit(xe0,xe0+d,0,0.90,y,h,5); shelfUnit(xe0,xe0+d,0.90,1.80,y,h,5); if(Le>1.85) shelfUnit(xe0,xe0+d,1.80,Le,y,h,5);
+    [[0,0.90],[0.90,1.80],[1.80,Le]].forEach(([za,zb])=>{if(zb-za<0.05)return;shelfUnit(xe0,xe0+d,za,zb,y,h,5,false);
+      topTag('стелаж|'+cm(zb-za)+'×'+cm(d)+'×'+cm(h),W-M+0.31,xe0+d,za,zb,y+h+0.015);});   // надписът е встрани от трегера
     // тъмносив перфориран гръб само по ръба на подиума
     pegBox(0.015,h,Le,W-M+0.01,y+h/2,Le/2,Le);
     // страничен гръб на последния стилаж по ръба, откъм стълбата (да не пада нищо върху стълбата)
@@ -302,6 +308,7 @@ function build(){
     [r0,r0+sw].forEach(zA=>{
       for(let k=0;k<4;k++) box(sd,0.025,sw-0.02,sd/2,yA+k*(yTop-yA)/3,zA+sw/2,0xa47a52,1);
       box(sd,yTop-yA+0.03,0.03,sd/2,(yA+yTop)/2,zA+0.025,0x141414,1); box(sd,yTop-yA+0.03,0.03,sd/2,(yA+yTop)/2,zA+sw-0.025,0x141414,1);
+      topTag('стенен|'+cm(sw)+'×25 · 97–180',0,sd,zA,zA+sw,yTop+0.0125,true);
       label('стенен '+Math.round(sw*100)+' × 25',0.4,yTop+0.15,zA+sw/2,'#d26a1b');});
     label('рафтове от 0,97 до 1,80',0.4,0.85+0.2,r1+0.3,'#d26a1b');}
   // предверие пред входната врата: 1,65 × 1,12, високо 2,38; външна метална врата със стъкло 1,05
@@ -314,6 +321,7 @@ function build(){
    box(0.03,2.05,1.05,-0.02,1.025,z0+vw/2,0x34495e,0.8);
    if(showShelf){const sl=vl-0.2,cx=vl/2+0.05;
      box(sl,0.50,0.30,cx,0.25,z0+0.15,0xa47a52,1);
+     topTag('обувки|'+cm(sl)+'×30×50',cx-sl/2,cx+sl/2,z0,z0+0.30,0.505);
      box(sl,0.025,0.28,cx,1.70,z0+0.14,0xa47a52,1);
      box(sl,0.03,0.03,cx,1.62,z0+0.05,0x141414,1);
      for(let i=0;i<5;i++) box(0.02,0.08,0.06,cx-sl/2+0.15+i*(sl-0.3)/4,1.56,z0+0.06,0x141414,1);
