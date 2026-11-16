@@ -1,13 +1,16 @@
 # Ofis 3D server on port 5300. Keeps running; restarts itself after any error.
 param([string]$Root = (Join-Path (Split-Path -Parent $MyInvocation.MyCommand.Path) "3d"), [int]$Port = 5300)
 $root = (Resolve-Path $Root).Path
+$log = Join-Path (Split-Path -Parent $MyInvocation.MyCommand.Path) "server.log"
+function Log($m){ $t="$(Get-Date -f s) $m"; Write-Host $t; try { Add-Content -Path $log -Value $t } catch { } }
+Log "Start, folder: $root"
 $types = @{".html"="text/html; charset=utf-8";".js"="application/javascript";".svg"="image/svg+xml";".jpg"="image/jpeg";".png"="image/png";".css"="text/css"}
 while ($true) {
   $l = New-Object System.Net.HttpListener
   try {
     try { $l.Prefixes.Add("http://+:$Port/"); $l.Start() }
-    catch { $l = New-Object System.Net.HttpListener; $l.Prefixes.Add("http://localhost:$Port/"); $l.Start(); Write-Host "Only this PC (run as Administrator for phones)" }
-    Write-Host "Ofis 3D: http://localhost:$Port/"
+    catch { $l = New-Object System.Net.HttpListener; $l.Prefixes.Add("http://localhost:$Port/"); $l.Start(); Log "Only this PC (run as Administrator for phones)" }
+    Log "Listening: http://localhost:$Port/"
     while ($l.IsListening) {
       $c = $l.GetContext()
       try {
@@ -22,7 +25,7 @@ while ($true) {
         } else { $c.Response.StatusCode = 404 }
       } catch { } finally { try { $c.Response.Close() } catch { } }
     }
-  } catch { Write-Host "Restart: $($_.Exception.Message)" }
+  } catch { Log "Error, restarting: $($_.Exception.Message)" }
   try { $l.Close() } catch { }
   Start-Sleep -Seconds 3
 }

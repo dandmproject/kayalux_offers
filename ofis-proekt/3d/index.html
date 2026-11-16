@@ -123,15 +123,15 @@ const pegCanvas=(()=>{const c=document.createElement('canvas');c.width=c.height=
 function pegBox(w,h,d,px,py,pz,along){const t=new THREE.CanvasTexture(pegCanvas);t.wrapS=t.wrapT=THREE.RepeatWrapping;
   t.repeat.set(along/0.4,h/0.4);const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshLambertMaterial({map:t,side:THREE.DoubleSide}));
   m.position.set(px,py,pz);group.add(m);}
-function arrowDim(a,b,txt){const g=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(...a),new THREE.Vector3(...b)]);
+function arrowDim(a,b,txt,off){off=off||[0,0.30];const g=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(...a),new THREE.Vector3(...b)]);
   group.add(new THREE.Line(g,new THREE.LineBasicMaterial({color:0xd26a1b})));
   const dir=new THREE.Vector3(b[0]-a[0],b[1]-a[1],b[2]-a[2]).normalize();
   [[b,dir],[a,dir.clone().negate()]].forEach(([pt,dv])=>{const c=new THREE.Mesh(new THREE.ConeGeometry(0.04,0.12,12),new THREE.MeshBasicMaterial({color:0xd26a1b}));
     c.position.set(pt[0]-dv.x*0.06,pt[1]-dv.y*0.06,pt[2]-dv.z*0.06);c.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dv);group.add(c);});
-  floorText(txt,(a[0]+b[0])/2,(a[1]+b[1])/2+0.003,(a[2]+b[2])/2+0.30);}
+  floorText(txt,(a[0]+b[0])/2+off[0],(a[1]+b[1])/2+0.003,(a[2]+b[2])/2+off[1]);}
 // малък надпис, отпечатан на пода (като маркировка)
 function floorText(txt,x,y,z){const c=document.createElement('canvas');c.width=512;c.height=256;const g=c.getContext('2d');
-  g.clearRect(0,0,512,256);const parts=txt.split(' ');const l1=parts[0].toUpperCase(),l2=parts.slice(1).join(' ');g.fillStyle='#ffffff';g.shadowColor='rgba(0,0,0,.6)';g.shadowBlur=6;g.textAlign='center';g.textBaseline='middle';g.font='700 78px Inter, sans-serif';g.fillText(l1,256,78);g.font='700 96px Inter, sans-serif';g.fillText(l2,256,180);
+  g.clearRect(0,0,512,256);const parts=txt.includes('|')?txt.split('|'):[txt.split(' ')[0],txt.split(' ').slice(1).join(' ')];const l1=parts[0].toUpperCase(),l2=parts[1];const fit=(t,px)=>{g.font='700 '+px+'px Inter, sans-serif';while(g.measureText(t).width>490&&px>30){px-=4;g.font='700 '+px+'px Inter, sans-serif';}};g.fillStyle='#ffffff';g.shadowColor='rgba(0,0,0,.6)';g.shadowBlur=6;g.textAlign='center';g.textBaseline='middle';fit(l1,78);g.fillText(l1,256,78);fit(l2,96);g.fillText(l2,256,180);
   const tx=new THREE.CanvasTexture(c);const m=new THREE.Mesh(new THREE.PlaneGeometry(0.58,0.29),new THREE.MeshBasicMaterial({map:tx,transparent:true,depthWrite:false}));
   m.rotation.x=-Math.PI/2;m.rotation.z=Math.PI;const sg=new THREE.Group();sg.scale.z=-1;sg.position.set(x,y,z);sg.add(m);group.add(sg);}
 function shelfUnit(x0,x1,z0,z1,y0,h,n){const post=0.03,pc=0x141414,bc=0xa47a52;
@@ -259,9 +259,24 @@ function build(){
      box(0.50,0.08,0.50,cx,y0+0.47,cz2,0x24272b,1);
      box(0.06,0.62,0.46,cx-0.24,y0+0.84,cz2,0x24272b,1);
      box(0.30,0.04,0.05,cx-0.02,y0+0.66,cz2-0.24,0x1d1f22,1); box(0.30,0.04,0.05,cx-0.02,y0+0.66,cz2+0.24,0x1d1f22,1);}
-    label('бюро 130 × 60 (горе)',xe-bd/2,y0+1.05,zc,'#1d2329');}
-  {const pp=(D-3.09)/2,r0=pp+0.05,r1=D-pp-1.44; box(0.10,0.6,r1-r0,0.06,0.4,(r0+r1)/2,0xc0392b,1);
-   label('радиатор ~'+f(r1-r0),0.4,0.85,(r0+r1)/2,'#c0392b');
+    label('бюро 130 × 60 (горе)',xe-bd/2,y0+1.05,zc,'#1d2329');
+    // разстояния на пода при бюрото
+    {const xf=xe-bd, zr=D-EXb+0.16, xw=W;
+     arrowDim([xf,y0+0.02,zr],[xw,y0+0.02,zr],'от бюрото|'+Math.round((xf-xw)*100)+' см',[0,0.17]);
+     const xs2=W-M+0.03+0.50;
+     arrowDim([xw,y0+0.02,zr],[xs2,y0+0.02,zr],'до стелажа|'+Math.round((xw-xs2)*100)+' см',[0,0.17]);
+     label('от бюрото до стелажа '+Math.round((xf-xs2)*100)+' см',(xf+xs2)/2,y0+0.35,zr,'#d26a1b');}}
+  {const pp=(D-3.09)/2,r0=pp+0.05,r1=D-pp-1.44,rb=0.12,rh=0.60,rx=0.115,rc=0xf4f4f1;
+   // бял чугунен радиатор на ребра (като на снимката): 12 см над пода, 60 см висок
+   const ns=Math.round((r1-r0)/0.06);
+   for(let i=0;i<ns;i++){const zz=r0+0.03+i*(r1-r0-0.06)/(ns-1);
+     box(0.12,rh-0.06,0.042,rx,rb+rh/2,zz,rc,1);                       // ребро
+     box(0.13,0.05,0.05,rx,rb+rh-0.025,zz,rc,1); box(0.13,0.05,0.05,rx,rb+0.025,zz,rc,1);}
+   box(0.05,0.035,r1-r0,rx,rb+rh-0.03,(r0+r1)/2,0xe6e6e2,1); box(0.05,0.035,r1-r0,rx,rb+0.03,(r0+r1)/2,0xe6e6e2,1);
+   // подвързване към тръбата откъм входа + вентил
+   box(0.04,0.04,r0-0.20+0.02,0.09,rb+rh-0.08,(0.20+r0)/2,0x9a9a96,1); box(0.04,0.04,r0-0.20+0.02,0.09,rb+0.05,(0.20+r0)/2,0x9a9a96,1);
+   box(0.05,0.05,0.05,0.09,rb+0.05,r0-0.03,0xc9a227,1);
+   label('радиатор ~'+f(r1-r0),0.4,0.85,(r0+r1)/2,'#1d2329');
    label('1,44 м без радиатор',0.4,0.3,(r1+D-pp)/2,'#1d2329');}
   box(0.08,H,0.08,0.06,H/2,D-0.30,0x2b2b2b,1);                         // тръба парно (към стълбата)
   box(0.08,H,0.08,0.06,H/2,0.20,0x2b2b2b,1);                           // тръба парно (към входа)
@@ -278,19 +293,17 @@ function build(){
     // страничен гръб на последния стилаж по ръба, откъм стълбата (да не пада нищо върху стълбата)
     pegBox(d,h,0.015,xe0+d/2,y+h/2,Le+0.008,d);
     {const xa=xe0+d+0.01,xb=W-d-0.01,zz=Math.min(1.20,L-0.2);arrowDim([xa,y+0.02,zz],[xb,y+0.02,zz],'пътека '+Math.round((xb-xa)*100)+' см');}
+    // веднага след стълбата: от задната стена до края на стелажа по ръба
+    {const xs=W-M+0.30;arrowDim([xs,y+0.02,D-0.02],[xs,y+0.02,Le+0.02],'стена → стелаж|'+Math.round((D-Le)*100)+' см',[0.42,0]);}
     label('стилажи П',W-M/2,y+h+0.15,L/2,'#d26a1b');}
-  // два стенни стилажа над радиатора (между тръбите), 120 см, 25 см дълбоки, от 1,10 до 2,30 м
-  // стената с радиатора: най-високият рафт на 1,80 м
-  //  - над радиатора: стенен, 120 см, първи рафт 25 см над радиатора (0,95 м)
-  //  - вдясно, където няма радиатор: от пода, 80 см, висок 1,80; ъгълът до стълбата остава свободен
-  if(showShelf){const sd=0.25,pg=(D-3.09)/2,rTop=0.70,yA=rTop+0.25,yTop=1.80,zA=pg+0.08,swA=1.20;
-    for(let k=0;k<4;k++) box(sd,0.025,swA,sd/2,yA+k*(yTop-yA)/3,zA+swA/2,0xa47a52,1);
-    box(sd,yTop-yA,0.03,sd/2,(yA+yTop)/2,zA+0.015,0x141414,1); box(sd,yTop-yA,0.03,sd/2,(yA+yTop)/2,zA+swA-0.015,0x141414,1);
-    label('стенен 120: от 0,95 до 1,80',0.4,yTop+0.15,zA+swA/2,'#d26a1b');
-    const rEnd=D-pg-1.44, swB=0.80, zB=rEnd+0.05;
-    for(let k=0;k<5;k++) box(sd,0.025,swB,sd/2,0.08+k*(yTop-0.08)/4,zB+swB/2,0xa47a52,1);
-    box(sd,yTop,0.03,sd/2,yTop/2,zB+0.015,0x141414,1); box(sd,yTop,0.03,sd/2,yTop/2,zB+swB-0.015,0x141414,1);
-    label('от пода 80: до 1,80',0.4,yTop+0.15,zB+swB/2,'#d26a1b');}
+  // стената с радиатора: два стенни стилажа над радиатора, 25 см дълбоки
+  //  първи рафт 25 см над радиатора (0,97 м), най-горният на 1,80 м; без нищо на пода
+  if(showShelf){const sd=0.25,pg=(D-3.09)/2,rTop=0.72,yA=rTop+0.25,yTop=1.80,r0=pg+0.05,r1=D-pg-1.44,sw=(r1-r0)/2;
+    [r0,r0+sw].forEach(zA=>{
+      for(let k=0;k<4;k++) box(sd,0.025,sw-0.02,sd/2,yA+k*(yTop-yA)/3,zA+sw/2,0xa47a52,1);
+      box(sd,yTop-yA+0.03,0.03,sd/2,(yA+yTop)/2,zA+0.025,0x141414,1); box(sd,yTop-yA+0.03,0.03,sd/2,(yA+yTop)/2,zA+sw-0.025,0x141414,1);
+      label('стенен '+Math.round(sw*100)+' × 25',0.4,yTop+0.15,zA+sw/2,'#d26a1b');});
+    label('рафтове от 0,97 до 1,80',0.4,0.85+0.2,r1+0.3,'#d26a1b');}
   // предверие пред входната врата: 1,65 × 1,12, високо 2,38; външна метална врата със стъкло 1,05
   {const vl=1.65,vw=1.12,vh=2.38,z0=-wall-vw;
    box(vl,0.02,vw,vl/2,-0.01,z0+vw/2,0xbfb6a8,1);
