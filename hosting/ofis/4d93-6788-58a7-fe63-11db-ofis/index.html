@@ -211,7 +211,7 @@ function build(){
   // стълба по задната стена: от x=0.60 до ръба на подиума
   const x0=0.60,x1=W-M,n=11,run=(x1-x0)/n,rise=top/n;
   // стълбата е на ~2,5 см от задната стена; с профилите стига до 2,65 м от предната стена (ръба на подиума)
-  const sz1=D-0.025, sz0=Math.min(2.65,D-0.60), szc=(sz0+sz1)/2, stw=sz1-sz0;
+  const sz1=D-0.025, sz0=sz1-0.70, szc=(sz0+sz1)/2, stw=sz1-sz0;   // стълба 70 см с профилите, на 2,5 см от стената
   for(let i=0;i<n;i++){box(Math.max(run,0.18),0.04,stw-0.05,x0+run*(i+0.5),rise*(i+1)-0.02,szc,0x3d3027,1);}
   {const len=Math.hypot(x1-x0,top),ang=Math.atan2(top,x1-x0);
    [sz0+0.0125,sz1-0.0125].forEach(z=>{const m=new THREE.Mesh(new THREE.BoxGeometry(len,0.12,0.025),mat(0x1d1d1d,1));
@@ -338,7 +338,7 @@ function build(){
     shelfUnit(W-d,W,0,0.90,y,h,5); shelfUnit(W-d,W,0.90,L,y,h,5);
     shelfUnit(W-M+d+0.02,W-d-0.02,0,d,y,h,5);
     // по ръба на подиума: от предната стена до стълбата е 2,65 м (мерено)
-    const Le=Math.min(2.65,D-0.60), xe0=W-M+0.02;
+    const Le=D-0.025-0.70, xe0=W-M+0.02;   // стелажите по ръба стигат до десния ъгъл на стълбата
     [[0,0.90],[0.90,1.80],[1.80,Le]].forEach(([za,zb])=>{if(zb-za<0.05)return;shelfUnit(xe0,xe0+d,za,zb,y,h,5,false);
       topTag('стелаж|'+cm(zb-za)+'×'+cm(d)+'×'+cm(h),W-M+0.31,xe0+d,za,zb,y+h+0.015);});   // надписът е встрани от трегера
     // тъмносив перфориран гръб само по ръба на подиума
