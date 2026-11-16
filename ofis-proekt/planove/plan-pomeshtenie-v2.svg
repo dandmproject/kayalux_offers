@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 720" font-family="Arial, sans-serif" font-size="14">
+  <rect width="1000" height="720" fill="#fff"/>
+  <text x="500" y="30" text-anchor="middle" font-size="20" font-weight="bold">Помещение — поглед отгоре (версия 2, по снимката от входа)</text>
+  <text x="500" y="52" text-anchor="middle" fill="#b00">Червеното с „?“ е неизвестно или предположение — моля, потвърдете</text>
+
+  <!-- мащаб: 1 м = 130 px. Стая: предна стена 0,55+0,95+2,88 = 4,38 м; дълбочина ? (прието 3,30 м) -->
+  <g transform="translate(150,110)">
+    <!-- ниша 1,45 x 1,45 горе вдясно (на ниво мецанин?) -->
+    <rect x="381" y="-188" width="188" height="188" fill="#f1e9dc" stroke="#000" stroke-width="3" stroke-dasharray="8 5"/>
+    <text x="475" y="-100" text-anchor="middle" fill="#b00">ниша 1,45×1,45 ?</text>
+
+    <!-- стени -->
+    <rect x="0" y="0" width="569" height="429" fill="#fafafa" stroke="#000" stroke-width="4"/>
+
+    <!-- мецанин (ет. 2) вдясно отзад: 2,65 × 1,87 -->
+    <rect x="225" y="2" width="342" height="243" fill="#f1e9dc" stroke="#e67e22" stroke-width="3" stroke-dasharray="10 6"/>
+    <text x="396" y="40" text-anchor="middle" font-weight="bold">МЕЦАНИН (ет. 2) отгоре</text>
+    <text x="396" y="60" text-anchor="middle" font-size="12">2,65 м × 1,87 м ?</text>
+    <text x="396" y="78" text-anchor="middle" font-size="12">под него височина 2,54 м</text>
+
+    <!-- WC под мецанина -->
+    <rect x="460" y="2" width="107" height="239" fill="#dbe9f7" stroke="#2a5d8f" stroke-width="2"/>
+    <text x="513" y="120" text-anchor="middle" fill="#2a5d8f" font-weight="bold">WC</text>
+    <text x="513" y="138" text-anchor="middle" font-size="12" fill="#2a5d8f">77×184 ?</text>
+    <path d="M460 241 A60 60 0 0 1 400 181" fill="none" stroke="#2a5d8f" stroke-dasharray="4 3"/>
+    <text x="395" y="270" font-size="12" fill="#2a5d8f">врата WC 60</text>
+
+    <!-- колона -->
+    <circle cx="232" cy="242" r="7" fill="#333"/>
+    <text x="205" y="268" font-size="11">колона</text>
+
+    <!-- стълба по задната стена, качва се отляво надясно -->
+    <rect x="78" y="2" width="150" height="91" fill="#d9c7a8" stroke="#6b4f2a"/>
+    <g stroke="#6b4f2a">
+      <line x1="92" y1="2" x2="92" y2="93"/><line x1="105" y1="2" x2="105" y2="93"/>
+      <line x1="119" y1="2" x2="119" y2="93"/><line x1="133" y1="2" x2="133" y2="93"/>
+      <line x1="146" y1="2" x2="146" y2="93"/><line x1="160" y1="2" x2="160" y2="93"/>
+      <line x1="173" y1="2" x2="173" y2="93"/><line x1="187" y1="2" x2="187" y2="93"/>
+      <line x1="201" y1="2" x2="201" y2="93"/><line x1="214" y1="2" x2="214" y2="93"/>
+    </g>
+    <path d="M85 50 L222 50" stroke="#6b4f2a" stroke-width="2" marker-end="url(#a)"/>
+    <text x="152" y="112" text-anchor="middle" font-size="12">стълба: 11 стъп., широка 70 см</text>
+    <text x="152" y="127" text-anchor="middle" font-size="12" fill="#b00">дължина по стената ?</text>
+    <text x="38" y="30" text-anchor="middle" font-size="12">60 см</text>
+    <line x1="2" y1="40" x2="78" y2="40" stroke="#999"/>
+
+    <!-- тръби и радиатор по лявата стена -->
+    <circle cx="8" cy="8" r="5" fill="#1f6fb2"/><circle cx="8" cy="420" r="5" fill="#1f6fb2"/>
+    <rect x="2" y="250" width="10" height="160" fill="#c0392b"/>
+    <text x="20" y="330" font-size="12" fill="#c0392b">радиатор</text>
+    <text x="20" y="20" font-size="11" fill="#1f6fb2">тръби</text>
+
+    <!-- входна врата: 55 см от левия ъгъл, 95 см -->
+    <line x1="72" y1="429" x2="195" y2="429" stroke="#fff" stroke-width="7"/>
+    <path d="M195 429 A123 123 0 0 0 72 306" fill="none" stroke="#000" stroke-dasharray="5 4"/>
+    <text x="134" y="455" text-anchor="middle">вход 95 см</text>
+    <text x="36" y="455" text-anchor="middle" font-size="12">55 см</text>
+    <text x="382" y="455" text-anchor="middle">2,88 м</text>
+    <text x="285" y="485" text-anchor="middle" font-weight="bold">Предна стена общо ≈ 4,38 м (0,55 + 0,95 + 2,88)</text>
+    <text x="-20" y="215" text-anchor="end" fill="#b00">дълбочина ?</text>
+
+    <!-- снимка от входа -->
+    <path d="M134 400 L134 300" stroke="#2e7d32" stroke-width="2" marker-end="url(#g)"/>
+    <text x="140" y="360" font-size="11" fill="#2e7d32">гледна точка на снимката</text>
+  </g>
+  <defs>
+    <marker id="a" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10z" fill="#6b4f2a"/></marker>
+    <marker id="g" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10z" fill="#2e7d32"/></marker>
+  </defs>
+  <text x="500" y="700" text-anchor="middle" font-size="12" fill="#666">Не е в точен мащаб, докато не се потвърдят червените размери.</text>
+</svg>
