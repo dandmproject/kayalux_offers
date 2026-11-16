@@ -9,6 +9,8 @@
 | `planove/` | Първите чертежи отгоре (v1–v3) |
 | `START-5300.bat` | Windows: пуска 3D модела на http://localhost:5300/ |
 | `START-5300.command` | Mac: същото |
+| `INSTALIRAI-POSTOYANNO-5300.bat` | Windows: сървър на порт 5300, който работи винаги (и след рестарт) |
+| `SPRI-SERVARA-5300.bat` | Windows: спира и премахва постоянния сървър |
 | `build-public.js` | Прави публичното копие на 3D модела без снимки на офиса |
 
 ## Как да го отворите
