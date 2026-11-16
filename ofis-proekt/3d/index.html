@@ -138,6 +138,10 @@ function floorText(txt,x,y,z,sc,rz){sc=sc||1;rz=rz||0;const c=document.createEle
 function doorHandle(x,y,z,n,dir,t){t=t||0.03;const c=0xb9bcc0,o=t/2+0.012;
   [-1,1].forEach(sd=>{if(n==='z'){box(0.05,0.12,0.012,x,y,z+sd*(t/2+0.006),c,1);box(0.14,0.022,0.024,x+dir*0.06,y+0.02,z+sd*(o+0.02),c,1);box(0.02,0.02,0.03,x,y+0.02,z+sd*(o+0.005),c,1);}
     else{box(0.012,0.12,0.05,x+sd*(t/2+0.006),y,z,c,1);box(0.024,0.022,0.14,x+sd*(o+0.02),y+0.02,z+dir*0.06,c,1);box(0.03,0.02,0.02,x+sd*(o+0.005),y+0.02,z,c,1);}});}
+// дъга на отваряне на врата, на пода: панта (cx,cz), радиус r, от ъгъл a0 до a1
+function swingArc(cx,cz,r,a0,a1,y){y=y||0.012;const pts=[];for(let i=0;i<=24;i++){const a=a0+(a1-a0)*i/24;pts.push(new THREE.Vector3(cx+r*Math.cos(a),y,cz+r*Math.sin(a)));}
+  group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:0xd26a1b})));
+  group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(cx,y,cz),pts[24]]),new THREE.LineBasicMaterial({color:0xd26a1b})));}
 // размер, изписан отгоре върху стелажа (като надписите на пода)
 function topTag(txt,x0,x1,z0,z1,y,flip){const w=x1-x0,d=z1-z0,alongZ=d>w,L=Math.max(w,d),S=Math.min(w,d);
   const sc=Math.min(1.1,(L-0.04)/0.58,(S-0.02)/0.29);floorText(txt,(x0+x1)/2,y+0.005,(z0+z1)/2,sc,(alongZ?Math.PI/2:0)+(flip?Math.PI:0));}
@@ -196,7 +200,9 @@ function build(){
   box(W-1.50,H,wall,1.50+(W-1.50)/2,H/2,-wall/2,0x9aa1a8,wa*0.6);
   box(0.95,H-2.05,wall,1.025,2.05+(H-2.05)/2,-wall/2,0x9aa1a8,wa*0.6);
   box(0.95,2.05,0.03,1.025,1.025,-0.02,0xe9e4da,0.5);                  // врата
-  doorHandle(0.64,1.02,-0.02,'z',1);                                      // дръжка
+  // вътрешната врата се отваря навътре; крилото отива наляво към радиатора (пантата е откъм радиатора)
+  doorHandle(1.41,1.02,-0.02,'z',-1);                                     // дръжка (откъм стълбата)
+  swingArc(0.55,0.0,0.95,0,Math.PI/2);
   // подиум: ивица по дясната стена, цялата дълбочина
   box(M,T,D,W-M/2,Hu+T/2,D/2,0x5b4636,1);
   // колоната (черната тръба) е на ръба на подиума, на линия с подлакътника на дивана към WC
@@ -360,7 +366,13 @@ function build(){
    box(wall,vh,vw,-wall/2,vh/2,z0+vw/2,0x9aa1a8,wa*0.5);
    box(wall,vh,vw,vl+wall/2,vh/2,z0+vw/2,0x9aa1a8,wa);
    box(0.03,2.05,1.05,-0.02,1.025,z0+vw/2,0x34495e,0.8);
-   doorHandle(-0.02,1.05,z0+vw/2+0.44,'x',-1);                            // дръжка външна врата
+   // външната врата се отваря навън; пантата е откъм стаята, дръжката от другата страна
+   doorHandle(-0.02,1.05,z0+vw/2-0.44,'x',1);                             // дръжка външна врата
+   swingArc(-0.03,-wall-0.035,1.05,Math.PI,1.5*Math.PI);
+   // размери на предверието на пода
+   arrowDim([0.04,0.012,-wall-0.12],[vl-0.04,0.012,-wall-0.12],'предверие|дълго 1,65 м',[-0.25,-0.27],true);
+   arrowDim([vl-0.22,0.012,z0+0.33],[vl-0.22,0.012,-wall-0.02],'широко|1,12 м',[-0.30,-0.05],-Math.PI/2);
+   floorText('външна врата|1,05 м',-0.55,0.012,z0+vw/2,0.75,-Math.PI/2);
    if(showShelf){const sl=vl-0.2,cx=vl/2+0.05;
      box(sl,0.50,0.30,cx,0.25,z0+0.15,0xa47a52,1);
      topTag('обувки|'+cm(sl)+'×30×50',cx-sl/2,cx+sl/2,z0,z0+0.30,0.505);
