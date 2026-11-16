@@ -5,11 +5,11 @@ const mural=`(()=>{const c=document.createElement('canvas');c.width=512;c.height
   x.strokeStyle='rgba(90,110,120,.25)';for(let i=0;i<512;i+=32){x.beginPath();x.moveTo(i,0);x.lineTo(i,256);x.stroke();}
   for(let j=0;j<256;j+=32){x.beginPath();x.moveTo(0,j);x.lineTo(512,j);x.stroke();}
   x.fillStyle='rgba(140,160,120,.55)';[[90,80,70,45],[250,70,90,55],[400,110,60,70],[160,170,50,35]].forEach(([a,b,r1,r2])=>{x.beginPath();x.ellipse(a,b,r1,r2,0.3,0,7);x.fill();});
-  return new THREE.CanvasTexture(c);})()`;
+  const t=new THREE.CanvasTexture(c);const im=new Image();im.onload=()=>{c.width=im.width;c.height=im.height;x.drawImage(im,0,0);t.needsUpdate=true;};im.src='tex-mural.jpg';return t;})()`;
 const floor=`(()=>{const c=document.createElement('canvas');c.width=256;c.height=256;const x=c.getContext('2d');
   for(let i=0;i<4;i++){x.fillStyle=['#b08a62','#a7805a','#b89469','#a27c55'][i];x.fillRect(i*64,0,64,256);
   x.fillStyle='rgba(60,40,20,.5)';x.fillRect(i*64,0,2,256);x.fillRect(i*64,(i*97)%256,64,2);}
-  const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;return t;})()`;
+  const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;const im=new Image();im.onload=()=>{c.width=im.width;c.height=im.height;x.drawImage(im,0,0);t.needsUpdate=true;};im.src='tex-floor.jpg';return t;})()`;
 h=h.replace(/const texMural=TL\.load\('data:image[^']*',\(\)=>\{\}\);/,'const texMural='+mural+';')
  .replace(/const texFloor=TL\.load\('data:image[^']*',\(\)=>\{\}\);/,'const texFloor='+floor+';')
  .replace(/<link rel="preconnect"[^>]*>\n?/,'').replace(/<link rel="stylesheet" href="https:\/\/fonts[^>]*>\n?/,'')

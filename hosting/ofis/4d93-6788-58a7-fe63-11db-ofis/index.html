@@ -111,11 +111,11 @@ const texMural=(()=>{const c=document.createElement('canvas');c.width=512;c.heig
   x.strokeStyle='rgba(90,110,120,.25)';for(let i=0;i<512;i+=32){x.beginPath();x.moveTo(i,0);x.lineTo(i,256);x.stroke();}
   for(let j=0;j<256;j+=32){x.beginPath();x.moveTo(0,j);x.lineTo(512,j);x.stroke();}
   x.fillStyle='rgba(140,160,120,.55)';[[90,80,70,45],[250,70,90,55],[400,110,60,70],[160,170,50,35]].forEach(([a,b,r1,r2])=>{x.beginPath();x.ellipse(a,b,r1,r2,0.3,0,7);x.fill();});
-  return new THREE.CanvasTexture(c);})();
+  const t=new THREE.CanvasTexture(c);const im=new Image();im.onload=()=>{c.width=im.width;c.height=im.height;x.drawImage(im,0,0);t.needsUpdate=true;};im.src='tex-mural.jpg';return t;})();
 const texFloor=(()=>{const c=document.createElement('canvas');c.width=256;c.height=256;const x=c.getContext('2d');
   for(let i=0;i<4;i++){x.fillStyle=['#b08a62','#a7805a','#b89469','#a27c55'][i];x.fillRect(i*64,0,64,256);
   x.fillStyle='rgba(60,40,20,.5)';x.fillRect(i*64,0,2,256);x.fillRect(i*64,(i*97)%256,64,2);}
-  const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;return t;})(); texFloor.wrapS=texFloor.wrapT=THREE.RepeatWrapping;
+  const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;const im=new Image();im.onload=()=>{c.width=im.width;c.height=im.height;x.drawImage(im,0,0);t.needsUpdate=true;};im.src='tex-floor.jpg';return t;})(); texFloor.wrapS=texFloor.wrapT=THREE.RepeatWrapping;
 // сиво перфорирано табло (за куки и инструменти)
 const pegCanvas=(()=>{const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d');
   x.fillStyle='#4a4f55';x.fillRect(0,0,128,128);x.fillStyle='#1c1f22';
@@ -128,7 +128,7 @@ function arrowDim(a,b,txt,off,flip){off=off||[0,0.30];const g=new THREE.BufferGe
   const dir=new THREE.Vector3(b[0]-a[0],b[1]-a[1],b[2]-a[2]).normalize();
   [[b,dir],[a,dir.clone().negate()]].forEach(([pt,dv])=>{const c=new THREE.Mesh(new THREE.ConeGeometry(0.04,0.12,12),new THREE.MeshBasicMaterial({color:0xd26a1b}));
     c.position.set(pt[0]-dv.x*0.06,pt[1]-dv.y*0.06,pt[2]-dv.z*0.06);c.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dv);group.add(c);});
-  floorText(txt,(a[0]+b[0])/2+off[0],(a[1]+b[1])/2+0.003,(a[2]+b[2])/2+off[1],1,flip?Math.PI:0);}
+  floorText(txt,(a[0]+b[0])/2+off[0],(a[1]+b[1])/2+0.003,(a[2]+b[2])/2+off[1],1,typeof flip==='number'?flip:(flip?Math.PI:0));}
 // малък надпис, отпечатан на пода (като маркировка)
 function floorText(txt,x,y,z,sc,rz){sc=sc||1;rz=rz||0;const c=document.createElement('canvas');c.width=512;c.height=256;const g=c.getContext('2d');
   g.clearRect(0,0,512,256);const parts=txt.includes('|')?txt.split('|'):[txt.split(' ')[0],txt.split(' ').slice(1).join(' ')];const l1=parts[0].toUpperCase(),l2=parts[1];const fit=(t,px)=>{g.font='700 '+px+'px Inter, sans-serif';while(g.measureText(t).width>490&&px>30){px-=4;g.font='700 '+px+'px Inter, sans-serif';}};g.fillStyle='#ffffff';g.shadowColor='rgba(0,0,0,.6)';g.shadowBlur=6;g.textAlign='center';g.textBaseline='middle';g.lineJoin='round';g.strokeStyle='rgba(20,22,26,.85)';g.lineWidth=12;fit(l1,78);g.strokeText(l1,256,78);g.fillText(l1,256,78);fit(l2,96);g.strokeText(l2,256,180);g.fillText(l2,256,180);
@@ -253,7 +253,9 @@ function build(){
     box(0.88,0.42,L,W-0.44,0.21,zc,0x6b7a86,1); box(0.18,0.85,L,W-0.09,0.425,zc,0x5c6a75,1);
     box(0.70,0.62,0.16,W-0.35,0.31,zc-L/2+0.08,0x5c6a75,1); box(0.70,0.62,0.16,W-0.35,0.31,zc+L/2-0.08,0x5c6a75,1);
     box(0.50,0.45,Math.min(0.90,L),W-0.88-0.30-0.25,0.225,zc,0xa47a52,1);
-    label('диван '+f(L).replace(' м','')+' + маса',W-0.9,1.15,zc,'#1d2329');}
+    label('диван '+f(L).replace(' м','')+' + маса',W-0.9,1.15,zc,'#1d2329');
+    // размер на дивана, на пода пред него
+    arrowDim([W-0.91,0.012,zc-L/2+0.02],[W-0.91,0.012,zc+L/2-0.02],'диван|'+cm(L)+'×88 см',[-1.05,0],Math.PI/2);}
   // бюро 130 × 60 см до предната стена, вдясно от входната врата (извън дъгата й)
   // бюро 130 × 60 горе, в частта над WC, до стената с нишата (срещу стълбата)
   if(showSofa){const EXb=1.43,EXdb=1.45,xe=W+0.08+EXdb,bw=1.30,bd=0.60,y0=top,zc=D-EXb/2;
