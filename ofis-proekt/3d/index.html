@@ -251,8 +251,17 @@ function build(){
   const sw=1.87, sx=W-0.45;
   // диван Лиан (Aiko): 185 × 93 × 105 см, релакс; на стената 1,87 остават по 1 см от двете страни
   if(showSofa&&sw>0.5){const L=Math.min(1.85,sw-0.02), SD=0.93, zc=sw/2, ex=0.55;
-    box(SD,0.42,L,W-SD/2,0.21,zc,0x6b7a86,1); box(0.22,1.05,L,W-0.11,0.525,zc,0x5c6a75,1);
-    box(0.75,0.62,0.17,W-0.375,0.31,zc-L/2+0.085,0x5c6a75,1); box(0.75,0.62,0.17,W-0.375,0.31,zc+L/2-0.085,0x5c6a75,1);
+    // сив триместен релакс: основа, 3 седалки, 3 облегалки, подплатени подлакътници
+    {const g1=0x7d8186,g2=0x8e9297,g3=0x6c7075,aw=0.17,iw=L-2*aw,cw=iw/3;
+     box(SD-0.02,0.30,L,W-SD/2,0.17,zc,g3,1);                                   // основа
+     box(0.18,0.62,L,W-0.09,0.67,zc,g3,1);                                      // рамка на облегалката (до 1,05 с възглавниците)
+     for(let i=0;i<3;i++){const z=zc-iw/2+cw*(i+0.5);
+       box(SD-0.30,0.15,cw-0.015,W-0.18-(SD-0.30)/2-0.01,0.395,z,g2,1);       // седалка
+       const bk=new THREE.Mesh(new THREE.BoxGeometry(0.20,0.58,cw-0.02),mat(g1,1));// облегалка, леко наклонена
+       bk.position.set(W-0.27,0.76,z);bk.rotation.z=0.12;group.add(bk);
+       box(0.04,0.30,0.01,W-SD+0.02,0.17,z+cw/2,0x55595e,1);}                  // шев на подложката за краката
+     [zc-L/2+aw/2,zc+L/2-aw/2].forEach(z=>{box(SD-0.04,0.50,aw,W-SD/2+0.01,0.40,z,g1,1);
+       const r=new THREE.Mesh(new THREE.CylinderGeometry(aw/2,aw/2,SD-0.04,16),mat(g2,1));r.rotation.z=Math.PI/2;r.position.set(W-SD/2+0.01,0.65,z);group.add(r);});}
     // зона при разпъване (подложка за краката ~55 см напред)
     {const m=new THREE.Mesh(new THREE.BoxGeometry(ex,0.006,L-0.36),new THREE.MeshBasicMaterial({color:0xd26a1b,transparent:true,opacity:0.28,depthWrite:false}));
      m.position.set(W-SD-ex/2,0.008,zc);group.add(m);}
@@ -260,7 +269,7 @@ function build(){
     // масичката е по-навътре, за да не пречи на разпъването
     box(0.50,0.45,0.90,W-SD-ex-0.05-0.25,0.225,zc,0xa47a52,1);
     label('диван '+f(L).replace(' м','')+' + маса',W-0.9,1.25,zc,'#1d2329');
-    floorText('диван лиан|'+cm(L)+'×'+cm(SD)+' см',W-0.56,0.425,zc,1.6,Math.PI/2);
+    floorText('диван лиан|'+cm(L)+'×'+cm(SD)+' см',W-0.56,0.475,zc,1.6,Math.PI/2);
     floorText('по 1 см|до стените',W-SD-0.30,0.012,zc+L/2-0.30,0.5,Math.PI/2);}
   // бюро 130 × 60 см до предната стена, вдясно от входната врата (извън дъгата й)
   // бюро 130 × 60 горе, в частта над WC, до стената с нишата (срещу стълбата)
