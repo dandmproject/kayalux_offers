@@ -123,15 +123,15 @@ const pegCanvas=(()=>{const c=document.createElement('canvas');c.width=c.height=
 function pegBox(w,h,d,px,py,pz,along){const t=new THREE.CanvasTexture(pegCanvas);t.wrapS=t.wrapT=THREE.RepeatWrapping;
   t.repeat.set(along/0.4,h/0.4);const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshLambertMaterial({map:t,side:THREE.DoubleSide}));
   m.position.set(px,py,pz);group.add(m);}
-function arrowDim(a,b,txt,off){off=off||[0,0.30];const g=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(...a),new THREE.Vector3(...b)]);
+function arrowDim(a,b,txt,off,flip){off=off||[0,0.30];const g=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(...a),new THREE.Vector3(...b)]);
   group.add(new THREE.Line(g,new THREE.LineBasicMaterial({color:0xd26a1b})));
   const dir=new THREE.Vector3(b[0]-a[0],b[1]-a[1],b[2]-a[2]).normalize();
   [[b,dir],[a,dir.clone().negate()]].forEach(([pt,dv])=>{const c=new THREE.Mesh(new THREE.ConeGeometry(0.04,0.12,12),new THREE.MeshBasicMaterial({color:0xd26a1b}));
     c.position.set(pt[0]-dv.x*0.06,pt[1]-dv.y*0.06,pt[2]-dv.z*0.06);c.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dv);group.add(c);});
-  floorText(txt,(a[0]+b[0])/2+off[0],(a[1]+b[1])/2+0.003,(a[2]+b[2])/2+off[1]);}
+  floorText(txt,(a[0]+b[0])/2+off[0],(a[1]+b[1])/2+0.003,(a[2]+b[2])/2+off[1],1,flip?Math.PI:0);}
 // малък надпис, отпечатан на пода (като маркировка)
 function floorText(txt,x,y,z,sc,rz){sc=sc||1;rz=rz||0;const c=document.createElement('canvas');c.width=512;c.height=256;const g=c.getContext('2d');
-  g.clearRect(0,0,512,256);const parts=txt.includes('|')?txt.split('|'):[txt.split(' ')[0],txt.split(' ').slice(1).join(' ')];const l1=parts[0].toUpperCase(),l2=parts[1];const fit=(t,px)=>{g.font='700 '+px+'px Inter, sans-serif';while(g.measureText(t).width>490&&px>30){px-=4;g.font='700 '+px+'px Inter, sans-serif';}};g.fillStyle='#ffffff';g.shadowColor='rgba(0,0,0,.6)';g.shadowBlur=6;g.textAlign='center';g.textBaseline='middle';fit(l1,78);g.fillText(l1,256,78);fit(l2,96);g.fillText(l2,256,180);
+  g.clearRect(0,0,512,256);const parts=txt.includes('|')?txt.split('|'):[txt.split(' ')[0],txt.split(' ').slice(1).join(' ')];const l1=parts[0].toUpperCase(),l2=parts[1];const fit=(t,px)=>{g.font='700 '+px+'px Inter, sans-serif';while(g.measureText(t).width>490&&px>30){px-=4;g.font='700 '+px+'px Inter, sans-serif';}};g.fillStyle='#ffffff';g.shadowColor='rgba(0,0,0,.6)';g.shadowBlur=6;g.textAlign='center';g.textBaseline='middle';g.lineJoin='round';g.strokeStyle='rgba(20,22,26,.85)';g.lineWidth=12;fit(l1,78);g.strokeText(l1,256,78);g.fillText(l1,256,78);fit(l2,96);g.strokeText(l2,256,180);g.fillText(l2,256,180);
   const tx=new THREE.CanvasTexture(c);const m=new THREE.Mesh(new THREE.PlaneGeometry(0.58,0.29),new THREE.MeshBasicMaterial({map:tx,transparent:true,depthWrite:false}));
   m.rotation.x=-Math.PI/2;m.rotation.z=Math.PI+rz;m.scale.set(sc,sc,1);const sg=new THREE.Group();sg.scale.z=-1;sg.position.set(x,y,z);sg.add(m);group.add(sg);}
 // размер, изписан отгоре върху стелажа (като надписите на пода)
@@ -223,7 +223,12 @@ function build(){
      label('двоен шкаф 60 × 45 × 180, 4 отделения',(gx0+gx1)/2,gH+0.12,D-0.3,'#1d2329');
      const sW=1.20,sD=0.50,sH=1.80,sx0=gx0-0.02-sW;
      shelfUnit(sx0,sx0+sW,D-sD,D,0,sH,5);
-     label('стилаж 120 × 50 × 180',sx0+sW/2,sH+0.12,D-0.3,'#d26a1b');}}
+     label('стилаж 120 × 50 × 180',sx0+sW/2,sH+0.12,D-0.3,'#d26a1b');
+     // размери на пода пред тях (като пътеката горе)
+     const fy=0.012, fz2=D-0.62;
+     arrowDim([sJoin-0.50+0.02,fy,fz2],[sJoin-0.02,fy,fz2],'стелаж|50×50×180',[0,-0.24],true);
+     arrowDim([sx0+0.02,fy,fz2],[sx0+sW-0.02,fy,fz2],'стелаж|120×50×180',[0,-0.24],true);
+     arrowDim([gx0+0.02,fy,fz2],[gx1-0.02,fy,fz2],'шкаф 4 врати|60×45×180',[0,-0.24],true);}}
   // WC под подиума отзад вдясно (приблизително)
   // дясната стена от предния ъгъл: 1,84 м стена за дивана, после врата WC 60 см; WC е зад дясната стена
   const wcw=Math.min(1.84,M),wcd=Math.max(0.5,D-1.84);
