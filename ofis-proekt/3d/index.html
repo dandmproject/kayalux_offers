@@ -351,12 +351,12 @@ function build(){
     label('стилажи П',W-M/2,y+h+0.15,L/2,'#d26a1b');}
   // стената с радиатора: два стенни стилажа над радиатора, 25 см дълбоки
   //  първи рафт 25 см над радиатора (0,97 м), най-горният на 1,80 м; без нищо на пода
-  if(showShelf){const sd=0.25,pg=(D-3.09)/2,rTop=0.72,yA=rTop+0.25,yTop=1.80,r0=pg+0.05,r1=D-pg-1.44,sw=(r1-r0)/2;
+  if(showShelf){const sd=0.35,pg=(D-3.09)/2,rTop=0.72,yA=rTop+0.25,yTop=1.80,r0=pg+0.05,r1=D-pg-1.44,sw=(r1-r0)/2;
     [r0,r0+sw].forEach(zA=>{
       for(let k=0;k<4;k++) box(sd,0.025,sw-0.02,sd/2,yA+k*(yTop-yA)/3,zA+sw/2,0xa47a52,1);
       box(sd,yTop-yA+0.03,0.03,sd/2,(yA+yTop)/2,zA+0.025,0x141414,1); box(sd,yTop-yA+0.03,0.03,sd/2,(yA+yTop)/2,zA+sw-0.025,0x141414,1);
-      topTag('стенен|'+cm(sw)+'×25 · 97–180',0,sd,zA,zA+sw,yTop+0.0125,true);
-      label('стенен '+Math.round(sw*100)+' × 25',0.4,yTop+0.15,zA+sw/2,'#d26a1b');});
+      topTag('стенен|'+cm(sw)+'×'+cm(sd)+' · 97–180',0,sd,zA,zA+sw,yTop+0.0125,true);
+      label('стенен '+Math.round(sw*100)+' × '+cm(sd),0.4,yTop+0.15,zA+sw/2,'#d26a1b');});
     label('рафтове от 0,97 до 1,80',0.4,0.85+0.2,r1+0.3,'#d26a1b');}
   // предверие пред входната врата: 1,65 × 1,12, високо 2,38; външна метална врата със стъкло 1,05
   {const vl=1.65,vw=1.12,vh=2.38,z0=-wall-vw;
