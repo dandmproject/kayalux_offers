@@ -9,8 +9,11 @@ if errorlevel 1 (
 )
 set "DEST=%ProgramData%\Ofis3D"
 echo  Kopiram v %DEST% ...
-robocopy "%~dp0." "%DEST%" /E /NFL /NDL /NJH /NJS >nul
 schtasks /End /TN "Ofis3D-5300" >nul 2>&1
+taskkill /F /FI "WINDOWTITLE eq Ofis 3D*" >nul 2>&1
+timeout /t 2 >nul
+robocopy "%~dp0." "%DEST%" /E /NFL /NDL /NJH /NJS >nul
+robocopy "%~dp03d" "%DEST%\3d" /MIR /NFL /NDL /NJH /NJS >nul
 schtasks /Create /TN "Ofis3D-5300" /SC ONSTART /RU SYSTEM /RL HIGHEST /F /TR "powershell.exe -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File \"%DEST%\server.ps1\" -Root \"%DEST%\3d\""
 netsh advfirewall firewall delete rule name="Ofis3D 5300" >nul 2>&1
 netsh advfirewall firewall add rule name="Ofis3D 5300" dir=in action=allow protocol=TCP localport=5300 >nul
