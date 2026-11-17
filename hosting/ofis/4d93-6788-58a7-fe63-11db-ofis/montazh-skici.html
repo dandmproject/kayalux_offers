@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<style>:root{color-scheme:light}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Въжен парапет: монтаж</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Работилнична скица: тъмни линии на хартия, едно оранжево за размери и маркировки */
+:root{
+  --bg:#f3f2ef; --paper:#fbfaf8; --ink:#1f2328; --muted:#5d636b; --line:#c9c6bf;
+  --steel:#3a3f46; --rope:#16181b; --wood:#c49a6c; --mark:#d4621b; --ok:#2f7d4a;
+  --f-head:"Archivo Narrow","Arial Narrow",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#16181b; --paper:#1e2125; --ink:#e7e5e0; --muted:#a2a7ae; --line:#3a3e44;
+  --steel:#9aa3ad; --rope:#e7e5e0; --wood:#a9845b; --mark:#f08a45; --ok:#5fbf82; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#16181b; --paper:#1e2125; --ink:#e7e5e0; --muted:#a2a7ae; --line:#3a3e44;
+  --steel:#9aa3ad; --rope:#e7e5e0; --wood:#a9845b; --mark:#f08a45; --ok:#5fbf82; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font:15px/1.55 var(--f-body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px}
+.wrap{max-width:980px;margin:0 auto;display:grid;gap:28px}
+h1{font:700 clamp(28px,5vw,42px)/1.05 var(--f-head);letter-spacing:.01em;margin:0;text-wrap:balance}
+h2{font:700 22px/1.2 var(--f-head);margin:0 0 6px;text-wrap:balance}
+.lead{color:var(--muted);max-width:68ch;margin:6px 0 0}
+.sheet{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:18px;display:grid;gap:12px;min-width:0}
+.tag{font:500 12px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--mark)}
+.fig{overflow-x:auto}
+.fig svg{display:block;width:100%;min-width:560px;height:auto}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:28px}
+ol,ul{margin:0;padding-left:20px;display:grid;gap:6px}
+li{max-width:70ch}
+b{font-weight:600}
+.mono{font-family:var(--f-mono);font-size:13px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:600 12px var(--f-mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+td.n{font-family:var(--f-mono);white-space:nowrap;font-variant-numeric:tabular-nums}
+.note{border-left:3px solid var(--mark);padding:6px 0 6px 12px;color:var(--ink)}
+a{color:var(--mark)}
+.url{font:11px var(--f-mono);color:var(--muted);word-break:break-all}
+pre.msg{white-space:pre-wrap;font:13px/1.5 var(--f-mono);background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:12px;margin:0}
+svg text{font-family:var(--f-mono);fill:var(--ink)}
+svg .dim{fill:var(--mark)} svg .mut{fill:var(--muted)}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="tag">Офис KAYA LUX · стълба 11 стъпала</div>
+    <h1>Въжен парапет: как се монтира</h1>
+    <p class="lead">Черно стоманено въже с PVC покритие 6 мм, по 2 въжета на стъпало, от стъпалото до тавана откъм стаята. Горе всяко въже има свой анкер с ринг болт директно в тавана. Всяка точка горе се пренася с отвес от точката долу, затова няма значение дали стъпалата са на точно еднакво разстояние.</p>
+  </header>
+
+  <section class="sheet">
+    <div class="tag">Скица 1 · общ изглед отстрани</div>
+    <h2>Какво къде отива</h2>
+    <div class="fig">
+      <svg viewBox="0 0 900 470" role="img" aria-label="Стълба отстрани с вертикални въжета от стъпалата до ухо-анкери в тавана">
+        <!-- таван -->
+        <rect x="40" y="30" width="820" height="14" fill="var(--line)"/>
+        <text x="48" y="24" class="mut" font-size="13">ТАВАН (бетон)</text>
+        <text x="150" y="78" class="dim" font-size="12">22 анкера М8 + ринг болт в тавана, всеки отвесно над своята точка долу</text>
+        <!-- под и подиум -->
+        <rect x="40" y="440" width="820" height="8" fill="var(--line)"/>
+        <text x="48" y="465" class="mut" font-size="13">ПОД</text>
+        <rect x="712" y="190" width="150" height="16" fill="var(--wood)"/>
+        <text x="720" y="183" class="mut" font-size="13">ПОДИУМ</text>
+        <!-- профил на стълбата -->
+        <line x1="150" y1="440" x2="712" y2="200" stroke="var(--steel)" stroke-width="10"/>
+        <!-- стъпала и въжета -->
+        <g id="steps"></g>
+        <text x="300" y="420" font-size="13">метален профил + шперплат на всяко стъпало</text>
+        <text x="420" y="130" font-size="13">22 въжета, висят отвесно</text>
+      </svg>
+    </div>
+    <p class="mono" style="color:var(--muted)">Не е в мащаб. Стъпалата са 11, по 2 въжета на всяко. Най-дългото въже е ~4,45 м, най-късото ~2,05 м.</p>
+  </section>
+
+  <div class="two">
+    <section class="sheet">
+      <div class="tag">Скица 2 · долу, на стъпалото</div>
+      <h2>Ринг болт през шперплата</h2>
+      <div class="fig">
+        <svg viewBox="0 0 460 360" role="img" aria-label="Разрез на стъпало: шперплат в метална рамка, ухо-болт с шайба и гайка отдолу, обтегач и въже">
+          <!-- въже -->
+          <line x1="230" y1="10" x2="230" y2="96" stroke="var(--rope)" stroke-width="9" stroke-linecap="round"/>
+          <text x="244" y="30" font-size="13">черно въже 18 мм</text>
+          <!-- обтегач -->
+          <rect x="220" y="96" width="20" height="56" rx="4" fill="none" stroke="var(--steel)" stroke-width="4"/>
+          <text x="250" y="128" font-size="13">обтегач ухо-кука М6</text>
+          <text x="250" y="145" class="mut" font-size="12">(опъва въжето)</text>
+          <!-- ухо -->
+          <circle cx="230" cy="170" r="13" fill="none" stroke="var(--steel)" stroke-width="5"/>
+          <!-- стъпало: метална рамка + шперплат -->
+          <rect x="40" y="186" width="380" height="24" fill="var(--wood)"/>
+          <rect x="30" y="182" width="14" height="40" fill="var(--steel)"/>
+          <rect x="416" y="182" width="14" height="40" fill="var(--steel)"/>
+          <text x="60" y="203" font-size="13" fill="var(--ink)">шперплат (стъпалото)</text>
+          <!-- болт -->
+          <rect x="226" y="183" width="8" height="66" fill="var(--steel)"/>
+          <rect x="208" y="210" width="44" height="6" fill="var(--steel)"/>
+          <rect x="216" y="216" width="28" height="12" fill="var(--steel)"/>
+          <text x="262" y="226" font-size="13">широка шайба + гайка М8</text>
+          <!-- размер до ръба -->
+          <line x1="44" y1="270" x2="226" y2="270" stroke="var(--mark)" stroke-width="2"/>
+          <line x1="44" y1="262" x2="44" y2="278" stroke="var(--mark)" stroke-width="2"/>
+          <line x1="226" y1="262" x2="226" y2="278" stroke="var(--mark)" stroke-width="2"/>
+          <text x="60" y="296" class="dim" font-size="13">≥3 см от металната рамка</text>
+          <text x="30" y="340" class="mut" font-size="12">Откъм стаята (открития ръб на стълбата)</text>
+        </svg>
+      </div>
+      <ul>
+        <li>Пробивате <b>само шперплата</b>, със свредло <b>9 мм</b>, на <b>~3 см</b> от рамката откъм стаята. Металът не се пипа. Отгоре влиза <b>ринг болт М8 (DIN 580)</b>.</li>
+        <li>Отдолу <b>широка шайба М8 (DIN 9021)</b> и <b>гайка М8</b>. Куката на обтегача се закача в халката, въжето се връзва за ухото на обтегача.</li>
+        <li>Ако не искате дупки в стъпалата: <b>скоба за профил</b> (U-болт М8) около металната рамка и ухото на нея.</li>
+      </ul>
+    </section>
+
+    <section class="sheet">
+      <div class="tag">Скица 3 · горе, на тавана</div>
+      <h2>Набивен анкер + ринг болт в бетона</h2>
+      <div class="fig">
+        <svg viewBox="0 0 460 360" role="img" aria-label="Разрез на тавана: набивен анкер М8 и ринг болт в бетона, въже">
+          <rect x="20" y="20" width="420" height="80" fill="var(--line)"/>
+          <text x="30" y="46" class="mut" font-size="13">ТАВАН (бетон)</text>
+          <!-- дупка и анкер -->
+          <rect x="176" y="50" width="20" height="50" fill="var(--paper)" stroke="var(--mark)" stroke-dasharray="4 3"/>
+          <rect x="182" y="52" width="8" height="70" fill="var(--steel)"/>
+          <path d="M178 58 l16 0 M178 68 l16 0 M178 78 l16 0" stroke="var(--ink)" stroke-width="2"/>
+          <text x="210" y="70" class="dim" font-size="13">дупка Ø10, ~60 мм дълбока</text>
+          <text x="210" y="88" font-size="13">анкер Fischer EA II М8 + ринг болт М8</text>
+          <circle cx="186" cy="134" r="13" fill="none" stroke="var(--steel)" stroke-width="5"/>
+          <!-- карабинер -->
+          <rect x="176" y="148" width="20" height="38" rx="9" fill="none" stroke="var(--steel)" stroke-width="4"/>
+          <text x="210" y="172" font-size="13">(по желание) карабинер</text>
+          <!-- примка -->
+          <path d="M186 186 C168 198 168 220 186 228 C204 220 204 198 186 186" fill="none" stroke="var(--rope)" stroke-width="8"/>
+          <line x1="186" y1="228" x2="186" y2="340" stroke="var(--rope)" stroke-width="9" stroke-linecap="round"/>
+          <text x="210" y="214" font-size="13">примка (булин)</text>
+          <!-- отвес -->
+          <line x1="80" y1="100" x2="80" y2="330" stroke="var(--mark)" stroke-width="2" stroke-dasharray="6 5"/>
+          <text x="30" y="350" class="dim" font-size="12">отвес / лазер от точката долу</text>
+        </svg>
+      </div>
+      <ul>
+        <li>За всяко въже: <b>набивен анкер Fischer EA II М8×30</b> (с вътрешна резба), набит с <b>инструмента за набиване</b>, и в него завит <b>ринг болт М8 (DIN 580)</b>. Дупка <b>Ø10 мм</b>, ~32 мм дълбока.</li>
+        <li>Мястото горе се намира с <b>отвес</b> (тежест на конец) или <b>лазер</b> от точката на стъпалото. Така всяко въже виси точно отвесно, колкото и неравни да са стъпалата.</li>
+        <li>Ако на някое място свредлото удари арматура, преместете дупката с 1–2 см встрани. Въжето пак ще виси добре.</li>
+      </ul>
+    </section>
+  </div>
+
+  <section class="sheet">
+    <div class="tag">Ред на работа</div>
+    <h2>Стъпка по стъпка</h2>
+    <ol>
+      <li><b>Маркирайте долу.</b> На всяко стъпало две точки на ~3 см от рамката откъм стаята, на ~5 см от предния и от задния ръб на шперплата.</li>
+      <li><b>Пренесете всяка точка нагоре.</b> С отвес (тежест на конец) или лазер от всяка точка на стъпалото отбележете точката точно над нея на тавана. 22 точки горе.</li>
+      <li><b>Пробийте тавана.</b> Перфоратор, свредло SDS Ø10, ~32 мм дълбоко, във всяка точка. Издухайте праха, вкарайте анкера Fischer EA II и го разпънете с инструмента за набиване (няколко удара с чук). Завийте ринг болта.</li>
+      <li><b>Пробийте стъпалата.</b> Свредло 9 мм през шперплата в маркираните точки. Отгоре ринг болт М8, отдолу широка шайба и гайка М8. Стегнете.</li>
+      <li><b>Направете ухото горе.</b> Махнете ~4 см PVC от края, нанижете алуминиевата гилза, прекарайте края през горната халка и го върнете в гилзата. Стиснете гилзата с кримпващите клещи 2–3 пъти.</li>
+      <li><b>Отмерете долу.</b> Обтегачът отворен докрай, куката в халката на стъпалото. Опънете въжето на ръка до ухото на обтегача и отрежете с ~8 см запас.</li>
+      <li><b>Направете ухото долу и опънете.</b> Същото като горе, през ухото на обтегача. После въртите тялото на обтегача, докато въжето стане изпънато като струна.</li>
+    </ol>
+    <p class="note">Започнете от средното стъпало: ако нещо не стои добре, ще го видите рано и ще промените разстоянията, преди да пробиете всички.</p>
+  </section>
+
+  <section class="sheet">
+    <div class="tag">Материали</div>
+    <h2>Какво да купите</h2>
+    <div class="fig" style="overflow-x:auto">
+      <table>
+        <thead><tr><th>Какво</th><th>Брой</th><th>Къде</th></tr></thead>
+        <tbody>
+          <tr><td>Черно стоманено въже с PVC, 6 мм (стомана 4 мм), 7×19</td><td class="n">80 м</td><td><a href="https://tashev-galving.com/product/110-MUM-158/vazhe-stomaneno-qd-rigging-china-s-cherno-pvc-pokritie-f-6-mm-f-4-mm-7h19-228-kg">Tashev-Galving</a><br><span class="url">https://tashev-galving.com/product/110-MUM-158/vazhe-stomaneno-qd-rigging-china-s-cherno-pvc-pokritie-f-6-mm-f-4-mm-7h19-228-kg</span></td></tr>
+          <tr><td>Алуминиева гилза DIN 3093 за въже 4 мм</td><td class="n">44 бр. + резерва</td><td>Tashev-Galving (питайте) / <a href="https://strefa.bg/-c1113/">strefa.bg</a></td></tr>
+          <tr><td>Кримпващи клещи за гилзи до 4–5 мм</td><td class="n">1 бр.</td><td>магазин за такелаж</td></tr>
+          <tr><td>Клещи-резачки за стоманено въже</td><td class="n">1 бр.</td><td>всеки магазин</td></tr>
+          <tr><td>Ринг болт М8, DIN 580, поцинкован (QD Rigging)</td><td class="n">44 бр.</td><td><a href="https://tashev-galving.com/product/007-PNR-616/bolt-qd-rigging-china-ring-potsinkovan-m8-mm-1-25-mm-din-580">Tashev-Galving</a><br><span class="url">https://tashev-galving.com/product/007-PNR-616/bolt-qd-rigging-china-ring-potsinkovan-m8-mm-1-25-mm-din-580</span></td></tr>
+          <tr><td>Анкер набивен Fischer EA II М8×30 (вътрешна резба)</td><td class="n">22 бр.</td><td><a href="https://tashev-galving.com/product/025-FSR-776/nabiven-anker-fischer-za-beton-s-oporen-prasten-potsinkovan-m8h30-mm-ea-ii">Tashev-Galving</a><br><span class="url">https://tashev-galving.com/product/025-FSR-776/nabiven-anker-fischer-za-beton-s-oporen-prasten-potsinkovan-m8h30-mm-ea-ii</span></td></tr>
+          <tr><td>Инструмент за набиване на анкер EA II М8</td><td class="n">1 бр.</td><td>Tashev-Galving (питайте)</td></tr>
+          <tr><td>Обтегач ухо-кука М6, 100 кг (QD Rigging)</td><td class="n">22 бр.</td><td><a href="https://tashev-galving.com/product/069-MUM-002/obtegach-za-vazheta-qd-rigging-china-uho-kuka-100-kg-m6x135x185-mm">Tashev-Galving</a><br><span class="url">https://tashev-galving.com/product/069-MUM-002/obtegach-za-vazheta-qd-rigging-china-uho-kuka-100-kg-m6x135x185-mm</span></td></tr>
+          <tr><td>Гайка М8, DIN 934, поцинкована</td><td class="n">22 бр.</td><td><a href="https://tashev-galving.com/cat/200322/gayki">Tashev-Galving</a><br><span class="url">https://tashev-galving.com/cat/200322/gayki</span></td></tr>
+          <tr><td>Шайба М8 широка, DIN 9021</td><td class="n">22 бр.</td><td>Tashev-Galving</td></tr>
+          <tr><td>Свредло SDS-plus Ø10 за бетон</td><td class="n">1 бр.</td><td>Tashev-Galving / всеки магазин</td></tr>
+          <tr><td>Свредло за дърво Ø9</td><td class="n">1 бр.</td><td>всеки магазин</td></tr>
+          <tr><td>Отвес (тежест на конец) или лазерен нивелир</td><td class="n">1</td><td>всеки магазин</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="mono" style="color:var(--muted)">Цени ориентировъчно: въже ~1,09 €/м (80 м ≈ 87 €); ринг болт ~0,49 €/бр.; останалото потвърдете в Tashev-Galving.</p>
+  </section>
+  <section class="sheet">
+    <div class="tag">Запитване</div>
+    <h2>Съобщение до Tashev-Galving</h2>
+    <pre class="msg">Здравейте, искам да поръчам:
+1. Ринг болт QD Rigging М8, DIN 580, поцинкован – 44 бр.
+2. Анкер набивен Fischer EA II М8х30 – 22 бр.
+   + инструмент за набиване EA II М8 – 1 бр.
+3. Обтегач QD Rigging ухо-кука М6 (100 кг) – 22 бр.
+4. Гайка М8 DIN 934 поцинкована – 22 бр.
+   + шайба М8 широка (DIN 9021) – 22 бр.
+5. Свредло SDS-plus Ø10 за бетон – 1 бр.
+Имате ли всичко налично и каква е общата цена в евро?
+Благодаря!</pre>
+    <p class="mono" style="color:var(--muted)">Добавете към запитването: черно стоманено въже с PVC 6 мм – 80 м; гилза DIN 3093 за 4 мм – 50 бр.</p>
+  </section>
+</div>
+
+<script>
+// стъпала и въжета на скица 1: 11 стъпала по наклона на профила
+(function(){
+  const g=document.getElementById('steps'), ns='http://www.w3.org/2000/svg';
+  const x0=150,y0=440,x1=712,y1=200,n=11;
+  for(let i=0;i<n;i++){
+    const t=(i+0.5)/n, cx=x0+(x1-x0)*t, cy=y0+(y1-y0)*t-8, w=(x1-x0)/n*0.9;
+    const r=document.createElementNS(ns,'rect');r.setAttribute('x',cx-w/2);r.setAttribute('y',cy-6);r.setAttribute('width',w);r.setAttribute('height',8);r.setAttribute('fill','var(--wood)');g.appendChild(r);
+    [-w*0.25,w*0.25].forEach(dx=>{const l=document.createElementNS(ns,'line');l.setAttribute('x1',cx+dx);l.setAttribute('x2',cx+dx);l.setAttribute('y1',52);l.setAttribute('y2',cy-6);l.setAttribute('stroke','var(--rope)');l.setAttribute('stroke-width','2.5');g.appendChild(l);
+      const c=document.createElementNS(ns,'circle');c.setAttribute('cx',cx+dx);c.setAttribute('cy',cy-8);c.setAttribute('r','3');c.setAttribute('fill','var(--mark)');g.appendChild(c);
+      const a=document.createElementNS(ns,'rect');a.setAttribute('x',cx+dx-3);a.setAttribute('y',40);a.setAttribute('width',6);a.setAttribute('height',12);a.setAttribute('fill','var(--mark)');g.appendChild(a);});
+  }
+})();
+</script>
+
+</body>
+</html>

@@ -62,3 +62,11 @@ AddType font/woff2 .woff2
 </If>
 
 ServerSignature Off
+
+# PDF-ите да се отварят във вградения визуализатор на браузъра (без строгия CSP)
+<IfModule mod_headers.c>
+  <FilesMatch "\.pdf$">
+    Header always unset Content-Security-Policy
+    Header always set X-Content-Type-Options "nosniff"
+  </FilesMatch>
+</IfModule>
