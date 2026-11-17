@@ -257,7 +257,7 @@ function build(){
    {const r=new THREE.Mesh(new THREE.TorusGeometry(0.16,0.025,10,30),mat(0xe8e8e6,1));r.rotation.x=Math.PI/2;r.scale.set(1.25,0.95,1);r.position.set(xe-0.40,0.41,tz);group.add(r);} // седалка
    box(0.04,0.36,0.34,xe-0.21,0.60,tz,0xe8e8e6,1);                  // вдигнат капак
    // мивка на стената вдясно от вратата (стената към стаята, z = D-EX)
-   const sx=W+wall+0.55, sz=D-EX+0.22;
+   const sx=W+wall+EXd-0.33, sz=D-EX+0.22;   // по-навътре: вратата (60 см) не я закача
    box(0.50,0.14,0.40,sx,0.80,sz,wh,1);
    box(0.42,0.02,0.32,sx,0.875,sz+0.01,0xdfe3e6,1);                 // вътрешност
    box(0.03,0.16,0.03,sx,0.95,sz-0.15,chrome,1);                     // батерия
@@ -284,6 +284,19 @@ function build(){
   label('стената с белия шкаф '+f(D-EX),W-0.3,top+1.95,(D-EX)/2,'#1d2329');
   box(0.03,2.0,0.60,W-0.02,1.0,1.87+0.30,0xf4f4f4,0.95);
   doorHandle(W-0.02,1.02,1.87+0.53,'x',-1);                               // дръжка WC
+  // табелка на вратата на WC: „WC“ + рисунка на руло хартия + „Кабинет за размисъл“
+  {const c=document.createElement('canvas');c.width=300;c.height=420;const g=c.getContext('2d');
+   const rr=(x,y,w,h,r)=>{g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath();};
+   g.fillStyle='#1f2328';rr(6,6,288,408,28);g.fill();g.strokeStyle='#d4621b';g.lineWidth=6;rr(14,14,272,392,22);g.stroke();
+   g.fillStyle='#ffffff';g.textAlign='center';g.textBaseline='middle';g.font='800 110px Arial, sans-serif';g.fillText('WC',150,95);
+   // руло тоалетна хартия с лента, която се развива
+   g.fillStyle='#f4f1ea';g.beginPath();g.ellipse(120,215,48,48,0,0,Math.PI*2);g.fill();
+   g.fillStyle='#d9d3c6';g.beginPath();g.ellipse(120,215,16,16,0,0,Math.PI*2);g.fill();
+   g.fillStyle='#f4f1ea';g.beginPath();g.moveTo(150,250);g.bezierCurveTo(200,262,215,300,190,330);g.lineTo(225,338);g.bezierCurveTo(245,300,225,258,165,232);g.closePath();g.fill();
+   g.fillStyle='#d4621b';g.font='700 22px Arial, sans-serif';g.fillText('♥',205,316);
+   g.fillStyle='#ffffff';g.font='600 30px Arial, sans-serif';g.fillText('Кабинет',150,362);g.fillText('за размисъл',150,394);
+   const tx=new THREE.CanvasTexture(c);const m=new THREE.Mesh(new THREE.PlaneGeometry(0.26,0.364),new THREE.MeshBasicMaterial({map:tx}));
+   m.rotation.y=-Math.PI/2;const sg=new THREE.Group();sg.scale.z=-1;sg.position.set(W-0.038,1.52,1.87+0.30);sg.add(m);group.add(sg);}
   label('WC',W+wall+EXd/2,Hu*0.6,D-EX/2,'#2a5d8f'); label('врата WC 60',W-0.3,2.15,1.87+0.30,'#2a5d8f');
   // диван + маса до тъмната стена под подиума (от WC до предната стена)
   const sw=1.87, sx=W-0.45;
