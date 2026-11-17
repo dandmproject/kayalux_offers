@@ -4,7 +4,7 @@ $root = (Resolve-Path $Root).Path
 $log = Join-Path (Split-Path -Parent $MyInvocation.MyCommand.Path) "server.log"
 function Log($m){ $t="$(Get-Date -f s) $m"; Write-Host $t; try { Add-Content -Path $log -Value $t } catch { } }
 Log "Start, folder: $root"
-$types = @{".html"="text/html; charset=utf-8";".js"="application/javascript";".svg"="image/svg+xml";".jpg"="image/jpeg";".png"="image/png";".css"="text/css";".pdf"="application/pdf";".svg"="image/svg+xml"}
+$types = @{".html"="text/html; charset=utf-8";".js"="application/javascript";".svg"="image/svg+xml";".jpg"="image/jpeg";".png"="image/png";".css"="text/css";".pdf"="application/pdf"}
 while ($true) {
   $l = New-Object System.Net.HttpListener
   try {
