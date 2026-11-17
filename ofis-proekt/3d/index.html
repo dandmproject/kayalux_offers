@@ -146,7 +146,7 @@ function swingArc(cx,cz,r,a0,a1,y){y=y||0.012;const pts=[];for(let i=0;i<=24;i++
 function topTag(txt,x0,x1,z0,z1,y,flip){const w=x1-x0,d=z1-z0,alongZ=d>w,L=Math.max(w,d),S=Math.min(w,d);
   const sc=Math.min(1.1,(L-0.04)/0.58,(S-0.02)/0.29);floorText(txt,(x0+x1)/2,y+0.005,(z0+z1)/2,sc,(alongZ?Math.PI/2:0)+(flip?Math.PI:0));}
 const cm=v=>Math.round(v*100);
-function shelfUnit(x0,x1,z0,z1,y0,h,n,tag){if(tag!==false)topTag((tag||'стелаж')+'|'+cm(x1-x0>z1-z0?x1-x0:z1-z0)+'×'+cm(Math.min(x1-x0,z1-z0))+'×'+cm(h),x0,x1,z0,z1,y0+h+0.015);const post=0.03,pc=0x141414,bc=0x2b2c2f;
+function shelfUnit(x0,x1,z0,z1,y0,h,n,tag){if(tag!==false)topTag((tag||'стелаж')+'|'+cm(x1-x0>z1-z0?x1-x0:z1-z0)+'×'+cm(Math.min(x1-x0,z1-z0))+'×'+cm(h),x0,x1,z0,z1,y0+h+0.015);const post=0.03,pc=0x141414,bc=0xb8956a;   // черна рамка, рафтове МДФ/ПДЧ в дървесен цвят
   [[x0,z0],[x0,z1],[x1,z0],[x1,z1]].forEach(([px,pz])=>box(post,h,post,px+(px===x0?post/2:-post/2),y0+h/2,pz+(pz===z0?post/2:-post/2),pc,1));
   for(let k=0;k<n;k++){const yy=y0+0.08+k*(h-0.10)/(n-1);box(x1-x0,0.02,z1-z0,(x0+x1)/2,yy,(z0+z1)/2,bc,1);}}
 function quad(p,uv,tex){const g=new THREE.BufferGeometry();
@@ -248,7 +248,23 @@ function build(){
   // дясната стена от предния ъгъл: 1,84 м стена за дивана, после врата WC 60 см; WC е зад дясната стена
   const wcw=Math.min(1.84,M),wcd=Math.max(0.5,D-1.84);
   // WC зад дясната стена (1,45 × 1,45), над него горе продължението на подиума
-  box(EXd,Hu,EX,W+wall+EXd/2,Hu/2,D-EX/2,0x8fb3d9,0.45);
+  box(EXd,Hu,EX,W+wall+EXd/2,Hu/2,D-EX/2,0x8fb3d9,0.12);
+  // WC: срещу вратата, леко вляво, тоалетна чиния до стената (под нишата горе); вдясно на стената мивка с батерия
+  {const xe=W+wall+EXd, wh=0xf6f6f4, chrome=0xc9ccd0, tz=D-EX/2+0.18;
+   box(0.20,0.40,0.38,xe-0.10,0.62,tz,wh,1);                      // казанче
+   box(0.22,0.04,0.40,xe-0.11,0.84,tz,wh,1);
+   {const b=new THREE.Mesh(new THREE.CylinderGeometry(0.17,0.15,0.40,24),mat(wh,1));b.scale.set(1.25,1,0.95);b.position.set(xe-0.40,0.20,tz);group.add(b);} // тяло на чинията
+   {const r=new THREE.Mesh(new THREE.TorusGeometry(0.16,0.025,10,30),mat(0xe8e8e6,1));r.rotation.x=Math.PI/2;r.scale.set(1.25,0.95,1);r.position.set(xe-0.40,0.41,tz);group.add(r);} // седалка
+   box(0.04,0.36,0.34,xe-0.21,0.60,tz,0xe8e8e6,1);                  // вдигнат капак
+   // мивка на стената вдясно от вратата (стената към стаята, z = D-EX)
+   const sx=W+wall+0.55, sz=D-EX+0.22;
+   box(0.50,0.14,0.40,sx,0.80,sz,wh,1);
+   box(0.42,0.02,0.32,sx,0.875,sz+0.01,0xdfe3e6,1);                 // вътрешност
+   box(0.03,0.16,0.03,sx,0.95,sz-0.15,chrome,1);                     // батерия
+   box(0.03,0.03,0.14,sx,1.02,sz-0.09,chrome,1);                     // чучур
+   box(0.10,0.02,0.02,sx,1.04,sz-0.17,chrome,1);                     // лост
+   box(0.06,0.55,0.06,sx,0.40,sz-0.08,0xe8e8e6,1);                   // сифон/колона
+   label('тоалетна',xe-0.35,1.0,tz,'#2a5d8f'); label('мивка',sx,1.2,sz,'#2a5d8f');}
   box(EXd,0.10,EX,W+wall+EXd/2,Hu+0.05,D-EX/2,0x5b4636,1);
   box(EXd+wall,H,wall,W+wall+EXd/2,H/2,D+wall/2,0x9aa1a8,wa);
   box(EXd,H,wall,W+wall+EXd/2,H/2,D-EX-wall/2,0x9aa1a8,wa);
