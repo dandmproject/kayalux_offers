@@ -61,8 +61,8 @@ td{padding:4px 0;border-bottom:1px solid var(--line)} td:last-child{text-align:r
       <label for="W">Предна стена (вход)</label><input id="W" type="number" step="0.01" value="4.38">
       <label for="D">Дълбочина (стената с радиатора)</label><input id="D" type="number" step="0.01" value="3.30">
       <label for="M">Широчина подиум (стената горе)</label><input id="M" type="number" step="0.01" value="1.65">
-      <label for="Hu">Под подиума (до пода ет. 2)</label><input id="Hu" type="number" step="0.01" value="2.54">
-      <label for="Ht">Горе до тавана</label><input id="Ht" type="number" step="0.01" value="2.05">
+      <label for="Hu">Под подиума (до пода ет. 2)</label><input id="Hu" type="number" step="0.01" value="2.16">
+      <label for="Ht">Горе до тавана</label><input id="Ht" type="number" step="0.01" value="1.84">
     </div>
 
     <h2>Изглед</h2>
@@ -209,10 +209,12 @@ function build(){
   const cz=1.80; box(0.07,Hu,0.07,W-M+0.035,Hu/2,cz,0x2b2b2b,1);
   label('колона',W-M+0.035,1.4,cz,'#1d2329');
   // стълба по задната стена: от x=0.60 до ръба на подиума
-  const x0=0.60,x1=W-M,n=11,run=(x1-x0)/n,rise=top/n;
+  const x0=0.60,x1=W-M,n=11,run=(x1-x0)/(n+1);
+  // измерено с лазер: стъпало до тавана 3,910 … 2,147 при под–таван 4,098
+  const SH=[3.910,3.730,3.556,3.378,3.202,3.024,2.856,2.677,2.500,2.324,2.147].map(v=>(4.098-v)*top/2.258);
   // стълбата е на ~2,5 см от задната стена; с профилите стига до 2,65 м от предната стена (ръба на подиума)
   const sz1=D-0.025, sz0=sz1-0.70, szc=(sz0+sz1)/2, stw=sz1-sz0;   // стълба 70 см с профилите, на 2,5 см от стената
-  for(let i=0;i<n;i++){box(Math.max(run,0.18),0.04,stw-0.05,x0+run*(i+0.5),rise*(i+1)-0.02,szc,0x3d3027,1);}
+  for(let i=0;i<n;i++){box(Math.max(run,0.18),0.04,stw-0.05,x0+run*(i+0.5),SH[i]-0.02,szc,0x3d3027,1);}
   {const len=Math.hypot(x1-x0,top),ang=Math.atan2(top,x1-x0);
    [sz0+0.0125,sz1-0.0125].forEach(z=>{const m=new THREE.Mesh(new THREE.BoxGeometry(len,0.12,0.025),mat(0x1d1d1d,1));
      m.position.set((x0+x1)/2,top/2-0.04,z);m.rotation.z=ang;group.add(m);});}   // профили отстрани
@@ -221,9 +223,9 @@ function build(){
       const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,L,10),mat(jute,1));m.position.copy(A).add(B).multiplyScalar(0.5);
       m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),B.clone().sub(A).normalize());group.add(m);};
    // без перило по стената: само вертикални въжета откъм стаята
-   for(let i=0;i<n;i++){const x=x0+run*(i+0.5), y0=rise*(i+1);                     // вертикални въжета 16 мм, до тавана
-     [-run*0.25,run*0.25].forEach(dx=>{rope([x+dx,y0,sz0+0.03],[x+dx,H-0.01,sz0+0.03],0.004);   // черно стоманено въже с PVC 6 мм
-       box(0.03,0.02,0.03,x+dx,y0+0.01,sz0+0.03,0x1a1a1a,1);});}                 // ухо-болт в стъпалото
+   for(let i=0;i<n;i++){const x=x0+run*(i+0.5), y0=SH[i]-0.03;                     // 11 въжета: по 1 до всяко стъпало, в страничния профил
+     rope([x,y0,sz0+0.0125],[x,H-0.01,sz0+0.0125],0.004);                      // черно стоманено въже с PVC 6 мм
+     box(0.03,0.02,0.03,x,y0+0.01,sz0+0.0125,0x1a1a1a,1);}                    // нит-гайка М8 + ринг болт в профила
    label('парапет от вертикални въжета',(x0+x1)/2,top+1.2,sz0,'#8a6a3a');}
   // стилажи под стълбата, стъпаловидно: висок в високия край, нисък по средата, първите стъпала свободни
   if(showShelf){const hAt=x=>top*(x-x0)/(x1-x0)-0.08, sdp=0.50, zc2=D-sdp/2, sJoin=W-0.03-1.50;
