@@ -223,9 +223,9 @@ function build(){
       const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,L,10),mat(jute,1));m.position.copy(A).add(B).multiplyScalar(0.5);
       m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),B.clone().sub(A).normalize());group.add(m);};
    // без перило по стената: само вертикални въжета откъм стаята
-   for(let i=0;i<n;i++){const x=x0+run*(i+0.5), y0=SH[i]-0.03;                     // 11 въжета: по 1 до всяко стъпало, в страничния профил
+   for(let i=0;i<n;i++){const x=x0+run*(i+0.5), y0=SH[i]-0.03;                     // 11 въжета: по 1 до всяко стъпало, през външния профил
      rope([x,y0,sz0+0.0125],[x,H-0.01,sz0+0.0125],0.004);                      // черно стоманено въже с PVC 6 мм
-     box(0.03,0.02,0.03,x,y0+0.01,sz0+0.0125,0x1a1a1a,1);}                    // нит-гайка М8 + ринг болт в профила
+     box(0.03,0.02,0.03,x,y0+0.01,sz0+0.0125,0x1a1a1a,1);}                    // въжето минава през профила (дупки Ø8), отдолу шайба + стопер
    label('парапет от вертикални въжета',(x0+x1)/2,top+1.2,sz0,'#8a6a3a');}
   // стилажи под стълбата, стъпаловидно: висок в високия край, нисък по средата, първите стъпала свободни
   if(showShelf){const hAt=x=>top*(x-x0)/(x1-x0)-0.08, sdp=0.50, zc2=D-sdp/2, sJoin=W-0.03-1.50;
