@@ -359,7 +359,7 @@ function build(){
      arrowDim([xw,y0+0.02,zr],[xs2,y0+0.02,zr],'до стелажа|'+Math.round((xw-xs2)*100)+' см',[0,0.17]);
      label('от бюрото до стелажа '+Math.round((xf-xs2)*100)+' см',(xf+xs2)/2,y0+0.35,zr,'#d26a1b');}}
   {const pp=(D-3.09)/2,r0=0.31,r1=0.31+1.40,   // измерено: радиаторът е на 31 см от стената, 21 см от тръбите
-   rb=0.18,rh=0.57,rx=0.115,rc=0xf4f4f1;
+   rb=0.18,rh=0.60,rx=0.115,rc=0xf4f4f1;
    // бял чугунен радиатор на ребра: 18 см над пода (измерено), ~60 см висок, Danfoss горе
    const ns=Math.round((r1-r0)/0.06);
    for(let i=0;i<ns;i++){const zz=r0+0.03+i*(r1-r0-0.06)/(ns-1);
@@ -395,7 +395,7 @@ function build(){
     label('стилажи П',W-M/2,y+h+0.15,L/2,'#d26a1b');}
   // стената с радиатора: два стенни стилажа над радиатора, 25 см дълбоки
   //  първи рафт 25 см над радиатора (0,97 м), най-горният на 1,80 м; без нищо на пода
-  if(showShelf){const sd=0.40,pg=(D-3.09)/2,rTop=0.75,yA=rTop+0.25,yTop=1.80,r0=pg+0.05,r1=D-pg-1.44,sw=(r1-r0)/2;
+  if(showShelf){const sd=0.40,pg=(D-3.09)/2,rTop=0.78,yA=rTop+0.25,yTop=1.80,r0=pg+0.05,r1=D-pg-1.44,sw=(r1-r0)/2;
     [r0,r0+sw].forEach(zA=>{
       for(let k=0;k<4;k++) box(sd,0.025,sw-0.02,sd/2,yA+k*(yTop-yA)/3,zA+sw/2,0xa47a52,1);
       box(sd,yTop-yA+0.03,0.03,sd/2,(yA+yTop)/2,zA+0.025,0x141414,1); box(sd,yTop-yA+0.03,0.03,sd/2,(yA+yTop)/2,zA+sw-0.025,0x141414,1);
