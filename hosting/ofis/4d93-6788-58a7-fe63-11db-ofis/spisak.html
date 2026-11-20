@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<style>:root{color-scheme:light}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Офис KAYA LUX: пазаруване</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Списък за пазаруване: таблици по места, цени в евро, обща сметка отгоре; отдолу 3D монтаж */
+:root{--bg:#ffffff;--ink:#1f2328;--muted:#5d636b;--line:#d8d5cf;--mark:#d4621b;--band:#f4f2ee}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#17191c;--ink:#e7e5e0;--muted:#a2a7ae;--line:#34383e;--mark:#f08a45;--band:#22252a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#17191c;--ink:#e7e5e0;--muted:#a2a7ae;--line:#34383e;--mark:#f08a45;--band:#22252a;color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;margin:0;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+.wrap{max-width:1040px;margin:0 auto;display:grid;gap:18px}
+.wrap>*{min-width:0}
+h1.t{font:700 30px/1.1 "Arial Narrow",system-ui,sans-serif;margin:0;text-wrap:balance}
+.lead{color:var(--muted);margin:4px 0 0;max-width:80ch}
+.sum{display:flex;flex-wrap:wrap;gap:10px}
+.tile{border:1px solid var(--line);border-radius:6px;padding:10px 14px;min-width:150px}
+.tile b{display:block;font-size:24px;font-variant-numeric:tabular-nums}
+.tile span{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+h2.s{font:700 17px/1.2 "Arial Narrow",system-ui,sans-serif;margin:0;padding:6px 10px;background:var(--band);border-left:3px solid var(--mark);display:flex;justify-content:space-between;gap:8px}
+h2.s small{font:600 13px system-ui;font-variant-numeric:tabular-nums}
+.tw{overflow-x:auto}
+table.l{border-collapse:collapse;width:100%;min-width:760px;table-layout:fixed}
+.l th:nth-child(1){width:30px}.l th:nth-child(3){width:110px}.l th:nth-child(4){width:52px}.l th:nth-child(5){width:108px}.l th:nth-child(6){width:92px}.l th:nth-child(7){width:180px}
+.l th,.l td{text-align:left;padding:6px;border-bottom:1px solid var(--line);vertical-align:top}
+.l th{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.l td.n{white-space:nowrap;font-variant-numeric:tabular-nums;text-align:right}
+.l input[type=checkbox]{width:18px;height:18px;accent-color:var(--mark)}
+input.pr{width:76px;font:inherit;text-align:right;padding:2px 4px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--ink)}
+tr.done td{color:var(--muted)} tr.done td.nm{text-decoration:line-through}
+.est{font-size:12px;color:var(--mark);margin-right:3px}
+.wrap a{color:var(--mark)}
+.store{font-size:12px;color:var(--muted)}
+.nt{font-size:12px;color:var(--muted)}
+.callout{border:1px solid var(--line);border-left:3px solid var(--mark);border-radius:4px;padding:10px 12px}
+.callout ul{margin:6px 0 0;padding-left:20px}
+#montazh{border:1px solid var(--line);border-radius:6px;overflow:hidden}
+@media print{#montazhSec{display:none} input.pr{border:0} .callout{break-inside:avoid} tr{break-inside:avoid}}
+
+/* Работилница: тъмен фон за 3D сцената, светъл панел със стъпките; оранжево за маркировки */
+:root{
+  --m-bg:#eceae6; --m-panel:#fbfaf8; --m-ink:#1f2328; --m-muted:#5d636b; --m-line:#d3d0c9; --m-mark:#d4621b; --m-btn:#1f2328; --m-btnfg:#fbfaf8;
+  --m-scene:#dcd9d3;
+  --m-f-head:"Arial Narrow","Roboto Condensed",system-ui,sans-serif;
+  --m-f-body:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --m-bg:#141619; --m-panel:#1d2024; --m-ink:#e7e5e0; --m-muted:#a2a7ae; --m-line:#363a40; --m-mark:#f08a45; --m-btn:#e7e5e0; --m-btnfg:#141619; --m-scene:#2a2d31; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --m-bg:#141619; --m-panel:#1d2024; --m-ink:#e7e5e0; --m-muted:#a2a7ae; --m-line:#363a40; --m-mark:#f08a45; --m-btn:#e7e5e0; --m-btnfg:#141619; --m-scene:#2a2d31; color-scheme:dark}
+
+
+#montazh .app{background:var(--m-bg);color:var(--m-ink);font:15px/1.5 var(--m-f-body);height:620px;display:grid;grid-template-columns:1fr 360px}
+#montazh #view{position:relative;min-width:0;min-height:0;background:var(--m-scene)}
+#montazh #view canvas{display:block;width:100%;height:100%}
+#montazh .hint{position:absolute;left:max(12px,env(safe-area-inset-left,0px));bottom:12px;font-size:12px;color:var(--m-muted);background:var(--m-panel);border:1px solid var(--m-line);border-radius:4px;padding:4px 8px}
+#montazh aside{background:var(--m-panel);border-left:1px solid var(--m-line);display:flex;flex-direction:column;min-height:0;
+  padding-left:18px;padding-right:max(18px,env(safe-area-inset-right,0px));padding-block:18px;gap:14px;overflow:auto}
+#montazh .eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--m-mark);font-weight:600}
+#montazh h1{font:700 26px/1.1 var(--m-f-head);margin:0;text-wrap:balance}
+#montazh #stepTitle{font:700 21px/1.2 var(--m-f-head);margin:0;text-wrap:balance}
+#montazh #stepText{margin:0;max-width:60ch}
+#montazh .parts{font-size:13px;color:var(--m-muted);margin:0}
+#montazh .nav{display:flex;gap:8px;align-items:center}
+#montazh button{font:600 14px var(--m-f-body);border-radius:6px;border:1px solid var(--m-btn);padding:9px 14px;cursor:pointer}
+#montazh #next{background:var(--m-btn);color:var(--m-btnfg)} #montazh #prev,#replay{background:transparent;color:var(--m-ink)}
+#montazh button:focus-visible{outline:3px solid var(--m-mark);outline-offset:2px}
+#montazh button:disabled{opacity:.4;cursor:default}
+#montazh #counter{margin-left:auto;font-variant-numeric:tabular-nums;color:var(--m-muted);font-size:13px}
+#montazh ol{margin:0;padding-left:22px;display:grid;gap:3px;font-size:13px}
+#montazh ol li{cursor:pointer;color:var(--m-muted)} #montazh ol li.on{color:var(--m-ink);font-weight:600}
+#montazh .note{font-size:12px;color:var(--m-muted);border-top:1px solid var(--m-line);padding-top:10px;margin:0}
+@media (max-width:760px){#montazh .app{grid-template-columns:1fr;grid-template-rows:55vh auto;height:auto}#montazh #view{height:55vh}#montazh aside{border-left:0;border-top:1px solid var(--m-line)}}
+
+</style>
+<div class="wrap">
+  <header>
+    <h1 class="t">Офис KAYA LUX: какво да купя</h1>
+    <p class="lead">Всичко от 3D проекта по места, с ориентировъчни цени в евро от магазини в София. Отмятайте купеното. Ако в магазина цената е различна, сменете я на реда и сметката се преизчислява. Отметките и цените се пазят в този браузър. Знакът <span class="est">≈</span> значи, че цената е приблизителна, без конкретна обява.</p>
+  </header>
+  <div class="sum">
+    <div class="tile"><span>Общо приблизително</span><b id="tTot">–</b></div>
+    <div class="tile"><span>Купено</span><b id="tDone">–</b></div>
+    <div class="tile"><span>Остава</span><b id="tLeft">–</b></div>
+  </div>
+  <div class="callout"><b>Преди пазаруването премерете:</b>
+    <ul><li>стената за дивана, на пода (трябва 1,87 м);</li><li>горния ръб на радиатора;</li><li>стъпалата: разстоянието между тях, височината до тавана над всяко стъпало, дебелината на шперплата. След това решаваме кой вариант на въжетата е по-евтин.</li></ul>
+    <p class="nt" style="margin:6px 0 0">eMAG доставя до офис или автомат в София, обикновено безплатно над определена сума. Проверете при поръчка.</p>
+  </div>
+  <div id="sections"></div>
+  <section id="montazhSec" style="display:grid;gap:10px">
+    <h2 class="s">Монтаж на парапета от въжета: стъпка по стъпка<small></small></h2>
+    <div id="montazh"><div class="app">
+  <div id="view"><div class="hint">Влачете за въртене · колелце/два пръста за мащаб</div></div>
+  <aside>
+    <div>
+      <div class="eyebrow">Монтаж на 1 въже · стъпка по стъпка</div>
+      <h1>Въже на стълбата</h1>
+    </div>
+    <div style="display:grid;gap:8px">
+      <div class="eyebrow" id="stepNo">Стъпка 0</div>
+      <h2 id="stepTitle"></h2>
+      <p id="stepText"></p>
+      <p class="parts" id="stepParts"></p>
+    </div>
+    <div class="nav">
+      <button id="prev" type="button">Назад</button>
+      <button id="next" type="button">Напред</button>
+      <button id="replay" type="button" title="Покажи стъпката отново">↻</button>
+      <span id="counter"></span>
+    </div>
+    <ol id="list"></ol>
+    <p class="note">Въжето минава отвесно от тавана през външния метален профил на стълбата (5 × 10 см). Стъпалото не се стеснява. Детайлите са уголемени, разстоянието таван–профил е съкратено. Повтаря се за всяко от 11-те въжета.</p>
+  </aside>
+</div></div>
+  </section>
+</div>
+<script>
+const DATA=[{"sec": "Долу: под подиума и под стълбата", "name": "Черен стелаж 160×50×180, 6 рафта ПДЧ, 300 кг/рафт (под подиума)", "size": "160×50×180", "qty": 1, "price": 155, "est": 0, "store": "Bauhaus София", "url": "https://bauhaus.bg/metalen-stelazh/p/112311", "note": "мястото е мин. 1,64 м (измерено) – ~4 см резерв"}, {"sec": "Долу: стената с радиатора", "name": "BOAXEL рафт 80×40", "size": "80×40", "qty": 8, "price": 10.23, "est": 0, "store": "IKEA София", "url": "https://www.ikea.bg/brand/boaxel/", "note": "по 4 рафта на стелаж"}, {"sec": "Долу: стената с радиатора", "name": "BOAXEL конзола", "size": "40", "qty": 8, "price": 1.53, "est": 0, "store": "IKEA София", "url": "https://www.ikea.bg/brand/boaxel/", "note": "по 2 на рафт; проверете, че е за 40 см"}, {"sec": "Долу: стената с радиатора", "name": "BOAXEL горна релса 80", "size": "80", "qty": 2, "price": 4.09, "est": 0, "store": "IKEA София", "url": "https://www.ikea.bg/brand/boaxel/", "note": ""}, {"sec": "Долу: стената с радиатора", "name": "BOAXEL вертикална релса ~82", "size": "82", "qty": 3, "price": 6, "est": 1, "store": "IKEA София", "url": "https://www.ikea.bg/brand/boaxel/", "note": "цената не я намерих"}, {"sec": "Долу: зона за сядане", "name": "Диван Лиан, сив, триместен, релакс", "size": "185×93×105", "qty": 1, "price": 519, "est": 0, "store": "Aiko София", "url": "https://aiko-bg.com/product-23553010003", "note": "в промоция 519 € (редовна 649 €); отместен ~15 см от стената, пред колонките"}, {"sec": "Долу: зона за сядане", "name": "Масичка (лека)", "size": "~90×50×45", "qty": 1, "price": 60, "est": 1, "store": "IKEA / Jysk", "url": "", "note": "по-солидна маса; IKEA / Jysk"}, {"sec": "Предверие", "name": "Метален шкаф с 2 заключващи се отделения Carmen CR-1257", "size": "30×45×180", "qty": 2, "price": 104.3, "est": 0, "store": "Bittel", "url": "https://www.bittel.bg/en/metal-cabinet-carmen-cr-1257-j", "note": "2 бр. = 4 врати (60 см); търсихме CR-1257-K, намерихме CR-1257 J"}, {"sec": "Предверие", "name": "Закачалка с 5 куки", "size": "~100 см", "qty": 1, "price": 10, "est": 1, "store": "Praktiker / IKEA", "url": "", "note": ""}, {"sec": "Горе: подиумът", "name": "Черен стелаж 160×50×180, 6 рафта ПДЧ, 300 кг/рафт (дъното, по цялата ширина)", "size": "160×50×180", "qty": 1, "price": 155, "est": 0, "store": "Bauhaus София", "url": "https://bauhaus.bg/metalen-stelazh/p/112311", "note": "тубите 20 л"}, {"sec": "Горе: подиумът", "name": "Черен стелаж 120×50×180, 6 рафта ПДЧ, 300 кг/рафт (на мястото на белия шкаф)", "size": "120×50×180", "qty": 1, "price": 119, "est": 0, "store": "Bauhaus София", "url": "https://bauhaus.bg/metalen-stelazh/p/112312", "note": "пътеката горе става ~71 см"}, {"sec": "Горе: подиумът", "name": "Стелаж ATLAS 90 NEO 180×90×40, графит, 5 рафта OSB до 210 кг (по ръба, до задния стелаж)", "size": "90×40×180", "qty": 1, "price": 35.95, "est": 0, "store": "Bauhaus София (наличен)", "url": "https://bauhaus.bg/metalni-stelazhi/c/1608", "note": "по ръба 0,51 + 0,90 + 1,20 = 2,61 м; до стълбата (2,62) остава ~1 см"}, {"sec": "Горе: подиумът", "name": "Офис стол", "size": "", "qty": 1, "price": 45, "est": 1, "store": "IKEA / Jysk", "url": "", "note": ""}, {"sec": "Горе: подиумът", "name": "Рафтове в нишата (ПДЧ, нарязани) + носачи", "size": "73×25", "qty": 4, "price": 6, "est": 1, "store": "Salex / Praktiker", "url": "https://salex.bg/", "note": ""}, {"sec": "Горе: подиумът", "name": "LED лента 2 м + захранване", "size": "2 м", "qty": 1, "price": 20, "est": 1, "store": "Praktiker / Bauhaus", "url": "", "note": ""}, {"sec": "Горе: подиумът", "name": "OSB 15 мм, 2500×1250 (втори слой върху шперплата, разкрой: 3 листа)", "size": "2500×1250", "qty": 3, "price": 24, "est": 0, "store": "Bauhaus София", "url": "", "note": "намерен на 24 €/лист"}, {"sec": "Горе: подиумът", "name": "Самопробиващи винтове с крилца за дърво към метал 5,5×45 (шперплата към профилите)", "size": "", "qty": 150, "price": 0.1, "est": 1, "store": "Bauhaus / Praktiker", "url": "", "note": "на 15 см във всяка греда – спира скърцането"}, {"sec": "Горе: подиумът", "name": "Рапидки с едра резба (за дърво) 3,9×30 – OSB към шперплата", "size": "", "qty": 250, "price": 0.03, "est": 1, "store": "Bauhaus / Praktiker", "url": "", "note": "30 мм – не излизат отдолу; 15 см по края, 30 см в средата"}, {"sec": "Горе: подиумът", "name": "Мокет антрацит, руло 4 м – едно парче 4 × 3,20 м (целият подиум + нишата)", "size": "4×3,2 м", "qty": 12.8, "price": 9.2, "est": 1, "store": "Bauhaus / Praktiker", "url": "", "note": "без фуга; отрязъкът ~1,4×1,8 → изтривалка в предверието"}, {"sec": "Горе: подиумът", "name": "Двойнолепяща лента за мокет 50 мм", "size": "25 м", "qty": 1, "price": 10, "est": 1, "store": "Bauhaus / Praktiker", "url": "", "note": "периметър + мрежа 50 см"}, {"sec": "Горе: подиумът", "name": "Черен ъглов профил за ръба на подиума (алуминий)", "size": "2,7 м", "qty": 2, "price": 8, "est": 1, "store": "Bauhaus / Praktiker", "url": "", "note": "ръба към стаята и при стълбата"}, {"sec": "Гръб на стелажите по ръба", "name": "Перфорирана ламарина 1 мм Ф5, лист 1250×2500 (гръб по ръба, височина 2,10 до тавана)", "size": "1250×2500", "qty": 3, "price": 53, "est": 1, "store": "alo.bg / bazar.bg, София", "url": "https://www.alo.bg/perforirana-lamarina-na-dupki-za-sita-parapeti-mebeli-dekoracii-10031322", "note": "4 листа 1000×2000: 1000×2000; 900×2000; 510×2000 + 400×1800; 200×2000 + 400×1800 + 260×700; склад 0889 999 264"}, {"sec": "Гръб на стелажите по ръба", "name": "Рязане на ламарината", "size": "", "qty": 1, "price": 15, "est": 1, "store": "при продавача", "url": "", "note": ""}, {"sec": "Гръб на стелажите по ръба", "name": "Болт М4×16 + широка шайба М4 (DIN 9021) + гайка – ламарината към стелажите", "size": "", "qty": 50, "price": 0.15, "est": 1, "store": "Tashev-Galving", "url": "", "note": "през готовите дупки Ф5, без пробиване"}, {"sec": "Гръб на стелажите по ръба", "name": "Спрей боя тъмносива (по желание)", "size": "", "qty": 2, "price": 7, "est": 1, "store": "Praktiker", "url": "", "note": ""}, {"sec": "Стълбата: парапет от стоманено въже", "name": "Черно стоманено въже с PVC 6 мм (стомана 4 мм), 7×19", "size": "на метър", "qty": 40, "price": 1.09, "est": 0, "store": "Tashev-Galving", "url": "https://tashev-galving.com/product/110-MUM-158/vazhe-stomaneno-qd-rigging-china-s-cherno-pvc-pokritie-f-6-mm-f-4-mm-7h19-228-kg", "note": "11 въжета (по 1 до всяко стъпало), измерено: 33,3 м + примки ≈ 37 м"}, {"sec": "Стълбата: парапет от стоманено въже", "name": "Алуминиеви гилзи DIN 3093 (опаковка)", "size": "за 4–5 мм", "qty": 1, "price": 16.1, "est": 0, "store": "strefa.bg", "url": "https://strefa.bg/-c1113/", "note": "опаковка 200 бр.; питайте Tashev-Galving за по-малко"}, {"sec": "Стълбата: парапет от стоманено въже", "name": "Кримпващи клещи за гилзи до 4–5 мм", "size": "", "qty": 1, "price": 35, "est": 1, "store": "магазин за такелаж", "url": "", "note": "или ги пресоват в магазина"}, {"sec": "Стълбата: парапет от стоманено въже", "name": "Клещи-резачки за стоманено въже", "size": "", "qty": 1, "price": 15, "est": 1, "store": "Praktiker / Tashev-Galving", "url": "", "note": ""}, {"sec": "Стълбата: парапет от стоманено въже", "name": "Ринг болт М8 DIN 580", "size": "М8", "qty": 11, "price": 0.49, "est": 0, "store": "Tashev-Galving", "url": "https://tashev-galving.com/product/007-PNR-616/bolt-qd-rigging-china-ring-potsinkovan-m8-mm-1-25-mm-din-580", "note": "само в тавана"}, {"sec": "Стълбата: парапет от стоманено въже", "name": "Набивен анкер Fischer EA II", "size": "М8×30", "qty": 11, "price": 0.6, "est": 1, "store": "Tashev-Galving", "url": "https://tashev-galving.com/product/025-FSR-776/nabiven-anker-fischer-za-beton-s-oporen-prasten-potsinkovan-m8h30-mm-ea-ii", "note": ""}, {"sec": "Стълбата: парапет от стоманено въже", "name": "Инструмент за набиване EA II М8", "size": "", "qty": 1, "price": 8, "est": 1, "store": "Tashev-Galving", "url": "", "note": ""}, {"sec": "Стълбата: парапет от стоманено въже", "name": "Обтегач ухо-кука 100 кг", "size": "М6", "qty": 11, "price": 1, "est": 1, "store": "Tashev-Galving", "url": "https://tashev-galving.com/product/069-MUM-002/obtegach-za-vazheta-qd-rigging-china-uho-kuka-100-kg-m6x135x185-mm", "note": ""}, {"sec": "Стълбата: парапет от стоманено въже", "name": "Свредла: SDS Ø10 за бетон + HSS-Co Ø8 за метал (дълго, 130+ мм)", "size": "", "qty": 1, "price": 15, "est": 1, "store": "Praktiker", "url": "", "note": ""}, {"sec": "Стълбата: парапет от стоманено въже", "name": "Широка шайба М5/М6 (под профила, за стопера)", "size": "", "qty": 11, "price": 0.1, "est": 1, "store": "Tashev-Galving / Praktiker", "url": "", "note": "въжето минава през профила; отдолу шайба + 2 гилзи"}, {"sec": "Стълбата: парапет от стоманено въже", "name": "Гумена втулка (грометка) за отвор Ø8", "size": "Ø8", "qty": 11, "price": 0.2, "est": 1, "store": "Praktiker / авточасти", "url": "", "note": "в горната дупка на профила, да не се жули въжето"}, {"sec": "Входна врата", "name": "Надпис/стикер KAYA LUX + Унищожители", "size": "по стъклото", "qty": 1, "price": 50, "est": 1, "store": "рекламна фирма", "url": "", "note": "чакат се размерите и логото"}];
+const KEY='kayalux-ofis-v2';let st={};try{st=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}};
+const eur=v=>v.toLocaleString('bg-BG',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';
+const host=document.getElementById('sections');const secs=[...new Set(DATA.map(r=>r.sec))];
+secs.forEach((sec,si)=>{const s=document.createElement('section');s.style.display='grid';s.style.gap='6px';
+  s.innerHTML='<h2 class="s">'+sec+'<small id="ss'+si+'"></small></h2><div class="tw"><table class="l"><thead><tr><th></th><th>Какво</th><th>Размер</th><th style="text-align:right">Брой</th><th style="text-align:right">Цена/бр.</th><th style="text-align:right">Сума</th><th>Къде</th></tr></thead><tbody></tbody></table></div>';
+  host.appendChild(s);const tb=s.querySelector('tbody');
+  DATA.forEach((r,i)=>{if(r.sec!==sec)return;const tr=document.createElement('tr');tr.dataset.i=i;
+    const p=(st['p'+i]!=null)?st['p'+i]:r.price;
+    tr.innerHTML='<td><input type="checkbox" id="c'+i+'" aria-label="Купено"></td><td class="nm">'+r.name+(r.note?'<div class="nt">'+r.note+'</div>':'')+'</td><td class="n" style="text-align:left">'+r.size+'</td><td class="n">'+r.qty+'</td><td class="n">'+(r.est?'<span class="est">≈</span>':'')+'<input class="pr" id="p'+i+'" type="number" step="0.01" min="0" value="'+p+'" aria-label="Цена на брой"></td><td class="n" id="s'+i+'"></td><td class="store">'+(r.url?'<a href="'+r.url+'">'+r.store+'</a>':r.store)+'</td>';
+    tb.appendChild(tr);
+    const cb=tr.querySelector('input[type=checkbox]'),pr=tr.querySelector('input.pr');cb.checked=!!st['c'+i];
+    cb.addEventListener('change',()=>{st['c'+i]=cb.checked;save();calc();});
+    pr.addEventListener('input',()=>{const v=parseFloat(pr.value);st['p'+i]=isNaN(v)?0:v;save();calc();});});});
+function calc(){let tot=0,done=0;const ss={};
+  DATA.forEach((r,i)=>{const v=(parseFloat(document.getElementById('p'+i).value)||0)*r.qty;tot+=v;document.getElementById('s'+i).textContent=eur(v);
+    const c=document.getElementById('c'+i).checked;if(c)done+=v;document.querySelector('tr[data-i="'+i+'"]').classList.toggle('done',c);
+    const s=secs.indexOf(r.sec);ss[s]=(ss[s]||0)+v;});
+  Object.keys(ss).forEach(s=>document.getElementById('ss'+s).textContent=eur(ss[s]));
+  document.getElementById('tTot').textContent=eur(tot);document.getElementById('tDone').textContent=eur(done);document.getElementById('tLeft').textContent=eur(tot-done);}
+calc();
+</script>
+
+<script src="three.min.js"></script>
+<script src="OrbitControls.js"></script>
+<script>
+const STEPS=[
+ {t:'Крайният резултат',d:'Горе: анкер в тавана, ринг болт и обтегач. Въжето слиза отвесно и минава ПРЕЗ външния метален профил на стълбата (две дупки Ø8 – в горната и в долната стена). Отдолу под профила го държи широка шайба и стопер от две алуминиеви гилзи. Стъпалото остава 60 см, нищо не стърчи върху него.',p:'',cam:'all'},
+ {t:'Маркирайте точката на профила',d:'По средата на горната стена на външния профил (2,5 см от ръба), до средата на стъпалото. 11 точки – по една до всяко стъпало. Проверете отдолу, че там няма заварка или болт.',p:'Молив/маркер, ролетка',cam:'prof'},
+ {t:'Пренесете точката на тавана',d:'Отвес или лазер от точката на профила нагоре. Където сочи, маркирате тавана – така въжето е точно отвесно и не търка в дупките.',p:'Отвес или лазер',cam:'all'},
+ {t:'Пробийте тавана',d:'Перфоратор, свредло SDS Ø10, ~32 мм дълбоко. Издухайте праха.',p:'Свредло SDS Ø10',cam:'top'},
+ {t:'Набийте анкера',d:'Анкер Fischer EA II М8 в дупката, с инструмента за набиване и няколко удара с чук.',p:'Анкер EA II М8×30, инструмент за набиване, чук',cam:'top'},
+ {t:'Завийте ринг болта',d:'Ринг болт М8 (DIN 580) в анкера, на ръка до стягане.',p:'Ринг болт М8',cam:'top'},
+ {t:'Пробийте профила (две стени)',d:'Бормашина, свредло за метал HSS-Co Ø8, отвесно отгоре. Първо кернер, малки обороти, капка масло. Минава през горната стена, после през долната (профилът е кух, 10 см). Държите свредлото отвесно – двете дупки трябва да са една под друга.',p:'Бормашина, свредло HSS-Co Ø8 (дълго, поне 130 мм), кернер, масло',cam:'prof'},
+ {t:'Почистете ръбовете + гумена втулка',d:'С по-голямо свредло (Ø12) завъртете на ръка в дупките, за да махнете острия ръб. В горната дупка натиснете гумена втулка (грометка) – въжето няма да се жули.',p:'Свредло Ø12 на ръка, гумена втулка за отвор Ø8',cam:'prof'},
+ {t:'Закачете обтегача горе',d:'Отворете обтегача докрай и закачете куката му в халката на тавана. Ухото му виси надолу.',p:'Обтегач ухо-кука М6',cam:'eye'},
+ {t:'Ухо на въжето: гилза + кримпване',d:'Махнете ~4 см PVC от края. Нанижете алуминиева гилза, прекарайте края през ухото на обтегача, върнете в гилзата (~1 см навън) и я стиснете с клещите 2–3 пъти.',p:'Въже стоманено с черно PVC 6 мм, гилза DIN 3093 за 4 мм, кримпващи клещи, макетно ножче',cam:'eye'},
+ {t:'Прекарайте въжето през профила',d:'Пуснете свободния край отгоре в горната дупка, той излиза от долната. Издърпайте отдолу.',p:'',cam:'prof'},
+ {t:'Стопер отдолу',d:'Издърпайте въжето на ръка, докато се изпъне. Махнете ~5 см PVC под профила, нанижете широка шайба М5/М6, после две гилзи една до друга и ги стиснете плътно под шайбата. Отрежете края на ~1 см под гилзите.',p:'Широка шайба, 2 гилзи DIN 3093 за 4 мм, кримпващи клещи, клещи-резачки за стоманено въже',cam:'under'},
+ {t:'Опънете с обтегача',d:'Въртите тялото на обтегача горе – той се скъсява и изпъва въжето като струна. Стоперът отдолу опира в шайбата и профила.',p:'',cam:'all'},
+ {t:'Готово, следващото въже',d:'Повтаряте за всички 11 въжета. Започнете от средното стъпало и проверете, преди да продължите.',p:'',cam:'all'}
+];
+const view=document.getElementById('view');
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));view.appendChild(renderer.domElement);
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(40,1,0.01,50);
+const controls=new THREE.OrbitControls(camera,renderer.domElement);controls.enableDamping=true;
+scene.add(new THREE.HemisphereLight(0xffffff,0x777777,0.95));
+const sun=new THREE.DirectionalLight(0xffffff,0.75);sun.position.set(2,4,3);scene.add(sun);
+const M=(c,o={})=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.6,metalness:.1},o));
+const zinc=M(0xb9bec4,{metalness:.7,roughness:.35}), dark=M(0x2a2d31,{metalness:.5,roughness:.5}), rope=M(0x141518,{roughness:.9}),
+      ply=M(0x3a2f27,{roughness:.8}), concrete=M(0x9a9893,{transparent:true,opacity:.55,roughness:.95}), orange=new THREE.MeshBasicMaterial({color:0xd4621b}),
+      brass=M(0xc9a64a,{metalness:.6,roughness:.35}), alu=M(0xc9cdd2,{metalness:.8,roughness:.3}), rubber=M(0x111111,{roughness:1}), hole=M(0x050505);
+const add=(m,p)=>{(p||scene).add(m);return m;};
+const box=(w,h,d,mat)=>new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);
+const cyl=(r,h,mat,seg=24)=>new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,seg),mat);
+// --- таван, профил 5×10 (кух), стъпало до него
+const CY=2.0, PT=0.45, PH=0.10, PW=0.05, WT=0.004; // таван; горен ръб на профила; височина; широчина; стена
+add(box(1.4,0.3,0.9,concrete)).position.set(0,CY+0.15,0);
+const prof=new THREE.Group();add(prof);
+// кух профил: 4 стени, срязан по-късо, за да се вижда вътрешността в края
+[[PW,WT,1.2,0,PT-WT/2,0],[PW,WT,1.2,0,PT-PH+WT/2,0],[WT,PH,1.2,-PW/2+WT/2,PT-PH/2,0],[WT,PH,1.2,PW/2-WT/2,PT-PH/2,0]].forEach(a=>{const b=box(a[0],a[1],a[2],dark);b.position.set(a[3],a[4],a[5]);prof.add(b);});
+// стъпало (шперплат в метална рамка) от вътрешната страна на профила
+add(box(0.60,0.035,0.26,ply)).position.set(PW/2+0.30,PT-0.0175,0);
+[[0.60,0.04,0.02,PW/2+0.30,PT-0.02,0.14],[0.60,0.04,0.02,PW/2+0.30,PT-0.02,-0.14]].forEach(a=>{const b=box(a[0],a[1],a[2],dark);b.position.set(a[3],a[4],a[5]);add(b);});
+// --- части
+function ringBolt(){const g=new THREE.Group();const sh=cyl(0.011,0.09,zinc,12);sh.position.y=-0.045;g.add(sh);
+  const col=cyl(0.02,0.012,zinc);col.position.y=0.006;g.add(col);
+  const r=new THREE.Mesh(new THREE.TorusGeometry(0.04,0.011,10,28),zinc);r.position.y=0.052;g.add(r);return g;}
+const P={};
+P.markB=add(new THREE.Mesh(new THREE.CircleGeometry(0.012,20),orange));P.markB.rotation.x=-Math.PI/2;P.markB.position.set(0,PT+0.002,0);
+P.markT=add(new THREE.Mesh(new THREE.CircleGeometry(0.018,20),orange));P.markT.rotation.x=Math.PI/2;P.markT.position.set(0,CY-0.002,0);
+P.plumb=new THREE.Group();add(P.plumb);{const l=cyl(0.002,CY-PT-0.06,orange,6);l.position.y=(CY+PT+0.06)/2;P.plumb.add(l);const w=new THREE.Mesh(new THREE.ConeGeometry(0.015,0.04,16),orange);w.rotation.x=Math.PI;w.position.y=PT+0.03;P.plumb.add(w);}
+P.holeT=add(cyl(0.022,0.12,hole,16));P.holeT.position.set(0,CY+0.06,0);
+P.drillT=new THREE.Group();add(P.drillT);{const b=cyl(0.02,0.3,zinc,8);b.position.y=0.15;P.drillT.add(b);const c=cyl(0.05,0.12,M(0x2e6db4),16);c.position.y=-0.06;P.drillT.add(c);}
+P.anchor=new THREE.Group();add(P.anchor);{const a=cyl(0.02,0.12,brass,16);a.position.y=0.06;P.anchor.add(a);const lip=cyl(0.026,0.008,brass,16);lip.position.y=0.004;P.anchor.add(lip);}
+P.tool=new THREE.Group();add(P.tool);{const t=cyl(0.014,0.22,zinc,12);t.position.y=-0.11;P.tool.add(t);const h=box(0.05,0.08,0.16,dark);h.position.set(0,-0.28,0.02);P.tool.add(h);}
+P.ringT=ringBolt();P.ringT.rotation.x=Math.PI;add(P.ringT);
+// дупки в профила (горна и долна стена)
+P.hT=add(cyl(0.0075,WT+0.002,hole,16));P.hT.position.set(0,PT-WT/2,0);
+P.hB=add(cyl(0.0075,WT+0.002,hole,16));P.hB.position.set(0,PT-PH+WT/2,0);
+P.drillB=new THREE.Group();add(P.drillB);{const b=cyl(0.0075,0.22,zinc,8);b.position.y=-0.11;P.drillB.add(b);const c=cyl(0.045,0.13,M(0x2e6db4),16);c.position.y=0.065;P.drillB.add(c);}
+P.grom=add(new THREE.Mesh(new THREE.TorusGeometry(0.0085,0.003,8,20),rubber));P.grom.rotation.x=Math.PI/2;P.grom.position.set(0,PT+0.001,0);
+// стопер отдолу: шайба + 2 гилзи
+P.stop=new THREE.Group();add(P.stop);
+{const w=cyl(0.017,0.003,zinc,24);w.position.y=-0.0015;P.stop.add(w);
+ [0,1].forEach(i=>{const f=cyl(0.0085,0.022,alu,20);f.position.y=-0.003-0.011-i*0.023;P.stop.add(f);
+   [-0.006,0.006].forEach(d=>{const m=new THREE.Mesh(new THREE.TorusGeometry(0.0085,0.0015,6,20),M(0x8d9297));m.rotation.x=Math.PI/2;m.position.y=f.position.y+d;P.stop.add(m);});});
+ const tail=cyl(0.002,0.012,zinc,8);tail.position.y=-0.003-0.046-0.006;P.stop.add(tail);
+ const pl=new THREE.Group();pl.position.y=-0.025;P.stop.add(pl);P.stop.userData.pl=pl;
+ const jA=new THREE.Group(),jB=new THREE.Group();pl.add(jA);pl.add(jB);
+ [[jA,1],[jB,-1]].forEach(([j,s])=>{const jaw=box(0.025,0.025,0.04,M(0x2b2f35,{metalness:.5}));j.add(jaw);
+   const h=box(0.016,0.014,0.26,M(0xc0392b));h.position.set(0,0,0.15);j.add(h);});
+ P.stop.userData.jaws=[jA,jB];}
+P.stop.position.set(0,PT-PH,0);
+// обтегач горе: кука в халката на тавана, тяло, ухо надолу
+P.tb=new THREE.Group();add(P.tb);
+const tbBody=new THREE.Group();P.tb.add(tbBody);
+[-1,1].forEach(s=>{const bar=box(0.008,0.16,0.012,zinc);bar.position.set(s*0.018,0,0);tbBody.add(bar);});
+[-1,1].forEach(s=>{const boss=cyl(0.012,0.02,zinc,12);boss.position.y=s*0.08;tbBody.add(boss);});
+const tbHook=new THREE.Group();P.tb.add(tbHook);{const h=new THREE.Mesh(new THREE.TorusGeometry(0.028,0.006,8,20,Math.PI*1.4),zinc);h.rotation.z=Math.PI*0.8;tbHook.add(h);
+  const s=cyl(0.006,0.07,zinc,8);s.position.y=-0.028-0.035;tbHook.add(s);}
+const tbEye=new THREE.Group();P.tb.add(tbEye);{const e=new THREE.Mesh(new THREE.TorusGeometry(0.022,0.006,8,20),zinc);tbEye.add(e);
+  const s=cyl(0.006,0.07,zinc,8);s.position.y=0.022+0.035;tbEye.add(s);}
+let tl=1, bodyRot=0;
+const hookC=()=>CY-0.12, bodyC=()=>CY-0.27, eyeC=()=>CY-0.35-0.03-0.07*tl-0.022-0.035;
+function layoutTB(){tbHook.position.set(0,hookC(),0);tbBody.position.set(0,bodyC(),0);tbBody.rotation.y=bodyRot;tbEye.position.set(0,eyeC(),0);}
+// въже с ухо горе (гилза) и свободен/застопорен край долу
+let ropeMesh=null;
+const TH_R=0.022, ZM=-0.0065, ZT=0.0065;
+function eyePath(cy){const pts=[],R=TH_R;
+  pts.push(new THREE.Vector3(0,cy-(R+0.085),ZT));pts.push(new THREE.Vector3(0,cy-(R+0.03),ZT));
+  for(let i=0;i<=18;i++){const a=(-60+i*(300/18))*Math.PI/180;pts.push(new THREE.Vector3(0,cy+Math.sin(a)*R,Math.cos(a)*R*0.8));}
+  pts.push(new THREE.Vector3(0,cy-(R+0.03),ZM));return pts;}
+function buildRope(mode,sag){ // mode 0: виси свободно; 1: минава през профила; 2: застопорено
+  if(ropeMesh){scene.remove(ropeMesh);ropeMesh.geometry.dispose();}
+  const cy=eyeC();let pts=eyePath(cy);
+  if(mode===0){pts.push(new THREE.Vector3(0.05,(cy+PT)/2+0.25,ZM));pts.push(new THREE.Vector3(0.14,PT+0.35,ZM+0.05));pts.push(new THREE.Vector3(0.22,PT+0.25,ZM+0.1));}
+  else{const xs=sag*0.10;
+    pts.push(new THREE.Vector3(xs,(cy+PT)/2,ZM*(1-0.9)));pts.push(new THREE.Vector3(0,PT+0.06,0));pts.push(new THREE.Vector3(0,PT,0));pts.push(new THREE.Vector3(0,PT-PH,0));
+    if(mode===1){pts.push(new THREE.Vector3(0,PT-PH-0.08,0));pts.push(new THREE.Vector3(0.03,PT-PH-0.2,0.02));}
+    else{pts.push(new THREE.Vector3(0,PT-PH-0.004,0));}}
+  ropeMesh=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),280,0.0045,8,false),rope);scene.add(ropeMesh);
+  HW.position.set(0,cy,0);}
+function ferruleTop(){const g=new THREE.Group();
+  const f=cyl(0.010,0.04,alu,20);f.scale.z=1.75;f.position.y=-(TH_R+0.05);g.add(f);
+  [-0.01,0.01].forEach(d=>{const m=new THREE.Mesh(new THREE.TorusGeometry(0.010,0.0018,6,20),M(0x8d9297));m.rotation.x=Math.PI/2;m.scale.y=1.75;m.position.y=-(TH_R+0.05)+d;g.add(m);});
+  const pl=new THREE.Group();pl.position.y=-(TH_R+0.05);g.add(pl);g.userData.pl=pl;
+  const jA=new THREE.Group(),jB=new THREE.Group();pl.add(jA);pl.add(jB);
+  [[jA,1],[jB,-1]].forEach(([j,s])=>{const jaw=box(0.03,0.03,0.05,M(0x2b2f35,{metalness:.5}));j.add(jaw);const h=box(0.02,0.018,0.32,M(0xc0392b));h.position.set(0,0,0.19);j.add(h);});
+  g.userData.jaws=[jA,jB];return g;}
+const HW=ferruleTop();scene.add(HW);
+// --- стъпки
+let step=0,t0=0;
+const ease=x=>x<0?0:x>1?1:(1-Math.cos(Math.PI*x))/2;
+function setVis(k){const A=k===0;
+  P.markB.visible=k>=1&&k<=6; P.markT.visible=k>=2&&k<=3; P.plumb.visible=k===2;
+  P.holeT.visible=k===3; P.drillT.visible=k===3;
+  P.anchor.visible=A||k>=4; P.tool.visible=k===4; P.ringT.visible=A||k>=5;
+  P.hT.visible=P.hB.visible=A||k>=6; P.drillB.visible=k===6; P.grom.visible=A||k>=7;
+  P.tb.visible=A||k>=8; HW.visible=A||k>=9; P.stop.visible=A||k>=11;
+  if(ropeMesh)ropeMesh.visible=A||k>=9;}
+const CAMS={all:[[1.3,1.45,2.0],[0,1.15,0]],top:[[0.42,1.75,0.6],[0,1.92,0]],eye:[[0.42,1.55,0.62],[0,1.62,0]],prof:[[0.32,0.66,0.42],[0,0.42,0]],under:[[0.3,0.12,0.4],[0,0.33,0]]};
+let camFrom=null,camTo=null,tgFrom=null,tgTo=null;
+function go(k,keepCam){step=Math.max(0,Math.min(STEPS.length-1,k));t0=performance.now();
+  const s=STEPS[step];document.getElementById('stepNo').textContent=step===0?'Преглед':'Стъпка '+step+' от '+(STEPS.length-1);
+  document.getElementById('stepTitle').textContent=s.t;document.getElementById('stepText').textContent=s.d;
+  document.getElementById('stepParts').textContent=s.p?('Трябва ви: '+s.p):'';
+  document.getElementById('counter').textContent=step+' / '+(STEPS.length-1);
+  document.getElementById('prev').disabled=step===0;document.getElementById('next').disabled=step===STEPS.length-1;
+  [...document.querySelectorAll('#list li')].forEach((li,i)=>li.classList.toggle('on',i===step));
+  if(!keepCam){const c=CAMS[s.cam];camFrom=camera.position.clone();tgFrom=controls.target.clone();camTo=new THREE.Vector3(...c[0]);tgTo=new THREE.Vector3(...c[1]);}
+  setVis(step);anim.last=null;}
+function anim(now){
+  const e=(now-t0)/1000,k=step;
+  if(camTo){const a=ease(Math.min(1,e/1.0));camera.position.lerpVectors(camFrom,camTo,a);controls.target.lerpVectors(tgFrom,tgTo,a);if(a>=1)camTo=null;}
+  const up=(obj,y,from,dur,spin)=>{const a=ease(Math.min(1,e/dur));obj.position.set(0,y+from*(1-a),0);if(spin)obj.rotation.y=(1-a)*spin;};
+  P.markB.scale.setScalar(k===1?1+0.3*Math.sin(e*6):1);
+  if(k===3){const a=ease(Math.min(1,e/1.6));P.drillT.position.set(0,CY-0.62+0.5*a,0);P.drillT.rotation.y=e*30;P.holeT.scale.y=Math.max(0.01,a);P.holeT.position.y=CY+0.06*a;}
+  if(k===4){up(P.anchor,CY,-0.35,1.0);const tap=Math.max(0,e-1.0);P.tool.position.set(0,CY-Math.abs(Math.sin(tap*7))*0.05*(tap<2.5?1:0)-(e<1?0.4*(1-e):0),0);}
+  else P.anchor.position.set(0,CY,0);
+  if(k===5)up(P.ringT,CY,-0.3,1.6,Math.PI*8);else{P.ringT.position.set(0,CY,0);P.ringT.rotation.y=0;}
+  if(k===6){const a=ease(Math.min(1,e/2.4));P.drillB.position.set(0,PT+0.30-0.30*a-0.02*a,0);P.drillB.rotation.y=e*30;
+    P.hT.visible=a>0.15;P.hB.visible=a>0.9;}
+  if(k===7){const a=ease(Math.min(1,e/0.9));P.grom.position.y=PT+0.001+0.15*(1-a);}else P.grom.position.y=PT+0.001;
+  let mode=2,sag=0;
+  if(k===0||k===13){tl=0;bodyRot=0;}
+  else if(k===12){const a=ease(Math.min(1,e/2.2));tl=1-a;bodyRot=a*Math.PI*10;sag=1-a;}
+  else{tl=1;bodyRot=0;}
+  if(k===9)mode=0; if(k===10)mode=1; if(k===11){mode=2;sag=0.6;}
+  if(k>=9&&k<=11&&k!==11)sag=1; 
+  layoutTB();
+  if(k===8){const a=ease(Math.min(1,e/1.0));P.tb.position.set(0,-0.3*(1-a),0);}else P.tb.position.set(0,0,0);
+  if(k===0||k>=9){const key=k+':'+tl.toFixed(3)+':'+sag.toFixed(3)+':'+mode;if(key!==anim.last){buildRope(mode,sag);anim.last=key;}
+    if(k===10){const a=ease(Math.min(1,e/1.4));ropeMesh.position.y=0.25*(1-a);}else ropeMesh.position.y=0;
+    ropeMesh.visible=true;}
+  HW.userData.pl.visible=k===9; if(k===9){const c=Math.min(1,Math.max(0,(e-1.2)/0.5)),o=0.035*(1-c);HW.userData.jaws[0].position.x=o;HW.userData.jaws[1].position.x=-o;}
+  P.stop.userData.pl.visible=k===11;
+  if(k===11){const a=ease(Math.min(1,e/1.0));P.stop.position.y=PT-PH-0.12*(1-a);const c=Math.min(1,Math.max(0,(e-1.4)/0.5)),o=0.03*(1-c);P.stop.userData.jaws[0].position.x=o;P.stop.userData.jaws[1].position.x=-o;}
+  else P.stop.position.y=PT-PH;
+  controls.update();renderer.render(scene,camera);requestAnimationFrame(anim);}
+function resize(){const w=view.clientWidth,h=view.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/Math.max(1,h);camera.updateProjectionMatrix();}
+new ResizeObserver(resize).observe(view);resize();
+const list=document.getElementById('list');
+STEPS.forEach((s,i)=>{const li=document.createElement('li');li.textContent=i===0?'Преглед: крайният резултат':s.t;li.onclick=()=>go(i);list.appendChild(li);});
+document.getElementById('next').onclick=()=>go(step+1);
+document.getElementById('prev').onclick=()=>go(step-1);
+document.getElementById('replay').onclick=()=>go(step,true);
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')go(step+1);if(e.key==='ArrowLeft')go(step-1);});
+camera.position.set(1.3,1.45,2.0);controls.target.set(0,1.15,0);window.__m={go};
+go(0);requestAnimationFrame(anim);
+</script>
+
+</body>
+</html>

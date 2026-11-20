@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 760" font-family="Arial, sans-serif" font-size="14">
+  <rect width="1100" height="760" fill="#ffffff"/>
+  <text x="550" y="30" text-anchor="middle" font-size="20" font-weight="bold">Помещение — чертеж по скицата (версия 1, за проверка)</text>
+  <text x="550" y="52" text-anchor="middle" fill="#b00">Червените стойности с „?“ са неясни или си противоречат — моля, потвърдете</text>
+
+  <!-- ===== ЕТАЖ 1 ===== -->
+  <g transform="translate(60,90)">
+    <text x="200" y="0" text-anchor="middle" font-size="17" font-weight="bold">ЕТ. 1 (долу), поглед отгоре</text>
+    <!-- стени: мащаб 1 м = 110 px; ширина 2.88 м, дълбочина ? (приета 1.87+1.45 = 3.32 м) -->
+    <rect x="20" y="20" width="317" height="365" fill="#fafafa" stroke="#000" stroke-width="4"/>
+    <!-- зона под мецанина (задна част) -->
+    <rect x="22" y="22" width="313" height="206" fill="#e8e8e8"/>
+    <text x="230" y="45" text-anchor="middle" fill="#555">под мецанина (ет. 2 отгоре)</text>
+    <!-- стълба по лявата стена -->
+    <rect x="22" y="80" width="77" height="230" fill="#d9c7a8" stroke="#6b4f2a"/>
+    <g stroke="#6b4f2a">
+      <line x1="22" y1="101" x2="99" y2="101"/><line x1="22" y1="122" x2="99" y2="122"/>
+      <line x1="22" y1="143" x2="99" y2="143"/><line x1="22" y1="164" x2="99" y2="164"/>
+      <line x1="22" y1="185" x2="99" y2="185"/><line x1="22" y1="206" x2="99" y2="206"/>
+      <line x1="22" y1="227" x2="99" y2="227"/><line x1="22" y1="248" x2="99" y2="248"/>
+      <line x1="22" y1="269" x2="99" y2="269"/><line x1="22" y1="290" x2="99" y2="290"/>
+    </g>
+    <text x="60" y="330" text-anchor="middle" font-size="12">стълба</text>
+    <text x="60" y="345" text-anchor="middle" font-size="12">11 стъп., 70 см</text>
+    <path d="M60 300 L60 95" stroke="#6b4f2a" stroke-width="2" marker-end="url(#a)"/>
+    <!-- WC -->
+    <rect x="150" y="22" width="85" height="202" fill="#dbe9f7" stroke="#2a5d8f" stroke-width="2"/>
+    <text x="192" y="110" text-anchor="middle" fill="#2a5d8f" font-weight="bold">WC</text>
+    <text x="192" y="128" text-anchor="middle" font-size="12" fill="#2a5d8f">77 × 184 см</text>
+    <!-- врата WC 60 -->
+    <line x1="160" y1="224" x2="226" y2="224" stroke="#fff" stroke-width="5"/>
+    <path d="M160 224 A66 66 0 0 0 226 290" fill="none" stroke="#2a5d8f" stroke-dasharray="4 3"/>
+    <text x="250" y="252" font-size="12" fill="#2a5d8f">врата WC 60 см</text>
+    <!-- колона -->
+    <circle cx="140" cy="232" r="6" fill="#333"/>
+    <text x="118" y="258" font-size="11">колона</text>
+    <!-- входна врата 95, на 55 см от левия ъгъл -->
+    <line x1="80" y1="385" x2="185" y2="385" stroke="#fff" stroke-width="6"/>
+    <path d="M80 385 A105 105 0 0 1 185 280" fill="none" stroke="#000" stroke-dasharray="5 4"/>
+    <text x="133" y="410" text-anchor="middle">вход 95 см</text>
+    <text x="50" y="410" text-anchor="middle" font-size="12">55 см</text>
+    <!-- радиатор и тръби по лявата стена -->
+    <rect x="22" y="320" width="10" height="60" fill="#c0392b"/>
+    <text x="40" y="372" font-size="11" fill="#c0392b">радиатор</text>
+    <circle cx="28" cy="88" r="4" fill="#1f6fb2"/><circle cx="28" cy="378" r="4" fill="#1f6fb2"/>
+    <text x="-5" y="70" font-size="11" fill="#1f6fb2">тръби вода</text>
+    <!-- размери -->
+    <text x="178" y="440" text-anchor="middle" font-weight="bold">2,88 м (стената с входа)</text>
+    <text x="355" y="120" font-size="13">1,87 м</text>
+    <text x="355" y="300" font-size="13" fill="#b00">дълбочина</text>
+    <text x="355" y="316" font-size="13" fill="#b00">на стаята ?</text>
+    <text x="178" y="472" text-anchor="middle">Височина под мецанина: 2,54 м (от бетона)</text>
+  </g>
+
+  <!-- ===== ЕТАЖ 2 ===== -->
+  <g transform="translate(600,90)">
+    <text x="200" y="0" text-anchor="middle" font-size="17" font-weight="bold">ЕТ. 2 (мецанин), поглед отгоре</text>
+    <!-- задна стена 3,10 -->
+    <rect x="20" y="20" width="341" height="206" fill="#f1e9dc" stroke="#000" stroke-width="4"/>
+    <!-- ниша 1,45 × 1,45 вдясно отзад -->
+    <rect x="361" y="20" width="0" height="0"/>
+    <text x="190" y="14" text-anchor="middle" font-weight="bold">3,10 м (задна стена)</text>
+    <!-- отвор на стълбата -->
+    <rect x="22" y="180" width="77" height="44" fill="#fff" stroke="#6b4f2a" stroke-dasharray="4 3"/>
+    <text x="60" y="206" text-anchor="middle" font-size="12">стълба</text>
+    <!-- бял шкаф -->
+    <rect x="150" y="24" width="120" height="30" fill="#fff" stroke="#999"/>
+    <text x="210" y="44" text-anchor="middle" font-size="12">бял шкаф</text>
+    <!-- отворен ръб -->
+    <line x1="99" y1="226" x2="361" y2="226" stroke="#e67e22" stroke-width="5" stroke-dasharray="10 6"/>
+    <text x="230" y="250" text-anchor="middle" fill="#e67e22">отворен ръб (без парапет)</text>
+    <text x="380" y="125" font-size="13">1,87 м</text>
+    <text x="380" y="141" font-size="12">(под ет. 2)</text>
+    <text x="190" y="280" text-anchor="middle">широчина на пода от стълбата надясно: 2,65 м</text>
+    <text x="190" y="300" text-anchor="middle">дебелина на пода ≈ 10 см</text>
+    <text x="190" y="320" text-anchor="middle" fill="#b00">ниша 1,45 × 1,45 м горе вдясно — къде точно? ?</text>
+    <text x="190" y="340" text-anchor="middle" fill="#b00">височина горе до тавана: 1,80–2,00 м ?</text>
+    <text x="190" y="360" text-anchor="middle" fill="#b00">„3,65“ — какво означава? ?</text>
+  </g>
+
+  <defs><marker id="a" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10z" fill="#6b4f2a"/></marker></defs>
+  <text x="550" y="740" text-anchor="middle" font-size="12" fill="#666">Не е в точен мащаб, докато не се потвърдят размерите. Стрелката на стълбата сочи нагоре към мецанина.</text>
+</svg>
